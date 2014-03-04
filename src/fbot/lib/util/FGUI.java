@@ -1,9 +1,13 @@
 package fbot.lib.util;
 
+import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+
 import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
 import javax.swing.JComponent;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -79,7 +83,8 @@ public class FGUI
 	}
 	
 	/**
-	 * Display a login dialog for the user.  Allows for 3 bad logins before exiting program.
+	 * Display a login dialog for the user. Allows for 3 bad logins before exiting program.
+	 * 
 	 * @param domain The domain (in shorthand) to use.
 	 * @return The resulting wiki object.
 	 */
@@ -108,12 +113,70 @@ public class FGUI
 	}
 	
 	/**
-	 * Display a login dialog for the user.  Allows for 3 bad logins before exiting program.  Auto-set to log us into Wikimedia Commons.
+	 * Display a login dialog for the user. Allows for 3 bad logins before exiting program. Auto-set to log us into
+	 * Wikimedia Commons.
+	 * 
 	 * @return The resulting login object.
 	 */
 	public static W login()
 	{
 		return login("commons.wikimedia.org");
+	}
+	
+	/**
+	 * Creates a simple JFrame with the given settings.
+	 * @param title The title of the JFrame.
+	 * @param exitmode The exit mode (e.g. JFrame.EXIT_ON_CLOSE)
+	 * @param resizable Should the window be resizable?
+	 * @return The specified JFrame
+	 */
+	public static JFrame simpleJFrame(String title, int exitmode, boolean resizable)
+	{
+		JFrame.setDefaultLookAndFeelDecorated(true);
+		JFrame f = new JFrame(title);
+		f.setDefaultCloseOperation(exitmode);
+		f.setResizable(resizable);
+
+		return f;
+	}
+	
+	/**
+	 * Sets a JFrame to be visible, packs it, and centers it.
+	 * @param f The frame to perform this operation on.
+	 */
+	public static void setJFrameVisible(JFrame f)
+	{
+		f.pack();
+		f.setLocationRelativeTo(null);
+		f.setVisible(true);
+	}
+	
+	/**
+	 * Load Components into a JPanel using a FlowLayout.
+	 * @param items The items to load
+	 * @return The JPanel.
+	 */
+	public static JPanel simpleJPanel(Component... items)
+	{
+		JPanel p = new JPanel();
+		for (Component c : items)
+			p.add(c);
+		return p;
+	}
+	
+	/**
+	 * Make a JPanel with a box layout, with the given items.
+	 * @param axis The direction to go in.  See BoxLayout fields.
+	 * @param items The Components to add.  Components will be added in the order passed in.
+	 * @return The JPanel.
+	 */
+	public static JPanel boxLayout(int axis, Component... items)
+	{
+		JPanel p = new JPanel();
+		p.setLayout(new BoxLayout(p, axis));
+		for (Component c : items)
+			p.add(c);
+		return p;
 	}
 	
 }

@@ -366,7 +366,7 @@ public class W extends Wiki
 	 * @return A list of tuples, (title of page, short form of wiki this page is from), denoting the global usage of
 	 *         this file. Returns null if something went wrong.
 	 */
-	public List<Tuple<String, String>> globalUsage(String title)
+	public ArrayList<Tuple<String, String>> globalUsage(String title)
 	{
 		return FQuery.globalUsage(this, title);
 	}
