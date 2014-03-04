@@ -11,17 +11,12 @@ import fbot.lib.core.aux.Logger;
  * @author Fastily
  * 
  */
-public class Settings
+public class Credentials
 {
 	/**
-	 * Our username
+	 * Our username & password
 	 */
-	protected String user;
-	
-	/**
-	 * Our password
-	 */
-	protected String px;
+	protected String user, px;
 	
 	/**
 	 * Our cookiejar
@@ -45,7 +40,7 @@ public class Settings
 	 * @param user Our username.
 	 * @param px Our password.
 	 */
-	public Settings(String user, String px)
+	protected Credentials(String user, String px)
 	{
 		this.user = user;
 		this.px = px;
@@ -58,7 +53,7 @@ public class Settings
 	 * @param domain The domain to sign in to.
 	 * @return True if we've set the domain successfully.
 	 */
-	public boolean setTo(String domain)
+	protected boolean setTo(String domain)
 	{
 		Logger.fyi("Attemting to assign domain to " + domain);
 		if (cs_archive.containsKey(domain))
@@ -79,48 +74,6 @@ public class Settings
 	}
 	
 	/**
-	 * Gets the current domain we've been set to. PRECONDITION: You must have called setTo() successfully, or you'll get
-	 * a null pointer exception!
-	 * 
-	 * @return The current domain.
-	 */
-	public String getCurrentDomain()
-	{
-		return curr.domain;
-	}
-	
-	/**
-	 * Gets the current login token we've been set to. PRECONDITION: You must have called setTo() successfully, or
-	 * you'll get a null pointer exception!
-	 * 
-	 * @return The current edit token this object has been set to.
-	 */
-	public String getToken()
-	{
-		return curr.edittoken;
-	}
-	
-	/**
-	 * Gets the current namespace container for this object.
-	 * 
-	 * @return The current namespace container for this object.
-	 */
-	public Namespace getNSL()
-	{
-		return curr.nsl;
-	}
-	
-	/**
-	 * Checks if we have login credentials for the specified domain.
-	 * @param domain The domain, in shorthand to check.
-	 * @return True if we have login credentials for this domain.
-	 */
-	public boolean isVerifiedFor(String domain)
-	{
-		return cs_archive.containsKey(domain);
-	}
-	
-	/**
 	 * Manages and associates edit tokens with domains.
 	 * 
 	 * @author Fastily
@@ -131,7 +84,7 @@ public class Settings
 		/**
 		 * Our edit token
 		 */
-		private String edittoken;
+		protected String edittoken;
 		
 		/**
 		 * The domain for the edit token.
@@ -141,20 +94,20 @@ public class Settings
 		/**
 		 * The namespace list.
 		 */
-		private Namespace nsl;
+		protected Namespace nsl;
 		
 		/**
-		 * The settings object we're associated with.
+		 * The Credentials object we're associated with.
 		 */
-		private Settings sx;
+		private Credentials sx;
 		
 		/**
-		 * Constructor, takes domain and reference to calling settings object.
+		 * Constructor, takes domain and reference to calling Credentials object.
 		 * 
 		 * @param domain The domain to use, in shorthand (e.g. 'commons.wikimedia.org').
-		 * @param sx A reference to the calling settings object.
+		 * @param sx A reference to the calling Credentials object.
 		 */
-		private CredStore(String domain, Settings sx)
+		private CredStore(String domain, Credentials sx)
 		{
 			this.domain = domain;
 			this.sx = sx;
@@ -236,10 +189,13 @@ public class Settings
 		 */
 		private Namespace generateNSL()
 		{
+			Logger.info("Generating namespace list");
 			try
 			{
-				Logger.info("Generating namespace list");
-				return new Namespace(domain, sx.cookiejar);
+				URLBuilder ub = new URLBuilder(domain);
+				ub.setAction("query");
+				ub.setParams("meta", "siteinfo", "siprop", "namespaces");
+				return Namespace.makeNamespace(Request.get(ub.makeURL(), sx.cookiejar).getJSONObject("namespaces"));
 			}
 			catch (Throwable e)
 			{

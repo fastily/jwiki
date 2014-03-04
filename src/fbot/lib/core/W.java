@@ -276,7 +276,7 @@ public class W extends Wiki
 	 */
 	public boolean exists(String title)
 	{
-		return exists(new String[] { title }).get(0).getY().booleanValue();
+		return exists(new String[] { title }).get(0).y.booleanValue();
 	}
 	
 	/**
@@ -304,8 +304,8 @@ public class W extends Wiki
 	{
 		ArrayList<String> l = new ArrayList<String>();
 		for(Tuple<String, Boolean> t : exists(titles))
-			if(!(t.getY().booleanValue() ^ e)) //xnor
-				l.add(t.getX());
+			if(!(t.y.booleanValue() ^ e)) //xnor
+				l.add(t.x);
 		return l.toArray(new String[0]);
 	}
 	

@@ -41,6 +41,8 @@ public class CCleaner
 			Commons.categoryNuke(l.getOptionValue('c'), l.getOptionValue('r'), false);
 		else if (l.hasOption('t'))
 			talkPageClear();
+		else if(l.hasOption('o'))
+			Commons.clearOSD(l.getOptionValue('r'));
 		else
 		{
 			Commons.categoryNuke(CStrings.cv, CStrings.copyvio, false, "File");
@@ -73,6 +75,7 @@ public class CCleaner
 		og.addOption(FCLI.makeArgOption("p", "Set mode to delete all files linked on a page", "title"));
 		og.addOption(FCLI.makeArgOption("u", "Set mode to delete all uploads by a user", "username"));
 		og.addOption(FCLI.makeArgOption("c", "Set mode to delete all category members", "category"));
+		og.addOption(new Option("o", false, "Delete all members of a Other Speedy Deletions"));		
 		og.addOption(new Option("t", false, "Clears orphaned talk pages from DBR"));
 		og.addOption(new Option("a", false, "Archive DRs ready for archiving"));
 		og.addOption(new Option("ac", false, "Close all Singleton DRs"));

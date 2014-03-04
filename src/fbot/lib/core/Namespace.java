@@ -1,11 +1,11 @@
 package fbot.lib.core;
 
-import java.io.IOException;
-import java.net.CookieManager;
 import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.json.JSONObject;
+
+import fbot.lib.core.aux.Tuple;
 
 /**
  * Represents a namespace list for a Wiki object.
@@ -16,45 +16,41 @@ import org.json.JSONObject;
 public class Namespace
 {
 	/**
-	 * Local namespace name associated by number. One of two mirrored hashmaps.
+	 * The back-end storage system for namespace.
 	 */
-	private HashMap<String, Integer> l1 = new HashMap<String, Integer>();
+	private HashMap<Object, Tuple<Integer, String>> l = new HashMap<Object, Tuple<Integer, String>>();
 	
 	/**
-	 * Local namespace numer associated with name. One of two mirrored hashmaps.
+	 * Private constructor, used by makeNamespace()
 	 */
-	private HashMap<Integer, String> l2 = new HashMap<Integer, String>();
-	
-	/**
-	 * Constructor, takes a domain and the current cookiejar with which to make queries.
-	 * 
-	 * @param domain The domain we're loading the namespace list for, in shorthand.
-	 * @param cookiejar The global cookie jar for this wiki.
-	 * @throws IOException If something went wrong in initializtion.
-	 */
-	protected Namespace(String domain, CookieManager cookiejar) throws IOException
+	private Namespace()
 	{
-		URLBuilder ub = new URLBuilder(domain);
-		ub.setAction("query");
-		ub.setParams("meta", "siteinfo", "siprop", "namespaces");
 		
-		Reply r = Request.get(ub.makeURL(), cookiejar);
-		if (r.hasError())
-			throw new IOException("Failed to initialize");
+	}
+	
+	/**
+	 * Makes a namepsace object with a given JSONObject from the server.
+	 * 
+	 * @param jo JSONObject from the server.
+	 * @return The Namespace.
+	 */
+	protected static Namespace makeNamespace(JSONObject jo)
+	{
 		
-		JSONObject nsl = r.getJSONObject("namespaces");
-		for (String s : JSONObject.getNames(nsl))
+		Namespace ns = new Namespace();
+		for (String s : JSONObject.getNames(jo))
 		{
-			JSONObject curr = nsl.getJSONObject(s);
+			JSONObject curr = jo.getJSONObject(s);
 			String name = curr.getString("*");
+			if (name.isEmpty()) // omit empty string, which is actually Main.
+				continue;
 			Integer id = new Integer(curr.getInt("id"));
 			
-			if (name.equals("")) // omit empty string, which is actually Main.
-				continue;
-			
-			l1.put(name.toLowerCase(), id);
-			l2.put(id, name);
+			Tuple<Integer, String> t = new Tuple<Integer, String>(id, name);
+			ns.l.put(name.toLowerCase(), t);
+			ns.l.put(id, t);
 		}
+		return ns;
 	}
 	
 	/**
@@ -63,50 +59,53 @@ public class Namespace
 	 * @param title The title to check the namespace number for.
 	 * @return The integer number of the namespace of the title.
 	 */
-	public int whichNS(String title)
+	protected int whichNS(String title)
 	{
 		int i = title.lastIndexOf(":");
-		if (i == -1)
-			return 0;
-		
-		return convert(title.substring(0, i));
+		return i == -1 ? 0 : convert(title.substring(0, i));
 	}
 	
 	/**
-	 * Converts a namespace number to a String prefix for the namespace.
+	 * Converts an int id value to a String namespace title.
 	 * 
-	 * @param i The namespace number to get a String prefix for.
-	 * @return The namespace name, or null if it doesn't exist.
+	 * @param i The id to lookup.
+	 * @return The namespace title, or null if we couldn't find it.
 	 */
-	public String convert(int i)
+	protected String convert(int i)
 	{
-		Integer x = new Integer(i);
-		if (l2.containsKey(x))
-			return l2.get(x);
-		else if (i == 0)
-			return "Main";
-		else
-			return null;
+		return convert(new Integer(i));
 	}
 	
 	/**
-	 * Converts a String prefix to an integer representation of a namespace. PRECONDITION: the prefix should not contain
-	 * ':' or contain any irregular capitalization/cannonical names.
+	 * Converts an Integer id value to a String namespace title.
+	 * 
+	 * @param i The id to lookup.
+	 * @return The namespace title, or null if we couldn't find it.
+	 */
+	protected String convert(Integer i)
+	{
+		if (l.containsKey(i))
+			return l.get(i).y;
+		return i.intValue() == 0 ? "Main" : null; // edge case & error
+	}
+	
+	/**
+	 * Converts a String prefix to an integer representation of a namespace. PRECONDITION: the prefix should not start
+	 * or end with ':' or contain any canonical names (e.g. COM/WP).
 	 * 
 	 * @param prefix The prefix to check.
 	 * @return The integer number for the prefix, or throws an IllegalOperationException if the String passed in has no
 	 *         associated namespace.
 	 */
-	public int convert(String prefix)
+	protected int convert(String prefix)
 	{
 		String x = prefix.toLowerCase();
-		if (l1.containsKey(x))
-			return l1.get(x).intValue();
+		if (l.containsKey(x))
+			return l.get(x).x.intValue();
 		else if (prefix.equals("") || prefix.equals("Main"))
 			return 0;
 		else
 			throw new IllegalArgumentException(String.format("'%s' is not a recognized prefix.", prefix));
-		
 	}
 	
 	/**
@@ -115,10 +114,11 @@ public class Namespace
 	 * @param prefix The prefix to convert, without the ":".
 	 * @return The numerical representation for the prefix.
 	 */
-	public String prefixToNumString(String prefix)
+	protected String prefixToNumString(String prefix)
 	{
 		return "" + convert(prefix);
 	}
+	
 	
 	/**
 	 * Takes several prefixes and simultaenously converts them to their numerical representations.
@@ -126,7 +126,7 @@ public class Namespace
 	 * @param prefixes The prefixes to convert, without the ":".
 	 * @return The numerical representations for the prefixes, in the order passed in.
 	 */
-	public String[] prefixToNumStrings(String... prefixes)
+	protected String[] prefixToNumStrings(String... prefixes)
 	{
 		ArrayList<String> l = new ArrayList<String>();
 		for (String s : prefixes)
