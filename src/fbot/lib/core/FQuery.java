@@ -184,7 +184,7 @@ public class FQuery
 		ub.setParams("list", "categorymembers", "cmtitle", Tools.enc(title));
 		
 		if (ns.length > 0)
-			ub.setParams("cmnamespace", Tools.enc(Tools.fenceMaker("|", wiki.settings.getNSL().prefixToNumStrings(ns))));
+			ub.setParams("cmnamespace", Tools.enc(Tools.fenceMaker("|", wiki.getNSL().prefixToNumStrings(ns))));
 		
 		ArrayList<String> l = new ArrayList<String>();
 		for (JSONObject jo : fatQuery(ub, max, "cmlimit", "cmcontinue", true, wiki))
@@ -213,7 +213,7 @@ public class FQuery
 		ub.setParams("prop", "links", "titles", Tools.enc(title));
 		
 		if (ns.length > 0)
-			ub.setParams("plnamespace", Tools.enc(Tools.fenceMaker("|", wiki.settings.getNSL().prefixToNumStrings(ns))));
+			ub.setParams("plnamespace", Tools.enc(Tools.fenceMaker("|", wiki.getNSL().prefixToNumStrings(ns))));
 		
 		ArrayList<String> l = new ArrayList<String>();
 		for (JSONObject jo : fatQuery(ub, -1, "pllimit", "plcontinue", true, wiki))
@@ -246,7 +246,7 @@ public class FQuery
 		ub.setParams("list", "usercontribs", "ucuser", Tools.enc(user));
 		
 		if (ns.length > 0)
-			ub.setParams("ucnamespace", Tools.enc(Tools.fenceMaker("|", wiki.settings.getNSL().prefixToNumStrings(ns))));
+			ub.setParams("ucnamespace", Tools.enc(Tools.fenceMaker("|", wiki.getNSL().prefixToNumStrings(ns))));
 		
 		ArrayList<Contrib> l = new ArrayList<Contrib>();
 		for (JSONObject jo : fatQuery(ub, max, "uclimit", "ucstart", true, wiki))

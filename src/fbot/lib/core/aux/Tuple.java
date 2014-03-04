@@ -14,12 +14,12 @@ public class Tuple<E, F>
 	/**
 	 * The x value of the tuple
 	 */
-	private final E x;
+	public final E x;
 	
 	/**
 	 * The y value of the tuple
 	 */
-	private final F y;
+	public final F y;
 	
 	/**
 	 * Creates a Tuple from the parameter values.
@@ -34,23 +34,15 @@ public class Tuple<E, F>
 	}
 	
 	/**
-	 * Gets the X value of the tuple.
+	 * Concatenate x & y values of this Tuple into a String.
 	 * 
-	 * @return The X value of the tuple.
+	 * @param format Optional argument. Specify null to disable. Use a custom format String for x & y (you must specify
+	 *            '%s' twice, or you'll get strange output/errors).
+	 * @return The concatenated String.
 	 */
-	public E getX()
+	public String conc(String format)
 	{
-		return x;
-	}
-	
-	/**
-	 * Gets the Y value of the tuple.
-	 * 
-	 * @return The Y value of the tuple.
-	 */
-	public F getY()
-	{
-		return y;
+		return format != null ? String.format(format, x.toString(), y.toString()) : x.toString() + y.toString();
 	}
 	
 	/**
@@ -64,9 +56,8 @@ public class Tuple<E, F>
 		return other != null && other instanceof Tuple && y.equals(other.y) && x.equals(other.x);
 	}
 	
-	
 	/**
-	 * Gets a String representation of this object.  Nice for debugging.
+	 * Gets a String representation of this object. Nice for debugging.
 	 * 
 	 * @return A String representation of this object.
 	 */
@@ -74,5 +65,4 @@ public class Tuple<E, F>
 	{
 		return String.format("(%s, %s)", x.toString(), y.toString());
 	}
-	
 }

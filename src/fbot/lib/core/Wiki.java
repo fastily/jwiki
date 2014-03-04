@@ -11,7 +11,7 @@ public class Wiki
 	/**
 	 * Our credentials. Public for now, but we should fix this.
 	 */
-	protected Settings settings;
+	protected Credentials settings;
 	
 	/**
 	 * Constructor, auto intializes first domain to Wikimedia Commons.
@@ -33,7 +33,7 @@ public class Wiki
 	 */
 	public Wiki(String user, String px, String domain)
 	{
-		settings = new Settings(user, px);
+		settings = new Credentials(user, px);
 		settings.setTo(domain);
 	}
 	
@@ -56,7 +56,26 @@ public class Wiki
 	 */
 	public synchronized String getCurrentDomain()
 	{
-		return settings.getCurrentDomain();
+		return settings.curr.domain;
+	}
+	
+	/**
+	 * Gets the currently set edit token.  PRECONDITION: switchDomain() must have executed successfully.
+	 * @return The currently set edit token.
+	 */
+	protected synchronized String getToken()
+	{
+		return settings.curr.edittoken;
+	}
+	
+	/**
+	 * Gets the current namespace container for this object. PRECONDITION: switchDomain() must have executed successfully.
+	 * 
+	 * @return The current namespace container for this object.
+	 */
+	protected synchronized Namespace getNSL()
+	{
+		return settings.curr.nsl;
 	}
 	
 	/**
@@ -77,7 +96,7 @@ public class Wiki
 	 */
 	public int getNS(String prefix)
 	{
-		return settings.getNSL().convert(prefix);
+		return getNSL().convert(prefix);
 	}
 	
 	/**
@@ -88,7 +107,7 @@ public class Wiki
 	 */
 	public String getNS(int num)
 	{
-		return settings.getNSL().convert(num);
+		return getNSL().convert(num);
 	}
 	
 	/**
@@ -99,7 +118,7 @@ public class Wiki
 	 */
 	public int whichNS(String title)
 	{
-		return settings.getNSL().whichNS(title);
+		return getNSL().whichNS(title);
 	}
 	
 	/**
@@ -111,7 +130,7 @@ public class Wiki
 	 */
 	public String convertIfNotInNS(String title, String ns)
 	{
-		return whichNS(title) == getNS(ns) ? title : String.format("%s:%s", ns, title);
+		return whichNS(title) == getNS(ns) ? title : String.format("%s:%s", ns, Namespace.nss(title));
 	}
 	
 	/**
@@ -120,9 +139,8 @@ public class Wiki
 	 */
 	public boolean isVerified(String domain)
 	{
-		return settings.isVerifiedFor(domain);
+		return settings.cs_archive.containsKey(domain);
 	}
-	
 	
 	/**
 	 * Convenience method, makes a URLBuilder.

@@ -46,7 +46,7 @@ public class FAction
 		URLBuilder ub = wiki.makeUB();
 		ub.setAction("edit");
 		
-		String[] es = Tools.massEnc(title, text, reason, wiki.settings.getToken());
+		String[] es = Tools.massEnc(title, text, reason, wiki.getToken());
 		String posttext = URLBuilder.chainParams("title", es[0], "text", es[1], "summary", es[2], "token", es[3]);
 		
 		try
@@ -124,7 +124,7 @@ public class FAction
 		URLBuilder ub = wiki.makeUB();
 		ub.setAction("delete");
 		
-		String[] es = Tools.massEnc(title, reason, wiki.settings.getToken());
+		String[] es = Tools.massEnc(title, reason, wiki.getToken());
 		String posttext = URLBuilder.chainParams("title", es[0], "reason", es[1], "token", es[2]);
 		
 		try
@@ -153,7 +153,7 @@ public class FAction
 		URLBuilder ub = wiki.makeUB();
 		ub.setAction("undelete");
 		
-		String[] es = Tools.massEnc(title, reason, wiki.settings.getToken());
+		String[] es = Tools.massEnc(title, reason, wiki.getToken());
 		String posttext = URLBuilder.chainParams("title", es[0], "reason", es[1], "token", es[2]);
 		
 		try
@@ -198,7 +198,7 @@ public class FAction
 		FileInputStream in = null;
 		String filename = Namespace.nss(uploadTo);
 		
-		HashMap<String, Object> l = Tools.makeParamMap("filename", filename, "token", wiki.settings.getToken(), "ignorewarnings",
+		HashMap<String, Object> l = Tools.makeParamMap("filename", filename, "token", wiki.getToken(), "ignorewarnings",
 				"true", "stash", "1", "filesize", "" + filesize);
 		
 		try
@@ -282,7 +282,7 @@ public class FAction
 		URLBuilder ub = wiki.makeUB();
 		ub.setAction("upload");
 		
-		String[] es = Tools.massEnc(title, text, reason, wiki.settings.getToken(), filekey);
+		String[] es = Tools.massEnc(title, text, reason, wiki.getToken(), filekey);
 		String posttext = URLBuilder.chainParams("filename", es[0], "text", es[1], "comment", es[2], "ignorewarnings", "true",
 				"filekey", es[4], "token", es[3]);
 		try

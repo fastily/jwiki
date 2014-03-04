@@ -31,7 +31,7 @@ public class Relinker
 	 */
 	public static void main(String[] args)
 	{
-		for (String arg : new String[] { "Malacanang palace view.jpg"})
+		for (String arg : args)
 			process(makeList(arg));
 	}
 	
@@ -127,20 +127,20 @@ public class Relinker
 		
 		for (Tuple<String, String> t : l)
 		{
-			if (!t.getY().equals(last))
+			if (!t.y.equals(last))
 			{
-				wiki.switchDomain(t.getY());
-				last = t.getY();
+				wiki.switchDomain(t.y);
+				last = t.y;
 			}
 			try
 			{
-				if (wiki.getRevisions(t.getX(), 1, false)[0].getUser().contains("CommonsDelinker"))
-					wiki.undo(t.getX(), "Reverting CommonsDelinker");
+				if (wiki.getRevisions(t.x, 1, false)[0].getUser().contains("CommonsDelinker"))
+					wiki.undo(t.x, "Reverting CommonsDelinker");
 			}
 			catch (Throwable e)
 			{
-				System.out.println(t.getX());
-				Logger.warn(t.getX() + " doesn't seem to exist");
+				System.out.println(t.x);
+				Logger.warn(t.x + " doesn't seem to exist");
 			}
 		}
 	}
