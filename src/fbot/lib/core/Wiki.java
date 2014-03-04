@@ -94,7 +94,7 @@ public class Wiki
 	 * @param prefix The prefix to use, without the ":".
 	 * @return The numerical representation of the namespace.
 	 */
-	public int getNS(String prefix)
+	protected int getNS(String prefix)
 	{
 		return getNSL().convert(prefix);
 	}
@@ -105,7 +105,7 @@ public class Wiki
 	 * @param num The namespace number to get the canonical name for.
 	 * @return The namespace prefix associated with this number, or null if it doesn't exist.
 	 */
-	public String getNS(int num)
+	protected String getNS(int num)
 	{
 		return getNSL().convert(num);
 	}

@@ -158,7 +158,7 @@ public class Tools
 	/**
 	 * Close an InputStream without generating exceptions.
 	 * @param is The InputStream to close.
-	 * @return True if we closed it succesfully.
+	 * @return True if we closed it successfully.
 	 */
 	public static boolean closeInputStream(InputStream is)
 	{
