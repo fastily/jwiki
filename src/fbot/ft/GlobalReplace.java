@@ -9,6 +9,7 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JProgressBar;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
@@ -17,6 +18,7 @@ import fbot.lib.core.Namespace;
 import fbot.lib.core.W;
 import fbot.lib.core.aux.Tuple;
 import fbot.lib.util.FGUI;
+import fbot.lib.util.WikiFile;
 
 /**
  * Program to perform Global Replacement of files. Provides us with a GUI.
@@ -42,19 +44,9 @@ public class GlobalReplace
 	private static final String title = "GlobalReplace v0.3";
 	
 	/**
-	 * TextField for old filename
+	 * TextFields for old filename, new filename, and reason
 	 */
-	private static final JTextField old_tf = new JTextField(30);
-	
-	/**
-	 * TextField for new filename
-	 */
-	private static final JTextField new_tf = new JTextField(30);
-	
-	/**
-	 * TextField for edit summary
-	 */
-	private static final JTextField r_tf = new JTextField(30);
+	private static final JTextField old_tf = new JTextField(30), new_tf = new JTextField(30), r_tf = new JTextField(30);
 	
 	/**
 	 * Our progress bar
@@ -67,7 +59,7 @@ public class GlobalReplace
 	private static final JButton button = new JButton("Start/Stop");
 	
 	/**
-	 * Flag indicating if we're active. TODO: Should be set with synchronized calls.
+	 * Flag indicating if we're active.
 	 */
 	private static boolean activated = false;
 	
@@ -113,7 +105,6 @@ public class GlobalReplace
 		r_tf.setToolTipText("Hint: Enter an optional edit summary");
 		bar.setStringPainted(true);
 		bar.setString(String.format("Hello, %s! :)", wiki.whoami()));
-		
 		button.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0)
 			{
@@ -135,6 +126,15 @@ public class GlobalReplace
 	}
 	
 	/**
+	 * Negates the status of <tt>activated</tt> in a thread-safe way.
+	 */
+	private static synchronized void negateActivated()
+	{
+		activated = !activated;
+	}
+	
+	
+	/**
 	 * Processes user request & updates the UI accordingly.
 	 * 
 	 * @author Fastily
@@ -143,19 +143,9 @@ public class GlobalReplace
 	private static class GRThread implements Runnable
 	{
 		/**
-		 * The old name
+		 * Old name, new name, edit summary.
 		 */
-		private String old_name;
-		
-		/**
-		 * The new name
-		 */
-		private String new_name;
-		
-		/**
-		 * The edit summary to use
-		 */
-		private String reason;
+		private String old_name, new_name, reason;
 		
 		/**
 		 * A regex built from old_name
@@ -169,9 +159,7 @@ public class GlobalReplace
 		{
 			old_name = Namespace.nss(old_tf.getText()).trim();
 			new_name = Namespace.nss(new_tf.getText()).trim();
-			reason = r_tf.getText().trim() + " ([[%sCommons:GlobalReplace|%s]])";
-			
-			regex = old_name;
+			reason = r_tf.getText().trim().replace("%s", "%%s") + " ([[%sCommons:GlobalReplace|%s]])";
 			makeRegex();
 		}
 		
@@ -184,14 +172,19 @@ public class GlobalReplace
 		{
 			if (!activated)
 			{
-				activated = !activated;
+				if(!sanityCheck())
+					return;
+				
+				button.setText("Stop");
+				negateActivated();
 				doJob();
 				wiki.switchDomain("commons.wikimedia.org"); // Time to go home.
+				button.setText("Start");
 			}
 			else
 			{
 				button.setEnabled(false);
-				activated = !activated;
+				negateActivated();
 			}
 		}
 		
@@ -202,6 +195,7 @@ public class GlobalReplace
 		private void doJob()
 		{
 			bar.setValue(0);
+			bar.setString("Fetching global usage for '" + old_name + "'.  This might take awhile...");
 			button.setEnabled(false);
 			setTextFieldState(false);
 			ArrayList<Tuple<String, String>> l = wiki.globalUsage("File:" + old_name);
@@ -212,23 +206,16 @@ public class GlobalReplace
 			else
 			{
 				bar.setMaximum(l.size());
-				String domain = null;
+				String domain = null, text = null;
 				for (int i = 0; i < l.size(); i++)
 				{
 					if (!updateStatus(i, l.get(i)))
-					{
-						button.setEnabled(true);
 						return;
-					}
 					
 					if (domain != l.get(i).y)
-					{
-						domain = l.get(i).y;
-						wiki.switchDomain(domain);
-					}
+						wiki.switchDomain((domain = l.get(i).y));
 					
-					String text = wiki.getPageText(l.get(i).x);
-					if (text != null)
+					if ((text = wiki.getPageText(l.get(i).x)) != null)
 						wiki.edit(l.get(i).x, text.replaceAll(regex, new_name),
 								String.format(reason, (domain.contains("commons") ? "" : "Commons:"), title));
 				}
@@ -236,7 +223,7 @@ public class GlobalReplace
 			}
 			
 			setTextFieldState(true);
-			activated = !activated;
+			negateActivated();
 		}
 		
 		/**
@@ -249,10 +236,11 @@ public class GlobalReplace
 		private boolean updateStatus(int i, Tuple<String, String> t)
 		{
 			if (!activated)
-			{
+			{	
 				bar.setValue(0);
 				bar.setString("Interrupted by user");
 				setTextFieldState(true);
+				button.setEnabled(true);
 				return false;
 			}
 			
@@ -279,10 +267,24 @@ public class GlobalReplace
 		 */
 		private void makeRegex()
 		{
+			regex = old_name;
 			for (String s : new String[] { "(", ")", "[", "]", "{", "}", "^", "-", "=", "$", "!", "|", "?", "*", "+", ".", "<",
 					">" })
 				regex = regex.replace(s, "\\" + s);
 			regex = regex.replaceAll("( |_)", "( |_)");
 		}
+		
+		/**
+		 * Checks the legitimacy of the user entered filenames.
+		 * @return True if they're ok.
+		 */
+		private boolean sanityCheck()
+		{
+		   boolean status = WikiFile.canUpload(old_name) && WikiFile.canUpload(new_name);
+		   if(!status)
+			   JOptionPane.showMessageDialog(null, "You can only replace valid file names");
+		   return status;
+		}
+		
 	}
 }
