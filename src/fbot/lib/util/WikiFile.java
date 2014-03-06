@@ -272,7 +272,7 @@ public class WikiFile
 	 * @param title The title to check
 	 * @return True if the title is uploadable.
 	 */
-	private static boolean canUpload(String title)
+	public static boolean canUpload(String title)
 	{
 		return title.matches("(?i).+?\\.(png|gif|jpg|jpeg|xcf|mid|ogg|ogv|oga|svg|djvu|tiff|tif|pdf|webm|flac|wav)");
 	}

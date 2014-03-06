@@ -59,9 +59,7 @@ public class Up
 	 * @throws InterruptedException Eh?
 	 */
 	public static void main(String[] args) throws InterruptedException
-	{
-		args = new String[] {"/Users/Alec/Desktop/Pacific Beach"};
-		
+	{	
 		ArrayList<UploadItem> l = new ArrayList<UploadItem>();
 		for (WikiFile wf : parseArgs(args))
 			l.add(genUI(wf));

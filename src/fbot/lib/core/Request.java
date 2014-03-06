@@ -10,6 +10,7 @@ import java.net.CookieManager;
 import java.net.HttpCookie;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -42,14 +43,16 @@ public class Request
 	 * @param c The URLConnection to use.
 	 * @param cookiejar The cookiejar to use
 	 */
-	private static void setCookies(URLConnection c, CookieManager cookiejar)
+	private static void setCookies(URLConnection c, HashMap<String, String> cookiejar)
 	{
 		String cookie = "";
-		for (HttpCookie hc : cookiejar.getCookieStore().getCookies())
-			cookie += hc.toString() + ";";
+		for(Map.Entry<String, String> e : cookiejar.entrySet())
+			cookie += String.format("%s=%s;", e.getKey(), e.getValue());
+		
+		System.out.println("COOKIE: " + cookie);
 		
 		c.setRequestProperty("Cookie", cookie);
-		c.setRequestProperty("User-Agent", "fpowertoys"); // required, or server will 403.
+		c.setRequestProperty("User-Agent", "toypowerf.01"); // required, or server will 403.
 	}
 	
 	/**
@@ -58,15 +61,19 @@ public class Request
 	 * @param u The URLConnection to check
 	 * @param cookiejar The cookiejar to assign cookies to.
 	 */
-	private static void grabCookies(URLConnection u, CookieManager cookiejar)
+	private static void grabCookies(URLConnection u, HashMap<String, String> cookiejar)
 	{
-		try
+		
+		String ht;
+		for (int i = 1; (ht = u.getHeaderFieldKey(i)) != null; i++)
 		{
-			cookiejar.put(u.getURL().toURI(), u.getHeaderFields());
-		}
-		catch (Throwable e)
-		{
-			e.printStackTrace();
+			System.out.println(String.format("%s: %s", ht, u.getHeaderField(i)));
+			if(ht.equals("Set-Cookie"))
+			{
+				String c = u.getHeaderField(i);
+				int ex = c.indexOf('=');
+				cookiejar.put(c.substring(0, ex), c.substring(ex+1, c.indexOf(';')));
+			}
 		}
 	}
 	
@@ -80,7 +87,7 @@ public class Request
 	 * @return A Reply object containing the result.
 	 * @throws IOException Network error.
 	 */
-	protected static Reply post(URL url, String text, CookieManager cookiejar, String contenttype) throws IOException
+	protected static Reply post(URL url, String text, HashMap<String, String> cookiejar, String contenttype) throws IOException
 	{
 		URLConnection c = url.openConnection();
 		c.setConnectTimeout(connectTimeout);
@@ -109,7 +116,7 @@ public class Request
 	 * @return A Reply from the server.
 	 * @throws IOException Network error
 	 */
-	protected static Reply chunkPost(URL url, Map<String, ?> params, CookieManager cookiejar) throws IOException
+	protected static Reply chunkPost(URL url, Map<String, ?> params, HashMap<String, String> cookiejar) throws IOException
 	{
 		String boundary = "-----Boundary-----";
 		
@@ -170,7 +177,7 @@ public class Request
 	 * @return The result of the GET request.
 	 * @throws IOException Network error.
 	 */
-	protected static Reply get(URL url, CookieManager cookiejar) throws IOException
+	protected static Reply get(URL url, HashMap<String, String> cookiejar) throws IOException
 	{
 		return new Reply(getInputStream(url, cookiejar));
 	}
@@ -183,7 +190,7 @@ public class Request
 	 * @return The InputStream made from the URL. Remember to close the InputStream when you're finished with it!
 	 * @throws IOException Network error.
 	 */
-	protected static InputStream getInputStream(URL url, CookieManager cookiejar) throws IOException
+	protected static InputStream getInputStream(URL url, HashMap<String, String> cookiejar) throws IOException
 	{
 		URLConnection c = url.openConnection();
 		c.setConnectTimeout(connectTimeout);
