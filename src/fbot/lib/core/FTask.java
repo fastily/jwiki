@@ -6,8 +6,8 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.CookieManager;
 import java.net.URL;
-import java.util.HashMap;
 
 import javax.imageio.ImageIO;
 
@@ -36,7 +36,7 @@ public class FTask
 	 * @param cookiejar The cookiejar to use. This parameter is optional; specifiy null to disable it.
 	 * @return A stream of bytes represented by the URL pointed to, or null if something went wrong.
 	 */
-	private static byte[] getBytes(String url, HashMap<String, String> cookiejar)
+	private static byte[] getBytes(String url, CookieManager cookiejar)
 	{
 		try
 		{
