@@ -34,7 +34,7 @@ public class Wiki
 	public Wiki(String user, String px, String domain)
 	{
 		settings = new Credentials(user, px);
-		System.out.println(settings.setTo(domain));
+		settings.setTo(domain);
 	}
 	
 	/**

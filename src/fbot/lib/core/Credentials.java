@@ -21,7 +21,7 @@ public class Credentials
 	/**
 	 * Our cookiejar
 	 */
-	protected final HashMap<String, String> cookiejar = new HashMap<String, String>();
+	protected final CookieManager cookiejar = new CookieManager();
 	
 	/**
 	 * Our credential archive. This is useful for cross-wiki operations.
@@ -172,11 +172,8 @@ public class Credentials
 				URLBuilder ub = new URLBuilder(domain);
 				ub.setAction("query");
 				ub.setParams("prop", "info", "intoken", "edit", "titles", "Fastily");
-				System.out.println(ub.makeURL());
-			
-				String tx = Request.get(ub.makeURL(), sx.cookiejar).getString("edittoken");
-				System.out.println(tx);
-				return tx;
+				
+				return Request.get(ub.makeURL(), sx.cookiejar).getString("edittoken");
 			}
 			catch (Throwable e)
 			{
