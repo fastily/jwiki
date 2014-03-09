@@ -18,6 +18,7 @@ import fbot.lib.core.Namespace;
 import fbot.lib.core.W;
 import fbot.lib.core.aux.Tuple;
 import fbot.lib.util.FGUI;
+import fbot.lib.util.FSystem;
 import fbot.lib.util.WikiFile;
 
 /**
@@ -41,7 +42,7 @@ public class GlobalReplace
 	/**
 	 * Our title & version number
 	 */
-	private static final String title = "GlobalReplace v0.3";
+	private static final String title = "GR v0.3";
 	
 	/**
 	 * TextFields for old filename, new filename, and reason
@@ -100,8 +101,9 @@ public class GlobalReplace
 	 */
 	private static void randomSettings()
 	{
-		old_tf.setToolTipText("Hint: Use Ctrl+v or Command+v to paste text");
-		new_tf.setToolTipText("Hint: Use Ctrl+v or Command+v to paste text");
+		String cph = String.format("Hint: Use %s to paste text", (FSystem.isWindows() ? "Ctrl+v" : "Command+v"));
+		old_tf.setToolTipText(cph);
+		new_tf.setToolTipText(cph);
 		r_tf.setToolTipText("Hint: Enter an optional edit summary");
 		bar.setStringPainted(true);
 		bar.setString(String.format("Hello, %s! :)", wiki.whoami()));
@@ -212,8 +214,9 @@ public class GlobalReplace
 					if (!updateStatus(i, l.get(i)))
 						return;
 					
-					if (domain != l.get(i).y)
-						wiki.switchDomain((domain = l.get(i).y));
+					if (!l.get(i).y.equals(domain))
+						if(!wiki.switchDomain((domain = l.get(i).y))) //in case the switch failed
+							continue;
 					
 					if ((text = wiki.getPageText(l.get(i).x)) != null)
 						wiki.edit(l.get(i).x, text.replaceAll(regex, new_name),
