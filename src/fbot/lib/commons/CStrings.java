@@ -43,7 +43,7 @@ public class CStrings
 	/**
 	 * out of scope
 	 */
-	public static final String oos = "Out of [[COM:PS|project scope]]";
+	public static final String oos = "Out of [[Commons:Project scope|project scope]]";
 	
 	/**
 	 * Housekeeping
@@ -68,7 +68,7 @@ public class CStrings
 	/**
 	 * Reason for empty category.
 	 */
-	public static final String ec = "Empty category";
+	public static final String ec = "Empty [[Commons:Categories|category]]";
 	
 	/**
 	 * Reason for file page with no file uploaded.

@@ -33,7 +33,7 @@ public class Request
 	/**
 	 * Represents the content encoding to use for URLEncoded forms.
 	 */
-	protected static final String urlenc = "application/x-www-form-urlencoded";
+	public static final String urlenc = "application/x-www-form-urlencoded";
 	
 	/**
 	 * Sets the cookies of a URLConnection using the specified cookiejar <b>PRECONDITION</b>: You must not have not yet
@@ -71,6 +71,63 @@ public class Request
 	}
 	
 	/**
+	 * Prepares a URLConnection with the given url and cookiejar.
+	 * @param url The URL to use.
+	 * @param cookiejar The cookiejar to use.  This param is optional, specifiy null to disable.
+	 * @return The URLConnection.
+	 * @throws IOException Network error?
+	 */
+	private static URLConnection genericURLConnection(URL url, CookieManager cookiejar) throws IOException
+	{
+		URLConnection c = url.openConnection();
+		c.setConnectTimeout(connectTimeout);
+		c.setReadTimeout(readTimeout);
+		if(cookiejar != null)
+			setCookies(c, cookiejar);
+		return c;
+	}
+	
+	/**
+	 * Creates a URLConnection to be used for a POST request.
+	 * @param url The URL to use
+	 * @param cookiejar The cookiejar to use.  This is optional, specify to null to disable.
+	 * @param contenttype The optional content-type.  This is optional, specify to null to disable.
+	 * @return The URLConnection.
+	 * @throws IOException Network error.
+	 */
+	private static URLConnection makePost(URL url, CookieManager cookiejar, String contenttype) throws IOException
+	{
+		URLConnection c = genericURLConnection(url, cookiejar);
+		if(contenttype != null)
+			c.setRequestProperty("Content-Type", contenttype);
+		c.setDoOutput(true);
+		c.connect();
+		return c;
+	}
+	
+	/**
+	 * Performs a generic POST operation.
+	 * @param url The URL to use
+	 * @param cookiejar The cookiejar to use. Optional param, specify null to disable.
+	 * @param contenttype The content type to use.  Optional param, specify null to disable.
+	 * @param text The text to post
+	 * @return The InputStream returned by the server.  Be sure to call close() on this when you're finished.
+	 * @throws IOException Network error.
+	 */
+	public static InputStream genericPost(URL url, CookieManager cookiejar, String contenttype, String text) throws IOException
+	{
+		URLConnection c = makePost(url, cookiejar, contenttype);
+		OutputStreamWriter out = new OutputStreamWriter(c.getOutputStream(), "UTF-8");
+		out.write(text);
+		out.close();
+		if(cookiejar != null)
+			grabCookies(c, cookiejar);
+		
+		return c.getInputStream();
+	}
+	
+	
+	/**
 	 * Does a post operation with the given text.
 	 * 
 	 * @param url The URL to post to
@@ -81,22 +138,8 @@ public class Request
 	 * @throws IOException Network error.
 	 */
 	protected static Reply post(URL url, String text, CookieManager cookiejar, String contenttype) throws IOException
-	{
-		URLConnection c = url.openConnection();
-		c.setConnectTimeout(connectTimeout);
-		c.setReadTimeout(readTimeout);
-		setCookies(c, cookiejar);
-		
-		if (contenttype != null)
-			c.setRequestProperty("Content-Type", contenttype);
-		c.setDoOutput(true);
-		c.connect();
-		OutputStreamWriter out = new OutputStreamWriter(c.getOutputStream(), "UTF-8");
-		out.write(text);
-		out.close();
-		grabCookies(c, cookiejar);
-		
-		return new Reply(c.getInputStream());
+	{	
+		return new Reply(genericPost(url, cookiejar, contenttype, text));
 	}
 	
 	/**
@@ -112,15 +155,7 @@ public class Request
 	protected static Reply chunkPost(URL url, Map<String, ?> params, CookieManager cookiejar) throws IOException
 	{
 		String boundary = "-----Boundary-----";
-		
-		URLConnection c = url.openConnection();
-		c.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
-		c.setConnectTimeout(connectTimeout);
-		c.setReadTimeout(readTimeout);
-		setCookies(c, cookiejar);
-		c.setDoOutput(true);
-		c.connect();
-		
+		URLConnection c = makePost(url, cookiejar, "multipart/form-data; boundary=" + boundary);
 		boundary = "--" + boundary + "\r\n";
 		
 		ByteArrayOutputStream bout = new ByteArrayOutputStream();
@@ -185,14 +220,8 @@ public class Request
 	 */
 	protected static InputStream getInputStream(URL url, CookieManager cookiejar) throws IOException
 	{
-		URLConnection c = url.openConnection();
-		c.setConnectTimeout(connectTimeout);
-		c.setReadTimeout(readTimeout);
-		
-		if (cookiejar != null)
-			setCookies(c, cookiejar);
+		URLConnection c = genericURLConnection(url, cookiejar);		
 		c.connect();
-		
 		return c.getInputStream();
 	}
 }

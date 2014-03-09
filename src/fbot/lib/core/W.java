@@ -52,6 +52,21 @@ public class W extends Wiki
 		return FAction.edit(this, title, text, reason);
 	}
 	
+	
+	/**
+	 * Appends text to a page
+	 * @param title The title to edit.
+	 * @param add The text to append
+	 * @param reason The reason to use.
+	 * @return
+	 */
+	public boolean appendText(String title, String add, String reason)
+	{
+		String s = getPageText(title);
+		return s != null ? edit(title, s + add, reason) : false;
+	}
+	
+	
 	/**
 	 * Undo the top revision of a page. PRECONDITION: <tt>title</tt> must point to a valid page.
 	 * 

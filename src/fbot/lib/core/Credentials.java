@@ -170,9 +170,10 @@ public class Credentials
 			try
 			{
 				URLBuilder ub = new URLBuilder(domain);
-				ub.setAction("query");
-				ub.setParams("prop", "info", "intoken", "edit", "titles", "Fastily");
-				
+				//ub.setAction("query");
+				//ub.setParams("prop", "info", "intoken", "edit", "titles", "Fastily");
+				ub.setAction("tokens");
+				ub.setParams("type", "edit");
 				return Request.get(ub.makeURL(), sx.cookiejar).getString("edittoken");
 			}
 			catch (Throwable e)
