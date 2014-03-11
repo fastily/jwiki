@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-import fbot.lib.core.W;
+import fbot.lib.core.Wiki;
 import fbot.lib.core.aux.Logger;
 import fbot.lib.core.aux.ProgressTracker;
 
@@ -28,7 +28,7 @@ public class ThreadManager
 	/**
 	 * Our wiki object which we'll be using for queries.
 	 */
-	private W wiki;
+	private Wiki wiki;
 	
 	/**
 	 * The maximum number of threads to run
@@ -42,7 +42,7 @@ public class ThreadManager
 	 * @param wiki The wiki object to use.
 	 * @param num The number of threads to run.
 	 */
-	public ThreadManager(MAction[] ml, W wiki, int num)
+	public ThreadManager(MAction[] ml, Wiki wiki, int num)
 	{
 		todo.addAll(Arrays.asList(ml));
 		pt = new ProgressTracker(ml.length);

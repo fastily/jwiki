@@ -2,7 +2,7 @@ package fbot.lib.mbot;
 
 import java.util.ArrayList;
 
-import fbot.lib.core.W;
+import fbot.lib.core.Wiki;
 
 /**
  * Abstract superclass for all items used by MBot.
@@ -83,5 +83,5 @@ public abstract class MAction
 	 * @param wiki The W object to use.
 	 * @return True if the action we tried to perform succeeded.
 	 */
-	public abstract boolean doJob(W wiki);
+	public abstract boolean doJob(Wiki wiki);
 }

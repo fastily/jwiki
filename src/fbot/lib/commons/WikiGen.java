@@ -3,7 +3,7 @@ package fbot.lib.commons;
 import java.io.File;
 import java.util.HashMap;
 
-import fbot.lib.core.W;
+import fbot.lib.core.Wiki;
 import fbot.lib.util.ReadFile;
 import fbot.lib.mbot.MBot;
 import fbot.lib.util.FError;
@@ -23,9 +23,9 @@ public class WikiGen
 	private static final HashMap<String, String> px = genX();
 	
 	/**
-	 * Create a cache so we don't login multiple times.
+	 * Create a cache so we don't login multiple times. Combination is: entry -> (username, wiki object)
 	 */
-	private static final HashMap<String, W> cache = new HashMap<String, W>();
+	private static final HashMap<String, Wiki> cache = new HashMap<String, Wiki>();
 	
 	/**
 	 * Hiding from javadoc
@@ -59,24 +59,22 @@ public class WikiGen
 	 * @return The wiki object, logged in. Null if we encountered an error (login/network) of some sort.
 	 * @see #generate(String)
 	 */
-	public static W generate(String user, String domain)
+	public static Wiki generate(String user, String domain)
 	{
-		W wiki;
+		Wiki wiki = null;
 		if (cache.containsKey(user))
+			return cache.get(user).getWiki(domain);
+		try
 		{
-			if ((wiki = cache.get(user)).getCurrentDomain().equals(domain))
-				return wiki;
-			else if (wiki.switchDomain(domain))
-				return wiki;
-		}
-		else if ((wiki = user.equals("Fastily") ? new W(user, px.get("FP"), domain) : new W(user, px.get("FSP"), domain))
-				.isVerified(domain))
-		{
+			wiki = user.equals("Fastily") ? new Wiki(user, px.get("FP"), domain) : new Wiki(user, px.get("FSP"), domain);
 			cache.put(user, wiki);
-			return wiki;
+		}
+		catch (Throwable e)
+		{
+			e.printStackTrace();
 		}
 		
-		return null;
+		return wiki;
 	}
 	
 	/**
@@ -87,7 +85,7 @@ public class WikiGen
 	 * 
 	 * @see #generate(String, String)
 	 */
-	public static W generate(String user)
+	public static Wiki generate(String user)
 	{
 		return generate(user, "commons.wikimedia.org");
 	}

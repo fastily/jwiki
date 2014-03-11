@@ -1,6 +1,6 @@
 package fbot.lib.mbot;
 
-import fbot.lib.core.W;
+import fbot.lib.core.Wiki;
 import fbot.lib.core.aux.Tuple;
 
 /**
@@ -39,6 +39,6 @@ public abstract class QAction extends MAction
 	 * @param wiki The W object to use.
 	 * @return True if the action we tried to perform succeeded.
 	 */
-	public abstract boolean doJob(W wiki);
+	public abstract boolean doJob(Wiki wiki);
 	
 }

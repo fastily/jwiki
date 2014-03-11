@@ -1,6 +1,6 @@
 package fbot.lib.mbot;
 
-import fbot.lib.core.W;
+import fbot.lib.core.Wiki;
 
 /**
  * Basis for all task wrappers in MBot.
@@ -45,7 +45,7 @@ public abstract class WAction extends MAction
 	 * @param wiki The W object to use.
 	 * @return True if the action we tried to perform succeeded.
 	 */
-	public abstract boolean doJob(W wiki);
+	public abstract boolean doJob(Wiki wiki);
 	
 	/**
 	 * Creates a String representation of this WAction.  Useful for debugging.

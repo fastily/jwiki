@@ -1,14 +1,15 @@
 package fbot.ft;
 
+import static fbot.lib.commons.Commons.*;
+
 import java.util.ArrayList;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 
-import fbot.lib.commons.Commons;
 import fbot.lib.commons.WikiGen;
-import fbot.lib.core.W;
+import fbot.lib.core.Wiki;
 import fbot.lib.mbot.MBot;
 import fbot.lib.mbot.QAction;
 import fbot.lib.mbot.WAction;
@@ -44,23 +45,23 @@ public class DRArchive
 		if (l.hasOption('c'))
 		{
 			ArrayList<ProcDR> dl = new ArrayList<ProcDR>();
-			for(String s : Commons.com.getTemplatesOnPage("User:Fastily/SingletonDR"))
+			for(String s : fastily.getTemplatesOnPage("User:Fastily/SingletonDR"))
 				if(s.startsWith("Commons:Deletion requests/"))
 					dl.add(new ProcDR(s));
-			Commons.doAction("Fastily", dl.toArray(new ProcDR[0]));
+			doAction("Fastily", dl.toArray(new ProcDR[0]));
 		}
 		else
 		{
-			Commons.com.nullEdit("User:FSV/DL");
+			fsv.nullEdit("User:FSV/DL");
 			ArrayList<ProcLog> pl = new ArrayList<ProcLog>();
-			for (String s : Commons.com.getValidLinksOnPage("User:FSV/DL"))
+			for (String s : fsv.getValidLinksOnPage("User:FSV/DL"))
 				pl.add(new ProcLog(s));
 			WikiGen.genM("FSV", 5).start(pl.toArray(new ProcLog[0]));
 			
 			String x = "Report generated @ ~~~~~\n";
 			for (String s : singles)
 				x += String.format("%n{{%s}}", s);
-			Commons.com.edit("User:Fastily/SingletonDR", x, "Update report");
+			fsv.edit("User:Fastily/SingletonDR", x, "Update report");
 		}
 	}
 	
@@ -110,7 +111,7 @@ public class DRArchive
 		 * @param wiki The wiki object to use.
 		 * @return True if we were successful.
 		 */
-		public boolean doJob(W wiki)
+		public boolean doJob(Wiki wiki)
 		{
 			DRItem[] l = fetchDRs(wiki);
 			new MBot(wiki, 10).start(l);
@@ -170,7 +171,7 @@ public class DRArchive
 		 * @param wiki Wiki object to use
 		 * @return A list of DRs transcluded on this log.
 		 */
-		private DRItem[] fetchDRs(W wiki)
+		private DRItem[] fetchDRs(Wiki wiki)
 		{
 			ArrayList<DRItem> l = new ArrayList<DRItem>();
 			for (String s : wiki.exists(wiki.getTemplatesOnPage(getTitle()), true))
@@ -219,7 +220,7 @@ public class DRArchive
 		 * @param wiki The wiki object to use
 		 * @return True if we were successful.
 		 */
-		public boolean doJob(W wiki)
+		public boolean doJob(Wiki wiki)
 		{
 			text = wiki.getPageText(getTitle());
 			canArchive();
@@ -249,7 +250,7 @@ public class DRArchive
 		 * 
 		 * @param wiki The wiki object to use.
 		 */
-		private void isSingleton(W wiki)
+		private void isSingleton(Wiki wiki)
 		{
 			isSingle = text != null
 					&& !text.matches("(?si).*?\\{\\{(delh|DeletionHeader|DeletionFooter/Old|Delf|DeletionFooter|Udelf).*?\\}\\}.*?")
@@ -282,9 +283,9 @@ public class DRArchive
 		 * @param wiki The wiki object to use
 		 * @return True if we were successful
 		 */
-		public boolean doJob(W wiki)
+		public boolean doJob(Wiki wiki)
 		{
-			Commons.nukeLinksOnPage(getTitle(), summary, "File");
+			nukeLinksOnPage(getTitle(), summary, "File");
 			text = wiki.getPageText(getTitle());
 			return text != null ? wiki.edit(getTitle(), String.format("{{delh}}%n%s%n----%n'''Deleted''' -~~~~%n{{delf}}", text),
 					"deleted") : false;

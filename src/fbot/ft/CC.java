@@ -11,7 +11,7 @@ import org.apache.commons.cli.ParseException;
 import fbot.lib.commons.CStrings;
 import fbot.lib.commons.Commons;
 import fbot.lib.commons.WikiGen;
-import fbot.lib.core.W;
+import fbot.lib.core.Wiki;
 import fbot.lib.core.aux.Logger;
 import fbot.lib.mbot.MAction;
 import fbot.lib.mbot.MBot;
@@ -76,7 +76,7 @@ public class CC
 		MAction[] ml = new MBot(WikiGen.generate("FSVI"), Integer.parseInt(l.getOptionValue('h', "1"))).start(ccwl);
 		
 		if (l.hasOption('m'))
-			Commons.com.edit("User:Fastily/A5", "Generated at ~~~~~\n\n" + FString.listCombo(MAction.convertToString(ml)),
+			Commons.fsv.edit("User:Fastily/A7", "Generated at ~~~~~\n\n" + FString.listCombo(MAction.convertToString(ml)),
 					"Update report");
 	}
 	
@@ -145,7 +145,7 @@ public class CC
 		/**
 		 * Our deletion account
 		 */
-		private static W ft = WikiGen.generate("Fastily");
+		private static Wiki ft = WikiGen.generate("Fastily");
 		
 		/**
 		 * The WikiFile to upload
@@ -169,7 +169,7 @@ public class CC
 		 * @param wiki The wiki object to us
 		 * @return True if we were sucessful.
 		 */
-		public boolean doJob(W wiki)
+		public boolean doJob(Wiki wiki)
 		{
 			for (int i = 0; i < repeats; i++)
 			{

@@ -10,7 +10,7 @@ import java.util.regex.Pattern;
 import fbot.lib.commons.WikiGen;
 import fbot.lib.core.Namespace;
 import fbot.lib.core.Tools;
-import fbot.lib.core.W;
+import fbot.lib.core.Wiki;
 import fbot.lib.core.aux.Logger;
 import fbot.lib.core.aux.Tuple;
 import fbot.lib.util.FError;
@@ -122,14 +122,14 @@ public class Relinker
 	 */
 	private static void process(ArrayList<Tuple<String, String>> l)
 	{
-		W wiki = WikiGen.generate("FSV");
+		Wiki wiki = WikiGen.generate("FSV");
 		String last = null;
 		
 		for (Tuple<String, String> t : l)
 		{
 			if (!t.y.equals(last))
 			{
-				wiki.switchDomain(t.y);
+				wiki = wiki.getWiki(t.y);
 				last = t.y;
 			}
 			try

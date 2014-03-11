@@ -2,7 +2,7 @@ package fbot.lib.mbot;
 
 import java.util.ArrayList;
 
-import fbot.lib.core.W;
+import fbot.lib.core.Wiki;
 import fbot.lib.core.aux.Logger;
 
 /**
@@ -17,7 +17,7 @@ public class MBot
 	/**
 	 * The wiki object we'll be using for queries/actions
 	 */
-	private W wiki;
+	private Wiki wiki;
 	
 	/**
 	 * Maximum number of threads to instantiate
@@ -29,7 +29,7 @@ public class MBot
 	 * 
 	 * @param wiki The wiki objec to use.
 	 */
-	public MBot(W wiki)
+	public MBot(Wiki wiki)
 	{
 		this(wiki, 20);
 	}
@@ -40,7 +40,7 @@ public class MBot
 	 * @param wiki The wiki object to use
 	 * @param num The maximum number of threads to instantiate.
 	 */
-	public MBot(W wiki, int num)
+	public MBot(Wiki wiki, int num)
 	{
 		this.wiki = wiki;
 		this.num = num;
@@ -133,7 +133,7 @@ public class MBot
 		 * @param wiki The wiki object to use
 		 * @return True if we were successful.
 		 */
-		public boolean doJob(W wiki)
+		public boolean doJob(Wiki wiki)
 		{
 			return wiki.delete(getTitle(), summary);
 		}	
@@ -185,7 +185,7 @@ public class MBot
 		 * @param wiki The wiki object to use.
 		 * @return True if we were successful.
 		 */
-		public boolean doJob(W wiki)
+		public boolean doJob(Wiki wiki)
 		{
 			text = wiki.getPageText(getTitle());
 			if (text == null)
