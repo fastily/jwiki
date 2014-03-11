@@ -62,7 +62,7 @@ public class FQuery
 					fetch_num = max - completed;
 				
 				ub.setParams(limString, "" + fetch_num);
-				Reply r = Request.get(ub.makeURL(), wiki.settings.cookiejar);
+				Reply r = Request.get(ub.makeURL(), wiki.cookiejar);
 				if (r.hasError()) // if there are errors, we'll probably get them on the 1st try
 					break;
 				
@@ -108,7 +108,7 @@ public class FQuery
 			{
 				ub.setParams(titlekey, Tools.enc(Tools.fenceMaker("|", tl)));
 				
-				Reply r = Request.get(ub.makeURL(), wiki.settings.cookiejar);
+				Reply r = Request.get(ub.makeURL(), wiki.cookiejar);
 				if (r.hasError())
 					break;
 				
@@ -126,6 +126,54 @@ public class FQuery
 		
 		return jl.toArray(new JSONObject[0]);
 	}
+	
+	/**
+	 * Generates an edit token, and assigns it to the wiki object passed in.
+	 * @param wiki The wiki object to generate an edit token for.
+	 * @return True if we were successful.
+	 */
+	protected static boolean generateEditToken(Wiki wiki)
+	{
+		Logger.info("Fetching edit token");
+		try
+		{
+			URLBuilder ub = new URLBuilder(wiki.domain);
+			ub.setAction("tokens");
+			ub.setParams("type", "edit");
+			
+			wiki.token = Request.get(ub.makeURL(), wiki.cookiejar).getString("edittoken");
+			return wiki.token != null;
+		}
+		catch (Throwable e)
+		{
+			e.printStackTrace();
+			return false;
+		}
+	}
+	
+	/**
+	 * Generates the namespace list for the wiki object passed in, and assigns it to said wiki object.
+	 * @param wiki The wiki object to generate an namespace list for.
+	 * @return True if we were successful.
+	 */
+	protected static boolean generateNSL(Wiki wiki)
+	{
+		Logger.info("Generating namespace list");
+		try
+		{
+			URLBuilder ub = new URLBuilder(wiki.domain);
+			ub.setAction("query");
+			ub.setParams("meta", "siteinfo", "siprop", "namespaces");
+			wiki.nsl = Namespace.makeNamespace(Request.get(ub.makeURL(), wiki.cookiejar).getJSONObject("namespaces"));
+			return wiki.nsl != null;
+		}
+		catch (Throwable e)
+		{
+			e.printStackTrace();
+			return false;
+		}
+	}
+	
 	
 	/**
 	 * Gets the text of a page on the specified wiki.
@@ -184,7 +232,7 @@ public class FQuery
 		ub.setParams("list", "categorymembers", "cmtitle", Tools.enc(title));
 		
 		if (ns.length > 0)
-			ub.setParams("cmnamespace", Tools.enc(Tools.fenceMaker("|", wiki.getNSL().prefixToNumStrings(ns))));
+			ub.setParams("cmnamespace", Tools.enc(Tools.fenceMaker("|", wiki.nsl.prefixToNumStrings(ns))));
 		
 		ArrayList<String> l = new ArrayList<String>();
 		for (JSONObject jo : fatQuery(ub, max, "cmlimit", "cmcontinue", true, wiki))
@@ -213,7 +261,7 @@ public class FQuery
 		ub.setParams("prop", "links", "titles", Tools.enc(title));
 		
 		if (ns.length > 0)
-			ub.setParams("plnamespace", Tools.enc(Tools.fenceMaker("|", wiki.getNSL().prefixToNumStrings(ns))));
+			ub.setParams("plnamespace", Tools.enc(Tools.fenceMaker("|", wiki.nsl.prefixToNumStrings(ns))));
 		
 		ArrayList<String> l = new ArrayList<String>();
 		for (JSONObject jo : fatQuery(ub, -1, "pllimit", "plcontinue", true, wiki))
@@ -246,7 +294,7 @@ public class FQuery
 		ub.setParams("list", "usercontribs", "ucuser", Tools.enc(user));
 		
 		if (ns.length > 0)
-			ub.setParams("ucnamespace", Tools.enc(Tools.fenceMaker("|", wiki.getNSL().prefixToNumStrings(ns))));
+			ub.setParams("ucnamespace", Tools.enc(Tools.fenceMaker("|", wiki.nsl.prefixToNumStrings(ns))));
 		
 		ArrayList<Contrib> l = new ArrayList<Contrib>();
 		for (JSONObject jo : fatQuery(ub, max, "uclimit", "ucstart", true, wiki))
@@ -271,7 +319,7 @@ public class FQuery
 		
 		try
 		{
-			Reply r = Request.get(ub.makeURL(), wiki.settings.cookiejar);
+			Reply r = Request.get(ub.makeURL(), wiki.cookiejar);
 			if (r.hasError())
 				return -1;
 			
@@ -415,7 +463,7 @@ public class FQuery
 		
 		try
 		{
-			Reply r = Request.get(ub.makeURL(), wiki.settings.cookiejar);
+			Reply r = Request.get(ub.makeURL(), wiki.cookiejar);
 			
 			JSONArray ja; // mw oddly returns the imageinfo in a single element JSONArray
 			return (ja = r.getJSONArray("imageinfo")) == null ? null : new ImageInfo(ja.getJSONObject(0));

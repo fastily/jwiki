@@ -8,7 +8,7 @@ import java.util.Date;
 import java.util.HashMap;
 
 import fbot.lib.commons.WikiGen;
-import fbot.lib.core.W;
+import fbot.lib.core.Wiki;
 import fbot.lib.mbot.MAction;
 import fbot.lib.mbot.WAction;
 import fbot.lib.util.FError;
@@ -185,7 +185,7 @@ public class Up
 		 * @param wiki The wiki object to use
 		 * @return True if we had no errors.
 		 */
-		public boolean doJob(W wiki)
+		public boolean doJob(Wiki wiki)
 		{
 			return wiki.upload(f.getFile(), uploadTo, text, " ");
 		}

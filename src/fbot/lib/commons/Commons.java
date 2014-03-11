@@ -3,9 +3,10 @@ package fbot.lib.commons;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import fbot.lib.util.FError;
 import fbot.lib.util.ReadFile;
 import fbot.lib.core.Contrib;
-import fbot.lib.core.W;
+import fbot.lib.core.Wiki;
 import fbot.lib.mbot.MAction;
 import fbot.lib.mbot.MBot;
 import fbot.lib.mbot.WAction;
@@ -17,11 +18,22 @@ import fbot.lib.mbot.WAction;
  */
 public class Commons
 {
+	/**
+	 * FSV @ commonswiki
+	 */
+	public static final Wiki fsv = generateCOM("FSV");
 	
 	/**
-	 * Default wiki object. Makes things easier for us.
+	 * FSVII @ commonswiki
 	 */
-	public static final W com = WikiGen.generate("FSV");
+	//public static final Wiki fsvi = generateCOM("FSVI");
+	
+	/**
+	 * Fastily @ commonswiki
+	 */
+	public static final Wiki fastily = generateCOM("Fastily");
+	
+	public static final boolean derp = false;
 	
 	/**
 	 * Hide from javadoc
@@ -29,6 +41,24 @@ public class Commons
 	private Commons()
 	{
 		
+	}
+	
+	/**
+	 * Creates the default wiki object.  Will cause program to exit if we encountered an error.
+	 * @return FSV@commonswiki
+	 */
+	private static Wiki generateCOM(String user)
+	{
+		try
+		{
+			System.out.println("This is running");
+			return WikiGen.generate(user);
+		}
+		catch (Throwable e)
+		{
+			FError.errAndExit(e, String.format("Could not create %s @ commonswiki.  Stop.", user));
+			return null;
+		}
 	}
 	
 	/**
@@ -69,7 +99,6 @@ public class Commons
 		return categoryNuke(CStrings.osd, reason, false, ns);
 	}
 	
-	
 	/**
 	 * Deletes the titles in a category.
 	 * 
@@ -83,14 +112,15 @@ public class Commons
 	 */
 	public static String[] categoryNuke(String cat, String reason, boolean delCat, String... ns)
 	{
-		String[] fails = nuke(reason, com.getCategoryMembers(cat, ns));
-		if (delCat && com.getCategorySize(cat) == 0)
-			WikiGen.generate("Fastily").delete(cat, CStrings.ec);
+		String[] fails = nuke(reason, fastily.getCategoryMembers(cat, ns));
+		if (delCat && fastily.getCategorySize(cat) == 0)
+			fastily.delete(cat, CStrings.ec);
 		return fails;
 	}
 	
 	/**
 	 * Delete all files on a page.
+	 * 
 	 * @param dr The dr from which to get files.
 	 * @return A list of pages we failed to delete.
 	 */
@@ -101,15 +131,16 @@ public class Commons
 	
 	/**
 	 * Nukes empty files (ie file description pages without an associated file).
-	 * @param files A list of pages in the file namespace.  PRECONDITION -- The files must be in the filenamespace.
+	 * 
+	 * @param files A list of pages in the file namespace. PRECONDITION -- The files must be in the filenamespace.
 	 * @return A list ofpages we failed to process.
 	 */
 	public static String[] nukeEmptyFiles(String... files)
 	{
 		ArrayList<WAction> l = new ArrayList<WAction>();
-		for(String s : files)
+		for (String s : files)
 			l.add(new WAction(s, null, CStrings.nfu) {
-				public boolean doJob(W wiki)
+				public boolean doJob(Wiki wiki)
 				{
 					return wiki.getImageInfo(getTitle()) == null ? wiki.delete(getTitle(), summary) : true;
 				}
@@ -117,7 +148,6 @@ public class Commons
 		
 		return doAction("Fastily", l.toArray(new WAction[0]));
 	}
-	
 	
 	/**
 	 * Checks if a category is empty and deletes it if true.
@@ -130,7 +160,7 @@ public class Commons
 		ArrayList<WAction> l = new ArrayList<WAction>();
 		for (String s : cats)
 			l.add(new WAction(s, null, CStrings.ec) {
-				public boolean doJob(W wiki)
+				public boolean doJob(Wiki wiki)
 				{
 					return wiki.getCategorySize(getTitle()) <= 0 ? wiki.delete(getTitle(), summary) : true;
 				}
@@ -149,7 +179,7 @@ public class Commons
 	public static String[] nukeContribs(String user, String reason, String... ns)
 	{
 		ArrayList<String> l = new ArrayList<String>();
-		for (Contrib c : com.getContribs(user, ns))
+		for (Contrib c : fastily.getContribs(user, ns))
 			l.add(c.getTitle());
 		
 		return nuke(reason, l.toArray(new String[0]));
@@ -164,7 +194,7 @@ public class Commons
 	 */
 	public static String[] nukeUploads(String user, String reason)
 	{
-		return nuke(reason, com.getUserUploads(user));
+		return nuke(reason, fastily.getUserUploads(user));
 	}
 	
 	/**
@@ -180,7 +210,7 @@ public class Commons
 	 */
 	public static String[] nukeLinksOnPage(String title, String reason, String... ns)
 	{
-		return nuke(reason, com.getLinksOnPage(title, ns));
+		return nuke(reason, fastily.getLinksOnPage(title, ns));
 	}
 	
 	/**
@@ -224,11 +254,11 @@ public class Commons
 	 */
 	public static String[] nuke(String reason, String ns, String... pages)
 	{
-		int ni = com.whichNS(ns);
+		int ni = fastily.whichNS(ns);
 		ArrayList<String> todo = new ArrayList<String>();
 		
 		for (String s : pages)
-			if (com.whichNS(s) == ni)
+			if (fastily.whichNS(s) == ni)
 				todo.add(s);
 		
 		return nuke(reason, todo.toArray(new String[0]));
@@ -256,7 +286,7 @@ public class Commons
 	 */
 	public static String[] removeDelete(String reason, String... titles)
 	{
-		return MAction.convertToString(new MBot(com).massEdit(reason, "", CStrings.drregex, "", titles));
+		return MAction.convertToString(new MBot(fsv).massEdit(reason, "", CStrings.drregex, "", titles));
 	}
 	
 	/**
@@ -268,7 +298,7 @@ public class Commons
 	 */
 	public static String[] removeLSP(String reason, String... titles)
 	{
-		return MAction.convertToString(new MBot(com).massEdit(reason, "", CStrings.delregex, "", titles));
+		return MAction.convertToString(new MBot(fsv).massEdit(reason, "", CStrings.delregex, "", titles));
 	}
 	
 	/**
@@ -281,7 +311,7 @@ public class Commons
 	 */
 	public static String[] addText(String reason, String text, String... titles)
 	{
-		return MAction.convertToString(new MBot(com).massEdit(reason, text, null, null, titles));
+		return MAction.convertToString(new MBot(fsv).massEdit(reason, text, null, null, titles));
 	}
 	
 }

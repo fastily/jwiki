@@ -4,6 +4,7 @@ import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 
+import javax.security.auth.login.LoginException;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JComponent;
@@ -14,7 +15,7 @@ import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
-import fbot.lib.core.W;
+import fbot.lib.core.Wiki;
 
 /**
  * Static GUI factories to make building tools easier.
@@ -87,8 +88,9 @@ public class FGUI
 	 * 
 	 * @param domain The domain (in shorthand) to use.
 	 * @return The resulting wiki object.
+	 * @throws LoginException  If we failed to login
 	 */
-	public static W login(String domain)
+	public static Wiki login(String domain) throws LoginException
 	{
 		
 		JTextField tf = new JTextField(12);
@@ -100,8 +102,8 @@ public class FGUI
 					"Login", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) != JOptionPane.OK_OPTION)
 				System.exit(0);
 			
-			W wiki = new W(tf.getText().trim(), new String(pf.getPassword()), domain);
-			if (wiki.isVerified(domain))
+			Wiki wiki = new Wiki(tf.getText().trim(), new String(pf.getPassword()), domain);
+			if (wiki.isVerifiedFor(domain))
 				return wiki;
 			
 			JOptionPane.showConfirmDialog(null, "User/Password not recognized. Try again?");
@@ -117,8 +119,9 @@ public class FGUI
 	 * Wikimedia Commons.
 	 * 
 	 * @return The resulting login object.
+	 * @throws LoginException If we failed to login
 	 */
-	public static W login()
+	public static Wiki login() throws LoginException
 	{
 		return login("commons.wikimedia.org");
 	}

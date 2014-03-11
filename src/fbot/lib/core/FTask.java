@@ -71,7 +71,7 @@ public class FTask
 	 * 
 	 * @return True if the operation was successful.
 	 */
-	public static boolean downloadFile(String title, String localpath, W wiki)
+	public static boolean downloadFile(String title, String localpath, Wiki wiki)
 	{
 		return downloadFile(title, localpath, wiki, -1, -1);
 	}
@@ -90,7 +90,7 @@ public class FTask
 	 * 
 	 * @return True if the operation was successful.
 	 */
-	public static boolean downloadFile(String title, String localpath, W wiki, int height, int width)
+	public static boolean downloadFile(String title, String localpath, Wiki wiki, int height, int width)
 	{
 		Logger.fyi("Downloading " + title);
 		ImageInfo x = wiki.getImageInfo(title, height, width);
@@ -105,7 +105,7 @@ public class FTask
 		try
 		{
 			FileOutputStream fos = new FileOutputStream(localpath);
-			fos.write(getBytes(url, wiki.settings.cookiejar));
+			fos.write(getBytes(url, wiki.cookiejar));
 			fos.close();
 		}
 		catch (Throwable e)
@@ -126,7 +126,7 @@ public class FTask
 	 * @return A BufferedImage, or null if something went wrong.
 	 * @throws IOException I/O error.
 	 */
-	public static BufferedImage downloadFile(String title, W wiki) throws IOException
+	public static BufferedImage downloadFile(String title, Wiki wiki) throws IOException
 	{
 		return downloadFile(title, wiki, -1, -1);
 	}
@@ -143,7 +143,7 @@ public class FTask
 	 * @return A BufferedImage, or null if something went wrong.
 	 * @throws IOException I/O error.
 	 */
-	public static BufferedImage downloadFile(String title, W wiki, int height, int width) throws IOException
+	public static BufferedImage downloadFile(String title, Wiki wiki, int height, int width) throws IOException
 	{
 		Logger.fyi("Downloading " + title);
 		ImageInfo x = wiki.getImageInfo(title, height, width);
@@ -155,7 +155,7 @@ public class FTask
 		else
 			return null;
 		
-		return ImageIO.read(new ByteArrayInputStream(getBytes(url, wiki.settings.cookiejar)));
+		return ImageIO.read(new ByteArrayInputStream(getBytes(url, wiki.cookiejar)));
 	}
 	
 }

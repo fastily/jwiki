@@ -31,6 +31,40 @@ public class FAction
 	}
 	
 	/**
+	 * Logs us in, and sets the cookies of the passed in Wiki object.
+	 * @param wiki The wiki object to use.
+	 * @return True if we were successful.
+	 */
+	protected static boolean login(Wiki wiki)
+	{
+		Logger.info("Logging in as " + wiki.whoami());
+		try
+		{
+			URLBuilder ub = new URLBuilder(wiki.domain);
+			ub.setAction("login");
+			
+			URLBuilder posttext = new URLBuilder(null);
+			posttext.setParams("lgname", wiki.whoami());
+			
+			Reply r = Request.post(ub.makeURL(), posttext.getParamsAsText(), wiki.cookiejar, null);
+			if (r.hasError())
+				return false;
+			else if (r.resultIs("NeedToken"))
+			{
+				posttext.setParams("lgpassword", wiki.upx.y, "lgtoken", r.getString("token"));
+				return Request.post(ub.makeURL(), posttext.getParamsAsText(), wiki.cookiejar, null).resultIs("Success");
+			}
+			
+			return false;
+		}
+		catch (Throwable e)
+		{
+			e.printStackTrace();
+			return false;
+		}
+	}	
+	
+	/**
 	 * Edit a page, and check if the request actually went through.
 	 * 
 	 * @param wiki The wiki to use.
@@ -46,12 +80,12 @@ public class FAction
 		URLBuilder ub = wiki.makeUB();
 		ub.setAction("edit");
 		
-		String[] es = Tools.massEnc(title, text, reason, wiki.getToken());
+		String[] es = Tools.massEnc(title, text, reason, wiki.token);
 		String posttext = URLBuilder.chainParams("title", es[0], "text", es[1], "summary", es[2], "token", es[3]);
 		
 		try
 		{
-			return Request.post(ub.makeURL(), posttext, wiki.settings.cookiejar, Request.urlenc).resultIs("Success");
+			return Request.post(ub.makeURL(), posttext, wiki.cookiejar, Request.urlenc).resultIs("Success");
 		}
 		catch (Throwable e)
 		{
@@ -100,7 +134,7 @@ public class FAction
 		
 		try
 		{
-			Reply r = Request.get(ub.makeURL(), wiki.settings.cookiejar);
+			Reply r = Request.get(ub.makeURL(), wiki.cookiejar);
 			return !r.hasError() && r.getJSONArray("purge").getJSONObject(0).has("purged");
 		}
 		catch (Throwable e)
@@ -124,12 +158,12 @@ public class FAction
 		URLBuilder ub = wiki.makeUB();
 		ub.setAction("delete");
 		
-		String[] es = Tools.massEnc(title, reason, wiki.getToken());
+		String[] es = Tools.massEnc(title, reason, wiki.token);
 		String posttext = URLBuilder.chainParams("title", es[0], "reason", es[1], "token", es[2]);
 		
 		try
 		{
-			return !Request.post(ub.makeURL(), posttext, wiki.settings.cookiejar, Request.urlenc).hasErrorIgnore("missingtitle");
+			return !Request.post(ub.makeURL(), posttext, wiki.cookiejar, Request.urlenc).hasErrorIgnore("missingtitle");
 		}
 		catch (Throwable e)
 		{
@@ -153,12 +187,12 @@ public class FAction
 		URLBuilder ub = wiki.makeUB();
 		ub.setAction("undelete");
 		
-		String[] es = Tools.massEnc(title, reason, wiki.getToken());
+		String[] es = Tools.massEnc(title, reason, wiki.token);
 		String posttext = URLBuilder.chainParams("title", es[0], "reason", es[1], "token", es[2]);
 		
 		try
 		{
-			return !Request.post(ub.makeURL(), posttext, wiki.settings.cookiejar, Request.urlenc).hasError();
+			return !Request.post(ub.makeURL(), posttext, wiki.cookiejar, Request.urlenc).hasError();
 		}
 		catch (Throwable e)
 		{
@@ -198,7 +232,7 @@ public class FAction
 		FileInputStream in = null;
 		String filename = Namespace.nss(uploadTo);
 		
-		HashMap<String, Object> l = Tools.makeParamMap("filename", filename, "token", wiki.getToken(), "ignorewarnings",
+		HashMap<String, Object> l = Tools.makeParamMap("filename", filename, "token", wiki.token, "ignorewarnings",
 				"true", "stash", "1", "filesize", "" + filesize);
 		
 		try
@@ -254,7 +288,7 @@ public class FAction
 		{
 			try
 			{
-				r = Request.chunkPost(ub.makeURL(), l, wiki.settings.cookiejar);
+				r = Request.chunkPost(ub.makeURL(), l, wiki.cookiejar);
 				break;
 			}
 			catch (Throwable e)
@@ -282,12 +316,12 @@ public class FAction
 		URLBuilder ub = wiki.makeUB();
 		ub.setAction("upload");
 		
-		String[] es = Tools.massEnc(title, text, reason, wiki.getToken(), filekey);
+		String[] es = Tools.massEnc(title, text, reason, wiki.token, filekey);
 		String posttext = URLBuilder.chainParams("filename", es[0], "text", es[1], "comment", es[2], "ignorewarnings", "true",
 				"filekey", es[4], "token", es[3]);
 		try
 		{
-			return Request.post(ub.makeURL(), posttext, wiki.settings.cookiejar, Request.urlenc).resultIs("Success");
+			return Request.post(ub.makeURL(), posttext, wiki.cookiejar, Request.urlenc).resultIs("Success");
 		}
 		catch (IOException e)
 		{
