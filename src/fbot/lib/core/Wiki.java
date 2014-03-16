@@ -8,6 +8,7 @@ import java.util.List;
 
 import javax.security.auth.login.LoginException;
 
+import fbot.lib.core.aux.Logger;
 import fbot.lib.core.aux.Tuple;
 
 /**
@@ -120,6 +121,7 @@ public class Wiki
 	 */
 	public synchronized Wiki getWiki(String domain)
 	{
+		Logger.fyi(String.format("Get Wiki for %s @ %s", whoami(), domain));
 		try
 		{
 			return isVerifiedFor(domain) ? wl.get(domain) : new Wiki(this, domain);
@@ -534,6 +536,16 @@ public class Wiki
 	}
 	
 	/**
+	 * Gets a list of pages transcluding <tt>title</tt>.
+	 * @param title The title to get transclusions of.
+	 * @return A list of transclusions, or the empty list if something went wrong.
+	 */
+	public String[] whatTranscludesHere(String title)
+	{
+		return FQuery.whatTranscludesHere(this, title);
+	}
+	
+	/**
 	 * Upload a media file.
 	 * 
 	 * @param f The file to use
@@ -557,5 +569,28 @@ public class Wiki
 	public ArrayList<Tuple<String, String>> globalUsage(String title)
 	{
 		return FQuery.globalUsage(this, title);
+	}
+	
+	/**
+	 * Gets the direct links to a page (excluding links from redirects). To get links from redirects, use
+	 * <tt>getRedirects()</tt> and call this method on each element in the list returned.
+	 * 
+	 * @param title The title to use
+	 * @return A list of links to this page.
+	 */
+	public String[] whatLinksHere(String title)
+	{
+		return FQuery.whatLinksHere(this, title);
+	}
+	
+	/**
+	 * Gets the redirects of a page.
+	 * 
+	 * @param title The title to check.
+	 * @return The redirects linking to this page.
+	 */
+	public String[] getRedirects(String title)
+	{
+		return FQuery.getRedirects(this, title);
 	}
 }

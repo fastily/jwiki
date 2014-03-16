@@ -23,7 +23,7 @@ public class CStrings
 	/**
 	 * If you are copyright holder, email OTRS.
 	 */
-	public static final String baseP = "If you are the copyright holder/author and/or have authorization to upload the file, email [[COM:OTRS]]";
+	public static final String baseP = "If you are the copyright holder/author and/or have authorization to publish the file, please email our [[Commons:OTRS|OTRS team]] to get the file restored";
 	
 	/**
 	 * Copyvio

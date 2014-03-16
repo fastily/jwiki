@@ -129,6 +129,7 @@ public class FQuery
 	
 	/**
 	 * Generates an edit token, and assigns it to the wiki object passed in.
+	 * 
 	 * @param wiki The wiki object to generate an edit token for.
 	 * @return True if we were successful.
 	 */
@@ -153,6 +154,7 @@ public class FQuery
 	
 	/**
 	 * Generates the namespace list for the wiki object passed in, and assigns it to said wiki object.
+	 * 
 	 * @param wiki The wiki object to generate an namespace list for.
 	 * @return True if we were successful.
 	 */
@@ -174,6 +176,55 @@ public class FQuery
 		}
 	}
 	
+	/**
+	 * Gets the backlinks of a page.
+	 * 
+	 * @param wiki The wiki object to use
+	 * @param title The title to check
+	 * @param redirs Set to true to fetch redirects only. Set to false to filter out all redirects.
+	 * @return
+	 */
+	private static String[] getBackLinks(Wiki wiki, String title, boolean redirs)
+	{
+		Logger.info("Fetching backlinks to " + title);
+		URLBuilder ub = wiki.makeUB();
+		ub.setAction("query");
+		ub.setParams("list", "backlinks", "bltitle", Tools.enc(title), "blfilterredir", redirs ? "redirects" : "nonredirects");
+		
+		ArrayList<String> l = new ArrayList<String>();
+		for (JSONObject jo : fatQuery(ub, -1, "bllimit", "blcontinue", true, wiki))
+		{
+			JSONArray jl = JSONParse.getJSONArrayR(jo, "backlinks");
+			for (int i = 0; i < jl.length(); i++)
+				l.add(jl.getJSONObject(i).getString("title"));
+		}
+		return l.toArray(new String[0]);
+	}
+	
+	/**
+	 * Gets the direct links to a page (excluding links from redirects). To get links from redirects, use
+	 * <tt>getRedirects()</tt> and call this method on each element in the list returned.
+	 * 
+	 * @param wiki The wiki object to use
+	 * @param title The title to use
+	 * @return A list of links to this page.
+	 */
+	public static String[] whatLinksHere(Wiki wiki, String title)
+	{
+		return getBackLinks(wiki, title, false);
+	}
+	
+	/**
+	 * Gets the redirects of a page.
+	 * 
+	 * @param wiki The wiki object to use
+	 * @param title The title to check.
+	 * @return The redirects linking to this page.
+	 */
+	public static String[] getRedirects(Wiki wiki, String title)
+	{
+		return getBackLinks(wiki, title, true);
+	}
 	
 	/**
 	 * Gets the text of a page on the specified wiki.
@@ -267,7 +318,7 @@ public class FQuery
 		for (JSONObject jo : fatQuery(ub, -1, "pllimit", "plcontinue", true, wiki))
 		{
 			JSONArray jl = JSONParse.getJSONArrayR(jo, "links");
-			if(jl == null) //if there are 0 links, no JSONArray is returned by server.
+			if (jl == null) // if there are 0 links, no JSONArray is returned by server.
 				break;
 			
 			for (int i = 0; i < jl.length(); i++)
@@ -356,6 +407,31 @@ public class FQuery
 		for (JSONObject jo : fatQuery(ub, -1, "iulimit", "iucontinue", true, wiki))
 		{
 			JSONArray jl = JSONParse.getJSONArrayR(jo, "imageusage");
+			for (int i = 0; i < jl.length(); i++)
+				l.add(jl.getJSONObject(i).getString("title"));
+		}
+		
+		return l.toArray(new String[0]);
+	}
+	
+	/**
+	 * Gets a list of pages transcluding <tt>title</tt>.
+	 * 
+	 * @param wiki The wiki object to use
+	 * @param title The title to get transclusions of.
+	 * @return A list of transclusions, or the empty list if something went wrong.
+	 */
+	public static String[] whatTranscludesHere(Wiki wiki, String title)
+	{
+		Logger.info("Fetching transclusions of " + title);
+		URLBuilder ub = wiki.makeUB();
+		ub.setAction("query");
+		ub.setParams("list", "embeddedin", "eititle", Tools.enc(title));
+		
+		ArrayList<String> l = new ArrayList<String>();
+		for (JSONObject jo : fatQuery(ub, -1, "eilimit", "eicontinue", true, wiki))
+		{
+			JSONArray jl = JSONParse.getJSONArrayR(jo, "embeddedin");
 			for (int i = 0; i < jl.length(); i++)
 				l.add(jl.getJSONObject(i).getString("title"));
 		}
@@ -475,8 +551,9 @@ public class FQuery
 		}
 	}
 	
-	/** 
+	/**
 	 * Gets the templates transcluded on a page.
+	 * 
 	 * @param wiki The wiki object to use
 	 * @param title The title to get templates from.
 	 * @return A list of templates on the page.
@@ -492,13 +569,12 @@ public class FQuery
 		for (JSONObject jo : fatQuery(ub, -1, "tllimit", "tlcontinue", true, wiki))
 		{
 			JSONArray jl = JSONParse.getJSONArrayR(jo, "templates");
-			for(int i = 0; i < jl.length(); i++)
+			for (int i = 0; i < jl.length(); i++)
 				l.add(jl.getJSONObject(i).getString("title"));
 		}
 		
 		return l.toArray(new String[0]);
 	}
-	
 	
 	/**
 	 * Gets the global file usage for a media file.

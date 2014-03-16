@@ -24,16 +24,9 @@ public class Commons
 	public static final Wiki fsv = generateCOM("FSV");
 	
 	/**
-	 * FSVII @ commonswiki
-	 */
-	//public static final Wiki fsvi = generateCOM("FSVI");
-	
-	/**
 	 * Fastily @ commonswiki
 	 */
 	public static final Wiki fastily = generateCOM("Fastily");
-	
-	public static final boolean derp = false;
 	
 	/**
 	 * Hide from javadoc
@@ -51,7 +44,7 @@ public class Commons
 	{
 		try
 		{
-			System.out.println("This is running");
+			//System.out.println("This is running");
 			return WikiGen.generate(user);
 		}
 		catch (Throwable e)
@@ -211,6 +204,17 @@ public class Commons
 	public static String[] nukeLinksOnPage(String title, String reason, String... ns)
 	{
 		return nuke(reason, fastily.getLinksOnPage(title, ns));
+	}
+	
+	/**
+	 * Deletes all images linked on a page.
+	 * @param title The title to fetch images from.
+	 * @param reason The reason to use when deleting
+	 * @return A list of files we failed to process.
+	 */
+	public static String[] nukeImagesOnPage(String title, String reason)
+	{
+		return nuke(reason, fastily.getImagesOnPage(title));
 	}
 	
 	/**
