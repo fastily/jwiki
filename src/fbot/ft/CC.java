@@ -30,7 +30,7 @@ import fbot.lib.util.WikiFile;
 public class CC
 {
 	/**
-	 * Upload test text.
+	 * Upload test text. 
 	 */
 	public static final String utt = "Recreating [[bugzilla:36587]] (i.e. [[Special:UploadStash|upload stash]] bug) & "
 			+ "collecting data to log.\n{{Warning|'''Test area only!  File may be non-free.''' This is just a test"

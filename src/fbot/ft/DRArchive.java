@@ -239,7 +239,7 @@ public class DRArchive
 			else
 			{
 				String temp = text.replaceAll("(?i)\\[\\[(Category:).+?\\]\\]", "");
-				temp = temp.replaceAll("(?si)\\<(includeonly)\\>.*?\\</(includeonly)\\>", "").trim();
+				temp = temp.replaceAll("(?si)\\<(includeonly|noinclude)\\>.*?\\</(includeonly|noinclude)\\>", "").trim();
 				canA = temp
 						.matches("(?si)\\{\\{(delh|DeletionHeader).*?\\}\\}.*?\\{(DeletionFooter/Old|Delf|DeletionFooter|Udelf).*?\\}\\}");
 			}

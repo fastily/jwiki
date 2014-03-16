@@ -29,6 +29,6 @@ public class Constants
 	/**
 	 * The maximum allowable number of entries to request data for per group entry.
 	 */
-	protected static final int groupquerymax = 20;
+	protected static final int groupquerymax = 25;
 	
 }

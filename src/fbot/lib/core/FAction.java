@@ -37,7 +37,7 @@ public class FAction
 	 */
 	protected static boolean login(Wiki wiki)
 	{
-		Logger.info("Logging in as " + wiki.whoami());
+		Logger.info(String.format("Logging in as %s @ %s", wiki.whoami(), wiki.domain));
 		try
 		{
 			URLBuilder ub = new URLBuilder(wiki.domain);
