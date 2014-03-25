@@ -60,7 +60,7 @@ public class Wiki
 	 */
 	private Wiki(String user, String px, String domain, Wiki parent) throws LoginException
 	{
-		upx = new Tuple<String, String>(user, px);
+		upx = new Tuple<String, String>(Namespace.nss(user), px);
 		this.domain = domain;
 		
 		if (parent != null)
@@ -70,7 +70,7 @@ public class Wiki
 		}
 		
 		if (!(FAction.login(this) && FQuery.generateEditToken(this) && FQuery.generateNSL(this)))
-			throw new LoginException(String.format("Failed to log-in as %s @ %s", user, domain));
+			throw new LoginException(String.format("Failed to log-in as %s @ %s", upx.x, domain));
 		
 		wl.put(domain, this);
 	}
@@ -241,6 +241,33 @@ public class Wiki
 		return s != null ? edit(title, top ? s + add : add + s, reason) : false;
 	}
 	
+	
+	/**
+	 * Removes text from a page.
+	 * @param title The title to perform the replacement at.
+	 * @param regex A regex matching the text to remove.
+	 * @param reason The edit summary.
+	 * @return True if we were successful.
+	 */
+	public boolean replaceText(String title, String regex, String reason)
+	{
+		return replaceText(title, regex, "", reason);
+	}
+	
+	/**
+	 * Replaces text on a page.
+	 * @param title The title to perform replacement on.
+	 * @param regex The regex matching the text to replace. 
+	 * @param replacement The replacing text.
+	 * @param reason The edit summary.
+	 * @return True if were were successful.
+	 */
+	public boolean replaceText(String title, String regex, String replacement, String reason)
+	{
+		String s = getPageText(title);
+		return s != null ? edit(title, s.replaceAll(regex, replacement), reason) : false;
+	}
+	
 	/**
 	 * Undo the top revision of a page. PRECONDITION: <tt>title</tt> must point to a valid page.
 	 * 
@@ -372,6 +399,16 @@ public class Wiki
 	public String[] getCategoryMembers(String title, int max, String... ns)
 	{
 		return FQuery.getCategoryMembers(this, title, max, ns);
+	}
+	
+	/**
+	 * Gets the categories a page is categorized in.
+	 * @param title The title to get categories of.
+	 * @return A list of categories, or the empty list if something went wrong.
+	 */
+	public String[] getCategoriesOnPage(String title)
+	{
+		return FQuery.getCategoriesOnPage(this, title);
 	}
 	
 	/**

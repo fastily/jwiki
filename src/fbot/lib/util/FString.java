@@ -1,7 +1,9 @@
 package fbot.lib.util;
 
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 import java.util.Random;
 
 /**
@@ -86,4 +88,28 @@ public class FString
 		return x;
 	}
 	
+	/**
+	 * Determines if two String arrays share elements.
+	 * @param a Array 1
+	 * @param b Array 2
+	 * @return True if the arrays intersect.
+	 */
+	public static boolean arraysIntersect(String[] a, String[] b)
+	{
+		return arraysIntersect(Arrays.asList(a), Arrays.asList(b));
+	}
+	
+	/**
+	 * Determines if two String Lists share elements.
+	 * @param a List 1
+	 * @param b List 2
+	 * @return True if the Lists intersect.
+	 */
+	public static boolean arraysIntersect(List<String> a, List<String> b)
+	{
+		for(String s : a)
+			if(b.contains(s))
+				return true;
+		return false;
+	}
 }
