@@ -296,6 +296,31 @@ public class FQuery
 		return l.toArray(new String[0]);
 	}
 	
+	
+	/**
+	 * Gets the categories a page is categorized in.
+	 * @param wiki The wiki object to use
+	 * @param title The title to get categories of.
+	 * @return A list of categories, or the empty list if something went wrong.
+	 */
+	public static String[] getCategoriesOnPage(Wiki wiki, String title)
+	{
+		Logger.info("Getting categories of " + title);
+		URLBuilder ub = wiki.makeUB();
+		ub.setAction("query");
+		ub.setParams("prop", "categories", "titles", Tools.enc(title));
+		
+		ArrayList<String> l = new ArrayList<String>();
+		for(JSONObject jo : fatQuery(ub, -1, "cllimit", "clcontinue", true, wiki))
+		{
+			JSONArray jl = JSONParse.getJSONArrayR(jo, "categories");
+			for(int i = 0; i < jl.length(); i++)
+				l.add(jl.getJSONObject(i).getString("title"));
+		}
+		return l.toArray(new String[0]);
+	}
+	
+	
 	/**
 	 * Gets a list of links on a page.
 	 * 
