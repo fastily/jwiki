@@ -5,7 +5,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.HashMap;
 
-import fbot.lib.core.aux.Logger;
 import fbot.lib.util.FError;
 
 /**
@@ -76,7 +75,7 @@ public class FAction
 	 */
 	public static boolean edit(Wiki wiki, String title, String text, String reason)
 	{
-		Logger.info("Editing " + title);
+		Logger.info(wiki, "Editing " + title);
 		URLBuilder ub = wiki.makeUB();
 		ub.setAction("edit");
 		
@@ -104,7 +103,7 @@ public class FAction
 	 */
 	public static boolean undo(Wiki wiki, String title, String reason)
 	{
-		Logger.fyi("Undoing newest revision of " + title);
+		Logger.fyi(wiki, "Undoing newest revision of " + title);
 		try
 		{
 			Revision[] rl = FQuery.getRevisions(wiki, title, 2, false);
@@ -127,7 +126,7 @@ public class FAction
 	 */
 	public static boolean purge(Wiki wiki, String title)
 	{
-		Logger.fyi("Purging " + title);
+		Logger.fyi(wiki, "Purging " + title);
 		URLBuilder ub = wiki.makeUB();
 		ub.setAction("purge");
 		ub.setParams("titles", Tools.enc(title));
@@ -154,7 +153,7 @@ public class FAction
 	 */
 	public static boolean delete(Wiki wiki, String title, String reason)
 	{
-		Logger.info("Deleting " + title);
+		Logger.info(wiki, "Deleting " + title);
 		URLBuilder ub = wiki.makeUB();
 		ub.setAction("delete");
 		
@@ -183,7 +182,7 @@ public class FAction
 	 */
 	public static boolean undelete(Wiki wiki, String title, String reason)
 	{
-		Logger.info("Restoring " + title);
+		Logger.info(wiki, "Restoring " + title);
 		URLBuilder ub = wiki.makeUB();
 		ub.setAction("undelete");
 		
@@ -213,7 +212,7 @@ public class FAction
 	 */
 	public static boolean upload(Wiki wiki, File f, String title, String text, String reason)
 	{
-		Logger.info(String.format("Uploading '%s' to '%s'", f.getName(), title));
+		Logger.info(wiki, String.format("Uploading '%s' to '%s'", f.getName(), title));
 		String uploadTo = wiki.convertIfNotInNS(title, "File");
 		
 		long filesize = f.length();
@@ -240,7 +239,7 @@ public class FAction
 			in = new FileInputStream(f);
 			for (int i = 0; i < chunks; i++)
 			{
-				Logger.log(String.format("(%s): Uploading chunk %d of %d", f.getName(), i + 1, chunks), "PURPLE");
+				Logger.log(wiki, String.format("(%s): Uploading chunk %d of %d", f.getName(), i + 1, chunks), "PURPLE");
 				
 				l.put("offset", "" + i * chunksize);
 				if (filekey != null)
@@ -294,7 +293,7 @@ public class FAction
 			catch (Throwable e)
 			{
 				e.printStackTrace();
-				Logger.error(String.format("(%s): Encountered error @ chunk %d.  Retrying...", f.getName(), id));
+				Logger.error(wiki, String.format("(%s): Encountered error @ chunk %d.  Retrying...", f.getName(), id));
 			}
 		}
 		return !r.hasError() ? r.getString("filekey") : null;
@@ -312,7 +311,7 @@ public class FAction
 	 */
 	private static boolean unstash(Wiki wiki, String filekey, String title, String text, String reason)
 	{
-		Logger.info(String.format("Unstashing '%s' from temporary archive @ '%s'", title, filekey));
+		Logger.info(wiki, String.format("Unstashing '%s' from temporary archive @ '%s'", title, filekey));
 		URLBuilder ub = wiki.makeUB();
 		ub.setAction("upload");
 		

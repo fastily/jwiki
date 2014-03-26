@@ -8,10 +8,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import fbot.lib.commons.WikiGen;
+import fbot.lib.core.Logger;
 import fbot.lib.core.Namespace;
 import fbot.lib.core.Tools;
 import fbot.lib.core.Wiki;
-import fbot.lib.core.aux.Logger;
 import fbot.lib.core.aux.Tuple;
 import fbot.lib.util.FError;
 

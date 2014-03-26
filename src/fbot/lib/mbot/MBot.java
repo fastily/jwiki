@@ -2,8 +2,8 @@ package fbot.lib.mbot;
 
 import java.util.ArrayList;
 
+import fbot.lib.core.Logger;
 import fbot.lib.core.Wiki;
-import fbot.lib.core.aux.Logger;
 
 /**
  * Main entry point for the MBot library. This library was built with the intent of facilitating the use and design of
