@@ -11,8 +11,8 @@ import org.apache.commons.cli.ParseException;
 import fbot.lib.commons.CStrings;
 import fbot.lib.commons.Commons;
 import fbot.lib.commons.WikiGen;
+import fbot.lib.core.Logger;
 import fbot.lib.core.Wiki;
-import fbot.lib.core.aux.Logger;
 import fbot.lib.mbot.MAction;
 import fbot.lib.mbot.MBot;
 import fbot.lib.mbot.WAction;
@@ -166,7 +166,7 @@ public class CC
 		/**
 		 * Performs upload & delete
 		 * 
-		 * @param wiki The wiki object to us
+		 * @param wiki The wiki object to use
 		 * @return True if we were sucessful.
 		 */
 		public boolean doJob(Wiki wiki)
@@ -174,7 +174,7 @@ public class CC
 			for (int i = 0; i < repeats; i++)
 			{
 				String fn = "File:" + FString.generateRandomFileName(f);
-				Logger.fyi(String.format("(%d/%d): Upload '%s' -> '%s'", i + 1, repeats, f, fn));
+				Logger.fyi(wiki, String.format("(%d/%d): Upload '%s' -> '%s'", i + 1, repeats, f, fn));
 				
 				if (wiki.upload(f.getFile(), fn, text, " "))
 				{

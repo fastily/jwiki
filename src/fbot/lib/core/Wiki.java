@@ -8,7 +8,6 @@ import java.util.List;
 
 import javax.security.auth.login.LoginException;
 
-import fbot.lib.core.aux.Logger;
 import fbot.lib.core.aux.Tuple;
 
 /**
@@ -121,7 +120,7 @@ public class Wiki
 	 */
 	public synchronized Wiki getWiki(String domain)
 	{
-		Logger.fyi(String.format("Get Wiki for %s @ %s", whoami(), domain));
+		Logger.fyi(this, String.format("Get Wiki for %s @ %s", whoami(), domain));
 		try
 		{
 			return isVerifiedFor(domain) ? wl.get(domain) : new Wiki(this, domain);
@@ -241,9 +240,9 @@ public class Wiki
 		return s != null ? edit(title, top ? s + add : add + s, reason) : false;
 	}
 	
-	
 	/**
 	 * Removes text from a page.
+	 * 
 	 * @param title The title to perform the replacement at.
 	 * @param regex A regex matching the text to remove.
 	 * @param reason The edit summary.
@@ -256,8 +255,9 @@ public class Wiki
 	
 	/**
 	 * Replaces text on a page.
+	 * 
 	 * @param title The title to perform replacement on.
-	 * @param regex The regex matching the text to replace. 
+	 * @param regex The regex matching the text to replace.
 	 * @param replacement The replacing text.
 	 * @param reason The edit summary.
 	 * @return True if were were successful.
@@ -300,6 +300,27 @@ public class Wiki
 	public boolean purge(String title)
 	{
 		return FAction.purge(this, title);
+	}
+	
+	/**
+	 * Gets the list of groups a user is in.
+	 * 
+	 * @return A list of user groups, or the empty list if something went wrong.
+	 */
+	public ArrayList<String> listGroupsRights()
+	{
+		return FQuery.listGroupsRights(this);
+	}
+	
+	/**
+	 * Determines if we're an admin. Note that this method does not cache, so you should make one yourself if you need
+	 * to know a user's rights status multiple times.
+	 * 
+	 * @return True if this user is a sysop.
+	 */
+	public boolean isAdmin()
+	{
+		return listGroupsRights().contains("sysop");
 	}
 	
 	/**
@@ -403,6 +424,7 @@ public class Wiki
 	
 	/**
 	 * Gets the categories a page is categorized in.
+	 * 
 	 * @param title The title to get categories of.
 	 * @return A list of categories, or the empty list if something went wrong.
 	 */
@@ -574,6 +596,7 @@ public class Wiki
 	
 	/**
 	 * Gets a list of pages transcluding <tt>title</tt>.
+	 * 
 	 * @param title The title to get transclusions of.
 	 * @return A list of transclusions, or the empty list if something went wrong.
 	 */

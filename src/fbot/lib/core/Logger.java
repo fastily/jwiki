@@ -1,4 +1,4 @@
-package fbot.lib.core.aux;
+package fbot.lib.core;
 
 import java.io.PrintStream;
 import java.util.HashMap;
@@ -71,6 +71,7 @@ public class Logger
 	 * @param s The String to print.
 	 * @param code The color to print in. Options are black, red, green, yellow, blue, purple, cyan, or white.
 	 *            Capitalization irrelevant.
+	 * 
 	 */
 	public static void log(String s, String code)
 	{
@@ -83,6 +84,34 @@ public class Logger
 	}
 	
 	/**
+	 * Prints a String to std out in the specified color, as a logging function for a wiki. Only prints in color for
+	 * unix terminals.
+	 * 
+	 * @param wiki The wiki object to use.
+	 * @param s The String to print.
+	 * @param code The color code.
+	 * @see #log(String, String)
+	 */
+	public static void log(Wiki wiki, String s, String code)
+	{
+		if (wiki != null)
+			log(String.format("[%s @ %s]: %s", wiki.upx.x, wiki.domain, s), code);
+		else
+			log(s, code);
+	}
+	
+	/**
+	 * Output info message. Text is green.
+	 * 
+	 * @param wiki The wiki object to log from
+	 * @param s The String to print.
+	 */
+	public static void info(Wiki wiki, String s)
+	{
+		log(wiki, s, "GREEN");
+	}
+	
+	/**
 	 * Note that an event occurred. Output text is Green.
 	 * 
 	 * @param s The String to print
@@ -90,6 +119,17 @@ public class Logger
 	public static void info(String s)
 	{
 		log(s, "GREEN");
+	}
+	
+	/**
+	 * Output warning message. Text is yellow.
+	 * 
+	 * @param wiki The wiki object to log from
+	 * @param s String to print
+	 */
+	public static void warn(Wiki wiki, String s)
+	{
+		log(wiki, s, "YELLOW");
 	}
 	
 	/**
@@ -105,6 +145,17 @@ public class Logger
 	/**
 	 * Output error message. Text is Red.
 	 * 
+	 * @param wiki The wiki object to log from
+	 * @param s String to print
+	 */
+	public static void error(Wiki wiki, String s)
+	{
+		log(wiki, s, "RED");
+	}
+	
+	/**
+	 * Output error message. Text is Red.
+	 * 
 	 * @param s The String to print
 	 */
 	public static void error(String s)
@@ -113,8 +164,20 @@ public class Logger
 	}
 	
 	/**
-	 * For miscellaneous information.  Text is Cyan.
- 	 * @param s The String to print.
+	 * For miscellaneous information. Text is Cyan.
+	 * 
+	 * @param wiki The wiki object to log from
+	 * @param s The String to print
+	 */
+	public static void fyi(Wiki wiki, String s)
+	{
+		log(wiki, s, "CYAN");
+	}
+	
+	/**
+	 * For miscellaneous information. Text is Cyan.
+	 * 
+	 * @param s The String to print.
 	 */
 	public static void fyi(String s)
 	{

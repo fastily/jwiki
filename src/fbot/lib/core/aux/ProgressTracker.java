@@ -1,5 +1,7 @@
 package fbot.lib.core.aux;
 
+import fbot.lib.core.Logger;
+
 /**
  * Simple progress tracker that outputs our progress to std out. Does not enforce curr <= end. This class is only for
  * logging/tracking.

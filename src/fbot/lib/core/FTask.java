@@ -11,8 +11,6 @@ import java.net.URL;
 
 import javax.imageio.ImageIO;
 
-import fbot.lib.core.aux.Logger;
-
 /**
  * Class containing static methods which can perform miscellaneous tasks pertaining to MediaWiki.
  * @author Fastily
@@ -92,7 +90,7 @@ public class FTask
 	 */
 	public static boolean downloadFile(String title, String localpath, Wiki wiki, int height, int width)
 	{
-		Logger.fyi("Downloading " + title);
+		Logger.fyi(wiki, "Downloading " + title);
 		ImageInfo x = wiki.getImageInfo(title, height, width);
 		String url;
 		if (x.getThumbURL() != null)
@@ -145,7 +143,7 @@ public class FTask
 	 */
 	public static BufferedImage downloadFile(String title, Wiki wiki, int height, int width) throws IOException
 	{
-		Logger.fyi("Downloading " + title);
+		Logger.fyi(wiki, "Downloading " + title);
 		ImageInfo x = wiki.getImageInfo(title, height, width);
 		String url;
 		if (x.getThumbURL() != null)

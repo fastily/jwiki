@@ -9,7 +9,6 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import fbot.lib.core.aux.JSONParse;
-import fbot.lib.core.aux.Logger;
 import fbot.lib.core.aux.Tuple;
 
 /**
@@ -135,7 +134,7 @@ public class FQuery
 	 */
 	protected static boolean generateEditToken(Wiki wiki)
 	{
-		Logger.info("Fetching edit token");
+		Logger.info(wiki, "Fetching edit token");
 		try
 		{
 			URLBuilder ub = new URLBuilder(wiki.domain);
@@ -160,7 +159,7 @@ public class FQuery
 	 */
 	protected static boolean generateNSL(Wiki wiki)
 	{
-		Logger.info("Generating namespace list");
+		Logger.info(wiki, "Generating namespace list");
 		try
 		{
 			URLBuilder ub = new URLBuilder(wiki.domain);
@@ -186,7 +185,7 @@ public class FQuery
 	 */
 	private static String[] getBackLinks(Wiki wiki, String title, boolean redirs)
 	{
-		Logger.info("Fetching backlinks to " + title);
+		Logger.info(wiki, "Fetching backlinks to " + title);
 		URLBuilder ub = wiki.makeUB();
 		ub.setAction("query");
 		ub.setParams("list", "backlinks", "bltitle", Tools.enc(title), "blfilterredir", redirs ? "redirects" : "nonredirects");
@@ -250,7 +249,7 @@ public class FQuery
 	 */
 	public static Revision[] getRevisions(Wiki wiki, String title, int num, boolean olderfirst)
 	{
-		Logger.info("Fetching revisions of " + title);
+		Logger.info(wiki, "Fetching revisions of " + title);
 		URLBuilder ub = wiki.makeUB();
 		ub.setAction("query");
 		ub.setParams("prop", "revisions", "rvprop", URLBuilder.chainProps("timestamp", "user", "comment", "content"), "rvdir",
@@ -277,7 +276,7 @@ public class FQuery
 	{
 		String title = wiki.whichNS(cat) == 0 ? String.format("%s:%s", wiki.getNS(14), cat) : cat;
 		
-		Logger.info("Fetching category members of " + title);
+		Logger.info(wiki, "Fetching category members of " + title);
 		URLBuilder ub = wiki.makeUB();
 		ub.setAction("query");
 		ub.setParams("list", "categorymembers", "cmtitle", Tools.enc(title));
@@ -296,30 +295,29 @@ public class FQuery
 		return l.toArray(new String[0]);
 	}
 	
-	
 	/**
 	 * Gets the categories a page is categorized in.
+	 * 
 	 * @param wiki The wiki object to use
 	 * @param title The title to get categories of.
 	 * @return A list of categories, or the empty list if something went wrong.
 	 */
 	public static String[] getCategoriesOnPage(Wiki wiki, String title)
 	{
-		Logger.info("Getting categories of " + title);
+		Logger.info(wiki, "Getting categories of " + title);
 		URLBuilder ub = wiki.makeUB();
 		ub.setAction("query");
 		ub.setParams("prop", "categories", "titles", Tools.enc(title));
 		
 		ArrayList<String> l = new ArrayList<String>();
-		for(JSONObject jo : fatQuery(ub, -1, "cllimit", "clcontinue", true, wiki))
+		for (JSONObject jo : fatQuery(ub, -1, "cllimit", "clcontinue", true, wiki))
 		{
 			JSONArray jl = JSONParse.getJSONArrayR(jo, "categories");
-			for(int i = 0; i < jl.length(); i++)
+			for (int i = 0; i < jl.length(); i++)
 				l.add(jl.getJSONObject(i).getString("title"));
 		}
 		return l.toArray(new String[0]);
 	}
-	
 	
 	/**
 	 * Gets a list of links on a page.
@@ -331,7 +329,7 @@ public class FQuery
 	 */
 	public static String[] getLinksOnPage(Wiki wiki, String title, String... ns)
 	{
-		Logger.info("Fetching page links of " + title);
+		Logger.info(wiki, "Fetching page links of " + title);
 		URLBuilder ub = wiki.makeUB();
 		ub.setAction("query");
 		ub.setParams("prop", "links", "titles", Tools.enc(title));
@@ -364,7 +362,7 @@ public class FQuery
 	 */
 	public static Contrib[] getContribs(Wiki wiki, String user, int max, String... ns)
 	{
-		Logger.info("Fetching contribs of " + user);
+		Logger.info(wiki, "Fetching contribs of " + user);
 		URLBuilder ub = wiki.makeUB();
 		ub.setAction("query");
 		ub.setParams("list", "usercontribs", "ucuser", Tools.enc(user));
@@ -388,7 +386,7 @@ public class FQuery
 	 */
 	public static int getCategorySize(Wiki wiki, String title)
 	{
-		Logger.info("Fetching category size of " + title);
+		Logger.info(wiki, "Fetching category size of " + title);
 		URLBuilder ub = wiki.makeUB();
 		ub.setAction("query");
 		ub.setParams("prop", "categoryinfo", "titles", Tools.enc(title));
@@ -423,7 +421,7 @@ public class FQuery
 			return new String[0];
 		}
 		
-		Logger.info("Fetching image usage of " + file);
+		Logger.info(wiki, "Fetching image usage of " + file);
 		URLBuilder ub = wiki.makeUB();
 		ub.setAction("query");
 		ub.setParams("list", "imageusage", "iutitle", Tools.enc(file));
@@ -448,7 +446,7 @@ public class FQuery
 	 */
 	public static String[] whatTranscludesHere(Wiki wiki, String title)
 	{
-		Logger.info("Fetching transclusions of " + title);
+		Logger.info(wiki, "Fetching transclusions of " + title);
 		URLBuilder ub = wiki.makeUB();
 		ub.setAction("query");
 		ub.setParams("list", "embeddedin", "eititle", Tools.enc(title));
@@ -473,7 +471,7 @@ public class FQuery
 	 */
 	public static String[] getImagesOnPage(Wiki wiki, String title)
 	{
-		Logger.info("Fetching images linked to " + title);
+		Logger.info(wiki, "Fetching images linked to " + title);
 		URLBuilder ub = wiki.makeUB();
 		ub.setAction("query");
 		ub.setParams("prop", "images", "titles", Tools.enc(title));
@@ -500,7 +498,7 @@ public class FQuery
 	 */
 	public static List<Tuple<String, Boolean>> exists(Wiki wiki, String... titles)
 	{
-		Logger.info("Checking to see if some pages exist");
+		Logger.info(wiki, "Checking to see if some pages exist");
 		URLBuilder ub = wiki.makeUB();
 		ub.setAction("query");
 		ub.setParams("prop", "pageprops", "ppprop", "missing");
@@ -524,7 +522,7 @@ public class FQuery
 	 */
 	public static String[] getUserUploads(Wiki wiki, String user)
 	{
-		Logger.info("Grabbing uploads of User:" + user);
+		Logger.info(wiki, "Grabbing uploads of User:" + user);
 		URLBuilder ub = wiki.makeUB();
 		ub.setAction("query");
 		ub.setParams("list", "allimages", "aisort", "timestamp", "aiuser", Tools.enc(user));
@@ -554,7 +552,7 @@ public class FQuery
 		if (wiki.whichNS(title) != wiki.getNS("File"))
 			return null;
 		
-		Logger.info("Fetching image info for " + title);
+		Logger.info(wiki, "Fetching image info for " + title);
 		URLBuilder ub = wiki.makeUB();
 		ub.setAction("query");
 		ub.setParams("prop", "imageinfo", "iiprop", Tools.enc("url|size"), "titles", Tools.enc(title));
@@ -585,7 +583,7 @@ public class FQuery
 	 */
 	public static String[] getTemplatesOnPage(Wiki wiki, String title)
 	{
-		Logger.info("Fetching templates on " + title);
+		Logger.info(wiki, "Fetching templates on " + title);
 		URLBuilder ub = wiki.makeUB();
 		ub.setAction("query");
 		ub.setParams("prop", "templates", "titles", Tools.enc(title));
@@ -616,7 +614,7 @@ public class FQuery
 		
 		ArrayList<Tuple<String, String>> l = new ArrayList<Tuple<String, String>>();
 		
-		Logger.info("Fetching global usage of " + title);
+		Logger.info(wiki, "Fetching global usage of " + title);
 		URLBuilder ub = wiki.makeUB();
 		ub.setAction("query");
 		ub.setParams("prop", "globalusage", "guprop", "namespace", "titles", Tools.enc(title));
@@ -629,6 +627,36 @@ public class FQuery
 				JSONObject curr = ja.getJSONObject(i);
 				l.add(new Tuple<String, String>(curr.getString("title"), curr.getString("wiki")));
 			}
+		}
+		return l;
+	}
+	
+	/**
+	 * Gets the list of groups a user is in.
+	 * @param wiki The wiki object to use.  You must be logged in to use this functionality.
+ 	 * @return A list of user groups, or the empty list if something went wrong.
+	 */
+	public static ArrayList<String> listGroupsRights(Wiki wiki)
+	{
+		Logger.info(wiki, "Getting our user groups list");
+		URLBuilder ub = wiki.makeUB();
+		ub.setAction("query");
+		ub.setParams("list", "users", "usprop", "groups", "ususers", Tools.enc(wiki.upx.x));
+		
+		ArrayList<String> l = new ArrayList<String>();
+		try
+		{
+			Reply r = Request.get(ub.makeURL(), wiki.cookiejar);
+			if(r.hasError())
+				return l;
+			
+			JSONArray jl = r.getJSONArray("users").getJSONObject(0).getJSONArray("groups");
+			for(int i = 0; i < jl.length(); i++)
+				l.add(jl.getString(i));
+		}
+		catch (Throwable e)
+		{
+			e.printStackTrace();
 		}
 		
 		return l;

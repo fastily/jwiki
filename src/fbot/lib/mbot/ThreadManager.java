@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import fbot.lib.core.Logger;
 import fbot.lib.core.Wiki;
-import fbot.lib.core.aux.Logger;
 import fbot.lib.core.aux.ProgressTracker;
 
 public class ThreadManager

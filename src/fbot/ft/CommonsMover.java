@@ -11,11 +11,11 @@ import org.apache.commons.cli.Options;
 
 import fbot.lib.commons.WikiGen;
 import fbot.lib.core.FTask;
+import fbot.lib.core.Logger;
 import fbot.lib.core.Namespace;
 import fbot.lib.core.Request;
 import fbot.lib.core.Tools;
 import fbot.lib.core.Wiki;
-import fbot.lib.core.aux.Logger;
 import fbot.lib.mbot.WAction;
 import fbot.lib.util.FCLI;
 import fbot.lib.util.FError;
@@ -47,7 +47,8 @@ public class CommonsMover
 			"Category:Wikipedia files on Wikimedia Commons for which a local copy has been requested to be kept",
 			"Category:Media not suitable for Commons", "Category:Wikipedia files of no use beyond Wikipedia",
 			"Category:All non-free media", "Category:All Wikipedia files with unknown source",
-			"Category:All Wikipedia files with unknown copyright status", "Category:Candidates for speedy deletion" };
+			"Category:All Wikipedia files with unknown copyright status", "Category:Candidates for speedy deletion",
+			"Category:All free in US media" };
 	
 	/**
 	 * Our wiki object for Commons.
@@ -71,7 +72,6 @@ public class CommonsMover
 	 */
 	public static void main(String[] args)
 	{
-		 args = new String[] {"File:PhoenicianB-01.png"};
 		CommandLine l = parseArgs(args);
 		com = WikiGen.generate("FSV");
 		enwp = com.getWiki("en.wikipedia.org");
@@ -144,7 +144,7 @@ public class CommonsMover
 			titleNNS = Namespace.nss(title);
 			transferTo = title;
 		}
-	
+		
 		/**
 		 * Performs a transfer of this item.
 		 * 
