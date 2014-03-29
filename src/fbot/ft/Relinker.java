@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import fbot.lib.commons.WikiGen;
+import fbot.lib.commons.Commons;
 import fbot.lib.core.Logger;
 import fbot.lib.core.Namespace;
 import fbot.lib.core.Tools;
@@ -122,14 +122,18 @@ public class Relinker
 	 */
 	private static void process(ArrayList<Tuple<String, String>> l)
 	{
-		Wiki wiki = WikiGen.generate("FSV");
+		Wiki wiki = Commons.fsv;
 		String last = null;
 		
 		for (Tuple<String, String> t : l)
 		{
 			if (!t.y.equals(last))
 			{
-				wiki = wiki.getWiki(t.y);
+				Wiki temp = wiki.getWiki(t.y);
+				if(temp == null) //annoying, since mw sometimes prohibits account creation.
+					continue;
+				
+				wiki = temp;
 				last = t.y;
 			}
 			try
