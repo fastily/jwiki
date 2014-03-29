@@ -116,7 +116,7 @@ public class Wiki
 	 * necessary.
 	 * 
 	 * @param domain The domain to use
-	 * @return
+	 * @return The wiki, or null if something went wrong.
 	 */
 	public synchronized Wiki getWiki(String domain)
 	{
@@ -237,7 +237,7 @@ public class Wiki
 	public boolean addText(String title, String add, String reason, boolean top)
 	{
 		String s = getPageText(title);
-		return s != null ? edit(title, top ? s + add : add + s, reason) : false;
+		return s != null ? edit(title, top ? add + s : s + add, reason) : false;
 	}
 	
 	/**
@@ -496,7 +496,7 @@ public class Wiki
 	}
 	
 	/**
-	 * Gets the list of local pages that are displaying the given images.
+	 * Gets the list of local pages that are displaying the given image.
 	 * 
 	 * @param file The file to check. Must be a valid file name, including the "File:" prefix.
 	 * @return The list of pages linking to this file, or the empty array if something went wrong/file doesn't exist.
@@ -624,7 +624,7 @@ public class Wiki
 	 * 
 	 * @param title The title to check. Must start with "File:" prefix.
 	 * @return A list of tuples, (title of page, short form of wiki this page is from), denoting the global usage of
-	 *         this file. Returns null if something went wrong.
+	 *         this file. Returns empty list if something went wrong.
 	 */
 	public ArrayList<Tuple<String, String>> globalUsage(String title)
 	{
@@ -653,4 +653,16 @@ public class Wiki
 	{
 		return FQuery.getRedirects(this, title);
 	}
+	
+	/**
+	 * Does the same thing as Special:PrefixIndex.
+	 * 
+	 * @param namespace The namespace identifier, without the ':' (e.g. "File")
+	 * @param prefix Get all titles in the specified namespace, that start with this String.
+	 * @return The list of titles, as specified.
+	 */
+	public String[] prefixIndex(String namespace, String prefix)
+	{
+		return FQuery.allPages(this, prefix, false, -1, namespace);
+	}	
 }

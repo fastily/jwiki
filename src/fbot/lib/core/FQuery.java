@@ -407,7 +407,7 @@ public class FQuery
 	}
 	
 	/**
-	 * Gets the list of local pages that are displaying the given images.
+	 * Gets the list of local pages that are displaying the given image.
 	 * 
 	 * @param wiki The wiki object to use.
 	 * @param file The file to check. Must be a valid file name, including the "File:" prefix.
@@ -484,6 +484,41 @@ public class FQuery
 				for (int i = 0; i < jl.length(); i++)
 					l.add(jl.getJSONObject(i).getString("title"));
 		}
+		return l.toArray(new String[0]);
+	}
+	
+	/**
+	 * Gets a list of pages on the Wiki.
+	 * 
+	 * @param wiki The wiki object to use
+	 * @param prefix Get files starting with this String. DO NOT include a namespace prefix (e.g. "File:"). Param is
+	 *            optional, use null or empty string to disable.
+	 * @param redirectsonly Set this to true to get redirects only.
+	 * @param max The max number of titles to return.  Specify -1 to get all pages.
+	 * @param ns The namespace identifier (e.g. "File"). 
+	 * @return A list of titles as specified.
+	 */
+	public static String[] allPages(Wiki wiki, String prefix, boolean redirectsonly, int max, String ns)
+	{
+		Logger.info(String.format("Grabbing a list of all pages with prefix " + prefix));
+		URLBuilder ub = wiki.makeUB();
+		
+		ub.setAction("query");
+		ub.setParams("list", "allpages", "apnamespace", "" + wiki.getNS(ns));
+		
+		if (redirectsonly)
+			ub.setParams("apfilterredir", "redirects");
+		if (prefix != null && prefix.length() > 0)
+			ub.setParams("apprefix", Tools.enc(prefix));
+		
+		ArrayList<String> l = new ArrayList<String>();
+		for (JSONObject jo : fatQuery(ub, max, "aplimit", "apcontinue", true, wiki))
+		{
+			JSONArray jl = JSONParse.getJSONArrayR(jo, "allpages");
+			for (int i = 0; i < jl.length(); i++)
+				l.add(jl.getJSONObject(i).getString("title"));
+		}
+		
 		return l.toArray(new String[0]);
 	}
 	
@@ -605,7 +640,7 @@ public class FQuery
 	 * @param wiki The wiki object to use
 	 * @param title The title to check. Must start with "File:" prefix.
 	 * @return A list of tuples, (title of page, short form of wiki this page is from), denoting the global usage of
-	 *         this file. Returns null if something went wrong.
+	 *         this file. Returns empty list if something went wrong.
 	 */
 	public static ArrayList<Tuple<String, String>> globalUsage(Wiki wiki, String title)
 	{
@@ -633,8 +668,9 @@ public class FQuery
 	
 	/**
 	 * Gets the list of groups a user is in.
-	 * @param wiki The wiki object to use.  You must be logged in to use this functionality.
- 	 * @return A list of user groups, or the empty list if something went wrong.
+	 * 
+	 * @param wiki The wiki object to use. You must be logged in to use this functionality.
+	 * @return A list of user groups, or the empty list if something went wrong.
 	 */
 	public static ArrayList<String> listGroupsRights(Wiki wiki)
 	{
@@ -647,11 +683,11 @@ public class FQuery
 		try
 		{
 			Reply r = Request.get(ub.makeURL(), wiki.cookiejar);
-			if(r.hasError())
+			if (r.hasError())
 				return l;
 			
 			JSONArray jl = r.getJSONArray("users").getJSONObject(0).getJSONArray("groups");
-			for(int i = 0; i < jl.length(); i++)
+			for (int i = 0; i < jl.length(); i++)
 				l.add(jl.getString(i));
 		}
 		catch (Throwable e)

@@ -285,7 +285,9 @@ public class DRArchive
 		 */
 		public boolean doJob(Wiki wiki)
 		{
-			nukeLinksOnPage(getTitle(), summary, "File");
+			for(String s : fastily.getLinksOnPage(getTitle(), "File"))
+				wiki.delete(s, summary);
+
 			text = wiki.getPageText(getTitle());
 			return text != null ? wiki.edit(getTitle(), String.format("{{delh}}%n%s%n----%n'''Deleted''' -~~~~%n{{delf}}", text),
 					"deleted") : false;
