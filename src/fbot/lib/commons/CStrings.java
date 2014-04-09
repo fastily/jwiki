@@ -88,7 +88,7 @@ public class CStrings
 	/**
 	 * Regex that matches deletion templates on Commons.
 	 */
-	public static final String delregex = "(?si)\\{\\{(speedy|no permission|no license|no source).*?\\}\\}";
+	public static final String delregex = "(?si)\\{\\{(speedy|no permission|no license|no source|copyvio).*?\\}\\}";
 	
 	/**
 	 * Regex that matches DR templates on Commons.

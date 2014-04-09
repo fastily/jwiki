@@ -655,6 +655,22 @@ public class Wiki
 	}
 	
 	/**
+	 * Gets a list of pages on the Wiki.
+	 * 
+	 * @param prefix Get files starting with this String. DO NOT include a namespace prefix (e.g. "File:"). Param is
+	 *            optional, use null or empty string to disable.
+	 * @param redirectsonly Set this to true to get redirects only.
+	 * @param max The max number of titles to return.  Specify -1 to get all pages.
+	 * @param ns The namespace identifier (e.g. "File"). 
+	 * @return A list of titles as specified.
+	 */
+	public String[] allPages(String prefix, boolean redirectsonly, int max, String ns)
+	{
+		return FQuery.allPages(this, prefix, redirectsonly, max, ns);
+	}
+	
+	
+	/**
 	 * Does the same thing as Special:PrefixIndex.
 	 * 
 	 * @param namespace The namespace identifier, without the ':' (e.g. "File")
@@ -663,6 +679,6 @@ public class Wiki
 	 */
 	public String[] prefixIndex(String namespace, String prefix)
 	{
-		return FQuery.allPages(this, prefix, false, -1, namespace);
-	}	
+		return allPages(prefix, false, -1, namespace);
+	}
 }

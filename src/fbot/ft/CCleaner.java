@@ -16,7 +16,8 @@ import fbot.lib.mbot.MBot;
 import fbot.lib.util.FCLI;
 
 /**
- * Assist with cleanup on Commons.
+ * Assistant with common deletion jobs on Commons. Caveat: files should be manually reviewed in a browser before using
+ * this, as this tool only performs deletions, and nothing else.
  * 
  * @author Fastily
  * 
@@ -24,27 +25,53 @@ import fbot.lib.util.FCLI;
 public class CCleaner
 {
 	/**
+	 * The reason parameter we'll be using to delete with, if applicable.
+	 */
+	private static String rsn = null;
+	
+	/**
 	 * Main driver.
 	 * 
 	 * @param args Prog args
 	 */
 	public static void main(String[] args)
 	{
-		// Constants.debug = true;
 		CommandLine l = parseArgs(args);
-		if (l.hasOption('p'))
-			nukeLinksOnPage(l.getOptionValue('p'), l.getOptionValue('r'), "File");
-		else if (l.hasOption("dr"))
+		
+		// Perform DR archiving if requested.
+		if (l.hasOption('a'))
+			DRArchive.main(new String[0]);
+		else if (l.hasOption("ac"))
+			DRArchive.main(new String[] { "-c" });
+		
+		// Set reason param if applicable.
+		if (l.hasOption('r'))
+			rsn = l.getOptionValue('r');
+		else if (l.hasOption("oos"))
+			rsn = CStrings.oos;
+		else if (l.hasOption("ur"))
+			rsn = CStrings.ur;
+		else if (l.hasOption("house"))
+			rsn = CStrings.house;
+		
+		// Check for special, reason-related deletion requests.
+		if (rsn != null)
+		{
+			if (l.hasOption('p'))
+				nukeLinksOnPage(l.getOptionValue('p'), rsn, "File");
+			else if (l.hasOption('u'))
+				nukeUploads(l.getOptionValue('u'), rsn);
+			else if (l.hasOption('c'))
+				categoryNuke(l.getOptionValue('c'), rsn, false);
+			else if (l.hasOption('o'))
+				clearOSD(rsn);
+		}
+		else if (l.hasOption("dr")) // DR processing
 			drDel(l.getOptionValue("dr"));
-		else if (l.hasOption('u'))
-			nukeUploads(l.getOptionValue('u'), l.getOptionValue('r'));
-		else if (l.hasOption('c'))
-			categoryNuke(l.getOptionValue('c'), l.getOptionValue('r'), false);
-		else if (l.hasOption('t'))
+		else if (l.hasOption('t')) // Empty Talk Page clear from DBR
 			talkPageClear();
-		else if (l.hasOption('o'))
-			clearOSD(l.getOptionValue('r'));
 		else
+		// generic tasks. Should only run if 0 args specified, or something wasn't set right.
 		{
 			categoryNuke(CStrings.cv, CStrings.copyvio, false, "File");
 			emptyCatDel(fastily.getCategoryMembers(CStrings.osd, "Category"));
@@ -53,11 +80,6 @@ public class CCleaner
 			
 			if (l.hasOption('d'))
 				unknownClear();
-			
-			if (l.hasOption('a'))
-				DRArchive.main(new String[0]);
-			else if (l.hasOption("ac"))
-				DRArchive.main(new String[] { "-c" });
 		}
 	}
 	
@@ -82,11 +104,17 @@ public class CCleaner
 		og.addOption(new Option("ac", false, "Close all Singleton DRs"));
 		ol.addOptionGroup(og);
 		
-		ol.addOption(FCLI.makeArgOption("r", "Reason param, for use with options that require a reason", "reason"));
+		og = new OptionGroup();
+		og.addOption(FCLI.makeArgOption("r", "Reason param, for use with options that require a reason", "reason"));
+		og.addOption(new Option("oos", false, "Auto sets reason param to 'out of project scope'"));
+		og.addOption(new Option("ur", false, "Auto sets reason param to 'user requested for own upload'"));
+		og.addOption(new Option("house", false, "Auto sets reason param to 'housekeeping'"));
+		ol.addOptionGroup(og);
+		
 		ol.addOption("help", false, "Print this help message and exit");
 		ol.addOption("d", false, "Deletes everything we can in Category:Unknown");
 		
-		return FCLI.gnuParse(ol, args, "CCleaner [-dr|-t|[-p <title>|-u <user>|-c <cat>] -r <reason>]] [-d] [-a|-ac]");
+		return FCLI.gnuParse(ol, args, "CCleaner [-dr|-t|[-p <title>|-u <user>|-c <cat>] -r <reason>|-oos|-ur] [-d] [-a|-ac]");
 	}
 	
 	/**
@@ -126,7 +154,7 @@ public class CCleaner
 			catlist.add(c);
 			String r;
 			if (c.contains("permission"))
-				r = String.format("[[COM:OTRS|No permission]] since %s", c.substring(c.indexOf("as of") + 6));
+				r = String.format("[[COM:OTRS|No permission]] since %s: ", c.substring(c.indexOf("as of") + 6)) + CStrings.baseP;
 			else if (c.contains("license"))
 				r = String.format("No license since %s", c.substring(c.indexOf("as of") + 6));
 			else

@@ -56,7 +56,7 @@ public class DRArchive
 			ArrayList<ProcLog> pl = new ArrayList<ProcLog>();
 			for (String s : fsv.getValidLinksOnPage("User:FSV/DL"))
 				pl.add(new ProcLog(s));
-			WikiGen.genM("FSV", 5).start(pl.toArray(new ProcLog[0]));
+			WikiGen.genM("FSV", 2).start(pl.toArray(new ProcLog[0]));
 			
 			String x = "Report generated @ ~~~~~\n";
 			for (String s : singles)
@@ -114,7 +114,7 @@ public class DRArchive
 		public boolean doJob(Wiki wiki)
 		{
 			DRItem[] l = fetchDRs(wiki);
-			new MBot(wiki, 10).start(l);
+			new MBot(wiki, 3).start(l);
 			
 			ArrayList<String> toArchive = new ArrayList<String>();
 			for (DRItem d : l)

@@ -20,7 +20,7 @@ import fbot.lib.util.WriteFile;
  * Uploads my files to Commons. Accepts directories as arguments; Commons-acceptable files in the directories will be
  * uploaded with the parent directory name as the title, along with the current date. Categories will be set to the name
  * of the parent directory. You can specify a custom description by adding <tt>---</tt> in the title of the parent
- * directory. Any text after these three miunus signs will be added to the description of the file(s) in this directory.
+ * directory. Any text after these three minus signs will be added to the description of the file(s) in this directory.
  * Program will also output a file named <tt>fails.txt</tt> in the working directory if we failed to upload any file(s).
  * This file can be passed in as an argument in a future run to attempt a re-upload.
  * 
