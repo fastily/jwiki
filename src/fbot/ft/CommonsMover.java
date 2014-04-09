@@ -22,7 +22,7 @@ import fbot.lib.util.FError;
 import fbot.lib.util.FString;
 
 /**
- * Command line utility to transwiki items from enwp to Commons.
+ * Command line utility to transwiki items from enwp to Commons. Performs rudimentary checks for inappropriate files.
  * 
  * @author Fastily
  * 

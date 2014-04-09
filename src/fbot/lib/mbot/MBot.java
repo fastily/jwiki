@@ -56,6 +56,11 @@ public class MBot
 		this.num = num;
 	}
 	
+	/**
+	 * Starts the execution of this object.
+	 * @param ml The MAction objects to process
+	 * @return A list of titles we failed to process.
+	 */
 	public MAction[] start(MAction[] ml)
 	{
 		ThreadManager m = new ThreadManager(ml, wiki, num);
