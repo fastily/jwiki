@@ -1,0 +1,13 @@
+== Critical ==
+* CommonsMover does not work on Windows.  Windows doesn't like certain symbols in file names, so I think I should do a String hash for temp file names.  This is going to require a fat audit of WikiFile, and will require integration of it with CommonsMover
+
+== High Priority ==
+* FQuery should support multiple title queries.  Create a new class... MassFQuery?  This requires partial rewrite of a f*ck ton of functions but will give us a massive performance boost end-user applications.
+
+* WikiGen is a horrible auth system.  I like the idea of saving the login tokens locally like pywikipedia
+* * Convert GlobalReplace to a command line app, then wrap it with a GUI (Blocked on revision of auth system)
+* * Wrap CommonsMover into GUI. (Blocked on revision of auth system)
+
+== Low Priority ==
+* Commons New Image Auditor
+* Upgrade to Java 7

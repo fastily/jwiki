@@ -7,18 +7,24 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import jwiki.core.Logger;
 import jwiki.core.Wiki;
 import jwiki.core.aux.ProgressTracker;
+import jwiki.util.FSystem;
 
+/**
+ * Manages and generates threads on behalf of MBot.
+ * @author Fastily
+ *
+ */
 public class ThreadManager
 {
 	/**
 	 * Our list of MActions to act upon.
 	 */
-	private final ConcurrentLinkedQueue<MAction> todo = new ConcurrentLinkedQueue<MAction>();
+	private final ConcurrentLinkedQueue<WAction> todo = new ConcurrentLinkedQueue<WAction>();
 	
 	/**
 	 * The list of MActions that failed for whatever reason.
 	 */
-	private final ConcurrentLinkedQueue<MAction> fails = new ConcurrentLinkedQueue<MAction>();
+	private final ConcurrentLinkedQueue<WAction> fails = new ConcurrentLinkedQueue<WAction>();
 	
 	/**
 	 * Our progress tracker
@@ -38,14 +44,14 @@ public class ThreadManager
 	/**
 	 * Constructor, takes a list of items to process and the wiki object to work with.
 	 * 
-	 * @param ml The list of items to process.
+	 * @param wl The list of items to process.
 	 * @param wiki The wiki object to use.
 	 * @param num The number of threads to run.
 	 */
-	public ThreadManager(MAction[] ml, Wiki wiki, int num)
+	public ThreadManager(WAction[] wl, Wiki wiki, int num)
 	{
-		todo.addAll(Arrays.asList(ml));
-		pt = new ProgressTracker(ml.length);
+		todo.addAll(Arrays.asList(wl));
+		pt = new ProgressTracker(wl.length);
 		
 		this.wiki = wiki;
 		this.num = num;
@@ -58,33 +64,26 @@ public class ThreadManager
 	public void start()
 	{
 		ArrayList<Thread> threads = new ArrayList<Thread>();
-		for (int i = 0; i < Math.min(todo.size(), num); i++)
+		int tcnt = Math.min(todo.size(), num); // dynamically recalculated. Keep out of for loop.
+		for (int i = 0; i < tcnt; i++)
 		{
+			
 			Thread t = new Thread(new Job(this));
 			threads.add(t);
 			t.start();
 		}
-		for (Thread t : threads)
-		{
-			try
-			{
-				t.join();
-			}
-			catch (Throwable e)
-			{
-				e.printStackTrace();
-			}
-		}
+		
+		FSystem.waitOnThreads(threads.toArray(new Thread[0]));
 	}
 	
 	/**
 	 * Gets the list of failures. This will be empty until you've run start().
 	 * 
-	 * @return The current list of failures.
+	 * @return The current list of failures (i.e. WAction objects whose doJob() functions returned false).
 	 */
-	public MAction[] getFails()
+	public WAction[] getFails()
 	{
-		return fails.toArray(new MAction[0]);
+		return fails.toArray(new WAction[0]);
 	}
 	
 	/**
@@ -119,15 +118,13 @@ public class ThreadManager
 				return;
 			
 			String me = Thread.currentThread().getName() + ": ";
-			MAction curr;
+			WAction curr;
 			
 			while ((curr = m.todo.poll()) != null)
 			{
 				m.pt.inc(me);
 				if (!curr.doJob(m.wiki))
 					m.fails.add(curr);
-				else
-					curr.succeeded = true;
 			}
 			Logger.fyi(me + "There's nothing left for me!");
 		}

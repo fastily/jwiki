@@ -1,19 +1,21 @@
 package jwiki.mbot;
 
+import java.util.ArrayList;
+
 import jwiki.core.Wiki;
 
 /**
- * Basis for all task wrappers in MBot.
+ * Represents a single task to multithread in MBot. 
  * 
  * @author Fastily
  * 
  */
-public abstract class WAction extends MAction
+public abstract class WAction
 {
 	/**
 	 * The title we'll be editing.
 	 */
-	protected String title;
+	public final String title;
 
 	/**
 	 * The text we'll be adding to the page (if applicable)
@@ -24,7 +26,7 @@ public abstract class WAction extends MAction
 	 * The reason/edit summary to use
 	 */
 	protected String summary;
-
+	
 	/**
 	 * Constructor for a WAction.
 	 * 
@@ -34,7 +36,7 @@ public abstract class WAction extends MAction
 	 */
 	protected WAction(String title, String text, String summary)
 	{
-		super(title);
+		this.title = title;
 		this.text = text;
 		this.summary = summary;
 	}
@@ -55,5 +57,20 @@ public abstract class WAction extends MAction
 	public String toString()
 	{
 		return String.format("(title: %s | text: %s | reason: %s)", title, text, summary);
+	}
+	
+	/**
+	 * Grabs the title fields of the passed in MActions and returns them in an Array.
+	 * 
+	 * @param actions The actions to grab titles from
+	 * @return The list of titles as Strings.
+	 */
+	public static String[] convertToString(WAction... actions)
+	{
+		ArrayList<String> l = new ArrayList<String>();
+		for (WAction w : actions)
+			l.add(w.title);
+		
+		return l.toArray(new String[0]);
 	}
 }

@@ -35,14 +35,14 @@ public class RedirectClear
 		
 		public boolean doJob(Wiki wiki)
 		{
-			if (!fsv.globalUsage(getTitle()).isEmpty())
+			if (!fsv.globalUsage(title).isEmpty())
 				return true;
 			
 			//TODO: This really should be a replacement operation
-			if(fsv.imageUsage(getTitle()).length > 0)
+			if(fsv.imageUsage(title).length > 0)
 				return true;
 
-			return fastily.delete(getTitle(), CStrings.house);
+			return fastily.delete(title, CStrings.house);
 		}
 	}
 }
