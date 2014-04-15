@@ -58,21 +58,21 @@ public class MBot
 	
 	/**
 	 * Starts the execution of this object.
-	 * @param ml The MAction objects to process
+	 * @param wl The WAction objects to process
 	 * @return A list of titles we failed to process.
 	 */
-	public MAction[] start(MAction[] ml)
+	public WAction[] start(WAction[] ml)
 	{
 		ThreadManager m = new ThreadManager(ml, wiki, num);
 		m.start();
 		
-		MAction[] fails = m.getFails();
+		WAction[] fails = m.getFails();
 		
 		if (fails.length > 0)
 		{
 			Logger.warn(String.format("MBot failed to process (%d): ", fails.length));
-			for (MAction x : fails)
-				Logger.log(x.getTitle(), "PURPLE");
+			for (WAction x : fails)
+				Logger.log(x.title, "PURPLE");
 		}
 		else
 			Logger.fyi("MBot completed the task with 0 failures");
@@ -87,7 +87,7 @@ public class MBot
 	 * @param pages The pages to delete
 	 * @return A list of pages we failed to delete.
 	 */
-	public MAction[] massDelete(String reason, String... pages)
+	public WAction[] massDelete(String reason, String... pages)
 	{
 		ArrayList<DeleteItem> wl = new ArrayList<DeleteItem>();
 		for (String s : pages)
@@ -105,7 +105,7 @@ public class MBot
 	 * @param pages The titles to edit
 	 * @return A list of WActions we failed to process.
 	 */
-	public MAction[] massEdit(String reason, String add, String replace, String replacement, String... pages)
+	public WAction[] massEdit(String reason, String add, String replace, String replacement, String... pages)
 	{
 		ArrayList<EditItem> wl = new ArrayList<EditItem>();
 		for (String s : pages)
@@ -140,7 +140,7 @@ public class MBot
 		 */
 		public boolean doJob(Wiki wiki)
 		{
-			return wiki.delete(getTitle(), summary);
+			return wiki.delete(title, summary);
 		}	
 	}
 	
@@ -192,19 +192,19 @@ public class MBot
 		 */
 		public boolean doJob(Wiki wiki)
 		{
-			text = wiki.getPageText(getTitle());
+			text = wiki.getPageText(title);
 			if (text == null)
 				return false;
 			
 			if (replace == null && add != null) // simple append text
-				return wiki.edit(getTitle(), text + add, summary);
+				return wiki.edit(title, text + add, summary);
 			else if (replace != null && replacement != null && add != null) // replace & append
-				return wiki.edit(getTitle(), text.replaceAll(replace, replacement) + add, summary);
+				return wiki.edit(title, text.replaceAll(replace, replacement) + add, summary);
 			else if (replace != null && replacement != null) // replace only
-				return wiki.edit(getTitle(), text.replaceAll(replace, replacement), summary);
+				return wiki.edit(title, text.replaceAll(replace, replacement), summary);
 			else
 				// all null, or replace != null && replacement == null
-				Logger.error(String.format("For '%s', why is everything null?", getTitle()));
+				Logger.error(String.format("For '%s', why is everything null?", title));
 			
 			return false;
 		}

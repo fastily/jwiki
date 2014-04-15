@@ -8,7 +8,6 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import jwiki.commons.WikiGen;
 import jwiki.core.Wiki;
 import jwiki.mbot.MBot;
-import jwiki.mbot.QAction;
 import jwiki.mbot.WAction;
 import jwiki.util.FCLI;
 
@@ -120,18 +119,18 @@ public class DRArchive
 			for (DRItem d : l)
 			{
 				if (d.canA)
-					toArchive.add(d.getTitle());
+					toArchive.add(d.title);
 				else if (d.isSingle)
-					singles.add(d.getTitle());
+					singles.add(d.title);
 			}
 			
 			String[] al = toArchive.toArray(new String[0]);
 			if (al.length > 0) // for efficiency.
 			{
-				wiki.edit(getTitle(), extract(wiki.getPageText(getTitle()), al),
+				wiki.edit(title, extract(wiki.getPageText(title), al),
 						String.format(summary, toArchive.size(), "to", archive));
 				wiki.edit(archive, wiki.getPageText(archive) + pool(al),
-						String.format(summary, toArchive.size(), "from", getTitle()));
+						String.format(summary, toArchive.size(), "from", title));
 			}
 			return true;
 		}
@@ -174,7 +173,7 @@ public class DRArchive
 		private DRItem[] fetchDRs(Wiki wiki)
 		{
 			ArrayList<DRItem> l = new ArrayList<DRItem>();
-			for (String s : wiki.exists(wiki.getTemplatesOnPage(getTitle()), true))
+			for (String s : wiki.exists(wiki.getTemplatesOnPage(title), true))
 				if (s.startsWith("Commons:Deletion requests/"))
 					l.add(new DRItem(s));
 			return l.toArray(new DRItem[0]);
@@ -187,7 +186,7 @@ public class DRArchive
 	 * @author Fastily
 	 * 
 	 */
-	private static class DRItem extends QAction
+	private static class DRItem extends WAction
 	{
 		/**
 		 * The raw text of this DR
@@ -211,7 +210,7 @@ public class DRArchive
 		 */
 		private DRItem(String title)
 		{
-			super(title);
+			super(title, null, null);
 		}
 		
 		/**
@@ -222,7 +221,7 @@ public class DRArchive
 		 */
 		public boolean doJob(Wiki wiki)
 		{
-			text = wiki.getPageText(getTitle());
+			text = wiki.getPageText(title);
 			canArchive();
 			if (!canA)
 				isSingleton(wiki);
@@ -255,7 +254,7 @@ public class DRArchive
 			isSingle = text != null
 					&& !text.matches("(?si).*?\\{\\{(delh|DeletionHeader|DeletionFooter/Old|Delf|DeletionFooter|Udelf).*?\\}\\}.*?")
 					&& !text.matches(String.format("(?si).*?%s.*?%s.*?", stamp, stamp))
-					&& wiki.getLinksOnPage(getTitle(), "File").length == 1;
+					&& wiki.getLinksOnPage(title, "File").length == 1;
 		}
 	}
 	
@@ -285,11 +284,11 @@ public class DRArchive
 		 */
 		public boolean doJob(Wiki wiki)
 		{
-			for(String s : fastily.getLinksOnPage(getTitle(), "File"))
+			for(String s : fastily.getLinksOnPage(title, "File"))
 				wiki.delete(s, summary);
 
-			text = wiki.getPageText(getTitle());
-			return text != null ? wiki.edit(getTitle(), String.format("{{delh}}%n%s%n----%n'''Deleted''' -~~~~%n{{delf}}", text),
+			text = wiki.getPageText(title);
+			return text != null ? wiki.edit(title, String.format("{{delh}}%n%s%n----%n'''Deleted''' -~~~~%n{{delf}}", text),
 					"deleted") : false;
 		}
 	}

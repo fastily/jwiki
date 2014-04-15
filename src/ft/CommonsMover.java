@@ -155,14 +155,14 @@ public class CommonsMover
 		public boolean doJob(Wiki wiki)
 		{
 			if (!isEligible())
-				return FError.printErrorAndReturn(getTitle() + " is not eligible for transfer", false);
+				return FError.printErrorAndReturn(title + " is not eligible for transfer", false);
 			else if (!resolveDuplicates())
 				return true;
 			
 			File f = downloadFile();
 			String desc = getDesc();
 			if (f != null && desc != null)
-				return wiki.upload(f, transferTo, desc, String.format("from [[w:%s]]", getTitle())) && flagF8();
+				return wiki.upload(f, transferTo, desc, String.format("from [[w:%s]]", title)) && flagF8();
 			return false;
 		}
 		
@@ -174,11 +174,11 @@ public class CommonsMover
 		 */
 		private boolean resolveDuplicates()
 		{
-			if (!com.exists(getTitle()))
+			if (!com.exists(title))
 				return true;
 			try
 			{
-				if (com.getImageInfo(getTitle()).getSize() == enwp.getImageInfo(getTitle()).getSize())
+				if (com.getImageInfo(title).getSize() == enwp.getImageInfo(title).getSize())
 				{
 					flagF8();
 					return false;
@@ -203,7 +203,7 @@ public class CommonsMover
 		 */
 		private boolean isEligible()
 		{
-			return !FString.arraysIntersect(enwp.getCategoriesOnPage(getTitle()), blacklist);
+			return !FString.arraysIntersect(enwp.getCategoriesOnPage(title), blacklist);
 		}
 		
 		/**
@@ -213,8 +213,8 @@ public class CommonsMover
 		 */
 		private boolean flagF8()
 		{
-			return enwp.addText(getTitle(),
-					String.format("\n{{subst:ncd%s}}", !transferTo.equals(getTitle()) ? "|" + transferTo : ""), "F8",
+			return enwp.addText(title,
+					String.format("\n{{subst:ncd%s}}", !transferTo.equals(title) ? "|" + transferTo : ""), "F8",
 					true);
 		}
 		
@@ -226,7 +226,7 @@ public class CommonsMover
 		private File downloadFile()
 		{
 			String path = titleNNS;
-			return FTask.downloadFile(getTitle(), path, enwp) ? new File(path) : null;
+			return FTask.downloadFile(title, path, enwp) ? new File(path) : null;
 		}
 		
 		/**
@@ -236,7 +236,7 @@ public class CommonsMover
 		 */
 		private String getDesc()
 		{
-			Logger.fyi("Generating description page for " + getTitle());
+			Logger.fyi("Generating description page for " + title);
 			try
 			{
 				String tl = Tools.enc(titleNNS);

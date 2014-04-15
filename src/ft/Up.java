@@ -9,7 +9,6 @@ import java.util.HashMap;
 
 import jwiki.commons.WikiGen;
 import jwiki.core.Wiki;
-import jwiki.mbot.MAction;
 import jwiki.mbot.WAction;
 import jwiki.util.FError;
 import jwiki.util.ReadFile;
@@ -64,7 +63,7 @@ public class Up
 		for (WikiFile wf : parseArgs(args))
 			l.add(genUI(wf));
 		
-		String[] fails = MAction.convertToString(WikiGen.genM("Fastily", 1).start(l.toArray(new UploadItem[0])));
+		String[] fails = WAction.convertToString(WikiGen.genM("Fastily", 1).start(l.toArray(new UploadItem[0])));
 		if (fails.length > 0)
 			new WriteFile(new File("fails.txt"), fails);
 	}

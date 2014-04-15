@@ -5,7 +5,6 @@ import java.util.Arrays;
 
 import jwiki.core.Contrib;
 import jwiki.core.Wiki;
-import jwiki.mbot.MAction;
 import jwiki.mbot.MBot;
 import jwiki.mbot.WAction;
 import jwiki.util.FError;
@@ -135,7 +134,7 @@ public class Commons
 			l.add(new WAction(s, null, CStrings.nfu) {
 				public boolean doJob(Wiki wiki)
 				{
-					return wiki.getImageInfo(getTitle()) == null ? wiki.delete(getTitle(), summary) : true;
+					return wiki.getImageInfo(title) == null ? wiki.delete(title, summary) : true;
 				}
 			});
 		
@@ -155,7 +154,7 @@ public class Commons
 			l.add(new WAction(s, null, CStrings.ec) {
 				public boolean doJob(Wiki wiki)
 				{
-					return wiki.getCategorySize(getTitle()) <= 0 ? wiki.delete(getTitle(), summary) : true;
+					return wiki.getCategorySize(title) <= 0 ? wiki.delete(title, summary) : true;
 				}
 			});
 		return doAction("Fastily", l.toArray(new WAction[0]));
@@ -228,7 +227,7 @@ public class Commons
 	 */
 	public static String[] nuke(String reason, String... pages)
 	{
-		return MAction.convertToString(WikiGen.genM("Fastily").massDelete(reason, pages));
+		return WAction.convertToString(WikiGen.genM("Fastily").massDelete(reason, pages));
 	}
 	
 	/**
@@ -240,7 +239,7 @@ public class Commons
 	 */
 	public static String[] doAction(String user, WAction... pages)
 	{
-		return MAction.convertToString(WikiGen.genM(user).start(pages));
+		return WAction.convertToString(WikiGen.genM(user).start(pages));
 	}
 	
 	/**
@@ -290,7 +289,7 @@ public class Commons
 	 */
 	public static String[] removeDelete(String reason, String... titles)
 	{
-		return MAction.convertToString(new MBot(fsv).massEdit(reason, "", CStrings.drregex, "", titles));
+		return WAction.convertToString(new MBot(fsv).massEdit(reason, "", CStrings.drregex, "", titles));
 	}
 	
 	/**
@@ -302,7 +301,7 @@ public class Commons
 	 */
 	public static String[] removeLSP(String reason, String... titles)
 	{
-		return MAction.convertToString(new MBot(fsv).massEdit(reason, "", CStrings.delregex, "", titles));
+		return WAction.convertToString(new MBot(fsv).massEdit(reason, "", CStrings.delregex, "", titles));
 	}
 	
 	/**
@@ -315,7 +314,7 @@ public class Commons
 	 */
 	public static String[] addText(String reason, String text, String... titles)
 	{
-		return MAction.convertToString(new MBot(fsv).massEdit(reason, text, null, null, titles));
+		return WAction.convertToString(new MBot(fsv).massEdit(reason, text, null, null, titles));
 	}
 	
 }

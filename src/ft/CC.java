@@ -9,7 +9,6 @@ import jwiki.commons.Commons;
 import jwiki.commons.WikiGen;
 import jwiki.core.Logger;
 import jwiki.core.Wiki;
-import jwiki.mbot.MAction;
 import jwiki.mbot.MBot;
 import jwiki.mbot.WAction;
 import jwiki.util.FCLI;
@@ -73,10 +72,10 @@ public class CC
 		else
 			ccwl = generateCCW(l.getArgs());
 		
-		MAction[] ml = new MBot(WikiGen.generate("FSVI"), Integer.parseInt(l.getOptionValue('h', "1"))).start(ccwl);
+		WAction[] ml = new MBot(WikiGen.generate("FSVI"), Integer.parseInt(l.getOptionValue('h', "1"))).start(ccwl);
 		
 		if (l.hasOption('m'))
-			Commons.fsv.edit("User:Fastily/A7", "Generated at ~~~~~\n\n" + FString.listCombo(MAction.convertToString(ml)),
+			Commons.fsv.edit("User:Fastily/A7", "Generated at ~~~~~\n\n" + FString.listCombo(WAction.convertToString(ml)),
 					"Update report");
 	}
 	
