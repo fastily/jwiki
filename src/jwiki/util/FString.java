@@ -1,10 +1,14 @@
 package jwiki.util;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
+import java.util.Scanner;
+
+import jwiki.core.aux.Tuple;
 
 /**
  * Contains personalized String related methods for my bot programs.
@@ -43,23 +47,6 @@ public class FString
 	}
 	
 	/**
-	 * Splits a String in half and returns a part of it. Only splits on the first or last occurrence of <tt>delim</tt>.
-	 * 
-	 * @param s The String to split.
-	 * @param delim The split token to use. The String will be split on this String.
-	 * @param first Set to true to split at the first occurrence of <tt>delim</tt>
-	 * @param front Set to true to get the first half of the split, e.g. array[0].
-	 * @return
-	 */
-	public static String splitGrab(String s, String delim, boolean first, boolean front)
-	{
-		int pos = first ? s.indexOf(delim) : s.lastIndexOf(delim);
-		if (pos == -1)
-			return s;
-		return front ? s.substring(0, pos) : s.substring(pos + 1);
-	}
-	
-	/**
 	 * Takes a list of Strings and concatenates it into a single string. Each item in the list separated by the system
 	 * default newline character.
 	 * 
@@ -72,6 +59,23 @@ public class FString
 		for (String s : list)
 			x += s + FSystem.lsep;
 		return x;
+	}
+	
+	/**
+	 * Splits a long string into a list of strings using newline chars as deliminators.
+	 * 
+	 * @param longstring The string to split
+	 * @return A list of strings.
+	 */
+	public static String[] splitCombo(String longstring)
+	{
+		ArrayList<String> l = new ArrayList<String>();
+		Scanner m = new Scanner(longstring);
+		
+		while (m.hasNextLine())
+			l.add(m.nextLine().trim());
+		
+		return l.toArray(new String[0]);
 	}
 	
 	/**
@@ -116,7 +120,7 @@ public class FString
 	}
 	
 	/**
-	 * Makes a regex for replacing titles/files on a page.
+	 * Makes a regex for replacing titles/files on a page. Converts regex operators to their escaped counterparts.
 	 * 
 	 * @param title The title to convert into a regex.
 	 * @return The regex.
@@ -128,5 +132,20 @@ public class FString
 			temp = temp.replace(s, "\\" + s);
 		temp = temp.replaceAll("( |_)", "( |_)");
 		return temp;
+	}
+	
+	/**
+	 * Splits a string on a deliminator. The deliminator is omitted. PRECONDITION: There must be a delim present, and at
+	 * least one character after the end of the first instance of the deliminator.
+	 * 
+	 * @param s The string to split
+	 * @param delim The delim to use
+	 * @return A tuple representing the object split.
+	 */
+	public static Tuple<String, String> splitOn(String s, String delim)
+	{
+		String s1 = s.substring(0, s.indexOf(delim));
+		String s2 = s.substring(s.indexOf(delim) + delim.length());
+		return new Tuple<String, String>(s1, s2);
 	}
 }

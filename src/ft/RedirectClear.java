@@ -22,7 +22,7 @@ public class RedirectClear
 		for (String s : fsv.allPages(null, true, process, "File"))
 			l.add(new RItem(s));
 		
-		WikiGen.genM("Fastily", 3).start(l.toArray(new RItem[0]));
+		WikiGen.genM("Fastily", 6).start(l.toArray(new RItem[0]));
 		
 	}
 	
