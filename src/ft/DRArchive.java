@@ -44,16 +44,16 @@ public class DRArchive
 		if (l.hasOption('c'))
 		{
 			ArrayList<ProcDR> dl = new ArrayList<ProcDR>();
-			for(String s : fastily.getTemplatesOnPage("User:Fastily/SingletonDR"))
-				if(s.startsWith("Commons:Deletion requests/"))
+			for (String s : fastily.getTemplatesOnPage("User:Fastily/SingletonDR"))
+				if (s.startsWith("Commons:Deletion requests/"))
 					dl.add(new ProcDR(s));
 			doAction("Fastily", dl.toArray(new ProcDR[0]));
 		}
 		else
 		{
-			fsv.nullEdit("User:FSV/DL");
+			fsv.nullEdit("User:FastilyClone/DL");
 			ArrayList<ProcLog> pl = new ArrayList<ProcLog>();
-			for (String s : fsv.getValidLinksOnPage("User:FSV/DL"))
+			for (String s : fsv.getValidLinksOnPage("User:FastilyClone/DL"))
 				pl.add(new ProcLog(s));
 			WikiGen.genM("FSV", 2).start(pl.toArray(new ProcLog[0]));
 			
@@ -127,10 +127,8 @@ public class DRArchive
 			String[] al = toArchive.toArray(new String[0]);
 			if (al.length > 0) // for efficiency.
 			{
-				wiki.edit(title, extract(wiki.getPageText(title), al),
-						String.format(summary, toArchive.size(), "to", archive));
-				wiki.edit(archive, wiki.getPageText(archive) + pool(al),
-						String.format(summary, toArchive.size(), "from", title));
+				wiki.edit(title, extract(wiki.getPageText(title), al), String.format(summary, toArchive.size(), "to", archive));
+				wiki.edit(archive, wiki.getPageText(archive) + pool(al), String.format(summary, toArchive.size(), "from", title));
 			}
 			return true;
 		}
@@ -284,9 +282,9 @@ public class DRArchive
 		 */
 		public boolean doJob(Wiki wiki)
 		{
-			for(String s : fastily.getLinksOnPage(title, "File"))
+			for (String s : fastily.getLinksOnPage(title, "File"))
 				wiki.delete(s, summary);
-
+			
 			text = wiki.getPageText(title);
 			return text != null ? wiki.edit(title, String.format("{{delh}}%n%s%n----%n'''Deleted''' -~~~~%n{{delf}}", text),
 					"deleted") : false;

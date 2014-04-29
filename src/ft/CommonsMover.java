@@ -17,7 +17,6 @@ import jwiki.mbot.WAction;
 import jwiki.util.FCLI;
 import jwiki.util.FError;
 import jwiki.util.FString;
-import jwiki.util.FSystem;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;

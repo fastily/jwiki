@@ -79,7 +79,7 @@ public class Request
 	private static URLConnection genericURLConnection(URL url, CookieManager cookiejar) throws IOException
 	{
 		URLConnection c = url.openConnection();
-		c.setRequestProperty("User-Agent", "fpowertoys"); // required, or server will 403.
+		c.setRequestProperty("User-Agent", "fpwertoys"); // required, or server will 403.
 		
 		c.setConnectTimeout(connectTimeout);
 		c.setReadTimeout(readTimeout);

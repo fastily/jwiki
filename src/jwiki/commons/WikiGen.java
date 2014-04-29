@@ -66,7 +66,7 @@ public class WikiGen
 			return cache.get(user).getWiki(domain);
 		try
 		{
-			wiki = user.equals("Fastily") ? new Wiki(user, px.get("FP"), domain) : new Wiki(user, px.get("FSP"), domain);
+			wiki = user.equals("Fastily") ? new Wiki(user, px.get("FP"), domain) : new Wiki("FastilyClone", px.get("FSP"), domain);
 			cache.put(user, wiki);
 		}
 		catch (Throwable e)

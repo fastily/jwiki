@@ -1,6 +1,6 @@
 package ft;
 
-import java.io.File;
+import java.io.FileWriter;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -11,9 +11,9 @@ import jwiki.commons.WikiGen;
 import jwiki.core.Wiki;
 import jwiki.mbot.WAction;
 import jwiki.util.FError;
+import jwiki.util.FString;
 import jwiki.util.ReadFile;
 import jwiki.util.WikiFile;
-import jwiki.util.WriteFile;
 
 /**
  * Uploads my files to Commons. Accepts directories as arguments; Commons-acceptable files in the directories will be
@@ -65,7 +65,18 @@ public class Up
 		
 		String[] fails = WAction.convertToString(WikiGen.genM("Fastily", 1).start(l.toArray(new UploadItem[0])));
 		if (fails.length > 0)
-			new WriteFile(new File("fails.txt"), fails);
+		{
+			try
+			{
+				FileWriter fw = new FileWriter("fails.txt");
+				fw.write(FString.listCombo(fails));
+				fw.close();
+			}
+			catch(Throwable e)
+			{
+				e.printStackTrace();
+			}
+		}
 	}
 	
 	/**

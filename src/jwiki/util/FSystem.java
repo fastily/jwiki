@@ -28,6 +28,9 @@ public class FSystem
 	 */
 	public static final String home = System.getProperty("user.home");
 	
+	
+	public static final boolean isWindows = System.getProperty("os.name").contains("Windows");
+	
 	/**
 	 * Hiding constructor from javadoc
 	 */
@@ -37,23 +40,13 @@ public class FSystem
 	}
 	
 	/**
-	 * Checks if the OS we're using is Windows.
-	 * 
-	 * @return True if our OS is Windows.
-	 */
-	public static boolean isWindows()
-	{
-		return System.getProperty("os.name").contains("Windows");
-	}
-	
-	/**
 	 * Gets the default character sets for file read-ins/writes by os. e.g. Windows = "Unicode" , unix = "UTF-8"
 	 * 
 	 * @return The charset defined for this os.
 	 */
 	public static String getDefaultCharset()
 	{
-		return isWindows() ? "US-ASCII" : "UTF-8";
+		return isWindows ? "US-ASCII" : "UTF-8";
 	}
 	
 	/**
@@ -63,7 +56,7 @@ public class FSystem
 	 */
 	public static String getScriptHeader()
 	{
-		return (isWindows() ? "@echo off" : "#!/bin/bash\n") + lsep;
+		return (isWindows ? "@echo off" : "#!/bin/bash\n") + lsep;
 	}
 	
 	/**
