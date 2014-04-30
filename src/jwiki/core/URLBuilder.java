@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import jwiki.util.FString;
+
 /**
  * Builds a URL with the specified domain. Retains state and is easily modifiable, so it can be used to make multiple,
  * similar queries.
@@ -196,7 +198,7 @@ public class URLBuilder
 		for (int i = 1; i < props.length; i++)
 			x += "|" + props[i];
 		
-		return Tools.enc(x);
+		return FString.enc(x);
 	}
 	
 }

@@ -1,18 +1,12 @@
 package ft;
 
-import static jwiki.commons.Commons.*;
-
 import java.util.ArrayList;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-import jwiki.commons.WikiGen;
 import jwiki.core.Wiki;
 import jwiki.mbot.MBot;
 import jwiki.mbot.WAction;
-import jwiki.util.FCLI;
-
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.Options;
+import jwiki.util.WikiFactory;
 
 /**
  * Archives all closed DRs older than 7 days.
@@ -34,50 +28,28 @@ public class DRArchive
 			+ "May|June|July|August|September|October|November|December) \\d{4}?";
 	
 	/**
+	 * Wiki representing the archive bot.
+	 */
+	private static final Wiki archivebot = WikiFactory.generate("ArchiveBot");
+	
+	/**
 	 * Main driver.
 	 * 
 	 * @param args Prog args.
 	 */
 	public static void main(String[] args)
 	{
-		CommandLine l = parseArgs(args);
-		if (l.hasOption('c'))
-		{
-			ArrayList<ProcDR> dl = new ArrayList<ProcDR>();
-			for (String s : fastily.getTemplatesOnPage("User:Fastily/SingletonDR"))
-				if (s.startsWith("Commons:Deletion requests/"))
-					dl.add(new ProcDR(s));
-			doAction("Fastily", dl.toArray(new ProcDR[0]));
-		}
-		else
-		{
-			fsv.nullEdit("User:FastilyClone/DL");
-			ArrayList<ProcLog> pl = new ArrayList<ProcLog>();
-			for (String s : fsv.getValidLinksOnPage("User:FastilyClone/DL"))
-				pl.add(new ProcLog(s));
-			WikiGen.genM("FSV", 2).start(pl.toArray(new ProcLog[0]));
-			
-			String x = "Report generated @ ~~~~~\n";
-			for (String s : singles)
-				x += String.format("%n{{%s}}", s);
-			fsv.edit("User:Fastily/SingletonDR", x, "Update report");
-		}
-	}
-	
-	/**
-	 * Parses the command line arguments.
-	 * 
-	 * @param args The program args recieved by main
-	 * @return A set of parsed args
-	 */
-	private static CommandLine parseArgs(String[] args)
-	{
-		Options ol = new Options();
+		archivebot.nullEdit("User:FastilyClone/DL");
+		ArrayList<ProcLog> pl = new ArrayList<ProcLog>();
+		for (String s : archivebot.getValidLinksOnPage("User:FastilyClone/DL"))
+			pl.add(new ProcLog(s));
+		WikiFactory.genM("ArchiveBot", 2).start(pl.toArray(new ProcLog[0]));
 		
-		ol.addOption("c", false, "If this is set, close all DRs of 'User:Fastily/SingletonDR'");
-		ol.addOption("help", false, "Print this help message and exit");
+		String x = "Report generated @ ~~~~~\n";
+		for (String s : singles)
+			x += String.format("%n{{%s}}", s);
+		archivebot.edit("User:Fastily/SingletonDR", x, "Update report");
 		
-		return FCLI.gnuParse(ol, args, "DRArchive [-c]");
 	}
 	
 	/**
@@ -253,41 +225,6 @@ public class DRArchive
 					&& !text.matches("(?si).*?\\{\\{(delh|DeletionHeader|DeletionFooter/Old|Delf|DeletionFooter|Udelf).*?\\}\\}.*?")
 					&& !text.matches(String.format("(?si).*?%s.*?%s.*?", stamp, stamp))
 					&& wiki.getLinksOnPage(title, "File").length == 1;
-		}
-	}
-	
-	/**
-	 * Represents a DR to process and close.
-	 * 
-	 * @author Fastily
-	 * 
-	 */
-	private static class ProcDR extends WAction
-	{
-		/**
-		 * Constructor.
-		 * 
-		 * @param title The DR to process
-		 */
-		private ProcDR(String title)
-		{
-			super(title, null, String.format("[[%s]]", title));
-		}
-		
-		/**
-		 * Delete all files on the page and mark the DR as closed.
-		 * 
-		 * @param wiki The wiki object to use
-		 * @return True if we were successful
-		 */
-		public boolean doJob(Wiki wiki)
-		{
-			for (String s : fastily.getLinksOnPage(title, "File"))
-				wiki.delete(s, summary);
-			
-			text = wiki.getPageText(title);
-			return text != null ? wiki.edit(title, String.format("{{delh}}%n%s%n----%n'''Deleted''' -~~~~%n{{delf}}", text),
-					"deleted") : false;
 		}
 	}
 }

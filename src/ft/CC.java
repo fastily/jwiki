@@ -6,7 +6,6 @@ import java.util.HashSet;
 
 import jwiki.commons.CStrings;
 import jwiki.commons.Commons;
-import jwiki.commons.WikiGen;
 import jwiki.core.Logger;
 import jwiki.core.Wiki;
 import jwiki.mbot.MBot;
@@ -14,6 +13,7 @@ import jwiki.mbot.WAction;
 import jwiki.util.FCLI;
 import jwiki.util.FString;
 import jwiki.util.ReadFile;
+import jwiki.util.WikiFactory;
 import jwiki.util.WikiFile;
 
 import org.apache.commons.cli.CommandLine;
@@ -29,7 +29,7 @@ import org.apache.commons.cli.ParseException;
 public class CC
 {
 	/**
-	 * Upload test text. 
+	 * Upload test text.
 	 */
 	public static final String utt = "Recreating [[bugzilla:36587]] (i.e. [[Special:UploadStash|upload stash]] bug) & "
 			+ "collecting data to log.\n{{Warning|'''Test area only!  File may be non-free.''' This is just a test"
@@ -60,23 +60,23 @@ public class CC
 	{
 		CommandLine l = parseArgs(args);
 		if (l.hasOption('f'))
-			Commons.nukeFastilyTest(true);
+			new Commons(WikiFactory.generate("Fastily")).nukeFastilyTest(true);
 		
 		nd = l.hasOption("nd") || l.hasOption("sd");
 		repeats = Integer.parseInt(l.getOptionValue('r', "1"));
 		nr = l.hasOption("nr");
 		
 		CCW[] ccwl;
-		if(l.hasOption('t'))
+		if (l.hasOption('t'))
 			ccwl = generateCCW(new ReadFile(l.getOptionValue('t')).getList());
 		else
 			ccwl = generateCCW(l.getArgs());
 		
-		WAction[] ml = new MBot(WikiGen.generate("FSVI"), Integer.parseInt(l.getOptionValue('h', "1"))).start(ccwl);
+		WAction[] ml = new MBot(WikiFactory.generate("FSVI"), Integer.parseInt(l.getOptionValue('h', "1"))).start(ccwl);
 		
 		if (l.hasOption('m'))
-			Commons.fsv.edit("User:Fastily/A7", "Generated at ~~~~~\n\n" + FString.listCombo(WAction.convertToString(ml)),
-					"Update report");
+			WikiFactory.generate("FastilyClone").edit("User:Fastily/A7",
+					"Generated at ~~~~~\n\n" + FString.fenceMaker("%n", WAction.convertToString(ml)), "Update report");
 	}
 	
 	/**
@@ -144,7 +144,7 @@ public class CC
 		/**
 		 * Our deletion account
 		 */
-		private static Wiki ft = WikiGen.generate("Fastily");
+		private static Wiki ft = WikiFactory.generate("Fastily");
 		
 		/**
 		 * The WikiFile to upload

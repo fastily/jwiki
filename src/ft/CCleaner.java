@@ -1,13 +1,15 @@
 package ft;
 
-import static jwiki.commons.Commons.*;
-
 import java.util.ArrayList;
 import java.util.Scanner;
 
 import jwiki.commons.CStrings;
+import jwiki.commons.Commons;
+import jwiki.core.Wiki;
 import jwiki.mbot.MBot;
+import jwiki.mbot.WAction;
 import jwiki.util.FCLI;
+import jwiki.util.WikiFactory;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
@@ -29,6 +31,21 @@ public class CCleaner
 	private static String rsn = null;
 	
 	/**
+	 * Our non-admin wiki object
+	 */
+	private static Wiki fc = WikiFactory.generate("FastilyClone");
+	
+	/**
+	 * Our admin wiki object.
+	 */
+	private static Wiki fastily = WikiFactory.generate("Fastily");
+	
+	/**
+	 * Our resident commons object.
+	 */
+	private static Commons com = new Commons(fc, fastily);
+	
+	/**
 	 * Main driver.
 	 * 
 	 * @param args Prog args
@@ -41,7 +58,7 @@ public class CCleaner
 		if (l.hasOption('a'))
 			DRArchive.main(new String[0]);
 		else if (l.hasOption("ac"))
-			DRArchive.main(new String[] { "-c" });
+			processDRs();
 		
 		// Set reason param if applicable.
 		if (l.hasOption('r'))
@@ -57,25 +74,25 @@ public class CCleaner
 		if (rsn != null)
 		{
 			if (l.hasOption('p'))
-				nukeLinksOnPage(l.getOptionValue('p'), rsn, "File");
+				com.nukeLinksOnPage(l.getOptionValue('p'), rsn, "File");
 			else if (l.hasOption('u'))
-				nukeUploads(l.getOptionValue('u'), rsn);
+				com.nukeUploads(l.getOptionValue('u'), rsn);
 			else if (l.hasOption('c'))
-				categoryNuke(l.getOptionValue('c'), rsn, false);
+				com.categoryNuke(l.getOptionValue('c'), rsn, false);
 			else if (l.hasOption('o'))
-				clearOSD(rsn);
+				com.clearOSD(rsn);
 		}
 		else if (l.hasOption("dr")) // DR processing
-			drDel(l.getOptionValue("dr"));
+			com.drDel(l.getOptionValue("dr"));
 		else if (l.hasOption('t')) // Empty Talk Page clear from DBR
 			talkPageClear();
 		else
 		// generic tasks. Should only run if 0 args specified, or something wasn't set right.
 		{
-			categoryNuke(CStrings.cv, CStrings.copyvio, false, "File");
-			emptyCatDel(fastily.getCategoryMembers(CStrings.osd, "Category"));
-			emptyCatDel(fastily.getCategoryMembers("Non-media deletion requests", "Category"));
-			nukeEmptyFiles(fastily.getCategoryMembers(CStrings.osd, "File"));
+			com.categoryNuke(CStrings.cv, CStrings.copyvio, false, "File");
+			com.emptyCatDel(fastily.getCategoryMembers(CStrings.osd, "Category"));
+			com.emptyCatDel(fastily.getCategoryMembers("Non-media deletion requests", "Category"));
+			com.nukeEmptyFiles(fastily.getCategoryMembers(CStrings.osd, "File"));
 			
 			if (l.hasOption('d'))
 				unknownClear();
@@ -132,7 +149,7 @@ public class CCleaner
 				l.add(ln.substring(ln.indexOf("=") + 1, ln.indexOf("}}")));
 		m.close();
 		
-		return nuke("Orphaned talk page", l.toArray(new String[0]));
+		return com.nuke("Orphaned talk page", l.toArray(new String[0]));
 	}
 	
 	/**
@@ -143,12 +160,12 @@ public class CCleaner
 	 */
 	private static String[] unknownClear()
 	{
-		fsv.nullEdit("User:FSV/UC");
+		fc.nullEdit("User:FastilyClone/UC");
 		
 		ArrayList<String> catlist = new ArrayList<String>();
 		ArrayList<MBot.DeleteItem> l = new ArrayList<MBot.DeleteItem>();
 		
-		for (String c : fastily.getValidLinksOnPage("User:FSV/UC"))
+		for (String c : fastily.getValidLinksOnPage("User:FastilyClone/UC"))
 		{
 			catlist.add(c);
 			String r;
@@ -162,8 +179,56 @@ public class CCleaner
 			for (String s : fastily.getCategoryMembers(c, "File"))
 				l.add(new MBot.DeleteItem(s, r));
 		}
-		doAction("Fastily", l.toArray(new MBot.DeleteItem[0]));
-		return emptyCatDel(catlist.toArray(new String[0]));
+		
+		WikiFactory.genM("Fastily").start(l.toArray(new MBot.DeleteItem[0]));
+		return com.emptyCatDel(catlist.toArray(new String[0]));
 	}
 	
+	/**
+	 * Process (close & delete) all DRs on 'User:Fastily/SingletonDR'
+	 * @return A list of titles we didn't process.
+	 */
+	private static String[] processDRs()
+	{
+		ArrayList<ProcDR> dl = new ArrayList<ProcDR>();
+		for (String s : fastily.getTemplatesOnPage("User:Fastily/SingletonDR"))
+			if (s.startsWith("Commons:Deletion requests/"))
+				dl.add(new ProcDR(s));
+		return WAction.convertToString(WikiFactory.genM("Fastily").start(dl.toArray(new ProcDR[0])));
+	}
+	
+	/**
+	 * Represents a DR to process and close.
+	 * 
+	 * @author Fastily
+	 * 
+	 */
+	private static class ProcDR extends WAction
+	{
+		/**
+		 * Constructor.
+		 * 
+		 * @param title The DR to process
+		 */
+		private ProcDR(String title)
+		{
+			super(title, null, String.format("[[%s]]", title));
+		}
+		
+		/**
+		 * Delete all files on the page and mark the DR as closed.
+		 * 
+		 * @param wiki The wiki object to use
+		 * @return True if we were successful
+		 */
+		public boolean doJob(Wiki wiki)
+		{
+			for (String s : fastily.getLinksOnPage(title, "File"))
+				wiki.delete(s, summary);
+			
+			text = wiki.getPageText(title);
+			return text != null ? wiki.edit(title, String.format("{{delh}}%n%s%n----%n'''Deleted''' -~~~~%n{{delf}}", text),
+					"deleted") : false;
+		}
+	}
 }

@@ -6,17 +6,17 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
 
-import jwiki.commons.WikiGen;
 import jwiki.core.FTask;
 import jwiki.core.Logger;
 import jwiki.core.Namespace;
 import jwiki.core.Request;
-import jwiki.core.Tools;
 import jwiki.core.Wiki;
 import jwiki.mbot.WAction;
 import jwiki.util.FCLI;
 import jwiki.util.FError;
+import jwiki.util.FIO;
 import jwiki.util.FString;
+import jwiki.util.WikiFactory;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
@@ -73,7 +73,7 @@ public class CommonsMover
 	public static void main(String[] args)
 	{
 		CommandLine l = parseArgs(args);
-		com = WikiGen.generate("FSV");
+		com = WikiFactory.generate("FastilyClone");
 		enwp = com.getWiki("en.wikipedia.org");
 		
 		if (l.hasOption('t'))
@@ -95,7 +95,7 @@ public class CommonsMover
 		ArrayList<TransferItem> tfl = new ArrayList<TransferItem>();
 		for (String s : tl)
 			tfl.add(new TransferItem(s));
-		WikiGen.genM("FSV", maxthreads).start(tfl.toArray(new TransferItem[0]));
+		WikiFactory.genM("FastilyClone", maxthreads).start(tfl.toArray(new TransferItem[0]));
 	}
 	
 	/**
@@ -238,8 +238,8 @@ public class CommonsMover
 			Logger.fyi("Generating description page for " + title);
 			try
 			{
-				String tl = Tools.enc(titleNNS);
-				String s = Tools.inputStreamToString(
+				String tl = FString.enc(titleNNS);
+				String s = FIO.inputStreamToString(
 						Request.genericPost(new URL(url), null, Request.urlenc, String.format(posttext, tl)), true);
 				return s.substring(s.indexOf("{{Info"), s.indexOf("</textarea>"));
 			}

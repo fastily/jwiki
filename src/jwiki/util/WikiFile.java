@@ -249,7 +249,7 @@ public class WikiFile
 	 * 
 	 * @param fullpath Set to true if we want the absolute pathname. Otherwise, just the name of the directory is
 	 *            returned.
-	 * @return Tehe parent directory of the WikiFile, or null if there is no parent.
+	 * @return The parent directory of the WikiFile, or null if there is no parent.
 	 */
 	public String getParent(boolean fullpath)
 	{

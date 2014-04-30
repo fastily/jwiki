@@ -14,8 +14,6 @@ import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.PBEParameterSpec;
 
-import jwiki.core.aux.Tuple;
-
 /**
  * Create an encrypted user/password file so you don't have to re-enter credentials every time you run programs.
  * 
@@ -52,22 +50,17 @@ public class FLogin
 	/**
 	 * The default .px.txt location.
 	 */
-	private static final String pxloc1 = String.format("%s%s%s", FSystem.home, FSystem.psep, ".px.txt");
+	protected static final String pxloc1 = String.format("%s%s%s", FSystem.home, FSystem.psep, ".px.txt");
 	
 	/**
 	 * The secondary .px.txt location
 	 */
-	private static final String pxloc2 = ".px.txt";
+	protected static final String pxloc2 = ".px.txt";
 	
 	/**
 	 * If main() is called, this will be initialized to the JVM's console.
 	 */
 	private static Console c;
-	
-	/**
-	 * Our credentials that we decrypted.
-	 */
-	private static HashMap<String, String> pxlist = new HashMap<String, String>();
 	
 	/**
 	 * Internal method to create our cipher
@@ -166,7 +159,7 @@ public class FLogin
 	 */
 	private static Tuple<String, String> genPX()
 	{
-		String u = c.readLine("Enter a username: ").trim();
+		String u = c.readLine("%nEnter a username: ").trim();
 		c.printf("=== Characters hidden for security === %n");
 		char[] p1 = c.readPassword("Enter password for %s: ", u);
 		char[] p2 = c.readPassword("Confirm/Re-enter password for %s: ", u);
@@ -223,8 +216,9 @@ public class FLogin
 	/**
 	 * Generates the user/password list by decoding .px.txt files.
 	 */
-	private static void genPXList()
+	protected static HashMap<String, String> genPXList()
 	{
+		HashMap<String, String> pxlist = new HashMap<String, String>();
 		try
 		{
 			FileInputStream fis;
@@ -250,24 +244,7 @@ public class FLogin
 			e.printStackTrace();
 			FError.errAndExit(e, ".px.txt doesn't seem to exist anywhere.  Run 'java FLogin' to create .px.txt");
 		}
-	}
-	
-	/**
-	 * Gets the password for the username specified. Note that you must have run <tt>java FLogin</tt> and entered valid
-	 * credentials for this to work.
-	 * 
-	 * @param user The username to get the password for
-	 * @return The password or null if something went wrong (e.g. you never ran FLogin).
-	 */
-	public static String getPXFor(String user)
-	{
-		if (pxlist.isEmpty())
-		{
-			genPXList();
-			if (pxlist.isEmpty())
-				FError.errAndExit(".px.txt is corrupt/empty.  Please regenerate.");
-		}
 		
-		return pxlist.get(user);
+		return pxlist;
 	}
 }

@@ -1,6 +1,6 @@
 package jwiki.core;
 
-import jwiki.core.aux.JSONParse;
+import jwiki.util.JSONParse;
 
 import org.json.JSONObject;
 
