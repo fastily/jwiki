@@ -3,7 +3,7 @@ package jwiki.core;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import jwiki.core.aux.Tuple;
+import jwiki.util.Tuple;
 
 import org.json.JSONObject;
 

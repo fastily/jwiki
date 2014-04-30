@@ -6,6 +6,9 @@ import java.io.IOException;
 import java.util.HashMap;
 
 import jwiki.util.FError;
+import jwiki.util.FIO;
+import jwiki.util.FString;
+import jwiki.util.FSystem;
 
 /**
  * Performs an action on a wiki. Will never throw an exception. Most methods return some sort of value indicating
@@ -79,7 +82,7 @@ public class FAction
 		URLBuilder ub = wiki.makeUB();
 		ub.setAction("edit");
 		
-		String[] es = Tools.massEnc(title, text, reason, wiki.token);
+		String[] es = FString.massEnc(title, text, reason, wiki.token);
 		String posttext = URLBuilder.chainParams("title", es[0], "text", es[1], "summary", es[2], "token", es[3]);
 		
 		try
@@ -129,7 +132,7 @@ public class FAction
 		Logger.fyi(wiki, "Purging " + title);
 		URLBuilder ub = wiki.makeUB();
 		ub.setAction("purge");
-		ub.setParams("titles", Tools.enc(title));
+		ub.setParams("titles", FString.enc(title));
 		
 		try
 		{
@@ -157,7 +160,7 @@ public class FAction
 		URLBuilder ub = wiki.makeUB();
 		ub.setAction("delete");
 		
-		String[] es = Tools.massEnc(title, reason, wiki.token);
+		String[] es = FString.massEnc(title, reason, wiki.token);
 		String posttext = URLBuilder.chainParams("title", es[0], "reason", es[1], "token", es[2]);
 		
 		try
@@ -186,7 +189,7 @@ public class FAction
 		URLBuilder ub = wiki.makeUB();
 		ub.setAction("undelete");
 		
-		String[] es = Tools.massEnc(title, reason, wiki.token);
+		String[] es = FString.massEnc(title, reason, wiki.token);
 		String posttext = URLBuilder.chainParams("title", es[0], "reason", es[1], "token", es[2]);
 		
 		try
@@ -231,7 +234,7 @@ public class FAction
 		FileInputStream in = null;
 		String filename = Namespace.nss(uploadTo);
 		
-		HashMap<String, Object> l = Tools.makeParamMap("filename", filename, "token", wiki.token, "ignorewarnings",
+		HashMap<String, Object> l = FSystem.makeParamMap("filename", filename, "token", wiki.token, "ignorewarnings",
 				"true", "stash", "1", "filesize", "" + filesize);
 		
 		try
@@ -257,7 +260,7 @@ public class FAction
 			e.printStackTrace();
 			if (filekey != null)
 				unstash(wiki, filekey, filename, text, reason);
-			Tools.closeInputStream(in);
+			FIO.closeInputStream(in);
 			return false;
 		}
 	}
@@ -315,7 +318,7 @@ public class FAction
 		URLBuilder ub = wiki.makeUB();
 		ub.setAction("upload");
 		
-		String[] es = Tools.massEnc(title, text, reason, wiki.token, filekey);
+		String[] es = FString.massEnc(title, text, reason, wiki.token, filekey);
 		String posttext = URLBuilder.chainParams("filename", es[0], "text", es[1], "comment", es[2], "ignorewarnings", "true",
 				"filekey", es[4], "token", es[3]);
 		try

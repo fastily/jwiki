@@ -1,5 +1,6 @@
 package jwiki.util;
 
+import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -7,8 +8,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
-
-import jwiki.core.aux.Tuple;
 
 /**
  * Contains personalized String related methods for my bot programs.
@@ -47,21 +46,6 @@ public class FString
 	}
 	
 	/**
-	 * Takes a list of Strings and concatenates it into a single string. Each item in the list separated by the system
-	 * default newline character.
-	 * 
-	 * @param list The list of files to concatenate
-	 * @return The concatenated Strings, separated by newlines.
-	 */
-	public static String listCombo(String... list)
-	{
-		String x = "";
-		for (String s : list)
-			x += s + FSystem.lsep;
-		return x;
-	}
-	
-	/**
 	 * Splits a long string into a list of strings using newline chars as deliminators.
 	 * 
 	 * @param longstring The string to split
@@ -76,20 +60,6 @@ public class FString
 			l.add(m.nextLine().trim());
 		
 		return l.toArray(new String[0]);
-	}
-	
-	/**
-	 * Concatenate a list of Strings into one String. Will be concatenated in the order they appear.
-	 * 
-	 * @param strings The Strings to concatenate.
-	 * @return The list of Strings as one String.
-	 */
-	public static String concatStringArray(String... strings)
-	{
-		String x = "";
-		for (String s : strings)
-			x += s;
-		return x;
 	}
 	
 	/**
@@ -148,4 +118,85 @@ public class FString
 		String s2 = s.substring(s.indexOf(delim) + delim.length());
 		return new Tuple<String, String>(s1, s2);
 	}
+	
+	/**
+	 * Encode the UTF-8 String into a format valid for URLs.
+	 * 
+	 * @param s The String to encode
+	 * @return The encoded String
+	 */
+	public static String enc(String s)
+	{
+		try
+		{
+			return URLEncoder.encode(s, "UTF-8");
+		}
+		catch (Throwable e)
+		{
+			e.printStackTrace();
+			return s;
+		}
+	}
+	
+	/**
+	 * URLEncodes multiple Strings at once.
+	 * 
+	 * @param strings Strings to encode
+	 * @return A list of Strings, URLEncoded, in the same order they were passed in.
+	 */
+	public static String[] massEnc(String... strings)
+	{
+		ArrayList<String> l = new ArrayList<String>();
+		for (String s : strings)
+			l.add(enc(s));
+		
+		return l.toArray(new String[0]);
+	}
+	
+	/**
+	 * Concatenate Strings. Solution to the fencepost problem. Makes patterned Strings like "This|So|Much|Easier".
+	 * 
+	 * @param post The String to go between planks. Optional param, use empty string/null to disable. You can (and shoudl) also
+	 *            specify the '%n' operator in order to add new lines.
+	 * @param planks The planks of the fence post problem. Posts divide planks.
+	 * @return The completed fencepost string.
+	 */
+	public static String fenceMaker(String post, String... planks)
+	{
+		if (planks.length == 0)
+			return "";
+		
+		String fmt = (post.isEmpty() || post == null ? "" : post) + "%s";
+		
+		String x = planks[0];
+		for (int i = 1; i < planks.length; i++)
+			x += String.format(fmt, planks[i]);
+		
+		return x;
+	}
+	
+	/**
+	 * Splits an array of Strings into an array of array of Strings.
+	 * 
+	 * @param max The maximum number of elements per array.
+	 * @param strings The list of Strings to split.
+	 * @return The split array of String[]s.
+	 */
+	public static String[][] splitStringArray(int max, String... strings)
+	{
+		ArrayList<String[]> l = new ArrayList<String[]>();
+		
+		if (strings.length <= max)
+			return new String[][] { strings };
+		
+		int overflow = strings.length % max;
+		for (int i = 0; i < strings.length - overflow; i += max)
+			l.add(Arrays.copyOfRange(strings, i, i + max));
+		
+		if (overflow > 0)
+			l.add(Arrays.copyOfRange(strings, strings.length - overflow, strings.length));
+		
+		return l.toArray(new String[0][]);
+	}
+	
 }

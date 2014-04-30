@@ -1,4 +1,4 @@
-package jwiki.core.aux;
+package jwiki.util;
 
 /**
  * Simple implementation of a Tuple. A Tuple is an immutable paired 2-set of values (e.g. (x, y)), and may consist of

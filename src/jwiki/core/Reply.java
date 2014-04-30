@@ -4,7 +4,8 @@ import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
 
-import jwiki.core.aux.JSONParse;
+import jwiki.util.FIO;
+import jwiki.util.JSONParse;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -44,7 +45,7 @@ public class Reply
 	 */
 	protected Reply(InputStream is)
 	{
-		reply = new JSONObject(Tools.inputStreamToString(is, true));
+		reply = new JSONObject(FIO.inputStreamToString(is, true));
 		result = getString("result");
 		
 		if(Constants.debug)

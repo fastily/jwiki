@@ -1,4 +1,4 @@
-package jwiki.core.aux;
+package jwiki.util;
 
 import jwiki.core.Logger;
 

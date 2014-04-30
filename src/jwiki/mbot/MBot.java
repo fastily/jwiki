@@ -58,6 +58,7 @@ public class MBot
 	
 	/**
 	 * Starts the execution of this object.
+	 * 
 	 * @param wl The WAction objects to process
 	 * @return A list of titles we failed to process.
 	 */
@@ -141,7 +142,7 @@ public class MBot
 		public boolean doJob(Wiki wiki)
 		{
 			return wiki.delete(title, summary);
-		}	
+		}
 	}
 	
 	/**

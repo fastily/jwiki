@@ -1,26 +1,22 @@
-package jwiki.commons;
+package jwiki.util;
 
-import java.io.File;
 import java.util.HashMap;
 
 import jwiki.core.Wiki;
 import jwiki.mbot.MBot;
-import jwiki.util.FError;
-import jwiki.util.FSystem;
-import jwiki.util.ReadFile;
 
 /**
- * Generate custom Wiki objects for myself.
+ * Generates Wiki objects from login credentials created after running '<tt>java FLogin</tt>'.
  * 
  * @author Fastily
- * 
+ *
  */
-public class WikiGen
+public class WikiFactory
 {
 	/**
 	 * Our password storage. You must have a file named '.px.txt' in your home directory for this to work.
 	 */
-	private static final HashMap<String, String> px = genX();
+	private static final HashMap<String, String> px = FLogin.genPXList();
 	
 	/**
 	 * Create a cache so we don't login multiple times. Combination is: entry -> (username, wiki object)
@@ -28,26 +24,11 @@ public class WikiGen
 	private static final HashMap<String, Wiki> cache = new HashMap<String, Wiki>();
 	
 	/**
-	 * Hiding from javadoc
+	 * Hiding constructor from javadoc
 	 */
-	private WikiGen()
+	private WikiFactory()
 	{
 		
-	}
-	
-	/**
-	 * Generates password table with .px.txt file. Checks home and classpath. If the file is not found, err and exit.
-	 * 
-	 * @return Our generated password table
-	 */
-	private static HashMap<String, String> genX()
-	{
-		for (String s : new String[] { FSystem.home + FSystem.psep + ".px.txt", ".px.txt" })
-			if (new File(s).exists())
-				return new ReadFile(s).getSplitList(":");
-		
-		FError.errAndExit(".px.txt not found in either home or classpath");
-		return null; // unreachable -- shut up compiler
 	}
 	
 	/**
@@ -61,19 +42,19 @@ public class WikiGen
 	 */
 	public static Wiki generate(String user, String domain)
 	{
-		Wiki wiki = null;
 		if (cache.containsKey(user))
 			return cache.get(user).getWiki(domain);
+		
+		Wiki wiki = null;
 		try
 		{
-			wiki = user.equals("Fastily") ? new Wiki(user, px.get("FP"), domain) : new Wiki("FastilyClone", px.get("FSP"), domain);
+			wiki = new Wiki(user, px.get(user), domain);
 			cache.put(user, wiki);
 		}
 		catch (Throwable e)
 		{
 			e.printStackTrace();
 		}
-		
 		return wiki;
 	}
 	

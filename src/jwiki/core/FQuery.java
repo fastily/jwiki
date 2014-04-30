@@ -5,8 +5,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import jwiki.core.aux.JSONParse;
-import jwiki.core.aux.Tuple;
+import jwiki.util.FString;
+import jwiki.util.JSONParse;
+import jwiki.util.Tuple;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -73,7 +74,7 @@ public class FQuery
 					break;
 				
 				ub.setParams(contString,
-						Tools.enc((isStr ? JSONParse.getStringR(reply, contString) : "" + JSONParse.getIntR(reply, contString))));
+						FString.enc((isStr ? JSONParse.getStringR(reply, contString) : "" + JSONParse.getIntR(reply, contString))));
 			}
 		}
 		catch (Throwable e)
@@ -103,9 +104,9 @@ public class FQuery
 		ArrayList<JSONObject> jl = new ArrayList<JSONObject>();
 		try
 		{
-			for (String[] tl : Tools.splitStringArray(Constants.groupquerymax, titles))
+			for (String[] tl : FString.splitStringArray(Constants.groupquerymax, titles))
 			{
-				ub.setParams(titlekey, Tools.enc(Tools.fenceMaker("|", tl)));
+				ub.setParams(titlekey, FString.enc(FString.fenceMaker("|", tl)));
 				
 				Reply r = Request.get(ub.makeURL(), wiki.cookiejar);
 				if (r.hasError())
@@ -188,7 +189,7 @@ public class FQuery
 		Logger.info(wiki, "Fetching backlinks to " + title);
 		URLBuilder ub = wiki.makeUB();
 		ub.setAction("query");
-		ub.setParams("list", "backlinks", "bltitle", Tools.enc(title), "blfilterredir", redirs ? "redirects" : "nonredirects");
+		ub.setParams("list", "backlinks", "bltitle", FString.enc(title), "blfilterredir", redirs ? "redirects" : "nonredirects");
 		
 		ArrayList<String> l = new ArrayList<String>();
 		for (JSONObject jo : fatQuery(ub, -1, "bllimit", "blcontinue", true, wiki))
@@ -253,7 +254,7 @@ public class FQuery
 		URLBuilder ub = wiki.makeUB();
 		ub.setAction("query");
 		ub.setParams("prop", "revisions", "rvprop", URLBuilder.chainProps("timestamp", "user", "comment", "content"), "rvdir",
-				(olderfirst ? "newer" : "older"), "titles", Tools.enc(title));
+				(olderfirst ? "newer" : "older"), "titles", FString.enc(title));
 		
 		ArrayList<Revision> rl = new ArrayList<Revision>();
 		for (JSONObject jo : fatQuery(ub, num, "rvlimit", "rvcontinue", false, wiki))
@@ -279,10 +280,10 @@ public class FQuery
 		Logger.info(wiki, "Fetching category members of " + title);
 		URLBuilder ub = wiki.makeUB();
 		ub.setAction("query");
-		ub.setParams("list", "categorymembers", "cmtitle", Tools.enc(title));
+		ub.setParams("list", "categorymembers", "cmtitle", FString.enc(title));
 		
 		if (ns.length > 0)
-			ub.setParams("cmnamespace", Tools.enc(Tools.fenceMaker("|", wiki.nsl.prefixToNumStrings(ns))));
+			ub.setParams("cmnamespace", FString.enc(FString.fenceMaker("|", wiki.nsl.prefixToNumStrings(ns))));
 		
 		ArrayList<String> l = new ArrayList<String>();
 		for (JSONObject jo : fatQuery(ub, max, "cmlimit", "cmcontinue", true, wiki))
@@ -307,7 +308,7 @@ public class FQuery
 		Logger.info(wiki, "Getting categories of " + title);
 		URLBuilder ub = wiki.makeUB();
 		ub.setAction("query");
-		ub.setParams("prop", "categories", "titles", Tools.enc(title));
+		ub.setParams("prop", "categories", "titles", FString.enc(title));
 		
 		ArrayList<String> l = new ArrayList<String>();
 		for (JSONObject jo : fatQuery(ub, -1, "cllimit", "clcontinue", true, wiki))
@@ -332,10 +333,10 @@ public class FQuery
 		Logger.info(wiki, "Fetching page links of " + title);
 		URLBuilder ub = wiki.makeUB();
 		ub.setAction("query");
-		ub.setParams("prop", "links", "titles", Tools.enc(title));
+		ub.setParams("prop", "links", "titles", FString.enc(title));
 		
 		if (ns.length > 0)
-			ub.setParams("plnamespace", Tools.enc(Tools.fenceMaker("|", wiki.nsl.prefixToNumStrings(ns))));
+			ub.setParams("plnamespace", FString.enc(FString.fenceMaker("|", wiki.nsl.prefixToNumStrings(ns))));
 		
 		ArrayList<String> l = new ArrayList<String>();
 		for (JSONObject jo : fatQuery(ub, -1, "pllimit", "plcontinue", true, wiki))
@@ -365,10 +366,10 @@ public class FQuery
 		Logger.info(wiki, "Fetching contribs of " + user);
 		URLBuilder ub = wiki.makeUB();
 		ub.setAction("query");
-		ub.setParams("list", "usercontribs", "ucuser", Tools.enc(user));
+		ub.setParams("list", "usercontribs", "ucuser", FString.enc(user));
 		
 		if (ns.length > 0)
-			ub.setParams("ucnamespace", Tools.enc(Tools.fenceMaker("|", wiki.nsl.prefixToNumStrings(ns))));
+			ub.setParams("ucnamespace", FString.enc(FString.fenceMaker("|", wiki.nsl.prefixToNumStrings(ns))));
 		
 		ArrayList<Contrib> l = new ArrayList<Contrib>();
 		for (JSONObject jo : fatQuery(ub, max, "uclimit", "ucstart", true, wiki))
@@ -389,7 +390,7 @@ public class FQuery
 		Logger.info(wiki, "Fetching category size of " + title);
 		URLBuilder ub = wiki.makeUB();
 		ub.setAction("query");
-		ub.setParams("prop", "categoryinfo", "titles", Tools.enc(title));
+		ub.setParams("prop", "categoryinfo", "titles", FString.enc(title));
 		
 		try
 		{
@@ -424,7 +425,7 @@ public class FQuery
 		Logger.info(wiki, "Fetching image usage of " + file);
 		URLBuilder ub = wiki.makeUB();
 		ub.setAction("query");
-		ub.setParams("list", "imageusage", "iutitle", Tools.enc(file));
+		ub.setParams("list", "imageusage", "iutitle", FString.enc(file));
 		
 		ArrayList<String> l = new ArrayList<String>();
 		for (JSONObject jo : fatQuery(ub, -1, "iulimit", "iucontinue", true, wiki))
@@ -449,7 +450,7 @@ public class FQuery
 		Logger.info(wiki, "Fetching transclusions of " + title);
 		URLBuilder ub = wiki.makeUB();
 		ub.setAction("query");
-		ub.setParams("list", "embeddedin", "eititle", Tools.enc(title));
+		ub.setParams("list", "embeddedin", "eititle", FString.enc(title));
 		
 		ArrayList<String> l = new ArrayList<String>();
 		for (JSONObject jo : fatQuery(ub, -1, "eilimit", "eicontinue", true, wiki))
@@ -474,7 +475,7 @@ public class FQuery
 		Logger.info(wiki, "Fetching images linked to " + title);
 		URLBuilder ub = wiki.makeUB();
 		ub.setAction("query");
-		ub.setParams("prop", "images", "titles", Tools.enc(title));
+		ub.setParams("prop", "images", "titles", FString.enc(title));
 		
 		ArrayList<String> l = new ArrayList<String>();
 		for (JSONObject jo : fatQuery(ub, -1, "imlimit", "imcontinue", true, wiki))
@@ -509,7 +510,7 @@ public class FQuery
 		if (redirectsonly)
 			ub.setParams("apfilterredir", "redirects");
 		if (prefix != null && prefix.length() > 0)
-			ub.setParams("apprefix", Tools.enc(prefix));
+			ub.setParams("apprefix", FString.enc(prefix));
 		
 		ArrayList<String> l = new ArrayList<String>();
 		for (JSONObject jo : fatQuery(ub, max, "aplimit", "apcontinue", true, wiki))
@@ -560,7 +561,7 @@ public class FQuery
 		Logger.info(wiki, "Grabbing uploads of User:" + user);
 		URLBuilder ub = wiki.makeUB();
 		ub.setAction("query");
-		ub.setParams("list", "allimages", "aisort", "timestamp", "aiuser", Tools.enc(user));
+		ub.setParams("list", "allimages", "aisort", "timestamp", "aiuser", FString.enc(user));
 		
 		ArrayList<String> l = new ArrayList<String>();
 		for (JSONObject jo : fatQuery(ub, -1, "ailimit", "aistart", true, wiki))
@@ -590,7 +591,7 @@ public class FQuery
 		Logger.info(wiki, "Fetching image info for " + title);
 		URLBuilder ub = wiki.makeUB();
 		ub.setAction("query");
-		ub.setParams("prop", "imageinfo", "iiprop", Tools.enc("url|size"), "titles", Tools.enc(title));
+		ub.setParams("prop", "imageinfo", "iiprop", FString.enc("url|size"), "titles", FString.enc(title));
 		
 		if (height > 0 && width > 0)
 			ub.setParams("iiurlheight", "" + height, "iiurlwidth", "" + width);
@@ -621,7 +622,7 @@ public class FQuery
 		Logger.info(wiki, "Fetching templates on " + title);
 		URLBuilder ub = wiki.makeUB();
 		ub.setAction("query");
-		ub.setParams("prop", "templates", "titles", Tools.enc(title));
+		ub.setParams("prop", "templates", "titles", FString.enc(title));
 		
 		ArrayList<String> l = new ArrayList<String>();
 		for (JSONObject jo : fatQuery(ub, -1, "tllimit", "tlcontinue", true, wiki))
@@ -652,7 +653,7 @@ public class FQuery
 		Logger.info(wiki, "Fetching global usage of " + title);
 		URLBuilder ub = wiki.makeUB();
 		ub.setAction("query");
-		ub.setParams("prop", "globalusage", "guprop", "namespace", "titles", Tools.enc(title));
+		ub.setParams("prop", "globalusage", "guprop", "namespace", "titles", FString.enc(title));
 		
 		for (JSONObject jo : fatQuery(ub, -1, "gulimit", "gucontinue", true, wiki))
 		{
@@ -677,7 +678,7 @@ public class FQuery
 		Logger.info(wiki, "Getting our user groups list");
 		URLBuilder ub = wiki.makeUB();
 		ub.setAction("query");
-		ub.setParams("list", "users", "usprop", "groups", "ususers", Tools.enc(wiki.upx.x));
+		ub.setParams("list", "users", "usprop", "groups", "ususers", FString.enc(wiki.upx.x));
 		
 		ArrayList<String> l = new ArrayList<String>();
 		try

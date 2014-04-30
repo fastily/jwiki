@@ -4,7 +4,7 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
 
-import jwiki.core.aux.JSONParse;
+import jwiki.util.JSONParse;
 
 import org.json.JSONArray;
 import org.json.JSONException;

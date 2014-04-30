@@ -6,8 +6,8 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 import jwiki.core.Logger;
 import jwiki.core.Wiki;
-import jwiki.core.aux.ProgressTracker;
 import jwiki.util.FSystem;
+import jwiki.util.ProgressTracker;
 
 /**
  * Manages and generates threads on behalf of MBot.

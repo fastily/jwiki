@@ -8,7 +8,7 @@ import java.util.List;
 
 import javax.security.auth.login.LoginException;
 
-import jwiki.core.aux.Tuple;
+import jwiki.util.Tuple;
 
 /**
  * Entry point. New style.

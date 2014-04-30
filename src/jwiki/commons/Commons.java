@@ -7,50 +7,81 @@ import jwiki.core.Contrib;
 import jwiki.core.Wiki;
 import jwiki.mbot.MBot;
 import jwiki.mbot.WAction;
-import jwiki.util.FError;
 import jwiki.util.ReadFile;
 
 /**
- * Special commons.wikimedia.org exclusive methods which make my life so much easier.
+ * Special multi-threaded commons.wikimedia.org exclusive methods which make life so much easier.
  * 
  * @author Fastily
  */
 public class Commons
 {
 	/**
-	 * FSV @ commonswiki
+	 * The admin object to use.
 	 */
-	public static final Wiki fsv = generateCOM("FSV");
+	private Wiki admin;
 	
 	/**
-	 * Fastily @ commonswiki
+	 * Admin MBot
 	 */
-	public static final Wiki fastily = generateCOM("Fastily");
+	private MBot mbwiki;
 	
 	/**
-	 * Hide from javadoc
+	 * Wiki MBot
 	 */
-	private Commons()
+	private MBot mbadmin;
+	
+	/**
+	 * Creates a Commons object for us. Current domain of <tt>wiki</tt> does not have to be set to Commons. All tasks
+	 * will be run out of this wiki object.
+	 * 
+	 * @param wiki The wiki object to create the Commons object from.
+	 */
+	public Commons(Wiki wiki)
 	{
-		
+		this(wiki, (wiki.isAdmin() ? wiki : null));
 	}
 	
 	/**
-	 * Creates the default wiki object.  Will cause program to exit if we encountered an error.
-	 * @return FSV@commonswiki
+	 * Creates a Commons object for us. Non-admin tasks will be assigned to <tt>wiki</tt>, whereas admin tasks will be
+	 * run from <tt>admin</tt>. Current domain of either object does not have to be set to Commons.
+	 * 
+	 * @param wiki wiki object to use for non-admin tasks.
+	 * @param admin wiki object for admin tasks. If you're not an admin, you need to specify this to be null, otherwise
+	 *            you may get strange behavior.
 	 */
-	private static Wiki generateCOM(String user)
+	public Commons(Wiki wiki, Wiki admin)
 	{
-		try
+		mbwiki = new MBot(wiki, 3);
+		if (admin != null)
 		{
-			//System.out.println("This is running");
-			return WikiGen.generate(user);
+			this.admin = admin.getWiki("commons.wikimedia.org");
+			mbadmin = new MBot(admin);
 		}
-		catch (Throwable e)
-		{
-			FError.errAndExit(e, String.format("Could not create %s @ commonswiki.  Stop.", user));
-			return null;
-		}
+	}
+	
+	/**
+	 * Process a list of WActions.
+	 * 
+	 * @param mb The MBot to use.
+	 * @param pages The pages to process.
+	 * @return A list of titles we didn't process.
+	 */
+	private String[] doAction(MBot mb, WAction... pages)
+	{
+		return WAction.convertToString(mb.start(pages));
+	}
+	
+	/**
+	 * Process a list of WActions.
+	 * 
+	 * @param mb The MBot to use
+	 * @param pages The pages to process
+	 * @return A list of objects we couldn't process.
+	 */
+	private String[] doAction(MBot mb, ArrayList<WAction> pages)
+	{
+		return doAction(mb, pages.toArray(new WAction[0]));
 	}
 	
 	/**
@@ -59,7 +90,7 @@ public class Commons
 	 * @param exit Set to true if program should exit after procedure completes.
 	 * @return A list of files we didn't delete.
 	 */
-	public static String[] nukeFastilyTest(boolean exit)
+	public String[] nukeFastilyTest(boolean exit)
 	{
 		ArrayList<String> fails = new ArrayList<String>();
 		fails.addAll(Arrays.asList(categoryNuke("Fastily Test", CStrings.ur, false)));
@@ -73,7 +104,7 @@ public class Commons
 	 * Deletes all the files in <a href="http://commons.wikimedia.org/wiki/Category:Copyright_violations"
 	 * >Category:Copyright violations</a>.
 	 */
-	public static String[] clearCopyVios()
+	public String[] clearCopyVios()
 	{
 		return categoryNuke(CStrings.cv, CStrings.copyvio, false, "File");
 	}
@@ -86,7 +117,7 @@ public class Commons
 	 * @param ns Namespace(s) to restrict deletion to. Leave blank to ignore namespace.
 	 * @return A list of titles we didn't delete.
 	 */
-	public static String[] clearOSD(String reason, String... ns)
+	public String[] clearOSD(String reason, String... ns)
 	{
 		return categoryNuke(CStrings.osd, reason, false, ns);
 	}
@@ -102,11 +133,11 @@ public class Commons
 	 *            select all namesapces
 	 * @return A list of titles we didn't delete.
 	 */
-	public static String[] categoryNuke(String cat, String reason, boolean delCat, String... ns)
+	public String[] categoryNuke(String cat, String reason, boolean delCat, String... ns)
 	{
-		String[] fails = nuke(reason, fastily.getCategoryMembers(cat, ns));
-		if (delCat && fastily.getCategorySize(cat) == 0)
-			fastily.delete(cat, CStrings.ec);
+		String[] fails = nuke(reason, admin.getCategoryMembers(cat, ns));
+		if (delCat && admin.getCategorySize(cat) == 0)
+			admin.delete(cat, CStrings.ec);
 		return fails;
 	}
 	
@@ -116,7 +147,7 @@ public class Commons
 	 * @param dr The dr from which to get files.
 	 * @return A list of pages we failed to delete.
 	 */
-	public static String[] drDel(String dr)
+	public String[] drDel(String dr)
 	{
 		return nukeLinksOnPage(dr, "[[" + dr + "]]", "File");
 	}
@@ -127,7 +158,7 @@ public class Commons
 	 * @param files A list of pages in the file namespace. PRECONDITION -- The files must be in the filenamespace.
 	 * @return A list ofpages we failed to process.
 	 */
-	public static String[] nukeEmptyFiles(String... files)
+	public String[] nukeEmptyFiles(String... files)
 	{
 		ArrayList<WAction> l = new ArrayList<WAction>();
 		for (String s : files)
@@ -138,7 +169,7 @@ public class Commons
 				}
 			});
 		
-		return doAction("Fastily", l.toArray(new WAction[0]));
+		return doAction(mbadmin, l);
 	}
 	
 	/**
@@ -147,7 +178,7 @@ public class Commons
 	 * @param cats The categories to check and delete.
 	 * @return A list of titles we failed to delete.
 	 */
-	public static String[] emptyCatDel(String... cats)
+	public String[] emptyCatDel(String... cats)
 	{
 		ArrayList<WAction> l = new ArrayList<WAction>();
 		for (String s : cats)
@@ -157,7 +188,7 @@ public class Commons
 					return wiki.getCategorySize(title) <= 0 ? wiki.delete(title, summary) : true;
 				}
 			});
-		return doAction("Fastily", l.toArray(new WAction[0]));
+		return doAction(mbadmin, l);
 	}
 	
 	/**
@@ -168,10 +199,10 @@ public class Commons
 	 * @param ns Namespace(s) of the items to delete.
 	 * @return A list of titles we didn't delete.
 	 */
-	public static String[] nukeContribs(String user, String reason, String... ns)
+	public String[] nukeContribs(String user, String reason, String... ns)
 	{
 		ArrayList<String> l = new ArrayList<String>();
-		for (Contrib c : fastily.getContribs(user, ns))
+		for (Contrib c : admin.getContribs(user, ns))
 			l.add(c.getTitle());
 		
 		return nuke(reason, l.toArray(new String[0]));
@@ -184,9 +215,9 @@ public class Commons
 	 * @param reason The reason to use
 	 * @return A list of titles we didn't delet
 	 */
-	public static String[] nukeUploads(String user, String reason)
+	public String[] nukeUploads(String user, String reason)
 	{
-		return nuke(reason, fastily.getUserUploads(user));
+		return nuke(reason, admin.getUserUploads(user));
 	}
 	
 	/**
@@ -200,20 +231,21 @@ public class Commons
 	 * @see #nukeLinksOnPage(String, String)
 	 * 
 	 */
-	public static String[] nukeLinksOnPage(String title, String reason, String... ns)
+	public String[] nukeLinksOnPage(String title, String reason, String... ns)
 	{
-		return nuke(reason, fastily.getLinksOnPage(title, ns));
+		return nuke(reason, admin.getLinksOnPage(title, ns));
 	}
 	
 	/**
 	 * Deletes all images linked on a page.
+	 * 
 	 * @param title The title to fetch images from.
 	 * @param reason The reason to use when deleting
 	 * @return A list of files we failed to process.
 	 */
-	public static String[] nukeImagesOnPage(String title, String reason)
+	public String[] nukeImagesOnPage(String title, String reason)
 	{
-		return nuke(reason, fastily.getImagesOnPage(title));
+		return nuke(reason, admin.getImagesOnPage(title));
 	}
 	
 	/**
@@ -225,21 +257,9 @@ public class Commons
 	 * @return A list of pages we failed to delete
 	 * @see #nuke(String, String, String...)
 	 */
-	public static String[] nuke(String reason, String... pages)
+	public String[] nuke(String reason, String... pages)
 	{
-		return WAction.convertToString(WikiGen.genM("Fastily").massDelete(reason, pages));
-	}
-	
-	/**
-	 * Process a list of WActions.
-	 * 
-	 * @param user The username to run method with. Should be corresponding user with WikiGen
-	 * @param pages The WActions to process.
-	 * @return A list of pages we didn't process.
-	 */
-	public static String[] doAction(String user, WAction... pages)
-	{
-		return WAction.convertToString(WikiGen.genM(user).start(pages));
+		return WAction.convertToString(mbadmin.massDelete(reason, pages));
 	}
 	
 	/**
@@ -255,13 +275,13 @@ public class Commons
 	 * 
 	 * @see #nuke(String, String...)
 	 */
-	public static String[] nuke(String reason, String ns, String... pages)
+	public String[] nuke(String reason, String ns, String... pages)
 	{
-		int ni = fastily.whichNS(ns);
+		int ni = admin.whichNS(ns);
 		ArrayList<String> todo = new ArrayList<String>();
 		
 		for (String s : pages)
-			if (fastily.whichNS(s) == ni)
+			if (admin.whichNS(s) == ni)
 				todo.add(s);
 		
 		return nuke(reason, todo.toArray(new String[0]));
@@ -275,7 +295,7 @@ public class Commons
 	 * @return A list of pages we failed to delete.
 	 * @see #nuke(String, String...)
 	 */
-	public static String[] nukeFromFile(String path, String reason)
+	public String[] nukeFromFile(String path, String reason)
 	{
 		return nuke(reason, new ReadFile(path).getList());
 	}
@@ -287,9 +307,9 @@ public class Commons
 	 * @param titles The titles to remove <tt>{{delete}}</tt> from
 	 * @return A list of titles we didn't remove the templates froms.
 	 */
-	public static String[] removeDelete(String reason, String... titles)
+	public String[] removeDelete(String reason, String... titles)
 	{
-		return WAction.convertToString(new MBot(fsv).massEdit(reason, "", CStrings.drregex, "", titles));
+		return WAction.convertToString(mbwiki.massEdit(reason, "", CStrings.drregex, "", titles));
 	}
 	
 	/**
@@ -299,9 +319,9 @@ public class Commons
 	 * @param titles The titles to remove no perm/lic/src templates from
 	 * @return A list of titles we failed to remove the templates from.
 	 */
-	public static String[] removeLSP(String reason, String... titles)
+	public String[] removeLSP(String reason, String... titles)
 	{
-		return WAction.convertToString(new MBot(fsv).massEdit(reason, "", CStrings.delregex, "", titles));
+		return WAction.convertToString(mbwiki.massEdit(reason, "", CStrings.delregex, "", titles));
 	}
 	
 	/**
@@ -312,9 +332,9 @@ public class Commons
 	 * @param titles The titles to work with.
 	 * @return A list of titles we couldn't add text to.
 	 */
-	public static String[] addText(String reason, String text, String... titles)
+	public String[] addText(String reason, String text, String... titles)
 	{
-		return WAction.convertToString(new MBot(fsv).massEdit(reason, text, null, null, titles));
+		return WAction.convertToString(mbwiki.massEdit(reason, text, null, null, titles));
 	}
 	
 }

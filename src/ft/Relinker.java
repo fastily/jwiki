@@ -7,13 +7,13 @@ import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import jwiki.commons.Commons;
 import jwiki.core.Logger;
 import jwiki.core.Namespace;
-import jwiki.core.Tools;
 import jwiki.core.Wiki;
-import jwiki.core.aux.Tuple;
 import jwiki.util.FError;
+import jwiki.util.FString;
+import jwiki.util.Tuple;
+import jwiki.util.WikiFactory;
 
 /**
  * Reverts CommonsDelinker edits. Takes arguments via command line. Pass in as many files as you want, w/ or w/o "File:"
@@ -44,7 +44,7 @@ public class Relinker
 	private static String getTableText(String title)
 	{
 		String html = getHTMLOf(String.format("https://tools.wmflabs.org/delinker/index.php?image=%s&status=ok&max=500",
-				Tools.enc(Namespace.nss(title))));
+				FString.enc(Namespace.nss(title))));
 		
 		Matcher m = Pattern.compile("(?si)class\\=\"table table\\-hover.*?\\</table\\>",
 				Pattern.CASE_INSENSITIVE | Pattern.DOTALL).matcher(html);
@@ -122,7 +122,7 @@ public class Relinker
 	 */
 	private static void process(ArrayList<Tuple<String, String>> l)
 	{
-		Wiki wiki = Commons.fsv;
+		Wiki wiki = WikiFactory.generate("FastilyClone");
 		String last = null;
 		
 		for (Tuple<String, String> t : l)

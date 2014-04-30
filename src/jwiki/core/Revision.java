@@ -2,7 +2,7 @@ package jwiki.core;
 
 import java.util.ArrayList;
 
-import jwiki.core.aux.JSONParse;
+import jwiki.util.JSONParse;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
