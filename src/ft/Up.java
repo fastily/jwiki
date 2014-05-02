@@ -12,7 +12,7 @@ import jwiki.mbot.WAction;
 import jwiki.util.FError;
 import jwiki.util.FString;
 import jwiki.util.ReadFile;
-import jwiki.util.WikiFactory;
+import jwiki.util.WikiGen;
 import jwiki.util.WikiFile;
 
 /**
@@ -63,7 +63,7 @@ public class Up
 		for (WikiFile wf : parseArgs(args))
 			l.add(genUI(wf));
 		
-		String[] fails = WAction.convertToString(WikiFactory.genM("Fastily", 2).start(l.toArray(new UploadItem[0])));
+		String[] fails = WAction.convertToString(WikiGen.genM("Fastily", 2).start(l.toArray(new UploadItem[0])));
 		if (fails.length > 0)
 		{
 			try

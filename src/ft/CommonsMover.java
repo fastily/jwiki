@@ -16,7 +16,7 @@ import jwiki.util.FCLI;
 import jwiki.util.FError;
 import jwiki.util.FIO;
 import jwiki.util.FString;
-import jwiki.util.WikiFactory;
+import jwiki.util.WikiGen;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
@@ -73,7 +73,7 @@ public class CommonsMover
 	public static void main(String[] args)
 	{
 		CommandLine l = parseArgs(args);
-		com = WikiFactory.generate("FastilyClone");
+		com = WikiGen.generate("FastilyClone");
 		enwp = com.getWiki("en.wikipedia.org");
 		
 		if (l.hasOption('t'))
@@ -95,7 +95,7 @@ public class CommonsMover
 		ArrayList<TransferItem> tfl = new ArrayList<TransferItem>();
 		for (String s : tl)
 			tfl.add(new TransferItem(s));
-		WikiFactory.genM("FastilyClone", maxthreads).start(tfl.toArray(new TransferItem[0]));
+		WikiGen.genM("FastilyClone", maxthreads).start(tfl.toArray(new TransferItem[0]));
 	}
 	
 	/**

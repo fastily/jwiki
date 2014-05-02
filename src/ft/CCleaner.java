@@ -9,7 +9,7 @@ import jwiki.core.Wiki;
 import jwiki.mbot.MBot;
 import jwiki.mbot.WAction;
 import jwiki.util.FCLI;
-import jwiki.util.WikiFactory;
+import jwiki.util.WikiGen;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
@@ -33,12 +33,12 @@ public class CCleaner
 	/**
 	 * Our non-admin wiki object
 	 */
-	private static Wiki fc = WikiFactory.generate("FastilyClone");
+	private static Wiki fc = WikiGen.generate("FastilyClone");
 	
 	/**
 	 * Our admin wiki object.
 	 */
-	private static Wiki fastily = WikiFactory.generate("Fastily");
+	private static Wiki fastily = WikiGen.generate("Fastily");
 	
 	/**
 	 * Our resident commons object.
@@ -180,7 +180,7 @@ public class CCleaner
 				l.add(new MBot.DeleteItem(s, r));
 		}
 		
-		WikiFactory.genM("Fastily").start(l.toArray(new MBot.DeleteItem[0]));
+		WikiGen.genM("Fastily").start(l.toArray(new MBot.DeleteItem[0]));
 		return com.emptyCatDel(catlist.toArray(new String[0]));
 	}
 	
@@ -191,10 +191,10 @@ public class CCleaner
 	private static String[] processDRs()
 	{
 		ArrayList<ProcDR> dl = new ArrayList<ProcDR>();
-		for (String s : fastily.getTemplatesOnPage("User:Fastily/SingletonDR"))
+		for (String s : fastily.getTemplatesOnPage("User:ArchiveBot/SingletonDR"))
 			if (s.startsWith("Commons:Deletion requests/"))
 				dl.add(new ProcDR(s));
-		return WAction.convertToString(WikiFactory.genM("Fastily").start(dl.toArray(new ProcDR[0])));
+		return WAction.convertToString(WikiGen.genM("Fastily").start(dl.toArray(new ProcDR[0])));
 	}
 	
 	/**

@@ -3,6 +3,8 @@ package jwiki.core;
 import java.io.PrintStream;
 import java.util.HashMap;
 
+import jwiki.util.FSystem;
+
 /**
  * Makes printing to std out in color possible in unix terminals. No changes are made to output if we're using a windows
  * box, so this is safe to use cross-platform. We're using ASCII escapes to implement color. Valid colors for log() are
@@ -17,8 +19,7 @@ public class Logger
 	/**
 	 * If this is true, we should not be modifying text to be displayed in color.
 	 */
-	private static boolean noColor = System.getProperty("os.name").contains("Windows")
-			|| System.getProperty("os.version").startsWith("10.6");
+	private static boolean noColor = FSystem.isWindows || System.getProperty("os.version").startsWith("10.6");
 	
 	/**
 	 * Our color library

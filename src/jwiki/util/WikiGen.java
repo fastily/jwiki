@@ -2,6 +2,7 @@ package jwiki.util;
 
 import java.util.HashMap;
 
+import jwiki.core.Namespace;
 import jwiki.core.Wiki;
 import jwiki.mbot.MBot;
 
@@ -11,7 +12,7 @@ import jwiki.mbot.MBot;
  * @author Fastily
  *
  */
-public class WikiFactory
+public class WikiGen
 {
 	/**
 	 * Our password storage. You must have a file named '.px.txt' in your home directory for this to work.
@@ -26,7 +27,7 @@ public class WikiFactory
 	/**
 	 * Hiding constructor from javadoc
 	 */
-	private WikiFactory()
+	private WikiGen()
 	{
 		
 	}
@@ -42,12 +43,17 @@ public class WikiFactory
 	 */
 	public static Wiki generate(String user, String domain)
 	{
+		user = Namespace.nss(user); //idiot proofing
+		
 		if (cache.containsKey(user))
 			return cache.get(user).getWiki(domain);
 		
 		Wiki wiki = null;
 		try
 		{
+			if(!px.containsKey(user)) //we shouldn't run if someone requests a username we don't have.
+				FError.errAndExit(String.format("'%s' does not have a password on file. Run FLogin again.", user));
+			
 			wiki = new Wiki(user, px.get(user), domain);
 			cache.put(user, wiki);
 		}

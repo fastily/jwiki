@@ -1,11 +1,12 @@
 package ft;
 
+import static ft.Core.*;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 
 import jwiki.commons.CStrings;
-import jwiki.commons.Commons;
 import jwiki.core.Logger;
 import jwiki.core.Wiki;
 import jwiki.mbot.MBot;
@@ -13,7 +14,7 @@ import jwiki.mbot.WAction;
 import jwiki.util.FCLI;
 import jwiki.util.FString;
 import jwiki.util.ReadFile;
-import jwiki.util.WikiFactory;
+import jwiki.util.WikiGen;
 import jwiki.util.WikiFile;
 
 import org.apache.commons.cli.CommandLine;
@@ -31,9 +32,14 @@ public class CC
 	/**
 	 * Upload test text.
 	 */
-	public static final String utt = "Recreating [[bugzilla:36587]] (i.e. [[Special:UploadStash|upload stash]] bug) & "
+	private static final String utt = "Recreating [[bugzilla:36587]] (i.e. [[Special:UploadStash|upload stash]] bug) & "
 			+ "collecting data to log.\n{{Warning|'''Test area only!  File may be non-free.''' This is just a test"
 			+ " file and any license does not apply.}}\n[[Category:Fastily Test]]";
+	
+	/**
+	 * The help string for this method.
+	 */
+	private static final String hstring = "CC [-m] [-nr] [-help] [-h number] [-r retries] [-f] [-nd|-sd] [-t <textfile>|<files or directories>]";
 	
 	/**
 	 * Flag indicating whether we should suppress deletions
@@ -58,9 +64,10 @@ public class CC
 	 */
 	public static void main(String[] args) throws ParseException
 	{
-		CommandLine l = parseArgs(args);
+		CommandLine l = init(args, makeOptList(), hstring);
+		
 		if (l.hasOption('f'))
-			new Commons(WikiFactory.generate("Fastily")).nukeFastilyTest(true);
+			com.nukeFastilyTest(true);
 		
 		nd = l.hasOption("nd") || l.hasOption("sd");
 		repeats = Integer.parseInt(l.getOptionValue('r', "1"));
@@ -72,10 +79,10 @@ public class CC
 		else
 			ccwl = generateCCW(l.getArgs());
 		
-		WAction[] ml = new MBot(WikiFactory.generate("FSVI"), Integer.parseInt(l.getOptionValue('h', "1"))).start(ccwl);
+		WAction[] ml = new MBot(user, Integer.parseInt(l.getOptionValue('h', "1"))).start(ccwl);
 		
 		if (l.hasOption('m'))
-			WikiFactory.generate("FastilyClone").edit("User:Fastily/A7",
+			user.edit("User:" + user.whoami() + "/A7",
 					"Generated at ~~~~~\n\n" + FString.fenceMaker("%n", WAction.convertToString(ml)), "Update report");
 	}
 	
@@ -108,13 +115,11 @@ public class CC
 	}
 	
 	/**
-	 * Parses Command Line arguments
+	 * Makes a list of options for us.
 	 * 
-	 * @param args The command line arguments
-	 * @return A CommandLine mapping containing the parsed arguments.
-	 * @throws ParseException Eh?
+	 * @return The list of options.
 	 */
-	private static CommandLine parseArgs(String[] args) throws ParseException
+	private static Options makeOptList()
 	{
 		Options ol = new Options();
 		
@@ -129,8 +134,7 @@ public class CC
 		ol.addOption(FCLI.makeArgOption("r", "Number of times to repeat in event of failure", "#retries"));
 		ol.addOption(FCLI.makeArgOption("t", "Select files to upload from a text file", "<textfile>"));
 		
-		return FCLI.gnuParse(ol, args,
-				"CC [-m] [-nr] [-help] [-h number] [-r retries] [-f] [-nd|-sd] [-t <textfile>|<files or directories>]");
+		return ol;
 	}
 	
 	/**
@@ -144,7 +148,7 @@ public class CC
 		/**
 		 * Our deletion account
 		 */
-		private static Wiki ft = WikiFactory.generate("Fastily");
+		private static Wiki ft = WikiGen.generate("Fastily");
 		
 		/**
 		 * The WikiFile to upload

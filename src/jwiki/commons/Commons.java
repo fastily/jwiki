@@ -47,8 +47,8 @@ public class Commons
 	 * run from <tt>admin</tt>. Current domain of either object does not have to be set to Commons.
 	 * 
 	 * @param wiki wiki object to use for non-admin tasks.
-	 * @param admin wiki object for admin tasks. If you're not an admin, you need to specify this to be null, otherwise
-	 *            you may get strange behavior.
+	 * @param admin wiki object for admin tasks. If you're not an admin, you ought to specify this to be null, otherwise
+	 *            you may get strange behavior if you execute admin tasks.
 	 */
 	public Commons(Wiki wiki, Wiki admin)
 	{
