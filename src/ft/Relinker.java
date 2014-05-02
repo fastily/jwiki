@@ -13,7 +13,7 @@ import jwiki.core.Wiki;
 import jwiki.util.FError;
 import jwiki.util.FString;
 import jwiki.util.Tuple;
-import jwiki.util.WikiFactory;
+import jwiki.util.WikiGen;
 
 /**
  * Reverts CommonsDelinker edits. Takes arguments via command line. Pass in as many files as you want, w/ or w/o "File:"
@@ -122,7 +122,7 @@ public class Relinker
 	 */
 	private static void process(ArrayList<Tuple<String, String>> l)
 	{
-		Wiki wiki = WikiFactory.generate("FastilyClone");
+		Wiki wiki = WikiGen.generate("FastilyClone");
 		String last = null;
 		
 		for (Tuple<String, String> t : l)

@@ -6,7 +6,8 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import jwiki.core.Wiki;
 import jwiki.mbot.MBot;
 import jwiki.mbot.WAction;
-import jwiki.util.WikiFactory;
+import jwiki.util.FString;
+import jwiki.util.WikiGen;
 
 /**
  * Archives all closed DRs older than 7 days.
@@ -30,7 +31,7 @@ public class DRArchive
 	/**
 	 * Wiki representing the archive bot.
 	 */
-	private static final Wiki archivebot = WikiFactory.generate("ArchiveBot");
+	private static final Wiki archivebot = WikiGen.generate("ArchiveBot");
 	
 	/**
 	 * Main driver.
@@ -39,16 +40,16 @@ public class DRArchive
 	 */
 	public static void main(String[] args)
 	{
-		archivebot.nullEdit("User:FastilyClone/DL");
+		archivebot.nullEdit("User:ArchiveBot/DL");
 		ArrayList<ProcLog> pl = new ArrayList<ProcLog>();
-		for (String s : archivebot.getValidLinksOnPage("User:FastilyClone/DL"))
+		for (String s : archivebot.getValidLinksOnPage("User:ArchiveBot/DL"))
 			pl.add(new ProcLog(s));
-		WikiFactory.genM("ArchiveBot", 2).start(pl.toArray(new ProcLog[0]));
+		WikiGen.genM("ArchiveBot", 2).start(pl.toArray(new ProcLog[0]));
 		
 		String x = "Report generated @ ~~~~~\n";
 		for (String s : singles)
 			x += String.format("%n{{%s}}", s);
-		archivebot.edit("User:Fastily/SingletonDR", x, "Update report");
+		archivebot.edit("User:ArchiveBot/SingletonDR", x, "Update report");
 		
 	}
 	
@@ -130,7 +131,7 @@ public class DRArchive
 		{
 			String x = base;
 			for (String s : titles)
-				x = x.replace("\n{{" + s + "}}", "");
+				x = x.replaceAll("(?i)\\s\\{\\{(" + FString.makePageTitleRegex(s) + ").*?\\}\\}", "");
 			return x;
 		}
 		
@@ -208,7 +209,8 @@ public class DRArchive
 			else
 			{
 				String temp = text.replaceAll("(?i)\\[\\[(Category:).+?\\]\\]", "");
-				temp = temp.replaceAll("(?si)\\<(includeonly|noinclude)\\>.*?\\</(includeonly|noinclude)\\>", "").trim();
+				temp = temp.replaceAll("(?si)\\<(includeonly|noinclude)\\>.*?\\</(includeonly|noinclude)\\>", "");
+				temp = temp.replaceAll("(?i)_(NOTOC)_", "").trim();
 				canA = temp
 						.matches("(?si)\\{\\{(delh|DeletionHeader).*?\\}\\}.*?\\{(DeletionFooter/Old|Delf|DeletionFooter|Udelf).*?\\}\\}");
 			}
