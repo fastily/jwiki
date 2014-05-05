@@ -1,4 +1,4 @@
-package jwiki.sand;
+package sand;
 
 import jwiki.commons.*;
 import jwiki.core.*;
@@ -16,7 +16,7 @@ public class T
 	{
 		
 		for (String s : clone.whatTranscludesHere("Template:Pt-br"))
-			clone.replaceText(s, "(?si)\\{\\{(Template:)??(Pt\\-br)", "{{Pt",
+			clone.replaceText(s, "(?si)pt\\-br\\s*?=", "Pt=",
 					"pt-br -> pt per [[Commons:Deletion requests/Template:Pt-br|here]]");
 		
 	}
