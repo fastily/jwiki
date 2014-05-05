@@ -1,5 +1,7 @@
 package ft;
 
+import static ft.Core.*;
+
 import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
@@ -11,12 +13,12 @@ import jwiki.core.Logger;
 import jwiki.core.Namespace;
 import jwiki.core.Request;
 import jwiki.core.Wiki;
+import jwiki.mbot.MBot;
 import jwiki.mbot.WAction;
 import jwiki.util.FCLI;
 import jwiki.util.FError;
 import jwiki.util.FIO;
 import jwiki.util.FString;
-import jwiki.util.WikiGen;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
@@ -29,6 +31,11 @@ import org.apache.commons.cli.Options;
  */
 public class CommonsMover
 {
+	/**
+	 * Help/Usage string for command line.
+	 */
+	private static final String hstring = "CommonsMover [-help] [-c <category>|-u <user>|<titles>] [-t <threads>]";
+	
 	/**
 	 * The URL to post to.
 	 */
@@ -51,14 +58,9 @@ public class CommonsMover
 			"Category:All free in US media" };
 	
 	/**
-	 * Our wiki object for Commons.
+	 * Our wiki object for commons & enwp.
 	 */
-	protected static Wiki com;
-	
-	/**
-	 * The wiki object for en.wikipedia.org
-	 */
-	protected static Wiki enwp;
+	protected static Wiki com, enwp;
 	
 	/**
 	 * Maximum number of threads to instantiate. Default: 2
@@ -72,9 +74,9 @@ public class CommonsMover
 	 */
 	public static void main(String[] args)
 	{
-		CommandLine l = parseArgs(args);
-		com = WikiGen.generate("FastilyClone");
-		enwp = com.getWiki("en.wikipedia.org");
+		CommandLine l = init(args, makeOptList(), hstring);
+		com = user;
+		enwp = user.getWiki("en.wikipedia.org");
 		
 		if (l.hasOption('t'))
 			maxthreads = Integer.parseInt(l.getOptionValue('t'));
@@ -95,24 +97,23 @@ public class CommonsMover
 		ArrayList<TransferItem> tfl = new ArrayList<TransferItem>();
 		for (String s : tl)
 			tfl.add(new TransferItem(s));
-		WikiGen.genM("FastilyClone", maxthreads).start(tfl.toArray(new TransferItem[0]));
+		new MBot(user, maxthreads).start(tfl.toArray(new TransferItem[0]));
 	}
 	
 	/**
-	 * Parse command line args.
+	 * Make a list of CLI options for us.
 	 * 
-	 * @param args The arguments passed into main.
-	 * @return A CommandLine object representing the args passed in.
+	 * @return The list of Command line options.
 	 */
-	private static CommandLine parseArgs(String[] args)
+	private static Options makeOptList()
 	{
 		Options ol = new Options();
 		
-		ol.addOption("help", false, "Print this help message and exit");
 		ol.addOptionGroup(FCLI.makeOptGroup(FCLI.makeArgOption("c", "Transfer all files in this category", "category"),
 				FCLI.makeArgOption("u", "Transfer al files uploaded by this user", "user")));
 		ol.addOption(FCLI.makeArgOption("t", "Set the maximum number of threads", "threads"));
-		return FCLI.gnuParse(ol, args, "CommonsMover [-help] [-c <category>|-u <user>|<titles>] [-t <threads>]");
+		
+		return ol;
 	}
 	
 	/**
@@ -212,9 +213,8 @@ public class CommonsMover
 		 */
 		private boolean flagF8()
 		{
-			return enwp.addText(title,
-					String.format("\n{{subst:ncd%s}}", !transferTo.equals(title) ? "|" + transferTo : ""), "F8",
-					true);
+			return enwp.addText(title, String.format("%n{{subst:ncd%s}}", !transferTo.equals(title) ? "|" + transferTo : ""),
+					"F8", false);
 		}
 		
 		/**
@@ -224,8 +224,8 @@ public class CommonsMover
 		 */
 		private File downloadFile()
 		{
-			String path = titleNNS;
-			return FTask.downloadFile(title, path, enwp) ? new File(path) : null;
+			String tx = String.format("%d%s", titleNNS.hashCode(), titleNNS.substring(titleNNS.lastIndexOf(".")));
+			return FTask.downloadFile(title, tx, enwp) ? new File(tx) : null;
 		}
 		
 		/**

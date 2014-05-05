@@ -128,7 +128,6 @@ public class CC
 		ol.addOption("f", false, "Nuke 'Category:Fastily Test' and exit.  Overrides other options");
 		ol.addOption("m", false, "Make a note of failures on-wiki");
 		ol.addOption("nr", false, "Turn off recursive file search");
-		ol.addOption("help", false, "Print this help message and exit");
 		
 		ol.addOption(FCLI.makeArgOption("h", "Sets the number of threads of execution", "#threads"));
 		ol.addOption(FCLI.makeArgOption("r", "Number of times to repeat in event of failure", "#retries"));

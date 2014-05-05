@@ -44,13 +44,12 @@ public class DRArchive
 		ArrayList<ProcLog> pl = new ArrayList<ProcLog>();
 		for (String s : archivebot.getValidLinksOnPage("User:ArchiveBot/DL"))
 			pl.add(new ProcLog(s));
-		WikiGen.genM("ArchiveBot", 2).start(pl.toArray(new ProcLog[0]));
+		WikiGen.genM("ArchiveBot", 1).start(pl.toArray(new ProcLog[0]));
 		
 		String x = "Report generated @ ~~~~~\n";
 		for (String s : singles)
 			x += String.format("%n{{%s}}", s);
 		archivebot.edit("User:ArchiveBot/SingletonDR", x, "Update report");
-		
 	}
 	
 	/**
@@ -67,6 +66,11 @@ public class DRArchive
 		private String archive;
 		
 		/**
+		 * The archive's header.  We'll apply this if we're creating a new archive.
+		 */
+		private String aHeader;
+		
+		/**
 		 * Constructor, takes a log title as the argument.
 		 * 
 		 * @param title The log title.
@@ -74,7 +78,10 @@ public class DRArchive
 		private ProcLog(String title)
 		{
 			super(title, null, "Archiving %d threads %s [[%s]]");
-			archive = "Commons:Deletion requests/Archive" + title.substring(title.indexOf('/'));
+			
+			String d = title.substring(title.indexOf('/'));
+			aHeader = String.format("{{Deletion requests/Archive%s}}\n", d.replace('/', '|'));
+			archive = "Commons:Deletion requests/Archive" + d;
 		}
 		
 		/**
@@ -86,7 +93,7 @@ public class DRArchive
 		public boolean doJob(Wiki wiki)
 		{
 			DRItem[] l = fetchDRs(wiki);
-			new MBot(wiki, 2).start(l);
+			new MBot(wiki, 5).start(l);
 			
 			ArrayList<String> toArchive = new ArrayList<String>();
 			for (DRItem d : l)
@@ -100,9 +107,10 @@ public class DRArchive
 			String[] al = toArchive.toArray(new String[0]);
 			if (al.length > 0) // for efficiency.
 			{
+				String archiveText = wiki.getPageText(archive);
+				wiki.edit(archive, (archiveText != null ? archiveText : aHeader) + pool(al), String.format(summary, toArchive.size(), "from", title));
 				wiki.edit(title, extract(wiki.getPageText(title), al), String.format(summary, toArchive.size(), "to", archive));
-				wiki.edit(archive, wiki.getPageText(archive) + pool(al), String.format(summary, toArchive.size(), "from", title));
-			}
+				}
 			return true;
 		}
 		
@@ -210,7 +218,7 @@ public class DRArchive
 			{
 				String temp = text.replaceAll("(?i)\\[\\[(Category:).+?\\]\\]", "");
 				temp = temp.replaceAll("(?si)\\<(includeonly|noinclude)\\>.*?\\</(includeonly|noinclude)\\>", "");
-				temp = temp.replaceAll("(?i)_(NOTOC)_", "").trim();
+				temp = temp.replaceAll("(?i)__(NOTOC)__", "").trim();
 				canA = temp
 						.matches("(?si)\\{\\{(delh|DeletionHeader).*?\\}\\}.*?\\{(DeletionFooter/Old|Delf|DeletionFooter|Udelf).*?\\}\\}");
 			}

@@ -41,6 +41,7 @@ public class Core
 	 */
 	protected static CommandLine init(String[] args, Options ol, String hstring)
 	{
+		ol.addOption("help", false, "Print this help message and exit");
 		ol.addOption(FCLI.makeArgOption("user", "Set the user to login as", "username"));
 		ol.addOption(FCLI.makeArgOption("admin", "Set the admin account to use", "username"));
 		
