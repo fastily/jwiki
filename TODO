@@ -1,14 +1,7 @@
-== Critical ==
-* CommonsMover does not work on Windows.  Windows doesn't like certain symbols in file names, so I think I should do a String hash for temp file names.  This is going to require a fat audit of WikiFile, and will require integration of it with CommonsMover
-
 == High Priority ==
 * FQuery should support multiple title queries.  Create a new class... MassFQuery?  This requires partial rewrite of a f*ck ton of functions but will give us a massive performance boost in end-user applications.
-
-* WikiGen is a horrible auth system.  I like the idea of saving the login tokens locally...but this makes for a horrible security problem.
-* * Convert GlobalReplace to a command line app, then wrap it with a GUI (Blocked on revision of auth system)
-* * Wrap CommonsMover into GUI. (Blocked on revision of auth system)
-
-* Is there a way to eliminate password storage as a local vars?  Blocked on fixing central auth logins
+* Convert GlobalReplace to a command line app, then wrap it with a GUI
+* Wrap CommonsMover into GUI
 
 == Low Priority ==
 * Commons New Image Auditor

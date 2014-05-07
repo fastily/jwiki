@@ -15,9 +15,5 @@ public class T
 	public static void main(String[] args)
 	{
 		
-		for (String s : clone.whatTranscludesHere("Template:Pt-br"))
-			clone.replaceText(s, "(?si)pt\\-br\\s*?=", "Pt=",
-					"pt-br -> pt per [[Commons:Deletion requests/Template:Pt-br|here]]");
-		
 	}
 }

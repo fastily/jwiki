@@ -160,11 +160,13 @@ public class CCleaner
 	 */
 	private static String[] unknownClear()
 	{
+		
 		fc.nullEdit("User:FastilyClone/UC");
 		
 		ArrayList<String> catlist = new ArrayList<String>();
 		ArrayList<MBot.DeleteItem> l = new ArrayList<MBot.DeleteItem>();
 		
+		String baseLS = "you may [[Special:Upload|re-upload]] the file, but please %s";
 		for (String c : fastily.getValidLinksOnPage("User:FastilyClone/UC"))
 		{
 			catlist.add(c);
@@ -172,9 +174,9 @@ public class CCleaner
 			if (c.contains("permission"))
 				r = String.format("[[COM:OTRS|No permission]] since %s: ", c.substring(c.indexOf("as of") + 6)) + CStrings.baseP;
 			else if (c.contains("license"))
-				r = String.format("No license since %s", c.substring(c.indexOf("as of") + 6));
+				r = String.format("No license since %s:", c.substring(c.indexOf("as of") + 6) + String.format(baseLS, "include a [[COM:CT|license tag]]"));
 			else
-				r = String.format("No source since %s", c.substring(c.indexOf("as of") + 6));
+				r = String.format("No source since %s:", c.substring(c.indexOf("as of") + 6) + String.format(baseLS, "cite the file's source"));
 			
 			for (String s : fastily.getCategoryMembers(c, "File"))
 				l.add(new MBot.DeleteItem(s, r));
