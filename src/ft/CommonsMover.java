@@ -180,7 +180,8 @@ public class CommonsMover
 			{
 				if (com.getImageInfo(title).getSize() == enwp.getImageInfo(title).getSize())
 				{
-					flagF8();
+					if (FString.arrayContains(enwp.whatTranscludesHere(title), "Template:Now commons dated"))
+						flagF8();
 					return false;
 				}
 				else
