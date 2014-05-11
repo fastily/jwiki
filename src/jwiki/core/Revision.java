@@ -20,6 +20,7 @@ public class Revision
 	 */
 	private String title, summary, user, text;
 	
+	//TODO: Fixme
 	/**
 	 * The timestamp set by the info returned by the server. MediaWiki returns dates in the form:
 	 * <tt>2013-12-16T00:25:17Z</tt>. You can parse it with the pattern <tt>yyyy-MM-dd'T'HH:mm:ss'Z'</tt>. CAVEAT:

@@ -1,9 +1,12 @@
 == High Priority ==
 * FQuery should support multiple title queries.  Create a new class... MassFQuery?  This requires partial rewrite of a f*ck ton of functions but will give us a massive performance boost in end-user applications.
+** I don't like the Reply class; it's *really* awkward.  This should be split into a tuple<ErrInfo, JSONObject reply>
 * Convert GlobalReplace to a command line app, then wrap it with a GUI
+** GR sometimes hits apihighlimit restriction.  Perhaps we should add a delay...
 * Wrap CommonsMover into GUI
+* Upgrade to Java 8
+* Timestamp field (should be a date object, not a string) for revision is f*cked up.  Why is that?
 
 == Low Priority ==
 * Commons New Image Auditor
-* Upgrade to Java 7
-* JUnit Tests
+* Legit JUnit Tests
