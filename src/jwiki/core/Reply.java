@@ -21,17 +21,17 @@ public class Reply
 	/**
 	 * The reply from the server.
 	 */
-	private JSONObject reply;
+	protected final JSONObject reply;
+
+	/**
+	 * The result of the query/action, if applicable.
+	 */
+	private String result;
 	
 	/**
 	 * Error codes
 	 */
 	private String error = null;
-	
-	/**
-	 * The result of the query/action, if applicable.
-	 */
-	private String result;
 	
 	/**
 	 * Result strings which should not be tagged as errors.

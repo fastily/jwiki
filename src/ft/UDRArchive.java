@@ -23,7 +23,7 @@ public class UDRArchive
 	 */
 	public static void main(String[] args)
 	{
-		Wiki wiki = WikiGen.generate("FastilyClone");
+		Wiki wiki = WikiGen.generate("ArchiveBot");
 		String target = "Commons:Undeletion requests/Current requests";
 		String text = wiki.getPageText(target);
 		Matcher m = Pattern.compile("(?si)\\s*?\\{\\{(udelh)\\}\\}.+?\\{\\{(udelf)\\}\\}\\s*?").matcher(text);
