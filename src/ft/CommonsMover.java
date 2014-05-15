@@ -55,7 +55,7 @@ public class CommonsMover
 			"Category:Media not suitable for Commons", "Category:Wikipedia files of no use beyond Wikipedia",
 			"Category:All non-free media", "Category:All Wikipedia files with unknown source",
 			"Category:All Wikipedia files with unknown copyright status", "Category:Candidates for speedy deletion",
-			"Category:All free in US media" };
+			"Category:All free in US media", "Category:Files deleted on Wikimedia Commons" };
 	
 	/**
 	 * Our wiki object for commons & enwp.
@@ -180,7 +180,7 @@ public class CommonsMover
 			{
 				if (com.getImageInfo(title).getSize() == enwp.getImageInfo(title).getSize())
 				{
-					if (FString.arrayContains(enwp.whatTranscludesHere(title), "Template:Now commons dated"))
+					if (!FString.arrayContains(enwp.whatTranscludesHere(title), "Template:Now commons dated"))
 						flagF8();
 					return false;
 				}
@@ -192,6 +192,7 @@ public class CommonsMover
 			}
 			catch (Throwable e)
 			{
+				Logger.warn(String.format("What the hell?  See '%s'", title));
 				e.printStackTrace();
 				return false;
 			}

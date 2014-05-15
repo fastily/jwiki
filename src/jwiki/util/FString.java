@@ -59,6 +59,7 @@ public class FString
 		while (m.hasNextLine())
 			l.add(m.nextLine().trim());
 		
+		m.close();
 		return l.toArray(new String[0]);
 	}
 	
