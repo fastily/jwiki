@@ -22,32 +22,32 @@ public class Wiki
 	 * Our list of currently logged in Wiki's associated with this object. Useful for global operations.
 	 */
 	private HashMap<String, Wiki> wl = new HashMap<String, Wiki>();
-	
+
 	/**
 	 * Our edit token
 	 */
 	protected String token;
-	
+
 	/**
 	 * Our namespace list
 	 */
 	protected Namespace nsl;
-	
+
 	/**
 	 * Our domain
 	 */
 	protected final String domain;
-	
+
 	/**
 	 * Our username & password: Tuple -> (user, pass).
 	 */
 	protected final Tuple<String, String> upx;
-	
+
 	/**
 	 * Our cookiejar
 	 */
 	protected CookieManager cookiejar = new CookieManager();
-	
+
 	/**
 	 * Constructor, sets username, password, and domain. The user password combo must be valid or program will exit
 	 * 
@@ -61,19 +61,19 @@ public class Wiki
 	{
 		upx = new Tuple<String, String>(Namespace.nss(user), px);
 		this.domain = domain;
-		
+
 		if (parent != null)
 		{
 			wl = parent.wl;
 			cookiejar = parent.cookiejar;
 		}
-		
+
 		if (!(FAction.login(this) && FQuery.generateEditToken(this) && FQuery.generateNSL(this)))
 			throw new LoginException(String.format("Failed to log-in as %s @ %s", upx.x, domain));
-		
+
 		wl.put(domain, this);
 	}
-	
+
 	/**
 	 * Internal constructor, use it to spawn a new wiki @ a different domain associated with this object.
 	 * 
@@ -85,7 +85,7 @@ public class Wiki
 	{
 		this(curr.upx.x, curr.upx.y, domain, curr);
 	}
-	
+
 	/**
 	 * Constructor, auto initializes first domain to Wikimedia Commons.
 	 * 
@@ -97,7 +97,7 @@ public class Wiki
 	{
 		this(user, px, "commons.wikimedia.org");
 	}
-	
+
 	/**
 	 * Constructor, takes user, password, and domain to login as.
 	 * 
@@ -110,7 +110,7 @@ public class Wiki
 	{
 		this(user, px, domain, null);
 	}
-	
+
 	/**
 	 * Gets a Wiki object for this domain. This method is cached, to save bandwidth. We will create a new wiki as
 	 * necessary.
@@ -131,7 +131,7 @@ public class Wiki
 			return null;
 		}
 	}
-	
+
 	/**
 	 * Gets the user we're logged in as.
 	 * 
@@ -141,7 +141,7 @@ public class Wiki
 	{
 		return upx.x;
 	}
-	
+
 	/**
 	 * Takes a namespace and gets its number. PRECONDITION: the prefix must be a valid namespace prefix.
 	 * 
@@ -152,7 +152,7 @@ public class Wiki
 	{
 		return nsl.convert(prefix);
 	}
-	
+
 	/**
 	 * Takes a namespace number and returns its name.
 	 * 
@@ -163,7 +163,7 @@ public class Wiki
 	{
 		return nsl.convert(num);
 	}
-	
+
 	/**
 	 * Gets the number of the namespace for the title passed in. No namespace is assumed to be main namespace.
 	 * 
@@ -174,7 +174,7 @@ public class Wiki
 	{
 		return nsl.whichNS(title);
 	}
-	
+
 	/**
 	 * Check if title in specified namespace. If not in specified namespace, convert it.
 	 * 
@@ -186,7 +186,7 @@ public class Wiki
 	{
 		return whichNS(title) == getNS(ns) ? title : String.format("%s:%s", ns, Namespace.nss(title));
 	}
-	
+
 	/**
 	 * Checks if we're verified for the specified domain.
 	 * 
@@ -196,7 +196,7 @@ public class Wiki
 	{
 		return wl.containsKey(domain);
 	}
-	
+
 	/**
 	 * Convenience method, makes a URLBuilder.
 	 * 
@@ -206,11 +206,26 @@ public class Wiki
 	{
 		return new URLBuilder(domain);
 	}
-	
+
+	/**
+	 * Creates a URLBuilder with a custom action & params. PRECONDITION: all <tt>params</tt> must be URLEncoded.
+	 * 
+	 * @param action The custom action to use
+	 * @param params The params to use.
+	 * @return The requested URLBuilder.
+	 */
+	protected URLBuilder makeUB(String action, String... params)
+	{
+		URLBuilder ub = makeUB();
+		ub.setAction(action);
+		ub.setParams(params);
+		return ub;
+	}
+
 	// //////////////////////////////////////////////////////////////////////////////// //
 	// ///////////////////////// END OF UTILITY FUNCTIONS ///////////////////////////// //
 	// //////////////////////////////////////////////////////////////////////////////// //
-	
+
 	/**
 	 * Edit a page, and check if the request actually went through.
 	 * 
@@ -224,7 +239,7 @@ public class Wiki
 	{
 		return FAction.edit(this, title, text, reason);
 	}
-	
+
 	/**
 	 * Appends text to a page
 	 * 
@@ -239,7 +254,7 @@ public class Wiki
 		String s = getPageText(title);
 		return s != null ? edit(title, top ? add + s : s + add, reason) : false;
 	}
-	
+
 	/**
 	 * Removes text from a page.
 	 * 
@@ -252,7 +267,7 @@ public class Wiki
 	{
 		return replaceText(title, regex, "", reason);
 	}
-	
+
 	/**
 	 * Replaces text on a page.
 	 * 
@@ -267,7 +282,7 @@ public class Wiki
 		String s = getPageText(title);
 		return s != null ? edit(title, s.replaceAll(regex, replacement), reason) : false;
 	}
-	
+
 	/**
 	 * Undo the top revision of a page. PRECONDITION: <tt>title</tt> must point to a valid page.
 	 * 
@@ -279,7 +294,7 @@ public class Wiki
 	{
 		return FAction.undo(this, title, reason);
 	}
-	
+
 	/**
 	 * Null edits a page.
 	 * 
@@ -290,7 +305,7 @@ public class Wiki
 	{
 		return edit(title, getPageText(title), "null edit");
 	}
-	
+
 	/**
 	 * Purge a page.
 	 * 
@@ -301,7 +316,7 @@ public class Wiki
 	{
 		return FAction.purge(this, title);
 	}
-	
+
 	/**
 	 * Gets the list of groups a user is in.
 	 * 
@@ -311,10 +326,10 @@ public class Wiki
 	{
 		return FQuery.listGroupsRights(this);
 	}
-	
+
 	/**
-	 * Determines if we're an admin. Note that this method does not cache, so you should make one yourself if you need
-	 * to know a user's rights status multiple times.
+	 * Determines if we're an admin. Note that this method does not cache, so you should make one yourself if you need to
+	 * know a user's rights status multiple times.
 	 * 
 	 * @return True if this user is a sysop.
 	 */
@@ -322,7 +337,7 @@ public class Wiki
 	{
 		return listGroupsRights().contains("sysop");
 	}
-	
+
 	/**
 	 * Gets the text of a page on the specified wiki.
 	 * 
@@ -333,7 +348,7 @@ public class Wiki
 	{
 		return FQuery.getPageText(this, title);
 	}
-	
+
 	/**
 	 * Gets the revisions of a page.
 	 * 
@@ -346,7 +361,7 @@ public class Wiki
 	{
 		return FQuery.getRevisions(this, title, num, olderfirst);
 	}
-	
+
 	/**
 	 * Gets all the revisions of a page in descending order (newest -> oldest). Caveat: Pages such as the admin's notice
 	 * board have ~10<sup>6</sup> revisions. Watch your memory usage.
@@ -358,7 +373,7 @@ public class Wiki
 	{
 		return getRevisions(title, -1, false);
 	}
-	
+
 	/**
 	 * Deletes a page. You must have admin rights or this won't work.
 	 * 
@@ -370,10 +385,10 @@ public class Wiki
 	{
 		return FAction.delete(this, title, reason);
 	}
-	
+
 	/**
-	 * Undelete a page. You must have admin rights on the wiki you are trying to perform this task on, otherwise it
-	 * won't go through.
+	 * Undelete a page. You must have admin rights on the wiki you are trying to perform this task on, otherwise it won't
+	 * go through.
 	 * 
 	 * @param title The title to undelete
 	 * @param reason The reason to use
@@ -383,7 +398,7 @@ public class Wiki
 	{
 		return FAction.undelete(this, title, reason);
 	}
-	
+
 	/**
 	 * Gets the number of elements in a category.
 	 * 
@@ -394,34 +409,34 @@ public class Wiki
 	{
 		return FQuery.getCategorySize(this, title);
 	}
-	
+
 	/**
 	 * Gets ALL elements in a category.
 	 * 
 	 * @param title The title to retrieve pages from, including the "Category:" prefix.
 	 * @param ns Namespaces to include-only, passed in as prefixes, without the ":" (e.g. "File", "Category", "Main").
-	 *            Optional, leave blank to select all namespaces.
+	 *           Optional, leave blank to select all namespaces.
 	 * @return The list of elements in the category.
 	 */
 	public String[] getCategoryMembers(String title, String... ns)
 	{
 		return getCategoryMembers(title, -1, ns);
 	}
-	
+
 	/**
 	 * Gets the elements in a category.
 	 * 
 	 * @param title The title to retrieve pages from, including the "Category:" prefix.
 	 * @param max The maximum number of elements to return.
 	 * @param ns Namespaces to include-only, passed in as prefixes, without the ":" (e.g. "File", "Category", "Main").
-	 *            Optional, leave blank to select all namespaces.
+	 *           Optional, leave blank to select all namespaces.
 	 * @return The list of elements in the category.
 	 */
 	public String[] getCategoryMembers(String title, int max, String... ns)
 	{
 		return FQuery.getCategoryMembers(this, title, max, ns);
 	}
-	
+
 	/**
 	 * Gets the categories a page is categorized in.
 	 * 
@@ -432,33 +447,33 @@ public class Wiki
 	{
 		return FQuery.getCategoriesOnPage(this, title);
 	}
-	
+
 	/**
 	 * Gets the links on a page.
 	 * 
 	 * @param title The title to get links from
 	 * @param ns Namespaces to include-only, passed in as prefixes, without the ":" (e.g. "File", "Category", "Main").
-	 *            Optional, leave blank to select all namespaces.
+	 *           Optional, leave blank to select all namespaces.
 	 * @return The list of links on the page.
 	 */
 	public String[] getLinksOnPage(String title, String... ns)
 	{
 		return FQuery.getLinksOnPage(this, title, ns);
 	}
-	
+
 	/**
 	 * Gets all existing links on a page.
 	 * 
 	 * @param title The title to get links from
 	 * @param ns Namespaces to include-only, passed in as prefixes, without the ":" (e.g. "File", "Category", "Main").
-	 *            Optional, leave blank to select all namespaces.
+	 *           Optional, leave blank to select all namespaces.
 	 * @return The list of existing links on a page.
 	 */
 	public String[] getValidLinksOnPage(String title, String... ns)
 	{
 		return exists(getLinksOnPage(title, ns), true);
 	}
-	
+
 	/**
 	 * Gets the contributions of a user.
 	 * 
@@ -471,7 +486,7 @@ public class Wiki
 	{
 		return FQuery.getContribs(this, user, max, ns);
 	}
-	
+
 	/**
 	 * Gets the contributions of a user.
 	 * 
@@ -483,7 +498,7 @@ public class Wiki
 	{
 		return getContribs(user, -1, ns);
 	}
-	
+
 	/**
 	 * Gets all uploads of a user.
 	 * 
@@ -494,7 +509,7 @@ public class Wiki
 	{
 		return FQuery.getUserUploads(this, user);
 	}
-	
+
 	/**
 	 * Gets the list of local pages that are displaying the given image.
 	 * 
@@ -505,7 +520,7 @@ public class Wiki
 	{
 		return FQuery.imageUsage(this, file);
 	}
-	
+
 	/**
 	 * Gets the images linked on a page. By this I mean images which are displayed on a page.
 	 * 
@@ -516,7 +531,7 @@ public class Wiki
 	{
 		return FQuery.getImagesOnPage(this, title);
 	}
-	
+
 	/**
 	 * Determines whether the specified title exists on the wiki.
 	 * 
@@ -528,7 +543,7 @@ public class Wiki
 	{
 		return exists(new String[] { title }).get(0).y.booleanValue();
 	}
-	
+
 	/**
 	 * Checks to see if a page/pages exist. Returns a set of tuples (in no particular order), in the form
 	 * <tt>(String title, Boolean exists)</tt>.
@@ -542,7 +557,7 @@ public class Wiki
 	{
 		return FQuery.exists(this, titles);
 	}
-	
+
 	/**
 	 * Check if a title exists, and depending on the second param, return all existing or non-existent tiltes.
 	 * 
@@ -558,7 +573,7 @@ public class Wiki
 				l.add(t.x);
 		return l.toArray(new String[0]);
 	}
-	
+
 	/**
 	 * Get some information about a file on Wiki. Does not fill the thumbnail param of ImageInfo.
 	 * 
@@ -569,7 +584,7 @@ public class Wiki
 	{
 		return getImageInfo(title, -1, -1);
 	}
-	
+
 	/**
 	 * Get some information about a file on Wiki.
 	 * 
@@ -582,7 +597,7 @@ public class Wiki
 	{
 		return FQuery.getImageInfo(this, title, height, width);
 	}
-	
+
 	/**
 	 * Gets the templates transcluded on a page.
 	 * 
@@ -593,7 +608,7 @@ public class Wiki
 	{
 		return FQuery.getTemplatesOnPage(this, title);
 	}
-	
+
 	/**
 	 * Gets a list of pages transcluding <tt>title</tt>.
 	 * 
@@ -604,7 +619,7 @@ public class Wiki
 	{
 		return FQuery.whatTranscludesHere(this, title);
 	}
-	
+
 	/**
 	 * Upload a media file.
 	 * 
@@ -618,19 +633,19 @@ public class Wiki
 	{
 		return FAction.upload(this, f, title, text, reason);
 	}
-	
+
 	/**
 	 * Gets the global file usage for a media file.
 	 * 
 	 * @param title The title to check. Must start with "File:" prefix.
-	 * @return A list of tuples, (title of page, short form of wiki this page is from), denoting the global usage of
-	 *         this file. Returns empty list if something went wrong.
+	 * @return A list of tuples, (title of page, short form of wiki this page is from), denoting the global usage of this
+	 *         file. Returns empty list if something went wrong.
 	 */
 	public ArrayList<Tuple<String, String>> globalUsage(String title)
 	{
 		return FQuery.globalUsage(this, title);
 	}
-	
+
 	/**
 	 * Gets the direct links to a page (excluding links from redirects). To get links from redirects, use
 	 * <tt>getRedirects()</tt> and call this method on each element in the list returned.
@@ -642,7 +657,7 @@ public class Wiki
 	{
 		return FQuery.whatLinksHere(this, title);
 	}
-	
+
 	/**
 	 * Gets the redirects of a page.
 	 * 
@@ -653,23 +668,22 @@ public class Wiki
 	{
 		return FQuery.getRedirects(this, title);
 	}
-	
+
 	/**
 	 * Gets a list of pages on the Wiki.
 	 * 
 	 * @param prefix Get files starting with this String. DO NOT include a namespace prefix (e.g. "File:"). Param is
-	 *            optional, use null or empty string to disable.
+	 *           optional, use null or empty string to disable.
 	 * @param redirectsonly Set this to true to get redirects only.
-	 * @param max The max number of titles to return.  Specify -1 to get all pages.
-	 * @param ns The namespace identifier (e.g. "File"). 
+	 * @param max The max number of titles to return. Specify -1 to get all pages.
+	 * @param ns The namespace identifier (e.g. "File").
 	 * @return A list of titles as specified.
 	 */
 	public String[] allPages(String prefix, boolean redirectsonly, int max, String ns)
 	{
 		return FQuery.allPages(this, prefix, redirectsonly, max, ns);
 	}
-	
-	
+
 	/**
 	 * Does the same thing as Special:PrefixIndex.
 	 * 
@@ -680,5 +694,28 @@ public class Wiki
 	public String[] prefixIndex(String namespace, String prefix)
 	{
 		return allPages(prefix, false, -1, namespace);
+	}
+
+	/**
+	 * Gets a list of duplicate files.
+	 * 
+	 * @param file The file to get duplicates of
+	 * @return The list of files.
+	 */
+	public String[] getDuplicatesOf(String file)
+	{
+		return FQuery.getDuplicatesOf(this, file);
+	}
+
+	/**
+	 * List all duplicate files.
+	 * 
+	 * @param page The page to fetch dupes of
+	 * @param max The maximum number of dupes to get. Disable with -1.
+	 * @return A list of duplicate files.
+	 */
+	public String[] listDuplicateFiles(String page, int max)
+	{
+		return FQuery.listSpecialPages(this, page, max);
 	}
 }

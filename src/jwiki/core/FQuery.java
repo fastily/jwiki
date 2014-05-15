@@ -20,15 +20,15 @@ import org.json.JSONObject;
  */
 public class FQuery
 {
-	
+
 	/**
 	 * Hiding from javadoc
 	 */
 	private FQuery()
 	{
-		
+
 	}
-	
+
 	/**
 	 * Generic query-continue fetching method. Continuously performs a query until there are no more results to get, or
 	 * until we have all the results we want.
@@ -36,43 +36,43 @@ public class FQuery
 	 * @param ub The URLBuilder to use. You should have initialized action and any static parameters.
 	 * @param max The maximum number of results to return, or -1 if you want ALL results on the server.
 	 * @param limString The limit parameter name (e.g. "rvlimit"), which will cap the max number of results returned per
-	 *            query.
+	 *           query.
 	 * @param contString The param to look for when doing a continue (e.g. "rvcontinue").
 	 * @param isStr Set to true if we should expect a String for the continue token returned. Otherwise, the token is
-	 *            assumed to be an int.
+	 *           assumed to be an int.
 	 * @param wiki The wiki object calling this.
 	 * @return A list of JSONObjects, each representing a single query.
 	 */
-	protected static JSONObject[] fatQuery(URLBuilder ub, int max, String limString, String contString, boolean isStr, Wiki wiki)
+	private static JSONObject[] fatQuery(URLBuilder ub, int max, String limString, String contString, boolean isStr, Wiki wiki)
 	{
 		boolean unlim = max < 0; // if max is negative, get ALL items possible.
 		ArrayList<JSONObject> jl = new ArrayList<JSONObject>();
-		
+
 		int completed = 0; // how many items have we retrieved so far?
 		int fetch_num = Constants.maxquerysz; // the number of items to fetch this time.
-		
+
 		try
 		{
 			while (true)
 			{
 				if (completed >= max && !unlim)
 					break;
-				
+
 				if (!unlim && max - completed < Constants.maxquerysz)
 					fetch_num = max - completed;
-				
+
 				ub.setParams(limString, "" + fetch_num);
 				Reply r = Request.get(ub.makeURL(), wiki.cookiejar);
 				if (r.hasError()) // if there are errors, we'll probably get them on the 1st try
 					break;
-				
+
 				JSONObject reply = r.getReply();
 				jl.add(reply);
 				completed += fetch_num;
-				
+
 				if (!reply.has("query-continue"))
 					break;
-				
+
 				ub.setParams(contString,
 						FString.enc((isStr ? JSONParse.getStringR(reply, contString) : "" + JSONParse.getIntR(reply, contString))));
 			}
@@ -82,24 +82,54 @@ public class FQuery
 			e.printStackTrace();
 			return new JSONObject[0];
 		}
-		
+
 		return jl.toArray(new JSONObject[0]);
 	}
-	
+
+	/**
+	 * Performs a big fat query. Performs a query-continue until there are no more results to get, or until we have all
+	 * the results we want.
+	 * 
+	 * @param ub The URLBuilder to use. You should have initialized action and any static parameters.
+	 * @param max The maximum number of results to return, or -1 if you want ALL results on the server.
+	 * @param limString The limit parameter name (e.g. "rvlimit"), which will cap the max number of results returned per
+	 *           query.
+	 * @param contString The param to look for when doing a continue (e.g. "rvcontinue").
+	 * @param isStr Set to true if we should expect a String for the continue token returned. Otherwise, the token is
+	 *           assumed to be an int.
+	 * @param array The JSONArray key to grab
+	 * @param arrayEl The JSONArray element to grab
+	 * @param wiki The wiki object calling this.
+	 * @return A list of titles, as requested.
+	 */
+	private static String[] multiFatQuery(URLBuilder ub, int max, String limString, String contString, boolean isStr,
+			String array, String arrayEl, Wiki wiki)
+	{
+		ArrayList<String> l = new ArrayList<String>();
+		for (JSONObject jo : fatQuery(ub, max, limString, contString, isStr, wiki))
+		{
+			JSONArray ja = JSONParse.getJSONArrayR(jo, array);
+			for (int i = 0; i < ja.length(); i++)
+				l.add(ja.getJSONObject(i).getString(arrayEl));
+		}
+
+		return l.toArray(new String[0]);
+	}
+
 	/**
 	 * Makes a generic group query for multiple pages. This will make multi-queries and save the individual results into
 	 * JSONObjects.
 	 * 
 	 * @param ub The URLBuilder to use. This should be derived from the wiki object passed in. PRECONDITION: The action
-	 *            parameter of the URLBuilder must be set.
+	 *           parameter of the URLBuilder must be set.
 	 * @param parentKey The returned parent key pointing to the list of JSONObjects that we're interested in.
 	 * @param wiki The wiki object to use. The wiki object should be logged in with cookies set.
 	 * @param titlekey The title param to use in the URLBuilder. This will be set multiple times if titles.length >
-	 *            Constants.groupquerymax.
+	 *           Constants.groupquerymax.
 	 * @param titles The titles to get results for.
 	 * @return A list of JSONObjects containing data for each of the items we requested.
 	 */
-	protected static JSONObject[] groupQuery(URLBuilder ub, String parentKey, Wiki wiki, String titlekey, String... titles)
+	private static JSONObject[] groupQuery(URLBuilder ub, String parentKey, Wiki wiki, String titlekey, String... titles)
 	{
 		ArrayList<JSONObject> jl = new ArrayList<JSONObject>();
 		try
@@ -107,11 +137,11 @@ public class FQuery
 			for (String[] tl : FString.splitStringArray(Constants.groupquerymax, titles))
 			{
 				ub.setParams(titlekey, FString.enc(FString.fenceMaker("|", tl)));
-				
+
 				Reply r = Request.get(ub.makeURL(), wiki.cookiejar);
 				if (r.hasError())
 					break;
-				
+
 				JSONObject parent = JSONParse.getJSONObjectR(r.getReply(), parentKey);
 				if (parent != null)
 					for (String s : JSONObject.getNames(parent))
@@ -123,10 +153,10 @@ public class FQuery
 			e.printStackTrace();
 			return new JSONObject[0];
 		}
-		
+
 		return jl.toArray(new JSONObject[0]);
 	}
-	
+
 	/**
 	 * Generates an edit token, and assigns it to the wiki object passed in.
 	 * 
@@ -141,7 +171,7 @@ public class FQuery
 			URLBuilder ub = new URLBuilder(wiki.domain);
 			ub.setAction("tokens");
 			ub.setParams("type", "edit");
-			
+
 			wiki.token = Request.get(ub.makeURL(), wiki.cookiejar).getString("edittoken");
 			return wiki.token != null;
 		}
@@ -151,7 +181,7 @@ public class FQuery
 			return false;
 		}
 	}
-	
+
 	/**
 	 * Generates the namespace list for the wiki object passed in, and assigns it to said wiki object.
 	 * 
@@ -175,7 +205,7 @@ public class FQuery
 			return false;
 		}
 	}
-	
+
 	/**
 	 * Gets the backlinks of a page.
 	 * 
@@ -189,8 +219,9 @@ public class FQuery
 		Logger.info(wiki, "Fetching backlinks to " + title);
 		URLBuilder ub = wiki.makeUB();
 		ub.setAction("query");
-		ub.setParams("list", "backlinks", "bltitle", FString.enc(title), "blfilterredir", redirs ? "redirects" : "nonredirects");
-		
+		ub.setParams("list", "backlinks", "bltitle", FString.enc(title), "blfilterredir", redirs ? "redirects"
+				: "nonredirects");
+
 		ArrayList<String> l = new ArrayList<String>();
 		for (JSONObject jo : fatQuery(ub, -1, "bllimit", "blcontinue", true, wiki))
 		{
@@ -200,7 +231,7 @@ public class FQuery
 		}
 		return l.toArray(new String[0]);
 	}
-	
+
 	/**
 	 * Gets the direct links to a page (excluding links from redirects). To get links from redirects, use
 	 * <tt>getRedirects()</tt> and call this method on each element in the list returned.
@@ -213,7 +244,7 @@ public class FQuery
 	{
 		return getBackLinks(wiki, title, false);
 	}
-	
+
 	/**
 	 * Gets the redirects of a page.
 	 * 
@@ -225,7 +256,7 @@ public class FQuery
 	{
 		return getBackLinks(wiki, title, true);
 	}
-	
+
 	/**
 	 * Gets the text of a page on the specified wiki.
 	 * 
@@ -238,7 +269,7 @@ public class FQuery
 		Revision[] rl = getRevisions(wiki, title, 1, false);
 		return rl.length >= 1 && rl[0] != null ? rl[0].getText() : null;
 	}
-	
+
 	/**
 	 * Gets the revisions of a page.
 	 * 
@@ -255,15 +286,15 @@ public class FQuery
 		ub.setAction("query");
 		ub.setParams("prop", "revisions", "rvprop", URLBuilder.chainProps("timestamp", "user", "comment", "content"), "rvdir",
 				(olderfirst ? "newer" : "older"), "titles", FString.enc(title));
-		
+
 		ArrayList<Revision> rl = new ArrayList<Revision>();
 		for (JSONObject jo : fatQuery(ub, num, "rvlimit", "rvcontinue", false, wiki))
 			rl.addAll(Arrays.asList(Revision.makeRevs(jo)));
-		
+
 		return rl.toArray(new Revision[0]);
-		
+
 	}
-	
+
 	/**
 	 * Gets a list of the number of elements in a category.
 	 * 
@@ -276,15 +307,15 @@ public class FQuery
 	public static String[] getCategoryMembers(Wiki wiki, String cat, int max, String... ns)
 	{
 		String title = wiki.whichNS(cat) == 0 ? String.format("%s:%s", wiki.getNS(14), cat) : cat;
-		
+
 		Logger.info(wiki, "Fetching category members of " + title);
 		URLBuilder ub = wiki.makeUB();
 		ub.setAction("query");
 		ub.setParams("list", "categorymembers", "cmtitle", FString.enc(title));
-		
+
 		if (ns.length > 0)
 			ub.setParams("cmnamespace", FString.enc(FString.fenceMaker("|", wiki.nsl.prefixToNumStrings(ns))));
-		
+
 		ArrayList<String> l = new ArrayList<String>();
 		for (JSONObject jo : fatQuery(ub, max, "cmlimit", "cmcontinue", true, wiki))
 		{
@@ -292,10 +323,10 @@ public class FQuery
 			for (int i = 0; i < jl.length(); i++)
 				l.add(jl.getJSONObject(i).getString("title"));
 		}
-		
+
 		return l.toArray(new String[0]);
 	}
-	
+
 	/**
 	 * Gets the categories a page is categorized in.
 	 * 
@@ -309,7 +340,7 @@ public class FQuery
 		URLBuilder ub = wiki.makeUB();
 		ub.setAction("query");
 		ub.setParams("prop", "categories", "titles", FString.enc(title));
-		
+
 		ArrayList<String> l = new ArrayList<String>();
 		for (JSONObject jo : fatQuery(ub, -1, "cllimit", "clcontinue", true, wiki))
 		{
@@ -319,7 +350,7 @@ public class FQuery
 		}
 		return l.toArray(new String[0]);
 	}
-	
+
 	/**
 	 * Gets a list of links on a page.
 	 * 
@@ -334,30 +365,30 @@ public class FQuery
 		URLBuilder ub = wiki.makeUB();
 		ub.setAction("query");
 		ub.setParams("prop", "links", "titles", FString.enc(title));
-		
+
 		if (ns.length > 0)
 			ub.setParams("plnamespace", FString.enc(FString.fenceMaker("|", wiki.nsl.prefixToNumStrings(ns))));
-		
+
 		ArrayList<String> l = new ArrayList<String>();
 		for (JSONObject jo : fatQuery(ub, -1, "pllimit", "plcontinue", true, wiki))
 		{
 			JSONArray jl = JSONParse.getJSONArrayR(jo, "links");
 			if (jl == null) // if there are 0 links, no JSONArray is returned by server.
 				break;
-			
+
 			for (int i = 0; i < jl.length(); i++)
 				l.add(jl.getJSONObject(i).getString("title"));
 		}
 		return l.toArray(new String[0]);
 	}
-	
+
 	/**
 	 * Gets a list of a user's contributions.
 	 * 
 	 * @param wiki The wiki object to use.
 	 * @param user The user to get contributions for, without the "User:" prefix.
 	 * @param max The maximum number of results to return. Specify -1 to get all of the user's contributions -- CAVEAT:
-	 *            this could take awhile if the user has many contributions.
+	 *           this could take awhile if the user has many contributions.
 	 * @param ns Only include results from these namespaces. Leave blank to get all namespaces.
 	 * @return
 	 */
@@ -367,17 +398,17 @@ public class FQuery
 		URLBuilder ub = wiki.makeUB();
 		ub.setAction("query");
 		ub.setParams("list", "usercontribs", "ucuser", FString.enc(user));
-		
+
 		if (ns.length > 0)
 			ub.setParams("ucnamespace", FString.enc(FString.fenceMaker("|", wiki.nsl.prefixToNumStrings(ns))));
-		
+
 		ArrayList<Contrib> l = new ArrayList<Contrib>();
 		for (JSONObject jo : fatQuery(ub, max, "uclimit", "ucstart", true, wiki))
 			l.addAll(Arrays.asList(Contrib.makeContribs(jo)));
-		
+
 		return l.toArray(new Contrib[0]);
 	}
-	
+
 	/**
 	 * Gets the number of elements in a category.
 	 * 
@@ -391,13 +422,13 @@ public class FQuery
 		URLBuilder ub = wiki.makeUB();
 		ub.setAction("query");
 		ub.setParams("prop", "categoryinfo", "titles", FString.enc(title));
-		
+
 		try
 		{
 			Reply r = Request.get(ub.makeURL(), wiki.cookiejar);
 			if (r.hasError())
 				return -1;
-			
+
 			return r.getInt("size");
 		}
 		catch (Throwable e)
@@ -406,7 +437,7 @@ public class FQuery
 			return -1;
 		}
 	}
-	
+
 	/**
 	 * Gets the list of local pages that are displaying the given image.
 	 * 
@@ -421,12 +452,12 @@ public class FQuery
 			System.err.println("'%s' must be a valid filename and include the 'File:' prefix");
 			return new String[0];
 		}
-		
+
 		Logger.info(wiki, "Fetching image usage of " + file);
 		URLBuilder ub = wiki.makeUB();
 		ub.setAction("query");
 		ub.setParams("list", "imageusage", "iutitle", FString.enc(file));
-		
+
 		ArrayList<String> l = new ArrayList<String>();
 		for (JSONObject jo : fatQuery(ub, -1, "iulimit", "iucontinue", true, wiki))
 		{
@@ -434,10 +465,10 @@ public class FQuery
 			for (int i = 0; i < jl.length(); i++)
 				l.add(jl.getJSONObject(i).getString("title"));
 		}
-		
+
 		return l.toArray(new String[0]);
 	}
-	
+
 	/**
 	 * Gets a list of pages transcluding <tt>title</tt>.
 	 * 
@@ -451,7 +482,7 @@ public class FQuery
 		URLBuilder ub = wiki.makeUB();
 		ub.setAction("query");
 		ub.setParams("list", "embeddedin", "eititle", FString.enc(title));
-		
+
 		ArrayList<String> l = new ArrayList<String>();
 		for (JSONObject jo : fatQuery(ub, -1, "eilimit", "eicontinue", true, wiki))
 		{
@@ -459,10 +490,10 @@ public class FQuery
 			for (int i = 0; i < jl.length(); i++)
 				l.add(jl.getJSONObject(i).getString("title"));
 		}
-		
+
 		return l.toArray(new String[0]);
 	}
-	
+
 	/**
 	 * Gets the images linked on a page. By this I mean images which are displayed on a page.
 	 * 
@@ -476,7 +507,7 @@ public class FQuery
 		URLBuilder ub = wiki.makeUB();
 		ub.setAction("query");
 		ub.setParams("prop", "images", "titles", FString.enc(title));
-		
+
 		ArrayList<String> l = new ArrayList<String>();
 		for (JSONObject jo : fatQuery(ub, -1, "imlimit", "imcontinue", true, wiki))
 		{
@@ -487,31 +518,31 @@ public class FQuery
 		}
 		return l.toArray(new String[0]);
 	}
-	
+
 	/**
 	 * Gets a list of pages on the Wiki.
 	 * 
 	 * @param wiki The wiki object to use
 	 * @param prefix Get files starting with this String. DO NOT include a namespace prefix (e.g. "File:"). Param is
-	 *            optional, use null or empty string to disable.
+	 *           optional, use null or empty string to disable.
 	 * @param redirectsonly Set this to true to get redirects only.
-	 * @param max The max number of titles to return.  Specify -1 to get all pages.
-	 * @param ns The namespace identifier (e.g. "File"). 
+	 * @param max The max number of titles to return. Specify -1 to get all pages.
+	 * @param ns The namespace identifier (e.g. "File").
 	 * @return A list of titles as specified.
 	 */
 	public static String[] allPages(Wiki wiki, String prefix, boolean redirectsonly, int max, String ns)
 	{
 		Logger.info(String.format("Grabbing a list of all pages with prefix " + prefix));
 		URLBuilder ub = wiki.makeUB();
-		
+
 		ub.setAction("query");
 		ub.setParams("list", "allpages", "apnamespace", "" + wiki.getNS(ns));
-		
+
 		if (redirectsonly)
 			ub.setParams("apfilterredir", "redirects");
 		if (prefix != null && prefix.length() > 0)
 			ub.setParams("apprefix", FString.enc(prefix));
-		
+
 		ArrayList<String> l = new ArrayList<String>();
 		for (JSONObject jo : fatQuery(ub, max, "aplimit", "apcontinue", true, wiki))
 		{
@@ -519,10 +550,10 @@ public class FQuery
 			for (int i = 0; i < jl.length(); i++)
 				l.add(jl.getJSONObject(i).getString("title"));
 		}
-		
+
 		return l.toArray(new String[0]);
 	}
-	
+
 	/**
 	 * Checks to see if a page/pages exist. Returns a set of tuples (in no particular order), in the form
 	 * <tt>(String title, Boolean exists)</tt>.
@@ -538,17 +569,17 @@ public class FQuery
 		URLBuilder ub = wiki.makeUB();
 		ub.setAction("query");
 		ub.setParams("prop", "pageprops", "ppprop", "missing");
-		
+
 		ArrayList<Tuple<String, Boolean>> l = new ArrayList<Tuple<String, Boolean>>();
 		for (JSONObject jo : groupQuery(ub, "pages", wiki, "titles", titles))
 		{
 			boolean flag = JSONParse.getStringR(jo, "missing") != null ? false : true;
 			l.add(new Tuple<String, Boolean>(JSONParse.getStringR(jo, "title"), new Boolean(flag)));
 		}
-		
+
 		return l;
 	}
-	
+
 	/**
 	 * Gets all uploads of a user.
 	 * 
@@ -562,18 +593,18 @@ public class FQuery
 		URLBuilder ub = wiki.makeUB();
 		ub.setAction("query");
 		ub.setParams("list", "allimages", "aisort", "timestamp", "aiuser", FString.enc(user));
-		
+
 		ArrayList<String> l = new ArrayList<String>();
-		for (JSONObject jo : fatQuery(ub, -1, "ailimit", "aistart", true, wiki))
+		for (JSONObject jo : fatQuery(ub, -1, "ailimit", "aicontinue", true, wiki))
 		{
 			JSONArray jl = JSONParse.getJSONArrayR(jo, "allimages");
 			for (int i = 0; i < jl.length(); i++)
 				l.add(jl.getJSONObject(i).getString("title"));
 		}
-		
+
 		return l.toArray(new String[0]);
 	}
-	
+
 	/**
 	 * Get some information about a file on Wiki.
 	 * 
@@ -587,19 +618,19 @@ public class FQuery
 	{
 		if (wiki.whichNS(title) != wiki.getNS("File"))
 			return null;
-		
+
 		Logger.info(wiki, "Fetching image info for " + title);
 		URLBuilder ub = wiki.makeUB();
 		ub.setAction("query");
 		ub.setParams("prop", "imageinfo", "iiprop", FString.enc("url|size"), "titles", FString.enc(title));
-		
+
 		if (height > 0 && width > 0)
 			ub.setParams("iiurlheight", "" + height, "iiurlwidth", "" + width);
-		
+
 		try
 		{
 			Reply r = Request.get(ub.makeURL(), wiki.cookiejar);
-			
+
 			JSONArray ja; // mw oddly returns the imageinfo in a single element JSONArray
 			return (ja = r.getJSONArray("imageinfo")) == null ? null : new ImageInfo(ja.getJSONObject(0));
 		}
@@ -609,7 +640,7 @@ public class FQuery
 			return null;
 		}
 	}
-	
+
 	/**
 	 * Gets the templates transcluded on a page.
 	 * 
@@ -623,7 +654,7 @@ public class FQuery
 		URLBuilder ub = wiki.makeUB();
 		ub.setAction("query");
 		ub.setParams("prop", "templates", "titles", FString.enc(title));
-		
+
 		ArrayList<String> l = new ArrayList<String>();
 		for (JSONObject jo : fatQuery(ub, -1, "tllimit", "tlcontinue", true, wiki))
 		{
@@ -631,30 +662,30 @@ public class FQuery
 			for (int i = 0; i < jl.length(); i++)
 				l.add(jl.getJSONObject(i).getString("title"));
 		}
-		
+
 		return l.toArray(new String[0]);
 	}
-	
+
 	/**
 	 * Gets the global file usage for a media file.
 	 * 
 	 * @param wiki The wiki object to use
 	 * @param title The title to check. Must start with "File:" prefix.
-	 * @return A list of tuples, (title of page, short form of wiki this page is from), denoting the global usage of
-	 *         this file. Returns empty list if something went wrong.
+	 * @return A list of tuples, (title of page, short form of wiki this page is from), denoting the global usage of this
+	 *         file. Returns empty list if something went wrong.
 	 */
 	public static ArrayList<Tuple<String, String>> globalUsage(Wiki wiki, String title)
 	{
 		if (wiki.whichNS(title) != wiki.getNS("File"))
 			return null;
-		
+
 		ArrayList<Tuple<String, String>> l = new ArrayList<Tuple<String, String>>();
-		
+
 		Logger.info(wiki, "Fetching global usage of " + title);
 		URLBuilder ub = wiki.makeUB();
 		ub.setAction("query");
 		ub.setParams("prop", "globalusage", "guprop", "namespace", "titles", FString.enc(title));
-		
+
 		for (JSONObject jo : fatQuery(ub, -1, "gulimit", "gucontinue", true, wiki))
 		{
 			JSONArray ja = JSONParse.getJSONArrayR(jo, "globalusage");
@@ -666,7 +697,7 @@ public class FQuery
 		}
 		return l;
 	}
-	
+
 	/**
 	 * Gets the list of groups a user is in.
 	 * 
@@ -676,17 +707,15 @@ public class FQuery
 	public static ArrayList<String> listGroupsRights(Wiki wiki)
 	{
 		Logger.info(wiki, "Getting our user groups list");
-		URLBuilder ub = wiki.makeUB();
-		ub.setAction("query");
-		ub.setParams("list", "users", "usprop", "groups", "ususers", FString.enc(wiki.upx.x));
-		
+		URLBuilder ub = wiki.makeUB("query", "list", "users", "usprop", "groups", "ususers", FString.enc(wiki.upx.x));
+
 		ArrayList<String> l = new ArrayList<String>();
 		try
 		{
 			Reply r = Request.get(ub.makeURL(), wiki.cookiejar);
 			if (r.hasError())
 				return l;
-			
+
 			JSONArray jl = r.getJSONArray("users").getJSONObject(0).getJSONArray("groups");
 			for (int i = 0; i < jl.length(); i++)
 				l.add(jl.getString(i));
@@ -695,7 +724,36 @@ public class FQuery
 		{
 			e.printStackTrace();
 		}
-		
+
 		return l;
+	}
+
+	/**
+	 * Gets a list of pages returned by a special page.
+	 * 
+	 * @param wiki The wiki object to use
+	 * @param page The special page to query
+	 * @param max The maximum number of pages to return. Specify -1 to disable.
+	 * @return The list of pages as requested.
+	 */
+	protected static String[] listSpecialPages(Wiki wiki, String page, int max)
+	{
+		Logger.info(wiki, String.format("Getting a list of %d pages from %s", max, page));
+		return multiFatQuery(wiki.makeUB("query", "list", "querypage", "qppage", FString.enc(page)), max, "qplimit",
+				"qpoffset", false, "results", "title", wiki);
+	}
+
+	/**
+	 * Gets a list of duplicate files.
+	 * 
+	 * @param wiki The wiki object to use
+	 * @param file The file to get duplicates of
+	 * @return The list of files.
+	 */
+	public static String[] getDuplicatesOf(Wiki wiki, String file)
+	{
+		Logger.info(wiki, "Getting dupes of " + file);
+		return multiFatQuery(wiki.makeUB("query", "prop", "duplicatefiles", "titles", FString.enc(file)), -1, "dflimit",
+				"dfcontinue", true, "duplicatefiles", "name", wiki);
 	}
 }
