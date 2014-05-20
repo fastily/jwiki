@@ -1,8 +1,5 @@
 package sand;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Scanner;
 
 import jwiki.commons.*;
 import jwiki.core.*;
@@ -18,8 +15,6 @@ public class T
 	
 	public static void main(String[] args) throws Throwable
 	{
-		String x = "File:ZEH 1987 21 PLZ 1 Berlin 3.jpg";
-		for(String s : fastily.getDuplicatesOf(x))
-			fastily.delete("File:"+ s, "Exact or scaled-down duplicate: " + String.format("[[:%s]]", x));
+
 	}
 }
