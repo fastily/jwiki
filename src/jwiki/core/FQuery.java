@@ -590,19 +590,8 @@ public class FQuery
 	public static String[] getUserUploads(Wiki wiki, String user)
 	{
 		Logger.info(wiki, "Grabbing uploads of User:" + user);
-		URLBuilder ub = wiki.makeUB();
-		ub.setAction("query");
-		ub.setParams("list", "allimages", "aisort", "timestamp", "aiuser", FString.enc(user));
-
-		ArrayList<String> l = new ArrayList<String>();
-		for (JSONObject jo : fatQuery(ub, -1, "ailimit", "aicontinue", true, wiki))
-		{
-			JSONArray jl = JSONParse.getJSONArrayR(jo, "allimages");
-			for (int i = 0; i < jl.length(); i++)
-				l.add(jl.getJSONObject(i).getString("title"));
-		}
-
-		return l.toArray(new String[0]);
+		return multiFatQuery(wiki.makeUB("query", "list", "allimages", "aisort", "timestamp", "aiuser", FString.enc(user)),
+				-1, "ailimit", "aicontinue", true, "allimages", "title", wiki);
 	}
 
 	/**
@@ -620,9 +609,8 @@ public class FQuery
 			return null;
 
 		Logger.info(wiki, "Fetching image info for " + title);
-		URLBuilder ub = wiki.makeUB();
-		ub.setAction("query");
-		ub.setParams("prop", "imageinfo", "iiprop", FString.enc("url|size"), "titles", FString.enc(title));
+		URLBuilder ub = wiki.makeUB("query", "prop", "imageinfo", "iiprop", FString.enc("url|size"), "titles",
+				FString.enc(title));
 
 		if (height > 0 && width > 0)
 			ub.setParams("iiurlheight", "" + height, "iiurlwidth", "" + width);
@@ -650,20 +638,9 @@ public class FQuery
 	 */
 	public static String[] getTemplatesOnPage(Wiki wiki, String title)
 	{
-		Logger.info(wiki, "Fetching templates on " + title);
-		URLBuilder ub = wiki.makeUB();
-		ub.setAction("query");
-		ub.setParams("prop", "templates", "titles", FString.enc(title));
-
-		ArrayList<String> l = new ArrayList<String>();
-		for (JSONObject jo : fatQuery(ub, -1, "tllimit", "tlcontinue", true, wiki))
-		{
-			JSONArray jl = JSONParse.getJSONArrayR(jo, "templates");
-			for (int i = 0; i < jl.length(); i++)
-				l.add(jl.getJSONObject(i).getString("title"));
-		}
-
-		return l.toArray(new String[0]);
+		Logger.info(wiki, "Fetching transcluded templates on " + title);
+		return multiFatQuery(wiki.makeUB("query", "prop", "templates", "titles", FString.enc(title)), -1, "tllimit",
+				"tlcontinue", true, "templates", "title", wiki);
 	}
 
 	/**
@@ -679,13 +656,10 @@ public class FQuery
 		if (wiki.whichNS(title) != wiki.getNS("File"))
 			return null;
 
-		ArrayList<Tuple<String, String>> l = new ArrayList<Tuple<String, String>>();
-
 		Logger.info(wiki, "Fetching global usage of " + title);
-		URLBuilder ub = wiki.makeUB();
-		ub.setAction("query");
-		ub.setParams("prop", "globalusage", "guprop", "namespace", "titles", FString.enc(title));
+		URLBuilder ub = wiki.makeUB("query", "prop", "globalusage", "guprop", "namespace", "titles", FString.enc(title));
 
+		ArrayList<Tuple<String, String>> l = new ArrayList<Tuple<String, String>>();
 		for (JSONObject jo : fatQuery(ub, -1, "gulimit", "gucontinue", true, wiki))
 		{
 			JSONArray ja = JSONParse.getJSONArrayR(jo, "globalusage");
@@ -744,16 +718,35 @@ public class FQuery
 	}
 
 	/**
-	 * Gets a list of duplicate files.
+	 * Gets a list of duplicate files. Tuple returned is as follows <tt>(String, Boolean)</tt>, where the string is the
+	 * title of the duplicate, and where the boolean indicates whether the file is part of the local repository (enwp is
+	 * local repository and commons is the shared repository). In other words, this param will be TRUE if a dupe was
+	 * found in the shared repo. If you're using a wiki that is not associated with another wiki, ignore this param.
 	 * 
 	 * @param wiki The wiki object to use
 	 * @param file The file to get duplicates of
 	 * @return The list of files.
 	 */
-	public static String[] getDuplicatesOf(Wiki wiki, String file)
+	public static ArrayList<Tuple<String, Boolean>> getDuplicatesOf(Wiki wiki, String file)
 	{
 		Logger.info(wiki, "Getting dupes of " + file);
-		return multiFatQuery(wiki.makeUB("query", "prop", "duplicatefiles", "titles", FString.enc(file)), -1, "dflimit",
-				"dfcontinue", true, "duplicatefiles", "name", wiki);
+		String head = wiki.getNS(6); //MediaWiki is stupid and doesn't return File prefixes. 
+
+
+		ArrayList<Tuple<String, Boolean>> l = new ArrayList<Tuple<String, Boolean>>();
+		for (JSONObject jo : fatQuery(wiki.makeUB("query", "prop", "duplicatefiles", "titles", FString.enc(file)), -1,
+				"dflimit", "dfcontinue", true, wiki))
+		{
+			JSONArray ja = JSONParse.getJSONArrayR(jo, "duplicatefiles");
+			if(ja == null) // In the event there are no duplicates
+				continue;
+			
+			for (int i = 0; i < ja.length(); i++)
+			{
+				JSONObject jx = ja.getJSONObject(i);
+				l.add(new Tuple<String, Boolean>(head + ":" + jx.getString("name"), new Boolean(jx.has("shared"))));
+			}
+		}
+		return l;
 	}
 }

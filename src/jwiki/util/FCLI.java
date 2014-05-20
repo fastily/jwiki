@@ -1,7 +1,7 @@
 package jwiki.util;
 
 import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.GnuParser;
+import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.OptionGroup;
@@ -58,7 +58,7 @@ public class FCLI
 	{
 		try
 		{
-			CommandLine l = new GnuParser().parse(ol, args);
+			CommandLine l = new DefaultParser().parse(ol, args);
 			if (l.hasOption("help"))
 			{
 				HelpFormatter hf = new HelpFormatter();

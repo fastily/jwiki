@@ -697,12 +697,15 @@ public class Wiki
 	}
 
 	/**
-	 * Gets a list of duplicate files.
+	 * Gets a list of duplicate files. Tuple returned is as follows <tt>(String, Boolean)</tt>, where the string is the title of
+	 * the duplicate, and where the boolean indicates whether the file is part of the local repository (enwp is local
+	 * repository and commons is the shared repository). If you're using a wiki that is not associated with another wiki,
+	 * ignore this param.
 	 * 
 	 * @param file The file to get duplicates of
 	 * @return The list of files.
 	 */
-	public String[] getDuplicatesOf(String file)
+	public ArrayList<Tuple<String, Boolean>> getDuplicatesOf(String file)
 	{
 		return FQuery.getDuplicatesOf(this, file);
 	}

@@ -174,9 +174,9 @@ public class CCleaner
 			if (c.contains("permission"))
 				r = String.format("[[COM:OTRS|No permission]] since %s: ", c.substring(c.indexOf("as of") + 6)) + CStrings.baseP;
 			else if (c.contains("license"))
-				r = String.format("No license since %s:", c.substring(c.indexOf("as of") + 6) + String.format(baseLS, "include a [[COM:CT|license tag]]"));
+				r = String.format("No license since %s: ", c.substring(c.indexOf("as of") + 6)) + String.format(baseLS, "include a [[COM:CT|license tag]]");
 			else
-				r = String.format("No source since %s:", c.substring(c.indexOf("as of") + 6) + String.format(baseLS, "cite the file's source"));
+				r = String.format("No source since %s: ", c.substring(c.indexOf("as of") + 6)) + String.format(baseLS, "cite the file's source");
 			
 			for (String s : fastily.getCategoryMembers(c, "File"))
 				l.add(new MBot.DeleteItem(s, r));

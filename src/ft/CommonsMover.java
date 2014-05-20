@@ -19,6 +19,7 @@ import jwiki.util.FCLI;
 import jwiki.util.FError;
 import jwiki.util.FIO;
 import jwiki.util.FString;
+import jwiki.util.Tuple;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
@@ -35,18 +36,18 @@ public class CommonsMover
 	 * Help/Usage string for command line.
 	 */
 	private static final String hstring = "CommonsMover [-help] [-c <category>|-u <user>|<titles>] [-t <threads>]";
-	
+
 	/**
 	 * The URL to post to.
 	 */
 	private static final String url = "http://tools.wmflabs.org/commonshelper/index.php";
-	
+
 	/**
 	 * The template text to post to the wmflabs tool.
 	 */
 	private static final String posttext = "language=en&project=wikipedia&image=%s&newname="
-			+ "&ignorewarnings=1&username=&commonsense=1&tusc_user=&tusc_password=&doit=Get+text&test=1";
-	
+			+ "&commonsense=1&ignorewarnings=1&doit=Get+text&test=%%2F";
+
 	/**
 	 * Files with these categories should not be transferred.
 	 */
@@ -55,18 +56,20 @@ public class CommonsMover
 			"Category:Media not suitable for Commons", "Category:Wikipedia files of no use beyond Wikipedia",
 			"Category:All non-free media", "Category:All Wikipedia files with unknown source",
 			"Category:All Wikipedia files with unknown copyright status", "Category:Candidates for speedy deletion",
-			"Category:All free in US media", "Category:Files deleted on Wikimedia Commons" };
-	
+			"Category:All free in US media", "Category:Files deleted on Wikimedia Commons",
+			"Category:All Wikipedia files with the same name on Wikimedia Commons",
+			"Category:All Wikipedia files with a different name on Wikimedia Commons" };
+
 	/**
 	 * Our wiki object for commons & enwp.
 	 */
 	protected static Wiki com, enwp;
-	
+
 	/**
 	 * Maximum number of threads to instantiate. Default: 2
 	 */
 	protected static int maxthreads = 2;
-	
+
 	/**
 	 * Main driver.
 	 * 
@@ -77,10 +80,10 @@ public class CommonsMover
 		CommandLine l = init(args, makeOptList(), hstring);
 		com = user;
 		enwp = user.getWiki("en.wikipedia.org");
-		
+
 		if (l.hasOption('t'))
 			maxthreads = Integer.parseInt(l.getOptionValue('t'));
-		
+
 		ArrayList<String> tl = new ArrayList<String>();
 		if (l.hasOption('c'))
 			tl.addAll(Arrays.asList(enwp.getCategoryMembers(l.getOptionValue('c'), "File")));
@@ -93,13 +96,13 @@ public class CommonsMover
 				x.add(enwp.convertIfNotInNS(s, "File"));
 			tl.addAll(Arrays.asList(enwp.exists(x.toArray(new String[0]), true)));
 		}
-		
+
 		ArrayList<TransferItem> tfl = new ArrayList<TransferItem>();
 		for (String s : tl)
 			tfl.add(new TransferItem(s));
 		new MBot(user, maxthreads).start(tfl.toArray(new TransferItem[0]));
 	}
-	
+
 	/**
 	 * Make a list of CLI options for us.
 	 * 
@@ -108,14 +111,14 @@ public class CommonsMover
 	private static Options makeOptList()
 	{
 		Options ol = new Options();
-		
+
 		ol.addOptionGroup(FCLI.makeOptGroup(FCLI.makeArgOption("c", "Transfer all files in this category", "category"),
 				FCLI.makeArgOption("u", "Transfer al files uploaded by this user", "user")));
 		ol.addOption(FCLI.makeArgOption("t", "Set the maximum number of threads", "threads"));
-		
+
 		return ol;
 	}
-	
+
 	/**
 	 * Represents a file to transfer from enwp to commons.
 	 * 
@@ -128,12 +131,12 @@ public class CommonsMover
 		 * The title passed into the constructor, without the namespace.
 		 */
 		private String titleNNS;
-		
+
 		/**
 		 * The title to transfer to on Commons.
 		 */
 		private String transferTo;
-		
+
 		/**
 		 * Constructor, takes the title to transfer, including the "File:" prefix.
 		 * 
@@ -145,7 +148,7 @@ public class CommonsMover
 			titleNNS = Namespace.nss(title);
 			transferTo = title;
 		}
-		
+
 		/**
 		 * Performs a transfer of this item.
 		 * 
@@ -154,58 +157,41 @@ public class CommonsMover
 		 */
 		public boolean doJob(Wiki wiki)
 		{
-			if (!isEligible())
+			if (FString.arraysIntersect(enwp.getCategoriesOnPage(title), blacklist)) // check copyright
 				return FError.printErrorAndReturn(title + " is not eligible for transfer", false);
-			else if (!resolveDuplicates())
+			else if (!checkForDupes())
 				return true;
+
+			if(com.exists(title)) //if title already exists, randomize name
+				transferTo = String.format("File:(%d) %s", new Random().nextInt(200), titleNNS);
 			
-			File f = downloadFile();
-			String desc = getDesc();
-			if (f != null && desc != null)
-				return wiki.upload(f, transferTo, desc, String.format("from [[w:%s]]", title)) && flagF8();
+			String desc;
+			File f;
+			if ((desc = getDesc()) != null && (f = downloadFile()) != null)
+				return wiki.upload(f, transferTo, desc, String.format("from [[w:%s]]", title)) && flagF8(transferTo);
 			return false;
 		}
-		
+
 		/**
-		 * Performs continuity sanity check. a) duplicate file on Commons under same name? b) different file on Commons
-		 * under the same name (if so, adjust title)
+		 * Does the file already exist on Commons?  If so, flag its
 		 * 
 		 * @return True if we should continue processing this file.
 		 */
-		private boolean resolveDuplicates()
+		private boolean checkForDupes()
 		{
-			if (!com.exists(title))
+			String dupe = null;
+			for(Tuple<String, Boolean> t : enwp.getDuplicatesOf(title))
+				if(t.y.booleanValue())
+				{
+					dupe = t.x;
+					break;
+				}
+			
+			if(dupe == null)
 				return true;
-			try
-			{
-				if (com.getImageInfo(title).getSize() == enwp.getImageInfo(title).getSize())
-				{
-					if (!FString.arrayContains(enwp.whatTranscludesHere(title), "Template:Now commons dated"))
-						flagF8();
-					return false;
-				}
-				else
-				{
-					transferTo = String.format("File:(%d) %s", new Random().nextInt(9), titleNNS);
-					return true;
-				}
-			}
-			catch (Throwable e)
-			{
-				Logger.warn(String.format("What the hell?  See '%s'", title));
-				e.printStackTrace();
-				return false;
-			}
-		}
-		
-		/**
-		 * Crude check to see if this file is okay to transfer. Should stop most inappropriate transfers.
-		 * 
-		 * @return True if this file is probably okay to transfer, based on the file description page.
-		 */
-		private boolean isEligible()
-		{
-			return !FString.arraysIntersect(enwp.getCategoriesOnPage(title), blacklist);
+			
+			flagF8(dupe);
+			return false;
 		}
 		
 		/**
@@ -213,12 +199,12 @@ public class CommonsMover
 		 * 
 		 * @return True if we were successful.
 		 */
-		private boolean flagF8()
+		private boolean flagF8(String transfer)
 		{
-			return enwp.addText(title, String.format("%n{{subst:ncd%s}}", !transferTo.equals(title) ? "|" + transferTo : ""),
+			return enwp.addText(title, String.format("%n{{subst:ncd%s}}", !transfer.equals(title) ? "|" + transfer : ""),
 					"F8", false);
 		}
-		
+
 		/**
 		 * Downloads the file
 		 * 
@@ -226,10 +212,10 @@ public class CommonsMover
 		 */
 		private File downloadFile()
 		{
-			String tx = String.format("%d%s", titleNNS.hashCode(), titleNNS.substring(titleNNS.lastIndexOf(".")));
+			String tx = String.format("%d%s", Math.abs(titleNNS.hashCode()), titleNNS.substring(titleNNS.lastIndexOf(".")));
 			return FTask.downloadFile(title, tx, enwp) ? new File(tx) : null;
 		}
-		
+
 		/**
 		 * Gets the WMFLabs generated description text for this file.
 		 * 
@@ -241,6 +227,7 @@ public class CommonsMover
 			try
 			{
 				String tl = FString.enc(titleNNS);
+				System.out.println(String.format(posttext, tl));
 				String s = FIO.inputStreamToString(
 						Request.genericPost(new URL(url), null, Request.urlenc, String.format(posttext, tl)), true);
 				return s.substring(s.indexOf("{{Info"), s.indexOf("</textarea>"));
@@ -248,6 +235,7 @@ public class CommonsMover
 			catch (Throwable e)
 			{
 				e.printStackTrace();
+				System.err.println("Skipping " + title);
 				return null;
 			}
 		}
