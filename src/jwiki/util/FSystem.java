@@ -84,28 +84,6 @@ public class FSystem
 	}
 	
 	/**
-	 * Pauses the current executing thread until all the threads in <tt>threads</tt> have exited. Ignores all
-	 * exceptions.
-	 * 
-	 * @param threads The threads to wait/join on.
-	 */
-	public static void waitOnThreads(Thread... threads)
-	{
-		for (Thread t : threads)
-		{
-			try
-			{
-				t.join();
-			}
-			catch (Throwable e)
-			{
-				e.printStackTrace();
-			}
-		}
-	}
-	
-	
-	/**
 	 * Creates a HashMap with keys as String, and Objects as values. Pass in each pair and value (in that order) into
 	 * <tt>ol</tt>. This will be one pair entered into resulting HashMap.
 	 * 
