@@ -168,7 +168,7 @@ public class CommonsMover
 			String desc;
 			File f;
 			if ((desc = getDesc()) != null && (f = downloadFile()) != null)
-				return wiki.upload(f, transferTo, desc, String.format("from [[w:%s]]", title)) && flagF8(transferTo);
+				return wiki.upload(f, transferTo, desc, String.format("from [[w:%s]] ([[Commons:CommonsMover|CM]])", title)) && flagF8(transferTo);
 			return false;
 		}
 
@@ -202,7 +202,7 @@ public class CommonsMover
 		private boolean flagF8(String transfer)
 		{
 			return enwp.addText(title, String.format("%n{{subst:ncd%s}}", !transfer.equals(title) ? "|" + transfer : ""),
-					"F8", false);
+					"now on Commons ([[c:Commons:CommonsMover|CM]])", false);
 		}
 
 		/**
@@ -227,7 +227,7 @@ public class CommonsMover
 			try
 			{
 				String tl = FString.enc(titleNNS);
-				System.out.println(String.format(posttext, tl));
+				//System.out.println(String.format(posttext, tl));
 				String s = FIO.inputStreamToString(
 						Request.genericPost(new URL(url), null, Request.urlenc, String.format(posttext, tl)), true);
 				return s.substring(s.indexOf("{{Info"), s.indexOf("</textarea>"));
