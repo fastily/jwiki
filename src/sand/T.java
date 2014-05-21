@@ -15,6 +15,6 @@ public class T
 	
 	public static void main(String[] args) throws Throwable
 	{
-
+		System.out.println(fastily.whoami());
 	}
 }

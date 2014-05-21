@@ -533,25 +533,14 @@ public class FQuery
 	public static String[] allPages(Wiki wiki, String prefix, boolean redirectsonly, int max, String ns)
 	{
 		Logger.info(String.format("Grabbing a list of all pages with prefix " + prefix));
-		URLBuilder ub = wiki.makeUB();
-
-		ub.setAction("query");
-		ub.setParams("list", "allpages", "apnamespace", "" + wiki.getNS(ns));
+		URLBuilder ub = wiki.makeUB("query", "list", "allpages", "apnamespace", "" + wiki.getNS(ns));
 
 		if (redirectsonly)
 			ub.setParams("apfilterredir", "redirects");
 		if (prefix != null && prefix.length() > 0)
 			ub.setParams("apprefix", FString.enc(prefix));
 
-		ArrayList<String> l = new ArrayList<String>();
-		for (JSONObject jo : fatQuery(ub, max, "aplimit", "apcontinue", true, wiki))
-		{
-			JSONArray jl = JSONParse.getJSONArrayR(jo, "allpages");
-			for (int i = 0; i < jl.length(); i++)
-				l.add(jl.getJSONObject(i).getString("title"));
-		}
-
-		return l.toArray(new String[0]);
+		return multiFatQuery(ub, max, "aplimit", "apcontinue", true, "allpages", "title", wiki);
 	}
 
 	/**
