@@ -6,7 +6,6 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 import jwiki.core.Logger;
 import jwiki.core.Wiki;
-import jwiki.util.FSystem;
 import jwiki.util.ProgressTracker;
 
 /**
@@ -48,7 +47,7 @@ public class ThreadManager
 	 * @param wiki The wiki object to use.
 	 * @param num The number of threads to run.
 	 */
-	public ThreadManager(WAction[] wl, Wiki wiki, int num)
+	protected ThreadManager(WAction[] wl, Wiki wiki, int num)
 	{
 		todo.addAll(Arrays.asList(wl));
 		pt = new ProgressTracker(wl.length);
@@ -61,19 +60,48 @@ public class ThreadManager
 	 * Starts running this ThreadManager. It'll create a maximum number of threads as specified in the constructor and
 	 * then attempt to process every passed in MAction.
 	 */
-	public void start()
+	protected void start()
 	{
 		ArrayList<Thread> threads = new ArrayList<Thread>();
 		int tcnt = Math.min(todo.size(), num); // dynamically recalculated. Keep out of for loop.
 		for (int i = 0; i < tcnt; i++)
 		{
-			
-			Thread t = new Thread(new Job(this));
+			Thread t = new Thread(() -> doJob());
 			threads.add(t);
 			t.start();
 		}
 		
-		FSystem.waitOnThreads(threads.toArray(new Thread[0]));
+		for (Thread t : threads)
+		{
+			try
+			{
+				t.join();
+			}
+			catch (Throwable e)
+			{
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	/**
+	 * Should be called by a thread to processing of todo.
+	 */
+	private void doJob()
+	{
+		if (todo.peek() == null)
+			return;
+		
+		String me = Thread.currentThread().getName() + ": ";
+		WAction curr;
+		
+		while ((curr = todo.poll()) != null)
+		{
+			pt.inc(me);
+			if (!curr.doJob(wiki))
+				fails.add(curr);
+		}
+		Logger.fyi(me + "There's nothing left for me!");
 	}
 	
 	/**
@@ -81,52 +109,8 @@ public class ThreadManager
 	 * 
 	 * @return The current list of failures (i.e. WAction objects whose doJob() functions returned false).
 	 */
-	public WAction[] getFails()
+	protected WAction[] getFails()
 	{
 		return fails.toArray(new WAction[0]);
-	}
-	
-	/**
-	 * Subclass which represents an individual thread in this process.
-	 * 
-	 * @author Fastily
-	 * 
-	 */
-	private static class Job implements Runnable
-	{
-		/**
-		 * Represents the ThreadManager which spawned us.
-		 */
-		private ThreadManager m;
-		
-		/**
-		 * Creates this object with the specified parent ThreadManager.
-		 * 
-		 * @param m The parent ThreadManager.
-		 */
-		protected Job(ThreadManager m)
-		{
-			this.m = m;
-		}
-		
-		/**
-		 * Activates this thread. It'll run until there are no more todos in the linked queue of the ThreadManager.
-		 */
-		public void run()
-		{
-			if (m.todo.peek() == null)
-				return;
-			
-			String me = Thread.currentThread().getName() + ": ";
-			WAction curr;
-			
-			while ((curr = m.todo.poll()) != null)
-			{
-				m.pt.inc(me);
-				if (!curr.doJob(m.wiki))
-					m.fails.add(curr);
-			}
-			Logger.fyi(me + "There's nothing left for me!");
-		}
 	}
 }
