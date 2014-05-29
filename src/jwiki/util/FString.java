@@ -21,7 +21,7 @@ public class FString
 	 * Static random object for methods that require a random object.
 	 */
 	private static Random r = new Random();
-	
+
 	/**
 	 * Capitalizes the first character of a String
 	 * 
@@ -32,7 +32,7 @@ public class FString
 	{
 		return s.length() < 2 ? s.toUpperCase() : s.substring(0, 1).toUpperCase() + s.substring(1);
 	}
-	
+
 	/**
 	 * Generates a random file name for upload to wiki based on the entered file name
 	 * 
@@ -44,7 +44,7 @@ public class FString
 		return String.format("%#o x %s.%s", r.nextInt(0xFF), new SimpleDateFormat("HH.mm.ss").format(new Date()),
 				file.getExtension(false));
 	}
-	
+
 	/**
 	 * Splits a long string into a list of strings using newline chars as deliminators.
 	 * 
@@ -55,14 +55,14 @@ public class FString
 	{
 		ArrayList<String> l = new ArrayList<String>();
 		Scanner m = new Scanner(longstring);
-		
+
 		while (m.hasNextLine())
 			l.add(m.nextLine().trim());
-		
+
 		m.close();
 		return l.toArray(new String[0]);
 	}
-	
+
 	/**
 	 * Determines if two String arrays share elements.
 	 * 
@@ -74,7 +74,7 @@ public class FString
 	{
 		return arraysIntersect(Arrays.asList(a), Arrays.asList(b));
 	}
-	
+
 	/**
 	 * Determines if two String Lists share elements.
 	 * 
@@ -89,9 +89,10 @@ public class FString
 				return true;
 		return false;
 	}
-	
+
 	/**
 	 * Determines if a String array contains an <tt>item</tt>.
+	 * 
 	 * @param a The array to check
 	 * @param item The item to look for
 	 * @return True if we found <tt>item</tt> in <tt>a</tt>.
@@ -100,8 +101,7 @@ public class FString
 	{
 		return Arrays.asList(a).contains(item);
 	}
-	
-	
+
 	/**
 	 * Makes a regex for replacing titles/files on a page. Converts regex operators to their escaped counterparts.
 	 * 
@@ -111,12 +111,13 @@ public class FString
 	public static String makePageTitleRegex(String title)
 	{
 		String temp = new String(title);
-		for (String s : new String[] { "(", ")", "[", "]", "{", "}", "^", "-", "=", "$", "!", "|", "?", "*", "+", ".", "<", ">" })
+		for (String s : new String[] { "(", ")", "[", "]", "{", "}", "^", "-", "=", "$", "!", "|", "?", "*", "+", ".", "<",
+				">" })
 			temp = temp.replace(s, "\\" + s);
 		temp = temp.replaceAll("( |_)", "( |_)");
 		return temp;
 	}
-	
+
 	/**
 	 * Splits a string on a deliminator. The deliminator is omitted. PRECONDITION: There must be a delim present, and at
 	 * least one character after the end of the first instance of the deliminator.
@@ -131,7 +132,7 @@ public class FString
 		String s2 = s.substring(s.indexOf(delim) + delim.length());
 		return new Tuple<String, String>(s1, s2);
 	}
-	
+
 	/**
 	 * Encode the UTF-8 String into a format valid for URLs.
 	 * 
@@ -150,7 +151,7 @@ public class FString
 			return s;
 		}
 	}
-	
+
 	/**
 	 * URLEncodes multiple Strings at once.
 	 * 
@@ -162,15 +163,15 @@ public class FString
 		ArrayList<String> l = new ArrayList<String>();
 		for (String s : strings)
 			l.add(enc(s));
-		
+
 		return l.toArray(new String[0]);
 	}
-	
+
 	/**
 	 * Concatenate Strings. Solution to the fencepost problem. Makes patterned Strings like "This|So|Much|Easier".
 	 * 
-	 * @param post The String to go between planks. Optional param, use empty string/null to disable. You can (and shoudl) also
-	 *            specify the '%n' operator in order to add new lines.
+	 * @param post The String to go between planks. Optional param, use empty string/null to disable. You can (and
+	 *           shoudl) also specify the '%n' operator in order to add new lines.
 	 * @param planks The planks of the fence post problem. Posts divide planks.
 	 * @return The completed fencepost string.
 	 */
@@ -178,16 +179,16 @@ public class FString
 	{
 		if (planks.length == 0)
 			return "";
-		
+
 		String fmt = (post.isEmpty() || post == null ? "" : post) + "%s";
-		
+
 		String x = planks[0];
 		for (int i = 1; i < planks.length; i++)
 			x += String.format(fmt, planks[i]);
-		
+
 		return x;
 	}
-	
+
 	/**
 	 * Splits an array of Strings into an array of array of Strings.
 	 * 
@@ -198,18 +199,33 @@ public class FString
 	public static String[][] splitStringArray(int max, String... strings)
 	{
 		ArrayList<String[]> l = new ArrayList<String[]>();
-		
+
 		if (strings.length <= max)
 			return new String[][] { strings };
-		
+
 		int overflow = strings.length % max;
 		for (int i = 0; i < strings.length - overflow; i += max)
 			l.add(Arrays.copyOfRange(strings, i, i + max));
-		
+
 		if (overflow > 0)
 			l.add(Arrays.copyOfRange(strings, strings.length - overflow, strings.length));
-		
+
 		return l.toArray(new String[0][]);
 	}
-	
+
+	/**
+	 * Extract from a list of tuples, all String values from a <String, Boolean> where Boolean == value.
+	 * 
+	 * @param bl The list of tuples to look at
+	 * @param value We'll extract a String with this value.
+	 * @return A list of matching strings.
+	 */
+	public static String[] booleanTuple(List<Tuple<String, Boolean>> bl, boolean value)
+	{
+		ArrayList<String> l = new ArrayList<String>();
+		for (Tuple<String, Boolean> t : bl)
+			if (t.y.booleanValue() == value)
+				l.add(t.x);
+		return l.toArray(new String[0]);
+	}
 }

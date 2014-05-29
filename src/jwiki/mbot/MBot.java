@@ -102,6 +102,28 @@ public class MBot
 	}
 	
 	/**
+	 * Performs a mass undeletion
+	 * @param reason The reason to use
+	 * @param pages The pages to undelete
+	 * @return A list of pages we did/could not undelete.
+	 */
+	public WAction[] massRestore(String reason, String...pages)
+	{
+		ArrayList<WAction> wl = new ArrayList<WAction>();
+		for(String s : pages)
+		{
+			wl.add(new WAction(s, null, reason) {
+				public boolean doJob(Wiki wiki)
+				{
+					return wiki.undelete(title, summary);
+				}
+			});
+		}
+		return start(wl.toArray(new WAction[0]));
+	}
+	
+	
+	/**
 	 * Mass edit pages.
 	 * 
 	 * @param reason The edit summary

@@ -19,7 +19,6 @@ import jwiki.util.FCLI;
 import jwiki.util.FError;
 import jwiki.util.FIO;
 import jwiki.util.FString;
-import jwiki.util.Tuple;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
@@ -46,7 +45,7 @@ public class CommonsMover
 	 * The template text to post to the wmflabs tool.
 	 */
 	private static final String posttext = "language=en&project=wikipedia&image=%s&newname="
-			+ "&commonsense=1&ignorewarnings=1&doit=Get+text&test=%%2F";
+			+ "&ignorewarnings=1&doit=Get+text&test=%%2F";
 
 	/**
 	 * Files with these categories should not be transferred.
@@ -162,38 +161,33 @@ public class CommonsMover
 			else if (!checkForDupes())
 				return true;
 
-			if(com.exists(title)) //if title already exists, randomize name
+			if (com.exists(title)) // if title already exists, randomize name
 				transferTo = String.format("File:(%d) %s", new Random().nextInt(200), titleNNS);
-			
+
 			String desc;
 			File f;
 			if ((desc = getDesc()) != null && (f = downloadFile()) != null)
-				return wiki.upload(f, transferTo, desc, String.format("from [[w:%s]] ([[Commons:CommonsMover|CM]])", title)) && flagF8(transferTo);
+				return wiki.upload(f, transferTo, desc, String.format("from [[w:%s]] ([[Commons:CommonsMover|CM]])", title))
+						&& flagF8(transferTo);
 			return false;
 		}
 
 		/**
-		 * Does the file already exist on Commons?  If so, flag its
+		 * Does the file already exist on Commons? If so, flag its enwp copy and return false.
 		 * 
 		 * @return True if we should continue processing this file.
 		 */
 		private boolean checkForDupes()
 		{
-			String dupe = null;
-			for(Tuple<String, Boolean> t : enwp.getDuplicatesOf(title))
-				if(t.y.booleanValue())
-				{
-					dupe = t.x;
-					break;
-				}
-			
-			if(dupe == null)
-				return true;
-			
-			flagF8(dupe);
-			return false;
+			String[] dl = FString.booleanTuple(enwp.getDuplicatesOf(title), true);
+			if(dl.length > 0)
+			{
+				flagF8(dl[0]);
+				return false;
+			}
+			return true;
 		}
-		
+
 		/**
 		 * Flags the enwp copy of this file with {{db-f8}}.
 		 * 
@@ -201,8 +195,10 @@ public class CommonsMover
 		 */
 		private boolean flagF8(String transfer)
 		{
-			return enwp.addText(title, String.format("%n{{subst:ncd%s}}", !transfer.equals(title) ? "|" + transfer : ""),
-					"now on Commons ([[c:Commons:CommonsMover|CM]])", false);
+			return enwp.addText(
+					title,
+					String.format("%n{{subst:ncd%s|reviewer={{subst:REVISIONUSER}}}}", !transfer.equals(title) ? "|1="
+							+ Namespace.nss(transfer) : ""), "now on Commons ([[c:Commons:CommonsMover|CM]])", false);
 		}
 
 		/**
@@ -227,7 +223,6 @@ public class CommonsMover
 			try
 			{
 				String tl = FString.enc(titleNNS);
-				//System.out.println(String.format(posttext, tl));
 				String s = FIO.inputStreamToString(
 						Request.genericPost(new URL(url), null, Request.urlenc, String.format(posttext, tl)), true);
 				return s.substring(s.indexOf("{{Info"), s.indexOf("</textarea>"));

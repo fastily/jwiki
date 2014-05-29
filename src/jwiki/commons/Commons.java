@@ -20,17 +20,17 @@ public class Commons
 	 * The admin object to use.
 	 */
 	private Wiki admin;
-	
+
 	/**
 	 * Admin MBot
 	 */
 	private MBot mbwiki;
-	
+
 	/**
 	 * Wiki MBot
 	 */
 	private MBot mbadmin;
-	
+
 	/**
 	 * Creates a Commons object for us. Current domain of <tt>wiki</tt> does not have to be set to Commons. All tasks
 	 * will be run out of this wiki object.
@@ -41,14 +41,14 @@ public class Commons
 	{
 		this(wiki, (wiki.isAdmin() ? wiki : null));
 	}
-	
+
 	/**
 	 * Creates a Commons object for us. Non-admin tasks will be assigned to <tt>wiki</tt>, whereas admin tasks will be
 	 * run from <tt>admin</tt>. Current domain of either object does not have to be set to Commons.
 	 * 
 	 * @param wiki wiki object to use for non-admin tasks.
 	 * @param admin wiki object for admin tasks. If you're not an admin, you ought to specify this to be null, otherwise
-	 *            you may get strange behavior if you execute admin tasks.
+	 *           you may get strange behavior if you execute admin tasks.
 	 */
 	public Commons(Wiki wiki, Wiki admin)
 	{
@@ -59,7 +59,7 @@ public class Commons
 			mbadmin = new MBot(admin);
 		}
 	}
-	
+
 	/**
 	 * Process a list of WActions.
 	 * 
@@ -71,7 +71,7 @@ public class Commons
 	{
 		return WAction.convertToString(mb.start(pages));
 	}
-	
+
 	/**
 	 * Process a list of WActions.
 	 * 
@@ -83,7 +83,7 @@ public class Commons
 	{
 		return doAction(mb, pages.toArray(new WAction[0]));
 	}
-	
+
 	/**
 	 * Deletes everything in Category:Fastily Test as uploader requested.
 	 * 
@@ -99,7 +99,7 @@ public class Commons
 			System.exit(0);
 		return fails.toArray(new String[0]);
 	}
-	
+
 	/**
 	 * Deletes all the files in <a href="http://commons.wikimedia.org/wiki/Category:Copyright_violations"
 	 * >Category:Copyright violations</a>.
@@ -108,10 +108,10 @@ public class Commons
 	{
 		return categoryNuke(CStrings.cv, CStrings.copyvio, false, "File");
 	}
-	
+
 	/**
-	 * Deletes everything in <a href= "http://commons.wikimedia.org/wiki/Category:Other_speedy_deletions"
-	 * >Category:Other speedy deletions</a>
+	 * Deletes everything in <a href= "http://commons.wikimedia.org/wiki/Category:Other_speedy_deletions" >Category:Other
+	 * speedy deletions</a>
 	 * 
 	 * @param reason Delete reason
 	 * @param ns Namespace(s) to restrict deletion to. Leave blank to ignore namespace.
@@ -121,16 +121,16 @@ public class Commons
 	{
 		return categoryNuke(CStrings.osd, reason, false, ns);
 	}
-	
+
 	/**
 	 * Deletes the titles in a category.
 	 * 
 	 * @param cat The category to nuke items from
 	 * @param reason Delete reason
 	 * @param delCat Set to true if the category should be deleted after deleting everything in it. Category is only
-	 *            deleted if it is empty.
+	 *           deleted if it is empty.
 	 * @param ns Namespace filter -- anything in these namespace(s) will be deleted. Optional param -- leave blank to
-	 *            select all namesapces
+	 *           select all namesapces
 	 * @return A list of titles we didn't delete.
 	 */
 	public String[] categoryNuke(String cat, String reason, boolean delCat, String... ns)
@@ -140,7 +140,7 @@ public class Commons
 			admin.delete(cat, CStrings.ec);
 		return fails;
 	}
-	
+
 	/**
 	 * Delete all files on a page.
 	 * 
@@ -151,7 +151,31 @@ public class Commons
 	{
 		return nukeLinksOnPage(dr, "[[" + dr + "]]", "File");
 	}
-	
+
+	/**
+	 * Performs a mass restoration.
+	 * 
+	 * @param reason The reason to use.
+	 * @param pages The pages to restore
+	 * @return A list of pages we didn't/couldn't restore.
+	 */
+	public String[] restore(String reason, String... pages)
+	{
+		return WAction.convertToString(mbadmin.massRestore(reason, pages));
+	}
+
+	/**
+	 * Restore pages from a list in a file.
+	 * 
+	 * @param reason The reason to use
+	 * @param path The path to the file
+	 * @return A list of pages we didn't/couldn't restore.
+	 */
+	public String[] restoreFromFile(String path, String reason)
+	{
+		return restore(reason, new ReadFile(path).getList());
+	}
+
 	/**
 	 * Nukes empty files (ie file description pages without an associated file).
 	 * 
@@ -168,10 +192,10 @@ public class Commons
 					return wiki.getImageInfo(title) == null ? wiki.delete(title, summary) : true;
 				}
 			});
-		
+
 		return doAction(mbadmin, l);
 	}
-	
+
 	/**
 	 * Checks if a category is empty and deletes it if true.
 	 * 
@@ -190,7 +214,7 @@ public class Commons
 			});
 		return doAction(mbadmin, l);
 	}
-	
+
 	/**
 	 * Delete the contributions of a user in the specified namespace.
 	 * 
@@ -204,10 +228,10 @@ public class Commons
 		ArrayList<String> l = new ArrayList<String>();
 		for (Contrib c : admin.getContribs(user, ns))
 			l.add(c.getTitle());
-		
+
 		return nuke(reason, l.toArray(new String[0]));
 	}
-	
+
 	/**
 	 * Delete uploads of a user.
 	 * 
@@ -219,7 +243,7 @@ public class Commons
 	{
 		return nuke(reason, admin.getUserUploads(user));
 	}
-	
+
 	/**
 	 * Deletes all links on a page in the specified namespace.
 	 * 
@@ -235,7 +259,7 @@ public class Commons
 	{
 		return nuke(reason, admin.getLinksOnPage(title, ns));
 	}
-	
+
 	/**
 	 * Deletes all images linked on a page.
 	 * 
@@ -247,7 +271,7 @@ public class Commons
 	{
 		return nuke(reason, admin.getImagesOnPage(title));
 	}
-	
+
 	/**
 	 * Delete pages on Commons.
 	 * 
@@ -261,14 +285,14 @@ public class Commons
 	{
 		return WAction.convertToString(mbadmin.massDelete(reason, pages));
 	}
-	
+
 	/**
 	 * Nukes the pages that are in the specified namespace. Anything not in the specified namespace will not be deleted,
 	 * even if it passed in.
 	 * 
 	 * @param reason Delete reason.
 	 * @param ns Namespace to include only. This should be the namespace header, without the ":" (e.g. "File"). For main
-	 *            namespace, specify the empty String.
+	 *           namespace, specify the empty String.
 	 * @param pages The pages to screen and then delete.
 	 * 
 	 * @return A list of pages we failed to delete
@@ -279,14 +303,14 @@ public class Commons
 	{
 		int ni = admin.whichNS(ns);
 		ArrayList<String> todo = new ArrayList<String>();
-		
+
 		for (String s : pages)
 			if (admin.whichNS(s) == ni)
 				todo.add(s);
-		
+
 		return nuke(reason, todo.toArray(new String[0]));
 	}
-	
+
 	/**
 	 * Delete pages listed in a text file. Encoding should be UTF-8. One item per line.
 	 * 
@@ -299,7 +323,7 @@ public class Commons
 	{
 		return nuke(reason, new ReadFile(path).getList());
 	}
-	
+
 	/**
 	 * Removes <tt>{{delete}}</tt> templates from the listed titles.
 	 * 
@@ -311,7 +335,7 @@ public class Commons
 	{
 		return WAction.convertToString(mbwiki.massEdit(reason, "", CStrings.drregex, "", titles));
 	}
-	
+
 	/**
 	 * Removes all no perm, lic, src templates from listed titles.
 	 * 
@@ -323,7 +347,7 @@ public class Commons
 	{
 		return WAction.convertToString(mbwiki.massEdit(reason, "", CStrings.delregex, "", titles));
 	}
-	
+
 	/**
 	 * Adds text to pages.
 	 * 
@@ -336,5 +360,5 @@ public class Commons
 	{
 		return WAction.convertToString(mbwiki.massEdit(reason, text, null, null, titles));
 	}
-	
+
 }
