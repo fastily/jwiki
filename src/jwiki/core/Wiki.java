@@ -8,6 +8,7 @@ import java.util.List;
 
 import javax.security.auth.login.LoginException;
 
+import jwiki.util.FString;
 import jwiki.util.Tuple;
 
 /**
@@ -567,11 +568,7 @@ public class Wiki
 	 */
 	public String[] exists(String[] titles, boolean e)
 	{
-		ArrayList<String> l = new ArrayList<String>();
-		for (Tuple<String, Boolean> t : exists(titles))
-			if (!(t.y.booleanValue() ^ e)) // xnor
-				l.add(t.x);
-		return l.toArray(new String[0]);
+		return FString.booleanTuple(exists(titles), e);
 	}
 
 	/**

@@ -108,9 +108,17 @@ public class FQuery
 		ArrayList<String> l = new ArrayList<String>();
 		for (JSONObject jo : fatQuery(ub, max, limString, contString, isStr, wiki))
 		{
-			JSONArray ja = JSONParse.getJSONArrayR(jo, array);
-			for (int i = 0; i < ja.length(); i++)
-				l.add(ja.getJSONObject(i).getString(arrayEl));
+			try
+			{
+				JSONArray ja = JSONParse.getJSONArrayR(jo, array);
+				for (int i = 0; i < ja.length(); i++)
+					l.add(ja.getJSONObject(i).getString(arrayEl));
+			}
+			catch (Throwable e)
+			{
+				e.printStackTrace();
+				Logger.error("Encountered an error parsing some server reply - Continuing");
+			}
 		}
 
 		return l.toArray(new String[0]);
@@ -719,17 +727,16 @@ public class FQuery
 	public static ArrayList<Tuple<String, Boolean>> getDuplicatesOf(Wiki wiki, String file)
 	{
 		Logger.info(wiki, "Getting dupes of " + file);
-		String head = wiki.getNS(6); //MediaWiki is stupid and doesn't return File prefixes. 
-
+		String head = wiki.getNS(6); // MediaWiki is stupid and doesn't return File prefixes.
 
 		ArrayList<Tuple<String, Boolean>> l = new ArrayList<Tuple<String, Boolean>>();
 		for (JSONObject jo : fatQuery(wiki.makeUB("query", "prop", "duplicatefiles", "titles", FString.enc(file)), -1,
 				"dflimit", "dfcontinue", true, wiki))
 		{
 			JSONArray ja = JSONParse.getJSONArrayR(jo, "duplicatefiles");
-			if(ja == null) // In the event there are no duplicates
+			if (ja == null) // In the event there are no duplicates
 				continue;
-			
+
 			for (int i = 0; i < ja.length(); i++)
 			{
 				JSONObject jx = ja.getJSONObject(i);
