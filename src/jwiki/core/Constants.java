@@ -16,6 +16,11 @@ public class Constants
 	public static boolean debug = false;
 	
 	/**
+	 * The user agent we're using to make https requests.
+	 */
+	public static String useragent = "fpwertys";
+	
+	/**
 	 * The date format with which we're using to parse returned time stamps from the server. MediaWiki returns dates in
 	 * the form: <tt>2013-12-16T00:25:17Z</tt>
 	 */
