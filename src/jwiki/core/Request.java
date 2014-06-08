@@ -36,6 +36,14 @@ public class Request
 	public static final String urlenc = "application/x-www-form-urlencoded";
 	
 	/**
+	 * No constructors allowed.
+	 */
+	private Request()
+	{
+		
+	}
+	
+	/**
 	 * Sets the cookies of a URLConnection using the specified cookiejar <b>PRECONDITION</b>: You must not have not yet
 	 * called <tt>connect()</tt> on <tt>c</tt>, otherwise you'll get an error.
 	 * 
@@ -79,7 +87,7 @@ public class Request
 	private static URLConnection genericURLConnection(URL url, CookieManager cookiejar) throws IOException
 	{
 		URLConnection c = url.openConnection();
-		c.setRequestProperty("User-Agent", "fpwertoys"); // required, or server will 403.
+		c.setRequestProperty("User-Agent", Constants.useragent); // required, or server will 403.
 		
 		c.setConnectTimeout(connectTimeout);
 		c.setReadTimeout(readTimeout);

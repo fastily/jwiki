@@ -1,5 +1,7 @@
 package sand;
 
+import java.io.File;
+
 import jwiki.commons.*;
 import jwiki.core.*;
 import jwiki.util.*;
@@ -29,5 +31,14 @@ public class T
 		}
 
 		clone.addText("Commons:Deletion requests/2014/05/29", x, "++", false);*/
+		
+		//com.nuke("Page dependent on deleted or non-existent content", fastily.prefixIndex("Template", "WTFPL-1/"));
+		//com.nuke("[[Commons:Deletion requests/File:Luftbild Grindelhochhäuser Hamburg.jpg]]", fastily.whatTranscludesHere("User:Heinz-Josef Lücking/Creative Commons by-sa-3.0 de"));
+		//clone.upload(new File("/Users/Alec/Desktop/a.svg"), "File:Test.svg", new ReadFile("/Users/Alec/Desktop/a.txt").getTextAsBlock(), "Reset");
+	
+	Wiki wiki = clone.getWiki("en.wikipedia.org");
+	for(String s : wiki.getCategoryMembers("Category:Wikipedia files with the same name on Wikimedia Commons as of unknown date", "File"))
+		wiki.replaceText(s, "(?si)\\{\\{(nowcommons|now commons|db\\-f8).*?\\}\\}", "{{Subst:ncd}}", "+timestamp");
+	
 	}
 }

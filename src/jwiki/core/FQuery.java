@@ -20,7 +20,6 @@ import org.json.JSONObject;
  */
 public class FQuery
 {
-
 	/**
 	 * Hiding from javadoc
 	 */
@@ -225,19 +224,9 @@ public class FQuery
 	private static String[] getBackLinks(Wiki wiki, String title, boolean redirs)
 	{
 		Logger.info(wiki, "Fetching backlinks to " + title);
-		URLBuilder ub = wiki.makeUB();
-		ub.setAction("query");
-		ub.setParams("list", "backlinks", "bltitle", FString.enc(title), "blfilterredir", redirs ? "redirects"
+		URLBuilder ub = wiki.makeUB("query", "list", "backlinks", "bltitle", FString.enc(title), "blfilterredir", redirs ? "redirects"
 				: "nonredirects");
-
-		ArrayList<String> l = new ArrayList<String>();
-		for (JSONObject jo : fatQuery(ub, -1, "bllimit", "blcontinue", true, wiki))
-		{
-			JSONArray jl = JSONParse.getJSONArrayR(jo, "backlinks");
-			for (int i = 0; i < jl.length(); i++)
-				l.add(jl.getJSONObject(i).getString("title"));
-		}
-		return l.toArray(new String[0]);
+		return multiFatQuery(ub, -1, "bllimit", "blcontinue", true, "backlinks", "title", wiki);
 	}
 
 	/**
@@ -290,9 +279,7 @@ public class FQuery
 	public static Revision[] getRevisions(Wiki wiki, String title, int num, boolean olderfirst)
 	{
 		Logger.info(wiki, "Fetching revisions of " + title);
-		URLBuilder ub = wiki.makeUB();
-		ub.setAction("query");
-		ub.setParams("prop", "revisions", "rvprop", URLBuilder.chainProps("timestamp", "user", "comment", "content"), "rvdir",
+		URLBuilder ub = wiki.makeUB("query", "prop", "revisions", "rvprop", URLBuilder.chainProps("timestamp", "user", "comment", "content"), "rvdir",
 				(olderfirst ? "newer" : "older"), "titles", FString.enc(title));
 
 		ArrayList<Revision> rl = new ArrayList<Revision>();
@@ -300,7 +287,6 @@ public class FQuery
 			rl.addAll(Arrays.asList(Revision.makeRevs(jo)));
 
 		return rl.toArray(new Revision[0]);
-
 	}
 
 	/**
@@ -314,25 +300,13 @@ public class FQuery
 	 */
 	public static String[] getCategoryMembers(Wiki wiki, String cat, int max, String... ns)
 	{
-		String title = wiki.whichNS(cat) == 0 ? String.format("%s:%s", wiki.getNS(14), cat) : cat;
-
+		String title = wiki.convertIfNotInNS(cat, "Category");
 		Logger.info(wiki, "Fetching category members of " + title);
-		URLBuilder ub = wiki.makeUB();
-		ub.setAction("query");
-		ub.setParams("list", "categorymembers", "cmtitle", FString.enc(title));
-
+		URLBuilder ub = wiki.makeUB("query", "list", "categorymembers", "cmtitle", FString.enc(title));
 		if (ns.length > 0)
 			ub.setParams("cmnamespace", FString.enc(FString.fenceMaker("|", wiki.nsl.prefixToNumStrings(ns))));
-
-		ArrayList<String> l = new ArrayList<String>();
-		for (JSONObject jo : fatQuery(ub, max, "cmlimit", "cmcontinue", true, wiki))
-		{
-			JSONArray jl = JSONParse.getJSONArrayR(jo, "categorymembers");
-			for (int i = 0; i < jl.length(); i++)
-				l.add(jl.getJSONObject(i).getString("title"));
-		}
-
-		return l.toArray(new String[0]);
+		
+		return multiFatQuery(ub, max, "cmlimit", "cmcontinue", true, "categorymembers", "title", wiki);
 	}
 
 	/**
@@ -345,18 +319,8 @@ public class FQuery
 	public static String[] getCategoriesOnPage(Wiki wiki, String title)
 	{
 		Logger.info(wiki, "Getting categories of " + title);
-		URLBuilder ub = wiki.makeUB();
-		ub.setAction("query");
-		ub.setParams("prop", "categories", "titles", FString.enc(title));
-
-		ArrayList<String> l = new ArrayList<String>();
-		for (JSONObject jo : fatQuery(ub, -1, "cllimit", "clcontinue", true, wiki))
-		{
-			JSONArray jl = JSONParse.getJSONArrayR(jo, "categories");
-			for (int i = 0; i < jl.length(); i++)
-				l.add(jl.getJSONObject(i).getString("title"));
-		}
-		return l.toArray(new String[0]);
+		URLBuilder ub = wiki.makeUB("query", "prop", "categories", "titles", FString.enc(title));
+		return multiFatQuery(ub, -1, "cllimit", "clcontinue", true, "categories", "title", wiki);
 	}
 
 	/**
@@ -370,24 +334,11 @@ public class FQuery
 	public static String[] getLinksOnPage(Wiki wiki, String title, String... ns)
 	{
 		Logger.info(wiki, "Fetching page links of " + title);
-		URLBuilder ub = wiki.makeUB();
-		ub.setAction("query");
-		ub.setParams("prop", "links", "titles", FString.enc(title));
-
+		URLBuilder ub = wiki.makeUB("query", "prop", "links", "titles", FString.enc(title));
 		if (ns.length > 0)
 			ub.setParams("plnamespace", FString.enc(FString.fenceMaker("|", wiki.nsl.prefixToNumStrings(ns))));
 
-		ArrayList<String> l = new ArrayList<String>();
-		for (JSONObject jo : fatQuery(ub, -1, "pllimit", "plcontinue", true, wiki))
-		{
-			JSONArray jl = JSONParse.getJSONArrayR(jo, "links");
-			if (jl == null) // if there are 0 links, no JSONArray is returned by server.
-				break;
-
-			for (int i = 0; i < jl.length(); i++)
-				l.add(jl.getJSONObject(i).getString("title"));
-		}
-		return l.toArray(new String[0]);
+		return multiFatQuery(ub,  -1, "pllimit", "plcontinue", true, "links", "title", wiki);
 	}
 
 	/**
@@ -403,10 +354,7 @@ public class FQuery
 	public static Contrib[] getContribs(Wiki wiki, String user, int max, String... ns)
 	{
 		Logger.info(wiki, "Fetching contribs of " + user);
-		URLBuilder ub = wiki.makeUB();
-		ub.setAction("query");
-		ub.setParams("list", "usercontribs", "ucuser", FString.enc(user));
-
+		URLBuilder ub = wiki.makeUB("query", "list", "usercontribs", "ucuser", FString.enc(user));
 		if (ns.length > 0)
 			ub.setParams("ucnamespace", FString.enc(FString.fenceMaker("|", wiki.nsl.prefixToNumStrings(ns))));
 
@@ -427,10 +375,7 @@ public class FQuery
 	public static int getCategorySize(Wiki wiki, String title)
 	{
 		Logger.info(wiki, "Fetching category size of " + title);
-		URLBuilder ub = wiki.makeUB();
-		ub.setAction("query");
-		ub.setParams("prop", "categoryinfo", "titles", FString.enc(title));
-
+		URLBuilder ub = wiki.makeUB("query", "prop", "categoryinfo", "titles", FString.enc(title));
 		try
 		{
 			Reply r = Request.get(ub.makeURL(), wiki.cookiejar);
@@ -455,26 +400,10 @@ public class FQuery
 	 */
 	public static String[] imageUsage(Wiki wiki, String file)
 	{
-		if (wiki.whichNS(file) != wiki.getNS("File"))
-		{
-			System.err.println("'%s' must be a valid filename and include the 'File:' prefix");
-			return new String[0];
-		}
-
-		Logger.info(wiki, "Fetching image usage of " + file);
-		URLBuilder ub = wiki.makeUB();
-		ub.setAction("query");
-		ub.setParams("list", "imageusage", "iutitle", FString.enc(file));
-
-		ArrayList<String> l = new ArrayList<String>();
-		for (JSONObject jo : fatQuery(ub, -1, "iulimit", "iucontinue", true, wiki))
-		{
-			JSONArray jl = JSONParse.getJSONArrayR(jo, "imageusage");
-			for (int i = 0; i < jl.length(); i++)
-				l.add(jl.getJSONObject(i).getString("title"));
-		}
-
-		return l.toArray(new String[0]);
+		String fx = wiki.convertIfNotInNS(file, "File");
+		Logger.info(wiki, "Fetching image usage of " + fx);
+		URLBuilder ub = wiki.makeUB("query", "list", "imageusage", "iutitle", FString.enc(fx));
+		return multiFatQuery(ub, -1, "iulimit", "iucontinue", true, "imageusage", "title", wiki);
 	}
 
 	/**
@@ -487,19 +416,8 @@ public class FQuery
 	public static String[] whatTranscludesHere(Wiki wiki, String title)
 	{
 		Logger.info(wiki, "Fetching transclusions of " + title);
-		URLBuilder ub = wiki.makeUB();
-		ub.setAction("query");
-		ub.setParams("list", "embeddedin", "eititle", FString.enc(title));
-
-		ArrayList<String> l = new ArrayList<String>();
-		for (JSONObject jo : fatQuery(ub, -1, "eilimit", "eicontinue", true, wiki))
-		{
-			JSONArray jl = JSONParse.getJSONArrayR(jo, "embeddedin");
-			for (int i = 0; i < jl.length(); i++)
-				l.add(jl.getJSONObject(i).getString("title"));
-		}
-
-		return l.toArray(new String[0]);
+		URLBuilder ub = wiki.makeUB("query", "list", "embeddedin", "eititle", FString.enc(title));
+		return multiFatQuery(ub, -1 ,"eilimit", "eicontinue", true, "embeddedin", "title", wiki);
 	}
 
 	/**
@@ -512,19 +430,8 @@ public class FQuery
 	public static String[] getImagesOnPage(Wiki wiki, String title)
 	{
 		Logger.info(wiki, "Fetching images linked to " + title);
-		URLBuilder ub = wiki.makeUB();
-		ub.setAction("query");
-		ub.setParams("prop", "images", "titles", FString.enc(title));
-
-		ArrayList<String> l = new ArrayList<String>();
-		for (JSONObject jo : fatQuery(ub, -1, "imlimit", "imcontinue", true, wiki))
-		{
-			JSONArray jl = JSONParse.getJSONArrayR(jo, "images");
-			if (jl != null) // false if the 'title' is a non-existent page
-				for (int i = 0; i < jl.length(); i++)
-					l.add(jl.getJSONObject(i).getString("title"));
-		}
-		return l.toArray(new String[0]);
+		URLBuilder ub = wiki.makeUB("query", "prop", "images", "titles", FString.enc(title));
+		return multiFatQuery(ub, -1, "imlimit", "imcontinue", true, "images", "title", wiki);
 	}
 
 	/**
@@ -587,8 +494,8 @@ public class FQuery
 	public static String[] getUserUploads(Wiki wiki, String user)
 	{
 		Logger.info(wiki, "Grabbing uploads of User:" + user);
-		return multiFatQuery(wiki.makeUB("query", "list", "allimages", "aisort", "timestamp", "aiuser", FString.enc(user)),
-				-1, "ailimit", "aicontinue", true, "allimages", "title", wiki);
+		URLBuilder ub = wiki.makeUB("query", "list", "allimages", "aisort", "timestamp", "aiuser", FString.enc(user));
+		return multiFatQuery(ub, -1, "ailimit", "aicontinue", true, "allimages", "title", wiki);
 	}
 
 	/**
@@ -636,8 +543,8 @@ public class FQuery
 	public static String[] getTemplatesOnPage(Wiki wiki, String title)
 	{
 		Logger.info(wiki, "Fetching transcluded templates on " + title);
-		return multiFatQuery(wiki.makeUB("query", "prop", "templates", "titles", FString.enc(title)), -1, "tllimit",
-				"tlcontinue", true, "templates", "title", wiki);
+		URLBuilder ub = wiki.makeUB("query", "prop", "templates", "titles", FString.enc(title));
+		return multiFatQuery(ub, -1, "tllimit", "tlcontinue", true, "templates", "title", wiki);
 	}
 
 	/**
@@ -710,8 +617,8 @@ public class FQuery
 	protected static String[] listSpecialPages(Wiki wiki, String page, int max)
 	{
 		Logger.info(wiki, String.format("Getting a list of %d pages from %s", max, page));
-		return multiFatQuery(wiki.makeUB("query", "list", "querypage", "qppage", FString.enc(page)), max, "qplimit",
-				"qpoffset", false, "results", "title", wiki);
+		URLBuilder ub = wiki.makeUB("query", "list", "querypage", "qppage", FString.enc(page));
+		return multiFatQuery(ub, max, "qplimit", "qpoffset", false, "results", "title", wiki);
 	}
 
 	/**

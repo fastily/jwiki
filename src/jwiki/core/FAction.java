@@ -130,9 +130,7 @@ public class FAction
 	public static boolean purge(Wiki wiki, String title)
 	{
 		Logger.fyi(wiki, "Purging " + title);
-		URLBuilder ub = wiki.makeUB();
-		ub.setAction("purge");
-		ub.setParams("titles", FString.enc(title));
+		URLBuilder ub = wiki.makeUB("purge", "titles", FString.enc(title));
 		
 		try
 		{
@@ -157,8 +155,7 @@ public class FAction
 	public static boolean delete(Wiki wiki, String title, String reason)
 	{
 		Logger.info(wiki, "Deleting " + title);
-		URLBuilder ub = wiki.makeUB();
-		ub.setAction("delete");
+		URLBuilder ub = wiki.makeUB("delete");
 		
 		String[] es = FString.massEnc(title, reason, wiki.token);
 		String posttext = URLBuilder.chainParams("title", es[0], "reason", es[1], "token", es[2]);
@@ -186,8 +183,7 @@ public class FAction
 	public static boolean undelete(Wiki wiki, String title, String reason)
 	{
 		Logger.info(wiki, "Restoring " + title);
-		URLBuilder ub = wiki.makeUB();
-		ub.setAction("undelete");
+		URLBuilder ub = wiki.makeUB("undelete");
 		
 		String[] es = FString.massEnc(title, reason, wiki.token);
 		String posttext = URLBuilder.chainParams("title", es[0], "reason", es[1], "token", es[2]);
@@ -227,8 +223,7 @@ public class FAction
 		
 		long chunks = filesize / chunksize + ((filesize % chunksize) > 0 ? 1 : 0);
 		
-		URLBuilder ub = wiki.makeUB();
-		ub.setAction("upload");
+		URLBuilder ub = wiki.makeUB("upload");
 		
 		String filekey = null;
 		FileInputStream in = null;
@@ -315,8 +310,7 @@ public class FAction
 	private static boolean unstash(Wiki wiki, String filekey, String title, String text, String reason)
 	{
 		Logger.info(wiki, String.format("Unstashing '%s' from temporary archive @ '%s'", title, filekey));
-		URLBuilder ub = wiki.makeUB();
-		ub.setAction("upload");
+		URLBuilder ub = wiki.makeUB("upload");
 		
 		String[] es = FString.massEnc(title, text, reason, wiki.token, filekey);
 		String posttext = URLBuilder.chainParams("filename", es[0], "text", es[1], "comment", es[2], "ignorewarnings", "true",
