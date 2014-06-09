@@ -48,12 +48,12 @@ public class FAction
 			URLBuilder posttext = new URLBuilder(null);
 			posttext.setParams("lgname", wiki.whoami());
 			
-			Reply r = Request.post(ub.makeURL(), posttext.getParamsAsText(), wiki.cookiejar, null);
+			ServerReply r = Request.post(ub.makeURL(), posttext.getParamsAsText(), wiki.cookiejar, null);
 			if (r.hasError())
 				return false;
 			else if (r.resultIs("NeedToken"))
 			{
-				posttext.setParams("lgpassword", wiki.upx.y, "lgtoken", r.getString("token"));
+				posttext.setParams("lgpassword", wiki.upx.y, "lgtoken", r.getStringR("token"));
 				return Request.post(ub.makeURL(), posttext.getParamsAsText(), wiki.cookiejar, null).resultIs("Success");
 			}
 			
@@ -134,7 +134,7 @@ public class FAction
 		
 		try
 		{
-			Reply r = Request.get(ub.makeURL(), wiki.cookiejar);
+			ServerReply r = Request.get(ub.makeURL(), wiki.cookiejar);
 			return !r.hasError() && r.getJSONArray("purge").getJSONObject(0).has("purged");
 		}
 		catch (Throwable e)
@@ -162,7 +162,7 @@ public class FAction
 		
 		try
 		{
-			return !Request.post(ub.makeURL(), posttext, wiki.cookiejar, Request.urlenc).hasErrorIgnore("missingtitle");
+			return !Request.post(ub.makeURL(), posttext, wiki.cookiejar, Request.urlenc).hasErrorIfIgnore("missingtitle");
 		}
 		catch (Throwable e)
 		{
@@ -280,7 +280,7 @@ public class FAction
 		in.read(chunk);
 		l.put("chunk\"; filename=\"" + f.getName(), chunk);
 		
-		Reply r = null;
+		ServerReply r = null;
 		for (int i = 0; i < 5; i++)
 		{
 			try
@@ -294,7 +294,7 @@ public class FAction
 				Logger.error(wiki, String.format("(%s): Encountered error @ chunk %d.  Retrying...", f.getName(), id));
 			}
 		}
-		return !r.hasError() ? r.getString("filekey") : null;
+		return !r.hasError() ? r.getStringR("filekey") : null;
 	}
 	
 	/**

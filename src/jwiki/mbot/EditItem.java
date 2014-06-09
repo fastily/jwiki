@@ -38,9 +38,9 @@ public class EditItem extends WAction
 	public EditItem(String title, String reason, String add, String replace, String replacement)
 	{
 		super(title, null, reason);
-		this.add = add;
-		this.replace = replace;
-		this.replacement = replacement;
+		this.add = add == null ? "" : add;
+		this.replace = replace == null ? "" : add;
+		this.replacement = replacement == null ? "" : replacement;
 	}
 
 	/**
@@ -51,16 +51,10 @@ public class EditItem extends WAction
 	 */
 	public boolean doJob(Wiki wiki)
 	{
-		text = wiki.getPageText(title);
-		if (text == null)
-			return false;
-
-		if (replace == null && add != null) // simple append text
-			return wiki.edit(title, text + add, summary);
-		else if (replace != null && replacement != null && add != null) // replace & append
-			return wiki.edit(title, text.replaceAll(replace, replacement) + add, summary);
-		else if (replace != null && replacement != null) // replace only
-			return wiki.edit(title, text.replaceAll(replace, replacement), summary);
+		if (!replace.isEmpty()) // replace and/or append
+			return wiki.edit(title, wiki.getPageText(title).replaceAll(replace, replacement) + add, summary);
+		else if (!add.isEmpty()) // simple append text
+			return wiki.addText(title, add, summary, false);
 		else
 			// all null, or replace != null && replacement == null
 			Logger.error(String.format("For '%s', why is everything null?", title));

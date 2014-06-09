@@ -48,7 +48,7 @@ public class FQuery
 		ArrayList<JSONObject> jl = new ArrayList<JSONObject>();
 
 		int completed = 0; // how many items have we retrieved so far?
-		int fetch_num = Constants.maxquerysz; // the number of items to fetch this time.
+		int fetch_num = Settings.maxquerysz; // the number of items to fetch this time.
 
 		try
 		{
@@ -57,15 +57,15 @@ public class FQuery
 				if (completed >= max && !unlim)
 					break;
 
-				if (!unlim && max - completed < Constants.maxquerysz)
+				if (!unlim && max - completed < Settings.maxquerysz)
 					fetch_num = max - completed;
 
 				ub.setParams(limString, "" + fetch_num);
-				Reply r = Request.get(ub.makeURL(), wiki.cookiejar);
+				ServerReply r = Request.get(ub.makeURL(), wiki.cookiejar);
 				if (r.hasError()) // if there are errors, we'll probably get them on the 1st try
 					break;
 
-				JSONObject reply = r.getReply();
+				JSONObject reply = r;
 				jl.add(reply);
 				completed += fetch_num;
 
@@ -141,15 +141,15 @@ public class FQuery
 		ArrayList<JSONObject> jl = new ArrayList<JSONObject>();
 		try
 		{
-			for (String[] tl : FString.splitStringArray(Constants.groupquerymax, titles))
+			for (String[] tl : FString.splitStringArray(Settings.groupquerymax, titles))
 			{
 				ub.setParams(titlekey, FString.enc(FString.fenceMaker("|", tl)));
 
-				Reply r = Request.get(ub.makeURL(), wiki.cookiejar);
+				ServerReply r = Request.get(ub.makeURL(), wiki.cookiejar);
 				if (r.hasError())
 					break;
 
-				JSONObject parent = JSONParse.getJSONObjectR(r.getReply(), parentKey);
+				JSONObject parent = JSONParse.getJSONObjectR(r, parentKey);
 				if (parent != null)
 					for (String s : JSONObject.getNames(parent))
 						jl.add(parent.getJSONObject(s));
@@ -179,7 +179,7 @@ public class FQuery
 			ub.setAction("tokens");
 			ub.setParams("type", "edit");
 
-			wiki.token = Request.get(ub.makeURL(), wiki.cookiejar).getString("edittoken");
+			wiki.token = Request.get(ub.makeURL(), wiki.cookiejar).getStringR("edittoken");
 			return wiki.token != null;
 		}
 		catch (Throwable e)
@@ -203,7 +203,7 @@ public class FQuery
 			URLBuilder ub = new URLBuilder(wiki.domain);
 			ub.setAction("query");
 			ub.setParams("meta", "siteinfo", "siprop", "namespaces");
-			wiki.nsl = Namespace.makeNamespace(Request.get(ub.makeURL(), wiki.cookiejar).getJSONObject("namespaces"));
+			wiki.nsl = Namespace.makeNamespace(Request.get(ub.makeURL(), wiki.cookiejar).getJSONObjectR("namespaces"));
 			return wiki.nsl != null;
 		}
 		catch (Throwable e)
@@ -378,7 +378,7 @@ public class FQuery
 		URLBuilder ub = wiki.makeUB("query", "prop", "categoryinfo", "titles", FString.enc(title));
 		try
 		{
-			Reply r = Request.get(ub.makeURL(), wiki.cookiejar);
+			ServerReply r = Request.get(ub.makeURL(), wiki.cookiejar);
 			if (r.hasError())
 				return -1;
 
@@ -521,7 +521,7 @@ public class FQuery
 
 		try
 		{
-			Reply r = Request.get(ub.makeURL(), wiki.cookiejar);
+			ServerReply r = Request.get(ub.makeURL(), wiki.cookiejar);
 
 			JSONArray ja; // mw oddly returns the imageinfo in a single element JSONArray
 			return (ja = r.getJSONArray("imageinfo")) == null ? null : new ImageInfo(ja.getJSONObject(0));
@@ -590,7 +590,7 @@ public class FQuery
 		ArrayList<String> l = new ArrayList<String>();
 		try
 		{
-			Reply r = Request.get(ub.makeURL(), wiki.cookiejar);
+			ServerReply r = Request.get(ub.makeURL(), wiki.cookiejar);
 			if (r.hasError())
 				return l;
 

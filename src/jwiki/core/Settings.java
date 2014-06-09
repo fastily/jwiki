@@ -8,7 +8,7 @@ import java.text.SimpleDateFormat;
  * @author Fastily
  *
  */
-public class Constants
+public class Settings
 {
 	/**
 	 * Indicates whether we are in debug mode or not.
