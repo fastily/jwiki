@@ -48,7 +48,7 @@ public class Contrib
 		user = jo.getString("user");
 		title = jo.getString("title");
 		summary = jo.getString("comment");
-		timestamp = Constants.sdf.parse(jo.getString("timestamp"));
+		timestamp = Settings.sdf.parse(jo.getString("timestamp"));
 		revid = jo.getInt("revid");
 		parentid = jo.getInt("parentid");
 	}

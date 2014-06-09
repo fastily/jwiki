@@ -1,5 +1,7 @@
 package jwiki.commons;
 
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -20,6 +22,11 @@ public class Commons
 	 * The admin object to use.
 	 */
 	private Wiki admin;
+
+	/**
+	 * The normal user object to use.
+	 */
+	private Wiki clone;
 
 	/**
 	 * Admin MBot
@@ -52,6 +59,7 @@ public class Commons
 	 */
 	public Commons(Wiki wiki, Wiki admin)
 	{
+		clone = wiki;
 		mbwiki = new MBot(wiki, 3);
 		if (admin != null)
 		{
@@ -361,4 +369,40 @@ public class Commons
 		return WAction.convertToString(mbwiki.massEdit(reason, text, null, null, titles));
 	}
 
+	/**
+	 * Sends a file to DR and lists it on today's log.
+	 * 
+	 * @param reason The deletion reason to use
+	 * @param files The files to send to DR.
+	 * @return True if we were able to post to today's log.
+	 */
+	public boolean sendToDR(String reason, String... files)
+	{
+		ZonedDateTime zdt = ZonedDateTime.now(ZoneId.of("UTC"));
+		String header = "Commons:Deletion requests/";
+		String listingfmt = "\n=== [[:%s]] ===\n%s ~~~~";
+
+		int day = zdt.getDayOfMonth();
+		int month = zdt.getMonthValue();
+		int year = zdt.getYear();
+
+		ArrayList<WAction> wl = new ArrayList<WAction>();
+		for (String file : files)
+			wl.add(new WAction(file, null, null) {
+				public boolean doJob(Wiki wiki)
+				{
+					return wiki.addText(title, String.format("{{delete|reason=%s|subpage=%s|day=%02d|month=%02d|year=%d}}\n",
+							reason, file, day, month, year), "+dr", true)
+							&& wiki.addText(header + title, String.format(listingfmt, title, reason), "start", false);
+				}
+			});
+
+		doAction(mbwiki, wl);
+		
+		String x = "";
+		for (String s : files)
+			x += String.format("\n{{%s%s}}", header, s);
+
+		return clone.addText(String.format("%s%d/%02d/%02d", header, year, month, day), x, "+", false);
+	}
 }

@@ -36,7 +36,7 @@ public class Request
 	public static final String urlenc = "application/x-www-form-urlencoded";
 	
 	/**
-	 * No constructors allowed.
+	 * All static methods; no constructors allowed.
 	 */
 	private Request()
 	{
@@ -87,7 +87,7 @@ public class Request
 	private static URLConnection genericURLConnection(URL url, CookieManager cookiejar) throws IOException
 	{
 		URLConnection c = url.openConnection();
-		c.setRequestProperty("User-Agent", Constants.useragent); // required, or server will 403.
+		c.setRequestProperty("User-Agent", Settings.useragent); // required, or server will 403.
 		
 		c.setConnectTimeout(connectTimeout);
 		c.setReadTimeout(readTimeout);
@@ -146,9 +146,9 @@ public class Request
 	 * @return A Reply object containing the result.
 	 * @throws IOException Network error.
 	 */
-	protected static Reply post(URL url, String text, CookieManager cookiejar, String contenttype) throws IOException
+	protected static ServerReply post(URL url, String text, CookieManager cookiejar, String contenttype) throws IOException
 	{	
-		return new Reply(genericPost(url, cookiejar, contenttype, text));
+		return new ServerReply(genericPost(url, cookiejar, contenttype, text));
 	}
 	
 	/**
@@ -161,7 +161,7 @@ public class Request
 	 * @return A Reply from the server.
 	 * @throws IOException Network error
 	 */
-	protected static Reply chunkPost(URL url, Map<String, ?> params, CookieManager cookiejar) throws IOException
+	protected static ServerReply chunkPost(URL url, Map<String, ?> params, CookieManager cookiejar) throws IOException
 	{
 		String boundary = "-----Boundary-----";
 		URLConnection c = makePost(url, cookiejar, "multipart/form-data; boundary=" + boundary);
@@ -202,7 +202,7 @@ public class Request
 		
 		grabCookies(c, cookiejar);
 		
-		return new Reply(c.getInputStream());
+		return new ServerReply(c.getInputStream());
 		
 	}
 	
@@ -214,16 +214,16 @@ public class Request
 	 * @return The result of the GET request.
 	 * @throws IOException Network error.
 	 */
-	protected static Reply get(URL url, CookieManager cookiejar) throws IOException
+	protected static ServerReply get(URL url, CookieManager cookiejar) throws IOException
 	{
-		return new Reply(getInputStream(url, cookiejar));
+		return new ServerReply(getInputStream(url, cookiejar));
 	}
 	
 	/**
 	 * Makes an InputStream from the given URL.
 	 * 
 	 * @param url The URL to use.
-	 * @param cookiejar The cookiejar to use. This is optional; specifiy null to disable.
+	 * @param cookiejar The cookiejar to use. This is optional; specify null to disable.
 	 * @return The InputStream made from the URL. Remember to close the InputStream when you're finished with it!
 	 * @throws IOException Network error.
 	 */
