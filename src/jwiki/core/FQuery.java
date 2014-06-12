@@ -224,8 +224,8 @@ public class FQuery
 	private static String[] getBackLinks(Wiki wiki, String title, boolean redirs)
 	{
 		Logger.info(wiki, "Fetching backlinks to " + title);
-		URLBuilder ub = wiki.makeUB("query", "list", "backlinks", "bltitle", FString.enc(title), "blfilterredir", redirs ? "redirects"
-				: "nonredirects");
+		URLBuilder ub = wiki.makeUB("query", "list", "backlinks", "bltitle", FString.enc(title), "blfilterredir",
+				redirs ? "redirects" : "nonredirects");
 		return multiFatQuery(ub, -1, "bllimit", "blcontinue", true, "backlinks", "title", wiki);
 	}
 
@@ -255,6 +255,29 @@ public class FQuery
 	}
 
 	/**
+	 * Gets the a token for data-modifying actions.
+	 * 
+	 * @param wiki The wiki object to use
+	 * @param tokentype The type of token to retrieve. Acceptable values include: block, centralauth, delete,
+	 *           deleteglobalaccount, edit, email, import, move, options, patrol, protect, setglobalaccountstatus,
+	 *           unblock, watch
+	 * @return The requested token, or null if we couldn't find it.
+	 */
+	protected static String getToken(Wiki wiki, String tokentype)
+	{
+		URLBuilder ub = wiki.makeUB("tokens", "type", tokentype);
+		try
+		{
+			return Request.get(ub.makeURL(), wiki.cookiejar).getStringR(tokentype + "token");
+		}
+		catch (Throwable e)
+		{
+			Logger.error(wiki, String.format("'%s' is not a valid tokentype", tokentype));
+			return null;
+		}
+	}
+
+	/**
 	 * Gets the text of a page on the specified wiki.
 	 * 
 	 * @param wiki The wiki to use
@@ -279,8 +302,9 @@ public class FQuery
 	public static Revision[] getRevisions(Wiki wiki, String title, int num, boolean olderfirst)
 	{
 		Logger.info(wiki, "Fetching revisions of " + title);
-		URLBuilder ub = wiki.makeUB("query", "prop", "revisions", "rvprop", URLBuilder.chainProps("timestamp", "user", "comment", "content"), "rvdir",
-				(olderfirst ? "newer" : "older"), "titles", FString.enc(title));
+		URLBuilder ub = wiki.makeUB("query", "prop", "revisions", "rvprop",
+				URLBuilder.chainProps("timestamp", "user", "comment", "content"), "rvdir", (olderfirst ? "newer" : "older"),
+				"titles", FString.enc(title));
 
 		ArrayList<Revision> rl = new ArrayList<Revision>();
 		for (JSONObject jo : fatQuery(ub, num, "rvlimit", "rvcontinue", false, wiki))
@@ -305,7 +329,7 @@ public class FQuery
 		URLBuilder ub = wiki.makeUB("query", "list", "categorymembers", "cmtitle", FString.enc(title));
 		if (ns.length > 0)
 			ub.setParams("cmnamespace", FString.enc(FString.fenceMaker("|", wiki.nsl.prefixToNumStrings(ns))));
-		
+
 		return multiFatQuery(ub, max, "cmlimit", "cmcontinue", true, "categorymembers", "title", wiki);
 	}
 
@@ -338,7 +362,7 @@ public class FQuery
 		if (ns.length > 0)
 			ub.setParams("plnamespace", FString.enc(FString.fenceMaker("|", wiki.nsl.prefixToNumStrings(ns))));
 
-		return multiFatQuery(ub,  -1, "pllimit", "plcontinue", true, "links", "title", wiki);
+		return multiFatQuery(ub, -1, "pllimit", "plcontinue", true, "links", "title", wiki);
 	}
 
 	/**
@@ -417,7 +441,7 @@ public class FQuery
 	{
 		Logger.info(wiki, "Fetching transclusions of " + title);
 		URLBuilder ub = wiki.makeUB("query", "list", "embeddedin", "eititle", FString.enc(title));
-		return multiFatQuery(ub, -1 ,"eilimit", "eicontinue", true, "embeddedin", "title", wiki);
+		return multiFatQuery(ub, -1, "eilimit", "eicontinue", true, "embeddedin", "title", wiki);
 	}
 
 	/**

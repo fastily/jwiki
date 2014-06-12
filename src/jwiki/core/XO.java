@@ -1,5 +1,8 @@
 package jwiki.core;
 
+import java.util.Scanner;
+
+import jwiki.commons.CStrings;
 import jwiki.commons.Commons;
 import jwiki.util.ReadFile;
 import jwiki.util.WikiGen;
@@ -17,6 +20,6 @@ public class XO
 	public static void main(String[] args) throws Throwable
 	{
 		
-		
+
 	}
 }
