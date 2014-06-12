@@ -7,5 +7,5 @@ move, change, and/or disappear without warning.
 The project relies on two freely licensed external libraries, namely:
 <ul>
 <li><a href="https://github.com/douglascrockford/JSON-java">JSON-java</a> (<a href="http://www.json.org/license.html">License</a>)</li>
-<li><a href="http://commons.apache.org/proper/commons-cli/">Commons CLI 1.2</a> (<a href="http://www.apache.org/licenses/">License</a>)</li>
+<li><a href="http://svn.apache.org/viewvc/commons/proper/cli/trunk/src/">Commons CLI 1.3</a> (<a href="http://www.apache.org/licenses/">License</a>)</li>
 </ul>

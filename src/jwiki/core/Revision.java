@@ -66,8 +66,8 @@ public class Revision
 		}
 		catch (Throwable e)
 		{
-			e.printStackTrace();
-			System.err.println("Looks like the page, " + title + ", doesn't have revisions");
+			//e.printStackTrace();
+			Logger.fyi("Looks like the page, " + title + ", doesn't have revisions");
 			return new Revision[0];
 		}
 	}

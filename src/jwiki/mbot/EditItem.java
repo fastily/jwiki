@@ -39,7 +39,7 @@ public class EditItem extends WAction
 	{
 		super(title, null, reason);
 		this.add = add == null ? "" : add;
-		this.replace = replace == null ? "" : add;
+		this.replace = replace == null ? "" : replace;
 		this.replacement = replacement == null ? "" : replacement;
 	}
 
@@ -51,14 +51,12 @@ public class EditItem extends WAction
 	 */
 	public boolean doJob(Wiki wiki)
 	{
-		if (!replace.isEmpty()) // replace and/or append
+		if (!replace.isEmpty())
 			return wiki.edit(title, wiki.getPageText(title).replaceAll(replace, replacement) + add, summary);
-		else if (!add.isEmpty()) // simple append text
+		else if (!add.isEmpty()) // prevent null edit if add is empty
 			return wiki.addText(title, add, summary, false);
-		else
-			// all null, or replace != null && replacement == null
-			Logger.error(String.format("For '%s', why is everything null?", title));
 
+		Logger.error("Why is everythign null?");
 		return false;
 	}
 }
