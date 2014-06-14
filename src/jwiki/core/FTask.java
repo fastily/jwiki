@@ -40,7 +40,7 @@ public class FTask
 	{
 		try
 		{
-			BufferedInputStream in = new BufferedInputStream(Request.getInputStream(new URL(url), cookiejar));
+			BufferedInputStream in = new BufferedInputStream(ClientRequest.genericGET(new URL(url), cookiejar));
 			ByteArrayOutputStream out = new ByteArrayOutputStream();
 			int c;
 			while ((c = in.read()) != -1)

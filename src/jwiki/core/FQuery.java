@@ -61,7 +61,7 @@ public class FQuery
 					fetch_num = max - completed;
 
 				ub.setParams(limString, "" + fetch_num);
-				ServerReply r = Request.get(ub.makeURL(), wiki.cookiejar);
+				ServerReply r = ClientRequest.get(ub.makeURL(), wiki.cookiejar);
 				if (r.hasError()) // if there are errors, we'll probably get them on the 1st try
 					break;
 
@@ -145,7 +145,7 @@ public class FQuery
 			{
 				ub.setParams(titlekey, FString.enc(FString.fenceMaker("|", tl)));
 
-				ServerReply r = Request.get(ub.makeURL(), wiki.cookiejar);
+				ServerReply r = ClientRequest.get(ub.makeURL(), wiki.cookiejar);
 				if (r.hasError())
 					break;
 
@@ -164,54 +164,6 @@ public class FQuery
 		return jl.toArray(new JSONObject[0]);
 	}
 
-	/**
-	 * Generates an edit token, and assigns it to the wiki object passed in.
-	 * 
-	 * @param wiki The wiki object to generate an edit token for.
-	 * @return True if we were successful.
-	 */
-	protected static boolean generateEditToken(Wiki wiki)
-	{
-		Logger.info(wiki, "Fetching edit token");
-		try
-		{
-			URLBuilder ub = new URLBuilder(wiki.domain);
-			ub.setAction("tokens");
-			ub.setParams("type", "edit");
-
-			wiki.token = Request.get(ub.makeURL(), wiki.cookiejar).getStringR("edittoken");
-			return wiki.token != null;
-		}
-		catch (Throwable e)
-		{
-			e.printStackTrace();
-			return false;
-		}
-	}
-
-	/**
-	 * Generates the namespace list for the wiki object passed in, and assigns it to said wiki object.
-	 * 
-	 * @param wiki The wiki object to generate an namespace list for.
-	 * @return True if we were successful.
-	 */
-	protected static boolean generateNSL(Wiki wiki)
-	{
-		Logger.info(wiki, "Generating namespace list");
-		try
-		{
-			URLBuilder ub = new URLBuilder(wiki.domain);
-			ub.setAction("query");
-			ub.setParams("meta", "siteinfo", "siprop", "namespaces");
-			wiki.nsl = Namespace.makeNamespace(Request.get(ub.makeURL(), wiki.cookiejar).getJSONObjectR("namespaces"));
-			return wiki.nsl != null;
-		}
-		catch (Throwable e)
-		{
-			e.printStackTrace();
-			return false;
-		}
-	}
 
 	/**
 	 * Gets the backlinks of a page.
@@ -252,29 +204,6 @@ public class FQuery
 	public static String[] getRedirects(Wiki wiki, String title)
 	{
 		return getBackLinks(wiki, title, true);
-	}
-
-	/**
-	 * Gets the a token for data-modifying actions.
-	 * 
-	 * @param wiki The wiki object to use
-	 * @param tokentype The type of token to retrieve. Acceptable values include: block, centralauth, delete,
-	 *           deleteglobalaccount, edit, email, import, move, options, patrol, protect, setglobalaccountstatus,
-	 *           unblock, watch
-	 * @return The requested token, or null if we couldn't find it.
-	 */
-	protected static String getToken(Wiki wiki, String tokentype)
-	{
-		URLBuilder ub = wiki.makeUB("tokens", "type", tokentype);
-		try
-		{
-			return Request.get(ub.makeURL(), wiki.cookiejar).getStringR(tokentype + "token");
-		}
-		catch (Throwable e)
-		{
-			Logger.error(wiki, String.format("'%s' is not a valid tokentype", tokentype));
-			return null;
-		}
 	}
 
 	/**
@@ -402,7 +331,7 @@ public class FQuery
 		URLBuilder ub = wiki.makeUB("query", "prop", "categoryinfo", "titles", FString.enc(title));
 		try
 		{
-			ServerReply r = Request.get(ub.makeURL(), wiki.cookiejar);
+			ServerReply r = ClientRequest.get(ub.makeURL(), wiki.cookiejar);
 			if (r.hasError())
 				return -1;
 
@@ -545,7 +474,7 @@ public class FQuery
 
 		try
 		{
-			ServerReply r = Request.get(ub.makeURL(), wiki.cookiejar);
+			ServerReply r = ClientRequest.get(ub.makeURL(), wiki.cookiejar);
 
 			JSONArray ja; // mw oddly returns the imageinfo in a single element JSONArray
 			return (ja = r.getJSONArray("imageinfo")) == null ? null : new ImageInfo(ja.getJSONObject(0));
@@ -614,7 +543,7 @@ public class FQuery
 		ArrayList<String> l = new ArrayList<String>();
 		try
 		{
-			ServerReply r = Request.get(ub.makeURL(), wiki.cookiejar);
+			ServerReply r = ClientRequest.get(ub.makeURL(), wiki.cookiejar);
 			if (r.hasError())
 				return l;
 

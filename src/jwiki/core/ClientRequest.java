@@ -18,31 +18,31 @@ import java.util.Map;
  * @author Fastily
  * 
  */
-public class Request
+public class ClientRequest
 {
 	/**
 	 * Connection timeout for URLConnections
 	 */
 	private static final int connectTimeout = 60000;
-	
+
 	/**
 	 * Read timeout for URLConnections
 	 */
 	private static final int readTimeout = 360000;
-	
+
 	/**
-	 * Represents the content encoding to use for URLEncoded forms.
+	 * Content encoding to use for URLEncoded forms.
 	 */
 	public static final String urlenc = "application/x-www-form-urlencoded";
-	
+
 	/**
 	 * All static methods; no constructors allowed.
 	 */
-	private Request()
+	private ClientRequest()
 	{
-		
+
 	}
-	
+
 	/**
 	 * Sets the cookies of a URLConnection using the specified cookiejar <b>PRECONDITION</b>: You must not have not yet
 	 * called <tt>connect()</tt> on <tt>c</tt>, otherwise you'll get an error.
@@ -53,17 +53,24 @@ public class Request
 	private static void setCookies(URLConnection c, CookieManager cookiejar)
 	{
 		String cookie = "";
-		for (HttpCookie hc : cookiejar.getCookieStore().getCookies())
-			cookie += hc.toString() + ";";
-		
+		try
+		{
+			for (HttpCookie hc : cookiejar.getCookieStore().get(c.getURL().toURI()))
+				cookie += String.format("%s=%s;", hc.getName(), hc.getValue());
+			System.out.println(cookie);
+		}
+		catch (Throwable e)
+		{
+			e.printStackTrace();
+		}
 		c.setRequestProperty("Cookie", cookie);
 	}
-	
+
 	/**
-	 * Grabs cookies from this URLConnection and assigns the to the specified cookiejar.
+	 * Grabs cookies from this URLConnection and adds them to a cookiejar.
 	 * 
-	 * @param u The URLConnection to check
-	 * @param cookiejar The cookiejar to assign cookies to.
+	 * @param u The URLConnection to read https cookie headers from
+	 * @param cookiejar The cookiejar to add cookies to.
 	 */
 	private static void grabCookies(URLConnection u, CookieManager cookiejar)
 	{
@@ -76,11 +83,12 @@ public class Request
 			e.printStackTrace();
 		}
 	}
-	
+
 	/**
 	 * Prepares a URLConnection with the given url and cookiejar.
+	 * 
 	 * @param url The URL to use.
-	 * @param cookiejar The cookiejar to use.  This param is optional, specifiy null to disable.
+	 * @param cookiejar The cookiejar to use. This param is optional, specifiy null to disable.
 	 * @return The URLConnection.
 	 * @throws IOException Network error?
 	 */
@@ -88,54 +96,86 @@ public class Request
 	{
 		URLConnection c = url.openConnection();
 		c.setRequestProperty("User-Agent", Settings.useragent); // required, or server will 403.
-		
+
 		c.setConnectTimeout(connectTimeout);
 		c.setReadTimeout(readTimeout);
-		if(cookiejar != null)
+		if (cookiejar != null)
 			setCookies(c, cookiejar);
 		return c;
 	}
-	
+
 	/**
 	 * Creates a URLConnection to be used for a POST request.
+	 * 
 	 * @param url The URL to use
-	 * @param cookiejar The cookiejar to use.  This is optional, specify to null to disable.
-	 * @param contenttype The optional content-type.  This is optional, specify to null to disable.
+	 * @param cookiejar The cookiejar to use. This is optional, specify to null to disable.
+	 * @param contenttype The optional content-type. This is optional, specify to null to disable.
 	 * @return The URLConnection.
 	 * @throws IOException Network error.
 	 */
 	private static URLConnection makePost(URL url, CookieManager cookiejar, String contenttype) throws IOException
 	{
 		URLConnection c = genericURLConnection(url, cookiejar);
-		if(contenttype != null)
+		if (contenttype != null)
 			c.setRequestProperty("Content-Type", contenttype);
 		c.setDoOutput(true);
 		c.connect();
 		return c;
 	}
-	
+
 	/**
-	 * Performs a generic POST operation.
+	 * Performs a generic POST request.
+	 * 
 	 * @param url The URL to use
 	 * @param cookiejar The cookiejar to use. Optional param, specify null to disable.
-	 * @param contenttype The content type to use.  Optional param, specify null to disable.
+	 * @param contenttype The content type to use. Optional param, specify null to disable.
 	 * @param text The text to post
-	 * @return The InputStream returned by the server.  Be sure to call close() on this when you're finished.
+	 * @return The InputStream returned by the server. Be sure to call close() on this when you're finished.
 	 * @throws IOException Network error.
 	 */
-	public static InputStream genericPost(URL url, CookieManager cookiejar, String contenttype, String text) throws IOException
+	public static InputStream genericPOST(URL url, CookieManager cookiejar, String contenttype, String text)
+			throws IOException
 	{
 		URLConnection c = makePost(url, cookiejar, contenttype);
 		OutputStreamWriter out = new OutputStreamWriter(c.getOutputStream(), "UTF-8");
 		out.write(text);
 		out.close();
-		if(cookiejar != null)
+		if (cookiejar != null)
 			grabCookies(c, cookiejar);
-		
+
 		return c.getInputStream();
 	}
-	
-	
+
+	/**
+	 * Performs a generic GET request.
+	 * 
+	 * @param url The URL to use.
+	 * @param cookiejar The cookiejar to use. This is optional; specify null to disable.
+	 * @return The InputStream made from the URL. Remember to close the InputStream when you're finished with it!
+	 * @throws IOException Network error.
+	 */
+	public static InputStream genericGET(URL url, CookieManager cookiejar) throws IOException
+	{
+		URLConnection c = genericURLConnection(url, cookiejar);
+		c.connect();
+		if (cookiejar != null)
+			grabCookies(c, cookiejar);
+		return c.getInputStream();
+	}
+
+	/**
+	 * Does a GET request. Uses given cookiejar.
+	 * 
+	 * @param url The URL to query
+	 * @param cookiejar The cookiejar to use
+	 * @return The result of the GET request.
+	 * @throws IOException Network error.
+	 */
+	protected static ServerReply get(URL url, CookieManager cookiejar) throws IOException
+	{
+		return new ServerReply(genericGET(url, cookiejar));
+	}
+
 	/**
 	 * Does a post operation with the given text.
 	 * 
@@ -147,10 +187,10 @@ public class Request
 	 * @throws IOException Network error.
 	 */
 	protected static ServerReply post(URL url, String text, CookieManager cookiejar, String contenttype) throws IOException
-	{	
-		return new ServerReply(genericPost(url, cookiejar, contenttype, text));
+	{
+		return new ServerReply(genericPOST(url, cookiejar, contenttype, text));
 	}
-	
+
 	/**
 	 * Performs a multipart/form-data post. Primarily intended for use while uploading files. Adapted from MER-C's <a
 	 * href="https://code.google.com/p/wiki-java/">wiki-java</a>
@@ -166,11 +206,11 @@ public class Request
 		String boundary = "-----Boundary-----";
 		URLConnection c = makePost(url, cookiejar, "multipart/form-data; boundary=" + boundary);
 		boundary = "--" + boundary + "\r\n";
-		
+
 		ByteArrayOutputStream bout = new ByteArrayOutputStream();
 		DataOutputStream out = new DataOutputStream(bout);
 		out.writeBytes(boundary);
-		
+
 		for (Map.Entry<String, ?> entry : params.entrySet())
 		{
 			String name = entry.getKey();
@@ -188,49 +228,20 @@ public class Request
 			}
 			else
 				throw new UnsupportedOperationException("Unrecognized data type");
-			
+
 			out.writeBytes("\r\n" + boundary);
 		}
-		
+
 		out.writeBytes("--\r\n");
 		out.close();
-		
+
 		OutputStream uout = c.getOutputStream();
 		uout.write(bout.toByteArray());
 		uout.close();
 		out.close();
-		
+
 		grabCookies(c, cookiejar);
-		
+
 		return new ServerReply(c.getInputStream());
-		
-	}
-	
-	/**
-	 * Does a GET request. Uses given cookiejar.
-	 * 
-	 * @param url The URL to query
-	 * @param cookiejar The cookiejar to use
-	 * @return The result of the GET request.
-	 * @throws IOException Network error.
-	 */
-	protected static ServerReply get(URL url, CookieManager cookiejar) throws IOException
-	{
-		return new ServerReply(getInputStream(url, cookiejar));
-	}
-	
-	/**
-	 * Makes an InputStream from the given URL.
-	 * 
-	 * @param url The URL to use.
-	 * @param cookiejar The cookiejar to use. This is optional; specify null to disable.
-	 * @return The InputStream made from the URL. Remember to close the InputStream when you're finished with it!
-	 * @throws IOException Network error.
-	 */
-	protected static InputStream getInputStream(URL url, CookieManager cookiejar) throws IOException
-	{
-		URLConnection c = genericURLConnection(url, cookiejar);		
-		c.connect();
-		return c.getInputStream();
 	}
 }
