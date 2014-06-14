@@ -63,13 +63,16 @@ public class Wiki
 		upx = new Tuple<String, String>(Namespace.nss(user), px);
 		this.domain = domain;
 
-		if (parent != null)
+		boolean isNew = parent != null;
+		if (isNew)
 		{
+			System.out.println("WE ARE HERE!!!!!");
 			wl = parent.wl;
 			cookiejar = parent.cookiejar;
+			Auth.copyCentralAuthCookies(parent, domain);
 		}
 
-		if (!(FAction.login(this) && FQuery.generateEditToken(this) && FQuery.generateNSL(this)))
+		if(!Auth.doAuth(this, !isNew))
 			throw new LoginException(String.format("Failed to log-in as %s @ %s", upx.x, domain));
 
 		wl.put(domain, this);
@@ -242,7 +245,7 @@ public class Wiki
 	}
 
 	/**
-	 * Appends text to a page.  If <tt>title</tt> does not exist, then create the page normally with <tt>text</tt>
+	 * Appends text to a page. If <tt>title</tt> does not exist, then create the page normally with <tt>text</tt>
 	 * 
 	 * @param title The title to edit.
 	 * @param add The text to append

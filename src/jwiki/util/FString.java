@@ -179,6 +179,8 @@ public class FString
 	{
 		if (planks.length == 0)
 			return "";
+		else if(planks.length == 1)
+			return planks[0];
 
 		String fmt = (post.isEmpty() || post == null ? "" : post) + "%s";
 

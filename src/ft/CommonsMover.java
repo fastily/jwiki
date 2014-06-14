@@ -11,7 +11,7 @@ import java.util.Random;
 import jwiki.core.FTask;
 import jwiki.core.Logger;
 import jwiki.core.Namespace;
-import jwiki.core.Request;
+import jwiki.core.ClientRequest;
 import jwiki.core.Wiki;
 import jwiki.mbot.MBot;
 import jwiki.mbot.WAction;
@@ -224,7 +224,7 @@ public class CommonsMover
 			{
 				String tl = FString.enc(titleNNS);
 				String s = FIO.inputStreamToString(
-						Request.genericPost(new URL(url), null, Request.urlenc, String.format(posttext, tl)), true);
+						ClientRequest.genericPOST(new URL(url), null, ClientRequest.urlenc, String.format(posttext, tl)), true);
 				return s.substring(s.indexOf("{{Info"), s.indexOf("</textarea>"));
 			}
 			catch (Throwable e)

@@ -33,40 +33,6 @@ public class FAction
 	}
 	
 	/**
-	 * Logs us in, and sets the cookies of the passed in Wiki object.
-	 * @param wiki The wiki object to use.
-	 * @return True if we were successful.
-	 */
-	protected static boolean login(Wiki wiki)
-	{
-		Logger.info(String.format("Logging in as %s @ %s", wiki.whoami(), wiki.domain));
-		try
-		{
-			URLBuilder ub = new URLBuilder(wiki.domain);
-			ub.setAction("login");
-			
-			URLBuilder posttext = new URLBuilder(null);
-			posttext.setParams("lgname", wiki.whoami());
-			
-			ServerReply r = Request.post(ub.makeURL(), posttext.getParamsAsText(), wiki.cookiejar, null);
-			if (r.hasError())
-				return false;
-			else if (r.resultIs("NeedToken"))
-			{
-				posttext.setParams("lgpassword", wiki.upx.y, "lgtoken", r.getStringR("token"));
-				return Request.post(ub.makeURL(), posttext.getParamsAsText(), wiki.cookiejar, null).resultIs("Success");
-			}
-			
-			return false;
-		}
-		catch (Throwable e)
-		{
-			e.printStackTrace();
-			return false;
-		}
-	}	
-	
-	/**
 	 * Edit a page, and check if the request actually went through.
 	 * 
 	 * @param wiki The wiki to use.
@@ -87,7 +53,7 @@ public class FAction
 		
 		try
 		{
-			return Request.post(ub.makeURL(), posttext, wiki.cookiejar, Request.urlenc).resultIs("Success");
+			return ClientRequest.post(ub.makeURL(), posttext, wiki.cookiejar, ClientRequest.urlenc).resultIs("Success");
 		}
 		catch (Throwable e)
 		{
@@ -134,7 +100,7 @@ public class FAction
 		
 		try
 		{
-			ServerReply r = Request.get(ub.makeURL(), wiki.cookiejar);
+			ServerReply r = ClientRequest.get(ub.makeURL(), wiki.cookiejar);
 			return !r.hasError() && r.getJSONArray("purge").getJSONObject(0).has("purged");
 		}
 		catch (Throwable e)
@@ -162,7 +128,7 @@ public class FAction
 		
 		try
 		{
-			return !Request.post(ub.makeURL(), posttext, wiki.cookiejar, Request.urlenc).hasErrorIfIgnore("missingtitle");
+			return !ClientRequest.post(ub.makeURL(), posttext, wiki.cookiejar, ClientRequest.urlenc).hasErrorIfIgnore("missingtitle");
 		}
 		catch (Throwable e)
 		{
@@ -190,7 +156,7 @@ public class FAction
 		
 		try
 		{
-			return !Request.post(ub.makeURL(), posttext, wiki.cookiejar, Request.urlenc).hasError();
+			return !ClientRequest.post(ub.makeURL(), posttext, wiki.cookiejar, ClientRequest.urlenc).hasError();
 		}
 		catch (Throwable e)
 		{
@@ -285,7 +251,7 @@ public class FAction
 		{
 			try
 			{
-				r = Request.chunkPost(ub.makeURL(), l, wiki.cookiejar);
+				r = ClientRequest.chunkPost(ub.makeURL(), l, wiki.cookiejar);
 				break;
 			}
 			catch (Throwable e)
@@ -317,7 +283,7 @@ public class FAction
 				"filekey", es[4], "token", es[3]);
 		try
 		{
-			return Request.post(ub.makeURL(), posttext, wiki.cookiejar, Request.urlenc).resultIs("Success");
+			return ClientRequest.post(ub.makeURL(), posttext, wiki.cookiejar, ClientRequest.urlenc).resultIs("Success");
 		}
 		catch (IOException e)
 		{
