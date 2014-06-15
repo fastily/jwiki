@@ -36,4 +36,9 @@ public class Settings
 	 */
 	protected static final int groupquerymax = 25;
 	
+	/**
+	 * The communications protocol we'll be using.  Default = https.
+	 */
+	protected static final String hprotocol = "https://";
+	
 }

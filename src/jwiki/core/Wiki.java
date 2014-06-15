@@ -66,13 +66,13 @@ public class Wiki
 		boolean isNew = parent != null;
 		if (isNew)
 		{
-			System.out.println("WE ARE HERE!!!!!");
+			//System.out.println("WE ARE HERE!!!!!");
 			wl = parent.wl;
 			cookiejar = parent.cookiejar;
-			Auth.copyCentralAuthCookies(parent, domain);
+			ClientAuth.copyCentralAuthCookies(parent, domain);
 		}
 
-		if(!Auth.doAuth(this, !isNew))
+		if(!ClientAuth.doAuth(this, !isNew))
 			throw new LoginException(String.format("Failed to log-in as %s @ %s", upx.x, domain));
 
 		wl.put(domain, this);
@@ -241,7 +241,7 @@ public class Wiki
 	 */
 	public boolean edit(String title, String text, String reason)
 	{
-		return FAction.edit(this, title, text, reason);
+		return ClientAction.edit(this, title, text, reason);
 	}
 
 	/**
@@ -296,7 +296,7 @@ public class Wiki
 	 */
 	public boolean undo(String title, String reason)
 	{
-		return FAction.undo(this, title, reason);
+		return ClientAction.undo(this, title, reason);
 	}
 
 	/**
@@ -318,7 +318,7 @@ public class Wiki
 	 */
 	public boolean purge(String title)
 	{
-		return FAction.purge(this, title);
+		return ClientAction.purge(this, title);
 	}
 
 	/**
@@ -328,7 +328,7 @@ public class Wiki
 	 */
 	public ArrayList<String> listGroupsRights()
 	{
-		return FQuery.listGroupsRights(this);
+		return ClientQuery.listGroupsRights(this);
 	}
 
 	/**
@@ -350,7 +350,7 @@ public class Wiki
 	 */
 	public String getPageText(String title)
 	{
-		return FQuery.getPageText(this, title);
+		return ClientQuery.getPageText(this, title);
 	}
 
 	/**
@@ -363,7 +363,7 @@ public class Wiki
 	 */
 	public Revision[] getRevisions(String title, int num, boolean olderfirst)
 	{
-		return FQuery.getRevisions(this, title, num, olderfirst);
+		return ClientQuery.getRevisions(this, title, num, olderfirst);
 	}
 
 	/**
@@ -387,7 +387,7 @@ public class Wiki
 	 */
 	public boolean delete(String title, String reason)
 	{
-		return FAction.delete(this, title, reason);
+		return ClientAction.delete(this, title, reason);
 	}
 
 	/**
@@ -400,7 +400,7 @@ public class Wiki
 	 */
 	public boolean undelete(String title, String reason)
 	{
-		return FAction.undelete(this, title, reason);
+		return ClientAction.undelete(this, title, reason);
 	}
 
 	/**
@@ -411,7 +411,7 @@ public class Wiki
 	 */
 	public int getCategorySize(String title)
 	{
-		return FQuery.getCategorySize(this, title);
+		return ClientQuery.getCategorySize(this, title);
 	}
 
 	/**
@@ -438,7 +438,7 @@ public class Wiki
 	 */
 	public String[] getCategoryMembers(String title, int max, String... ns)
 	{
-		return FQuery.getCategoryMembers(this, title, max, ns);
+		return ClientQuery.getCategoryMembers(this, title, max, ns);
 	}
 
 	/**
@@ -449,7 +449,7 @@ public class Wiki
 	 */
 	public String[] getCategoriesOnPage(String title)
 	{
-		return FQuery.getCategoriesOnPage(this, title);
+		return ClientQuery.getCategoriesOnPage(this, title);
 	}
 
 	/**
@@ -462,7 +462,7 @@ public class Wiki
 	 */
 	public String[] getLinksOnPage(String title, String... ns)
 	{
-		return FQuery.getLinksOnPage(this, title, ns);
+		return ClientQuery.getLinksOnPage(this, title, ns);
 	}
 
 	/**
@@ -488,7 +488,7 @@ public class Wiki
 	 */
 	public Contrib[] getContribs(String user, int max, String... ns)
 	{
-		return FQuery.getContribs(this, user, max, ns);
+		return ClientQuery.getContribs(this, user, max, ns);
 	}
 
 	/**
@@ -511,7 +511,7 @@ public class Wiki
 	 */
 	public String[] getUserUploads(String user)
 	{
-		return FQuery.getUserUploads(this, user);
+		return ClientQuery.getUserUploads(this, user);
 	}
 
 	/**
@@ -522,7 +522,7 @@ public class Wiki
 	 */
 	public String[] imageUsage(String file)
 	{
-		return FQuery.imageUsage(this, file);
+		return ClientQuery.imageUsage(this, file);
 	}
 
 	/**
@@ -533,7 +533,7 @@ public class Wiki
 	 */
 	public String[] getImagesOnPage(String title)
 	{
-		return FQuery.getImagesOnPage(this, title);
+		return ClientQuery.getImagesOnPage(this, title);
 	}
 
 	/**
@@ -557,9 +557,9 @@ public class Wiki
 	 *         list if something went wrong.
 	 * @see #exists(String)
 	 */
-	public List<Tuple<String, Boolean>> exists(String[] titles)
+	public List<Tuple<String, Boolean>> exists(String... titles)
 	{
-		return FQuery.exists(this, titles);
+		return ClientQuery.exists(this, titles);
 	}
 
 	/**
@@ -595,7 +595,7 @@ public class Wiki
 	 */
 	public ImageInfo getImageInfo(String title, int height, int width)
 	{
-		return FQuery.getImageInfo(this, title, height, width);
+		return ClientQuery.getImageInfo(this, title, height, width);
 	}
 
 	/**
@@ -606,7 +606,7 @@ public class Wiki
 	 */
 	public String[] getTemplatesOnPage(String title)
 	{
-		return FQuery.getTemplatesOnPage(this, title);
+		return ClientQuery.getTemplatesOnPage(this, title);
 	}
 
 	/**
@@ -617,7 +617,7 @@ public class Wiki
 	 */
 	public String[] whatTranscludesHere(String title)
 	{
-		return FQuery.whatTranscludesHere(this, title);
+		return ClientQuery.whatTranscludesHere(this, title);
 	}
 
 	/**
@@ -631,7 +631,7 @@ public class Wiki
 	 */
 	public boolean upload(File f, String title, String text, String reason)
 	{
-		return FAction.upload(this, f, title, text, reason);
+		return ClientAction.upload(this, f, title, text, reason);
 	}
 
 	/**
@@ -643,7 +643,7 @@ public class Wiki
 	 */
 	public ArrayList<Tuple<String, String>> globalUsage(String title)
 	{
-		return FQuery.globalUsage(this, title);
+		return ClientQuery.globalUsage(this, title);
 	}
 
 	/**
@@ -655,7 +655,7 @@ public class Wiki
 	 */
 	public String[] whatLinksHere(String title)
 	{
-		return FQuery.whatLinksHere(this, title);
+		return ClientQuery.whatLinksHere(this, title);
 	}
 
 	/**
@@ -666,7 +666,7 @@ public class Wiki
 	 */
 	public String[] getRedirects(String title)
 	{
-		return FQuery.getRedirects(this, title);
+		return ClientQuery.getRedirects(this, title);
 	}
 
 	/**
@@ -681,7 +681,7 @@ public class Wiki
 	 */
 	public String[] allPages(String prefix, boolean redirectsonly, int max, String ns)
 	{
-		return FQuery.allPages(this, prefix, redirectsonly, max, ns);
+		return ClientQuery.allPages(this, prefix, redirectsonly, max, ns);
 	}
 
 	/**
@@ -707,7 +707,7 @@ public class Wiki
 	 */
 	public ArrayList<Tuple<String, Boolean>> getDuplicatesOf(String file)
 	{
-		return FQuery.getDuplicatesOf(this, file);
+		return ClientQuery.getDuplicatesOf(this, file);
 	}
 
 	/**
@@ -719,6 +719,6 @@ public class Wiki
 	 */
 	public String[] listDuplicateFiles(String page, int max)
 	{
-		return FQuery.listSpecialPages(this, page, max);
+		return ClientQuery.listSpecialPages(this, page, max);
 	}
 }

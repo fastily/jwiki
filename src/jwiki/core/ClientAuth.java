@@ -9,12 +9,12 @@ import java.net.URI;
  * @author Fastily
  *
  */
-public class Auth
+public class ClientAuth
 {
 	/**
 	 * No constructors allowed; all static methods.
 	 */
-	private Auth()
+	private ClientAuth()
 	{
 
 	}
@@ -121,28 +121,14 @@ public class Auth
 	{
 		try
 		{
-			for (HttpCookie hc : wiki.cookiejar.getCookieStore().get(new URI("https://" + wiki.domain)))
-			{
-				//System.out.println("made it here");
-				String cn = hc.getName();
-				System.out.println(cn);
-				if (cn.contains("centralauth"))
-				{
-					HttpCookie temp = new HttpCookie(cn, hc.getValue());
-					//temp.setDomain(domain);
-					System.out.println(temp);
-					wiki.cookiejar.getCookieStore().add(new URI("https://" + domain), temp);
-				}
-			}
-			
-			System.out.println("-=-=-=--=-=-");
-			for(HttpCookie hc : wiki.cookiejar.getCookieStore().getCookies())
-				System.out.println(hc);
+			String cn;
+			for (HttpCookie hc : wiki.cookiejar.getCookieStore().get(new URI(Settings.hprotocol + wiki.domain)))
+				if ((cn = hc.getName()).contains("centralauth"))
+					wiki.cookiejar.getCookieStore().add(new URI(Settings.hprotocol + domain), new HttpCookie(cn, hc.getValue()));
 		}
 		catch (Throwable e)
 		{
 			e.printStackTrace();
 		}
 	}
-
 }
