@@ -18,12 +18,12 @@ import org.json.JSONObject;
  * @author Fastily
  * 
  */
-public class FQuery
+public class ClientQuery
 {
 	/**
 	 * Hiding from javadoc
 	 */
-	private FQuery()
+	private ClientQuery()
 	{
 
 	}
@@ -42,10 +42,11 @@ public class FQuery
 	 * @param wiki The wiki object calling this.
 	 * @return A list of JSONObjects, each representing a single query.
 	 */
-	private static JSONObject[] fatQuery(URLBuilder ub, int max, String limString, String contString, boolean isStr, Wiki wiki)
+	private static ServerReply[] fatQuery(URLBuilder ub, int max, String limString, String contString, boolean isStr,
+			Wiki wiki)
 	{
 		boolean unlim = max < 0; // if max is negative, get ALL items possible.
-		ArrayList<JSONObject> jl = new ArrayList<JSONObject>();
+		ArrayList<ServerReply> jl = new ArrayList<ServerReply>();
 
 		int completed = 0; // how many items have we retrieved so far?
 		int fetch_num = Settings.maxquerysz; // the number of items to fetch this time.
@@ -65,24 +66,22 @@ public class FQuery
 				if (r.hasError()) // if there are errors, we'll probably get them on the 1st try
 					break;
 
-				JSONObject reply = r;
-				jl.add(reply);
+				// JSONObject reply = r;
+				jl.add(r);
 				completed += fetch_num;
 
-				if (!reply.has("query-continue"))
+				if (!r.has("query-continue"))
 					break;
 
-				ub.setParams(contString,
-						FString.enc((isStr ? JSONParse.getStringR(reply, contString) : "" + JSONParse.getIntR(reply, contString))));
+				ub.setParams(contString, FString.enc(isStr ? r.getStringR(contString) : r.getIntRAsString(contString)));
 			}
 		}
 		catch (Throwable e)
 		{
 			e.printStackTrace();
-			return new JSONObject[0];
 		}
 
-		return jl.toArray(new JSONObject[0]);
+		return jl.toArray(new ServerReply[0]);
 	}
 
 	/**
@@ -105,11 +104,11 @@ public class FQuery
 			String array, String arrayEl, Wiki wiki)
 	{
 		ArrayList<String> l = new ArrayList<String>();
-		for (JSONObject jo : fatQuery(ub, max, limString, contString, isStr, wiki))
+		for (ServerReply r : fatQuery(ub, max, limString, contString, isStr, wiki))
 		{
 			try
 			{
-				JSONArray ja = JSONParse.getJSONArrayR(jo, array);
+				JSONArray ja = r.getJSONArrayR(array); //JSONParse.getJSONArrayR(jo, array);
 				for (int i = 0; i < ja.length(); i++)
 					l.add(ja.getJSONObject(i).getString(arrayEl));
 			}
@@ -119,7 +118,6 @@ public class FQuery
 				Logger.error("Encountered an error parsing some server reply - Continuing");
 			}
 		}
-
 		return l.toArray(new String[0]);
 	}
 
@@ -136,9 +134,9 @@ public class FQuery
 	 * @param titles The titles to get results for.
 	 * @return A list of JSONObjects containing data for each of the items we requested.
 	 */
-	private static JSONObject[] groupQuery(URLBuilder ub, String parentKey, Wiki wiki, String titlekey, String... titles)
+	private static ServerReply[] groupQuery(URLBuilder ub, String parentKey, Wiki wiki, String titlekey, String... titles)
 	{
-		ArrayList<JSONObject> jl = new ArrayList<JSONObject>();
+		ArrayList<ServerReply> jl = new ArrayList<ServerReply>();
 		try
 		{
 			for (String[] tl : FString.splitStringArray(Settings.groupquerymax, titles))
@@ -149,21 +147,18 @@ public class FQuery
 				if (r.hasError())
 					break;
 
-				JSONObject parent = JSONParse.getJSONObjectR(r, parentKey);
+				ServerReply parent = r.getJSONObjectR(parentKey);
 				if (parent != null)
 					for (String s : JSONObject.getNames(parent))
-						jl.add(parent.getJSONObject(s));
+						jl.add(new ServerReply(parent.getJSONObject(s)));
 			}
 		}
 		catch (Throwable e)
 		{
 			e.printStackTrace();
-			return new JSONObject[0];
 		}
-
-		return jl.toArray(new JSONObject[0]);
+		return jl.toArray(new ServerReply[0]);
 	}
-
 
 	/**
 	 * Gets the backlinks of a page.
@@ -423,15 +418,13 @@ public class FQuery
 	public static List<Tuple<String, Boolean>> exists(Wiki wiki, String... titles)
 	{
 		Logger.info(wiki, "Checking to see if some pages exist");
-		URLBuilder ub = wiki.makeUB();
-		ub.setAction("query");
-		ub.setParams("prop", "pageprops", "ppprop", "missing");
+		URLBuilder ub = wiki.makeUB("query", "prop", "pageprops", "ppprop", "missing");
 
 		ArrayList<Tuple<String, Boolean>> l = new ArrayList<Tuple<String, Boolean>>();
-		for (JSONObject jo : groupQuery(ub, "pages", wiki, "titles", titles))
+		for (ServerReply r : groupQuery(ub, "pages", wiki, "titles", titles))
 		{
-			boolean flag = JSONParse.getStringR(jo, "missing") != null ? false : true;
-			l.add(new Tuple<String, Boolean>(JSONParse.getStringR(jo, "title"), new Boolean(flag)));
+			boolean flag = r.getStringR("missing") != null ? false : true;
+			l.add(new Tuple<String, Boolean>(r.getStringR("title"), new Boolean(flag)));
 		}
 
 		return l;

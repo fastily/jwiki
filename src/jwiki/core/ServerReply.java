@@ -35,6 +35,17 @@ public class ServerReply extends JSONObject
 	 */
 	private static final List<String> whitelist = Arrays.asList(new String[] { "NeedToken", "Success", "Continue" });
 
+	
+	/**
+	 * Constructor, takes a JSONObject and creates a ServerReply from it.
+	 * @param jo The JSONObject to turn into a ServerReply.
+	 */
+	protected ServerReply(JSONObject jo)
+	{
+		super(jo.toString());
+	}
+	
+	
 	/**
 	 * Constructor, takes in an inputstream and reads out the bytes to a ServerReply. The inputstream is closed
 	 * automatically after reading is complete.
@@ -60,29 +71,18 @@ public class ServerReply extends JSONObject
 		if (Settings.debug)
 			System.out.println(this);
 	}
-
-	/*
-	public ServerReply(String is)
-	{
-		super(is);
-		result = getStringR("result");
-
-		if (has("error"))
-		{
-			errcode = getStringR("code");
-			System.err.println("ERROR: " + getJSONObjectR("error").toString());
-		}
-		else if (result != null && !whitelist.contains(result))
-		{
-			errcode = result;
-			System.err.println("ERROR: Result = " + this.toString());
-		}
-
-		if (Settings.debug)
-			System.out.println(this);
-	}
-*/
 	
+	
+	/*
+	 * public ServerReply(String is) { super(is); result = getStringR("result");
+	 * 
+	 * if (has("error")) { errcode = getStringR("code"); System.err.println("ERROR: " +
+	 * getJSONObjectR("error").toString()); } else if (result != null && !whitelist.contains(result)) { errcode = result;
+	 * System.err.println("ERROR: Result = " + this.toString()); }
+	 * 
+	 * if (Settings.debug) System.out.println(this); }
+	 */
+
 	/**
 	 * Recursively search this ServerReply for a key, and return an Object for the first instance of it.
 	 * 
@@ -128,6 +128,18 @@ public class ServerReply extends JSONObject
 	}
 
 	/**
+	 * Recursively search this ServerReply for a key, and return it's associated value (which was originally an int) as a
+	 * String.
+	 * 
+	 * @param key The key to look for.
+	 * @return The requested value, or "-1" if the key doesn't exist.
+	 */
+	public String getIntRAsString(String key)
+	{
+		return "" + getIntR(key);
+	}
+
+	/**
 	 * Recursively search this ServerReply for a key, and return it's associated value as a string.
 	 * 
 	 * @param key The key to look for.
@@ -145,10 +157,10 @@ public class ServerReply extends JSONObject
 	 * @param key The key to look for.
 	 * @return The requested value, or null if the key doesn't exist.
 	 */
-	public JSONObject getJSONObjectR(String key)
+	public ServerReply getJSONObjectR(String key)
 	{
 		Object result = getR(this, key);
-		return result instanceof JSONObject ? (JSONObject) result : null;
+		return result instanceof JSONObject ? new ServerReply((JSONObject) result) : null;
 	}
 
 	/**
@@ -199,21 +211,21 @@ public class ServerReply extends JSONObject
 	 * Gets a list of JSONObjects contained in a single JSONObject.
 	 * 
 	 * @param key The key with which to get values for
-	 * @return A list of JSONObjects associated with the specified key.
+	 * @return A list of JSONObjects objects associated with the specified key.
 	 */
-	protected JSONObject[] bigJSONObjectGet(String key)
+	protected ServerReply[] bigJSONObjectGet(String key)
 	{
-		ArrayList<JSONObject> jl = new ArrayList<JSONObject>();
+		ArrayList<ServerReply> jl = new ArrayList<ServerReply>();
 
 		JSONObject jo = getJSONObjectR(key);
 		if (jo == null)
-			return jl.toArray(new JSONObject[0]);
+			return new ServerReply[0];
 
 		String[] keys = JSONObject.getNames(jo);
 		if (keys != null)
 			for (String s : keys)
-				jl.add(jo.getJSONObject(s));
+				jl.add(new ServerReply(jo.getJSONObject(s)));
 
-		return jl.toArray(new JSONObject[0]);
+		return jl.toArray(new ServerReply[0]);
 	}
 }

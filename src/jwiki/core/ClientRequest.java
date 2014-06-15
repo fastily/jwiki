@@ -57,7 +57,7 @@ public class ClientRequest
 		{
 			for (HttpCookie hc : cookiejar.getCookieStore().get(c.getURL().toURI()))
 				cookie += String.format("%s=%s;", hc.getName(), hc.getValue());
-			System.out.println(cookie);
+			//System.out.println(cookie);
 		}
 		catch (Throwable e)
 		{

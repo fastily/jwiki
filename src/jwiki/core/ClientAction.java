@@ -17,7 +17,7 @@ import jwiki.util.FSystem;
  * @author Fastily
  * 
  */
-public class FAction
+public class ClientAction
 {
 	/**
 	 * The size of upload chunks.
@@ -27,7 +27,7 @@ public class FAction
 	/**
 	 * Hiding from javadoc
 	 */
-	private FAction()
+	private ClientAction()
 	{
 		
 	}
@@ -75,7 +75,7 @@ public class FAction
 		Logger.fyi(wiki, "Undoing newest revision of " + title);
 		try
 		{
-			Revision[] rl = FQuery.getRevisions(wiki, title, 2, false);
+			Revision[] rl = ClientQuery.getRevisions(wiki, title, 2, false);
 			return rl.length < 2 ? FError.printErrorAndReturn("There are fewer than two revisions in " + title, false) : edit(
 					wiki, title, rl[1].getText(), reason);
 		}

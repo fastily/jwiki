@@ -16,13 +16,13 @@ import javax.imageio.ImageIO;
  * @author Fastily
  *
  */
-public class FTask
+public class ClientTask
 {
 	
 	/**
 	 * Hiding constructor from javadoc.
 	 */
-	private FTask()
+	private ClientTask()
 	{
 		
 	}

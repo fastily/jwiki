@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
 
-import jwiki.core.FTask;
+import jwiki.core.ClientTask;
 import jwiki.core.Logger;
 import jwiki.core.Namespace;
 import jwiki.core.ClientRequest;
@@ -209,7 +209,7 @@ public class CommonsMover
 		private File downloadFile()
 		{
 			String tx = String.format("%d%s", Math.abs(titleNNS.hashCode()), titleNNS.substring(titleNNS.lastIndexOf(".")));
-			return FTask.downloadFile(title, tx, enwp) ? new File(tx) : null;
+			return ClientTask.downloadFile(title, tx, enwp) ? new File(tx) : null;
 		}
 
 		/**
