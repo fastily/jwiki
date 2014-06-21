@@ -4,8 +4,6 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
 
-import jwiki.util.JSONParse;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -58,12 +56,12 @@ public class Contrib
 	 * @param reply The reply made by the server.
 	 * @return A list of Contrib objects created from this server response.
 	 */
-	protected static Contrib[] makeContribs(JSONObject reply)
+	protected static Contrib[] makeContribs(ServerReply reply)
 	{
 		ArrayList<Contrib> l = new ArrayList<Contrib>();
 		try
 		{
-			JSONArray jl = JSONParse.getJSONArrayR(reply, "usercontribs");
+			JSONArray jl = reply.getJSONArrayR("usercontribs");
 			for (int i = 0; i < jl.length(); i++)
 				l.add(new Contrib(jl.getJSONObject(i)));
 			

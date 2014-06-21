@@ -71,17 +71,6 @@ public class ServerReply extends JSONObject
 		if (Settings.debug)
 			System.out.println(this);
 	}
-	
-	
-	/*
-	 * public ServerReply(String is) { super(is); result = getStringR("result");
-	 * 
-	 * if (has("error")) { errcode = getStringR("code"); System.err.println("ERROR: " +
-	 * getJSONObjectR("error").toString()); } else if (result != null && !whitelist.contains(result)) { errcode = result;
-	 * System.err.println("ERROR: Result = " + this.toString()); }
-	 * 
-	 * if (Settings.debug) System.out.println(this); }
-	 */
 
 	/**
 	 * Recursively search this ServerReply for a key, and return an Object for the first instance of it.
