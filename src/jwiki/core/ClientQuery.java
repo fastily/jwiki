@@ -6,7 +6,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import jwiki.util.FString;
-import jwiki.util.JSONParse;
 import jwiki.util.Tuple;
 
 import org.json.JSONArray;
@@ -108,7 +107,7 @@ public class ClientQuery
 		{
 			try
 			{
-				JSONArray ja = r.getJSONArrayR(array); //JSONParse.getJSONArrayR(jo, array);
+				JSONArray ja = r.getJSONArrayR(array);
 				for (int i = 0; i < ja.length(); i++)
 					l.add(ja.getJSONObject(i).getString(arrayEl));
 			}
@@ -231,8 +230,8 @@ public class ClientQuery
 				"titles", FString.enc(title));
 
 		ArrayList<Revision> rl = new ArrayList<Revision>();
-		for (JSONObject jo : fatQuery(ub, num, "rvlimit", "rvcontinue", false, wiki))
-			rl.addAll(Arrays.asList(Revision.makeRevs(jo)));
+		for (ServerReply r : fatQuery(ub, num, "rvlimit", "rvcontinue", false, wiki))
+			rl.addAll(Arrays.asList(Revision.makeRevs(r)));
 
 		return rl.toArray(new Revision[0]);
 	}
@@ -307,8 +306,8 @@ public class ClientQuery
 			ub.setParams("ucnamespace", FString.enc(FString.fenceMaker("|", wiki.nsl.prefixToNumStrings(ns))));
 
 		ArrayList<Contrib> l = new ArrayList<Contrib>();
-		for (JSONObject jo : fatQuery(ub, max, "uclimit", "ucstart", true, wiki))
-			l.addAll(Arrays.asList(Contrib.makeContribs(jo)));
+		for (ServerReply r : fatQuery(ub, max, "uclimit", "ucstart", true, wiki))
+			l.addAll(Arrays.asList(Contrib.makeContribs(r)));
 
 		return l.toArray(new Contrib[0]);
 	}
@@ -330,7 +329,7 @@ public class ClientQuery
 			if (r.hasError())
 				return -1;
 
-			return r.getInt("size");
+			return r.getIntR("size");
 		}
 		catch (Throwable e)
 		{
@@ -467,10 +466,9 @@ public class ClientQuery
 
 		try
 		{
-			ServerReply r = ClientRequest.get(ub.makeURL(), wiki.cookiejar);
-
-			JSONArray ja; // mw oddly returns the imageinfo in a single element JSONArray
-			return (ja = r.getJSONArray("imageinfo")) == null ? null : new ImageInfo(ja.getJSONObject(0));
+			//mw oddly returns the imageinfo in a single JSONArray
+			JSONArray ja = ClientRequest.get(ub.makeURL(), wiki.cookiejar).getJSONArrayR("imageinfo"); 
+			return ja == null ? null : new ImageInfo(new ServerReply(ja.getJSONObject(0)));
 		}
 		catch (IOException e)
 		{
@@ -510,9 +508,9 @@ public class ClientQuery
 		URLBuilder ub = wiki.makeUB("query", "prop", "globalusage", "guprop", "namespace", "titles", FString.enc(title));
 
 		ArrayList<Tuple<String, String>> l = new ArrayList<Tuple<String, String>>();
-		for (JSONObject jo : fatQuery(ub, -1, "gulimit", "gucontinue", true, wiki))
+		for (ServerReply r : fatQuery(ub, -1, "gulimit", "gucontinue", true, wiki))
 		{
-			JSONArray ja = JSONParse.getJSONArrayR(jo, "globalusage");
+			JSONArray ja = r.getJSONArrayR("globalusage");
 			for (int i = 0; i < ja.length(); i++)
 			{
 				JSONObject curr = ja.getJSONObject(i);
@@ -583,10 +581,10 @@ public class ClientQuery
 		String head = wiki.getNS(6); // MediaWiki is stupid and doesn't return File prefixes.
 
 		ArrayList<Tuple<String, Boolean>> l = new ArrayList<Tuple<String, Boolean>>();
-		for (JSONObject jo : fatQuery(wiki.makeUB("query", "prop", "duplicatefiles", "titles", FString.enc(file)), -1,
+		for (ServerReply r : fatQuery(wiki.makeUB("query", "prop", "duplicatefiles", "titles", FString.enc(file)), -1,
 				"dflimit", "dfcontinue", true, wiki))
 		{
-			JSONArray ja = JSONParse.getJSONArrayR(jo, "duplicatefiles");
+			JSONArray ja = r.getJSONArrayR("duplicatefiles");
 			if (ja == null) // In the event there are no duplicates
 				continue;
 

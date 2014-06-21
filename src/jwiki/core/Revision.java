@@ -2,8 +2,6 @@ package jwiki.core;
 
 import java.util.ArrayList;
 
-import jwiki.util.JSONParse;
-
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -50,14 +48,14 @@ public class Revision
 	 * @param reply The reply from the server.
 	 * @return Revision data parsed from the JSONObject.
 	 */
-	protected static Revision[] makeRevs(JSONObject reply)
+	protected static Revision[] makeRevs(ServerReply reply)
 	{
 		ArrayList<Revision> rl = new ArrayList<Revision>();
 		String title = "";
 		try
 		{
-			title = JSONParse.getStringR(reply, "title");
-			JSONArray revs = JSONParse.getJSONArrayR(reply, "revisions");
+			title = reply.getStringR("title");
+			JSONArray revs = reply.getJSONArrayR("revisions");
 			
 			for (int i = 0; i < revs.length(); i++)
 				rl.add(new Revision(title, revs.getJSONObject(i)));

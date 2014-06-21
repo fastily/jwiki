@@ -88,15 +88,20 @@ public class CStrings
 	/**
 	 * Regex that matches deletion templates on Commons.
 	 */
-	public static final String delregex = "(?si)\\{\\{(speedy|fair use delete|speedydelete|no permission|no license|no source|copyvio).*?\\}\\}";
+	public static final String delregex = "(?si)\\s??\\{\\{(speedy|fair use delete|speedydelete|no permission|no license|no source|copyvio).*?\\}\\}\\s??";
 	
 	/**
 	 * Regex that matches DR templates on Commons.
 	 */
-	public static final String drregex = "(?si)\\{\\{(delete).*?\\}\\}";
+	public static final String drregex = "(?si)\\s??\\{\\{(delete).*?\\}\\}\\s??";
 	
 	/**
 	 * User requested in own userspace.
 	 */
 	public static final String uru = "User requested deletion in own [[Commons:Userpage|userspace]]";
+	
+	/**
+	 * Author requested deletion of page
+	 */
+	public static final String ar = "Author requested deletion of page";
 }

@@ -91,6 +91,19 @@ public class Commons
 	{
 		return doAction(mb, pages.toArray(new WAction[0]));
 	}
+	
+	/**
+	 * Process a bunch of WActions with a specified account.
+	 * 
+	 * @param wl the list of WActions to process
+	 * @param useAdmin True if we're using our admin account
+	 * @return A list of items we couldn't process.
+	 */
+	public String[] doAction(WAction[] wl, boolean useAdmin)
+	{
+		return useAdmin ? doAction(mbadmin, wl) : doAction(mbwiki, wl);
+	}
+	
 
 	/**
 	 * Deletes everything in Category:Fastily Test as uploader requested.

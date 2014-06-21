@@ -90,15 +90,7 @@ public class MBot
 	 */
 	public WAction[] massDelete(String reason, String... pages)
 	{
-		ArrayList<WAction> wl = new ArrayList<WAction>();
-		for (String s : pages)
-			wl.add(new WAction(s, null, reason) {
-				public boolean doJob(Wiki wiki)
-				{
-					return wiki.delete(title, summary);
-				}
-			});
-		return start(wl.toArray(new WAction[0]));
+		return start(DeleteItem.makeDeleteItems(reason, pages).toArray(new WAction[0]));
 	}
 	
 	/**

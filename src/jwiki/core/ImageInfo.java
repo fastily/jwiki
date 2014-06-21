@@ -1,9 +1,5 @@
 package jwiki.core;
 
-import jwiki.util.JSONParse;
-
-import org.json.JSONObject;
-
 /**
  * Container object for results returned by imageinfo MediaWiki module.
  * 
@@ -27,13 +23,13 @@ public class ImageInfo
 	 * 
 	 * @param jo The JSONObject to use.
 	 */
-	protected ImageInfo(JSONObject jo)
+	protected ImageInfo(ServerReply r)
 	{
-		size = JSONParse.getIntR(jo, "size");
-		width = JSONParse.getIntR(jo, "width");
-		height = JSONParse.getIntR(jo, "height");
-		url = JSONParse.getStringR(jo, "url");
-		thumburl = JSONParse.getStringR(jo, "thumburl");
+		size = r.getIntR("size"); 
+		width = r.getIntR("width");
+		height = r.getIntR("height");
+		url = r.getStringR("url");
+		thumburl = r.getStringR("thumburl");
 	}
 	
 	/**
