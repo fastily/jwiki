@@ -1,9 +1,9 @@
 package jwiki.util;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.HashMap;
 
 /**
@@ -22,15 +22,22 @@ public class FSystem
 	/**
 	 * The default separator for pathnames by OS. For Windows it is '\' for Mac/Unix it is '/'
 	 */
-	public static final String psep = File.separator;
+	public static final String psep = FileSystems.getDefault().getSeparator();
 	
 	/**
 	 * The user's home directory.
 	 */
 	public static final String home = System.getProperty("user.home");
 	
-	
+	/**
+	 * Is the system we're using Windows?  If so, this is true.
+	 */
 	public static final boolean isWindows = System.getProperty("os.name").contains("Windows");
+	
+	/**
+	 * The default script header based on OS.
+	 */
+	public static final String scriptHeader = isWindows ? "@echo off" : "#!/bin/bash\n" + lsep;
 	
 	/**
 	 * Hiding constructor from javadoc
@@ -41,46 +48,26 @@ public class FSystem
 	}
 	
 	/**
-	 * Gets the default character sets for file read-ins/writes by os. e.g. Windows = "Unicode" , unix = "UTF-8"
-	 * 
-	 * @return The charset defined for this os.
-	 */
-	public static String getDefaultCharset()
-	{
-		return isWindows ? "US-ASCII" : "UTF-8";
-	}
-	
-	/**
-	 * Returns the header of a batch/bash script, depending on OS.
-	 * 
-	 * @return The header to the script by OS.
-	 */
-	public static String getScriptHeader()
-	{
-		return (isWindows ? "@echo off" : "#!/bin/bash\n") + lsep;
-	}
-	
-	/**
 	 * Copies a file on disk.
 	 * 
 	 * @param src The path of the source file
 	 * @param dest The location to copy the file to.
 	 * 
-	 * @throws IOException If we encountered some sort of read/write error
+	 * @return True if we were successful.
 	 */
 	
-	public static void copyFile(String src, String dest) throws IOException
+	public static boolean copyFile(String src, String dest)
 	{
-		FileInputStream in = new FileInputStream(new File(src));
-		FileOutputStream out = new FileOutputStream(new File(dest));
-		
-		byte[] buf = new byte[1024];
-		int len;
-		while ((len = in.read(buf)) > 0)
-			out.write(buf, 0, len);
-		
-		in.close();
-		out.close();
+		try
+		{
+			Files.copy(Paths.get(src), Paths.get(dest), StandardCopyOption.REPLACE_EXISTING);
+			return true;
+		}
+		catch (Throwable e)
+		{
+			e.printStackTrace();
+			return false;
+		}
 	}
 	
 	/**
