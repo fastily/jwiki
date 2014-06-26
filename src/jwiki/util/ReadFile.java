@@ -1,12 +1,14 @@
 package jwiki.util;
 
-import java.io.File;
+import java.util.List;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Scanner;
 
 /**
- * Reads a file in, line by line.
+ * Reads a text file in, line by line. CAVEAT: Only works with plaintext files!
  * 
  * @author Fastily
  */
@@ -16,65 +18,61 @@ public class ReadFile
 	 * Data structure storing lines read in.
 	 */
 	private ArrayList<String> l = new ArrayList<String>();
-	
+
 	/**
-	 * Constructor, takes a file. Uses default charset for OS. e.g. Windows = unicode, nix = utf-8.
+	 * Constructor, takes a pathname. Uses default charset for OS. e.g. Windows = unicode, nix = utf-8. Ignores
+	 * blank/whitespace lines by default.
 	 * 
-	 * @param f The file to read.
+	 * @param p The path to read from.
 	 */
-	public ReadFile(File f)
+	public ReadFile(String p)
 	{
-		this(f, FSystem.getDefaultCharset());
+		this(p, Charset.defaultCharset(), true);
 	}
-	
+
 	/**
-	 * Constructor, takes a pathname. Uses default charset for OS. e.g. Windows = unicode, nix = utf-8.
+	 * Constructor, takes a filename and encoding. Sets the internal list to empty if we failed.
 	 * 
-	 * @param f The file to read.
-	 */
-	public ReadFile(String f)
-	{
-		this(new File(f));
-	}
-	
-	/**
-	 * Constructor, takes a file and encoding.
-	 * 
-	 * @param f The file to read.
+	 * @param p The filename to read.
 	 * @param enc The encoding to use
+	 * 
 	 */
-	public ReadFile(File f, String enc)
+	public ReadFile(String p, Charset enc, boolean ignoreBlanks)
 	{
-		Scanner m = null;
 		try
 		{
-			m = new Scanner(f, enc);
+			List<String> tl = Files.readAllLines(Paths.get(p), enc);
+			if (!ignoreBlanks)
+				l.addAll(tl);
+			else
+				for (String s : tl)
+					if (!s.trim().isEmpty())
+						l.add(s);
+
 		}
 		catch (Throwable e)
 		{
-			FError.errAndExit(e);
+			e.printStackTrace();
 		}
-		
-		while (m.hasNextLine())
-			l.add(m.nextLine().trim());
 	}
-	
+
 	/**
-	 * Returns the objects in this ReadFile as an array of Strings.
+	 * Returns the items in this ReadFile as an array of Strings, one item per newline.
 	 * 
-	 * @return This object's list of Strings.
+	 * @return The array of Strings as specified.
 	 */
 	public String[] getList()
 	{
 		return l.toArray(new String[0]);
+
 	}
-	
+
 	/**
 	 * Takes each item in this object's list and splits it using the specified token, and places it into a hashmap. If
 	 * the token does not exist, then the line is skipped. Useful for storing data.
 	 * 
 	 * @param delim The token to split on (first occurance only). The token is not included in the resulting key value
-	 *            pair.
+	 *           pair.
 	 * @return The resulting hashmap.
 	 */
 	public HashMap<String, String> getSplitList(String delim)
@@ -83,13 +81,13 @@ public class ReadFile
 		for (String s : l)
 		{
 			int i = s.indexOf(delim);
-			if(i > -1)
-				h.put(s.substring(0, i), s.substring(i+1));
+			if (i > -1)
+				h.put(s.substring(0, i), s.substring(i + 1));
 		}
-		
+
 		return h;
 	}
-	
+
 	/**
 	 * Returns the contents of the file as one continuous String.
 	 * 
@@ -97,23 +95,6 @@ public class ReadFile
 	 */
 	public String getTextAsBlock()
 	{
-		String x = "";
-		for (String s : l)
-			x += s + FSystem.lsep;
-		return x;
-	}
-	
-	/**
-	 * Returns a String representation of this object. One item in this ReadFile per line.
-	 * 
-	 * @return A string representation of this object.
-	 */
-	public String toString()
-	{
-		String x = "";
-		for (String s : l)
-			x += s + "\n";
-		
-		return x;
+		return FString.fenceMaker(FSystem.lsep, l.toArray(new String[0]));
 	}
 }
