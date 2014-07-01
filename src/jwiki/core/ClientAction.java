@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.util.HashMap;
 
 import jwiki.util.FError;
-import jwiki.util.FIO;
 import jwiki.util.FString;
 import jwiki.util.FSystem;
 
@@ -192,15 +191,13 @@ public class ClientAction
 		URLBuilder ub = wiki.makeUB("upload");
 		
 		String filekey = null;
-		FileInputStream in = null;
 		String filename = Namespace.nss(uploadTo);
 		
 		HashMap<String, Object> l = FSystem.makeParamMap("filename", filename, "token", wiki.token, "ignorewarnings",
 				"true", "stash", "1", "filesize", "" + filesize);
 		
-		try
+		try(FileInputStream in = new FileInputStream(f))
 		{
-			in = new FileInputStream(f);
 			for (int i = 0; i < chunks; i++)
 			{
 				Logger.log(wiki, String.format("(%s): Uploading chunk %d of %d", f.getName(), i + 1, chunks), "PURPLE");
@@ -212,7 +209,6 @@ public class ClientAction
 				if ((filekey = uploadChunk(l, wiki, ub, f, in, i + 1)) == null)
 					throw new IOException("Server is being difficult today");
 			}
-			
 			in.close();
 			return filekey != null ? unstash(wiki, filekey, filename, text, reason) : false;
 		}
@@ -221,7 +217,6 @@ public class ClientAction
 			e.printStackTrace();
 			if (filekey != null)
 				unstash(wiki, filekey, filename, text, reason);
-			FIO.closeInputStream(in);
 			return false;
 		}
 	}
