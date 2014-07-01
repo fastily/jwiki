@@ -1,6 +1,7 @@
 package jwiki.util;
 
 import java.net.URLEncoder;
+import java.nio.file.Path;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -39,10 +40,10 @@ public class FString
 	 * @param file The WikiFile to generate a random filename for.
 	 * @return The random wiki-uploadable file name
 	 */
-	public static String generateRandomFileName(WikiFile file)
+	public static String generateRandomFileName(Path p)
 	{
 		return String.format("%#o x %s.%s", r.nextInt(0xFF), new SimpleDateFormat("HH.mm.ss").format(new Date()),
-				file.getExtension(false));
+				FIO.getExtension(p, false)); 
 	}
 
 	/**

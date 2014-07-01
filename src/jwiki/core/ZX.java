@@ -1,8 +1,12 @@
 package jwiki.core;
 
 import java.nio.charset.Charset;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
 
 import jwiki.commons.Commons;
+import jwiki.util.FIO;
 import jwiki.util.FSystem;
 import jwiki.util.ReadFile;
 import jwiki.util.Tuple;
@@ -29,5 +33,10 @@ public class ZX
 		wiki.edit("User:FastilyClone/AX", "Testing4", "t");
 		wiki2.edit("User:FastilyClone/AX", "Testing4", "t");*/
 		
+		ArrayList<Path> pl =  FIO.findFiles(Paths.get("/Users/Alec/Desktop/DUMP"));
+		for(Path p :pl)
+			System.out.println(p);
+		
+		System.out.println("\n\n" + pl.size());
 	}
 }

@@ -54,7 +54,7 @@ public class ServerReply extends JSONObject
 	 */
 	protected ServerReply(InputStream is)
 	{
-		super(FIO.inputStreamToString(is, true));
+		super(FIO.inputStreamToString(is));
 		result = getStringR("result");
 
 		if (has("error"))

@@ -224,7 +224,7 @@ public class CommonsMover
 			{
 				String tl = FString.enc(titleNNS);
 				String s = FIO.inputStreamToString(
-						ClientRequest.genericPOST(new URL(url), null, ClientRequest.urlenc, String.format(posttext, tl)), true);
+						ClientRequest.genericPOST(new URL(url), null, ClientRequest.urlenc, String.format(posttext, tl)));
 				return s.substring(s.indexOf("{{Info"), s.indexOf("</textarea>"));
 			}
 			catch (Throwable e)
