@@ -136,7 +136,7 @@ public class Namespace
 	}
 	
 	/**
-	 * Strips the namespace from a file, if possible.
+	 * Strips the namespace from a title, if applicable.
 	 * 
 	 * @param title The title to strip the namespace of.
 	 * @return The title, without its namespace, or the same String: if there was no namespace to strip OR if ':' was

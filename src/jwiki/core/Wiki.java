@@ -12,7 +12,7 @@ import jwiki.util.FString;
 import jwiki.util.Tuple;
 
 /**
- * Entry point. New style.
+ * Entry point.  Query or perform actions on a Wiki.  Thread-safe.
  * 
  * @author Fastily
  * 
