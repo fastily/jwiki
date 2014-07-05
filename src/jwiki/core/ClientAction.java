@@ -19,7 +19,7 @@ import jwiki.util.FSystem;
 public class ClientAction
 {
 	/**
-	 * The size of upload chunks.
+	 * The size of upload chunks.  Default = 4Mb
 	 */
 	private static final int chunksize = 1024 * 1024 * 4;
 	
@@ -41,7 +41,7 @@ public class ClientAction
 	 * 
 	 * @return True if the operation was successful.
 	 */
-	public static boolean edit(Wiki wiki, String title, String text, String reason)
+	protected static boolean edit(Wiki wiki, String title, String text, String reason)
 	{
 		Logger.info(wiki, "Editing " + title);
 		URLBuilder ub = wiki.makeUB();
@@ -69,7 +69,7 @@ public class ClientAction
 	 * @param reason The reason to use
 	 * @return True if we were successful.
 	 */
-	public static boolean undo(Wiki wiki, String title, String reason)
+	protected static boolean undo(Wiki wiki, String title, String reason)
 	{
 		Logger.fyi(wiki, "Undoing newest revision of " + title);
 		try
@@ -92,7 +92,7 @@ public class ClientAction
 	 * @param title The title of the page to purge
 	 * @return True if we were successful.
 	 */
-	public static boolean purge(Wiki wiki, String title)
+	protected static boolean purge(Wiki wiki, String title)
 	{
 		Logger.fyi(wiki, "Purging " + title);
 		URLBuilder ub = wiki.makeUB("purge", "titles", FString.enc(title));
@@ -117,7 +117,7 @@ public class ClientAction
 	 * @param reason The reason to use
 	 * @return True if the operation was successful.
 	 */
-	public static boolean delete(Wiki wiki, String title, String reason)
+	protected static boolean delete(Wiki wiki, String title, String reason)
 	{
 		Logger.info(wiki, "Deleting " + title);
 		URLBuilder ub = wiki.makeUB("delete");
@@ -145,7 +145,7 @@ public class ClientAction
 	 * @param reason The reason to use
 	 * @return True if we successfully undeleted the page.
 	 */
-	public static boolean undelete(Wiki wiki, String title, String reason)
+	protected static boolean undelete(Wiki wiki, String title, String reason)
 	{
 		Logger.info(wiki, "Restoring " + title);
 		URLBuilder ub = wiki.makeUB("undelete");
@@ -165,7 +165,7 @@ public class ClientAction
 	}
 	
 	/**
-	 * Upload a media file.
+	 * Upload a media file.  No restrictions are placed on empty files (I don't know why you'd want one, but in case you do...)
 	 * 
 	 * @param wiki The wiki object to use
 	 * @param f The local file to upload
@@ -174,18 +174,12 @@ public class ClientAction
 	 * @param reason The edit summary to use.
 	 * @return True if we were successful.
 	 */
-	public static boolean upload(Wiki wiki, File f, String title, String text, String reason)
+	protected static boolean upload(Wiki wiki, File f, String title, String text, String reason)
 	{
 		Logger.info(wiki, String.format("Uploading '%s' to '%s'", f.getName(), title));
 		String uploadTo = wiki.convertIfNotInNS(title, "File");
 		
 		long filesize = f.length();
-		if (filesize <= 0)
-		{
-			System.err.println(String.format("'%s' is an empty file.", f.getName()));
-			return false;
-		}
-		
 		long chunks = filesize / chunksize + ((filesize % chunksize) > 0 ? 1 : 0);
 		
 		URLBuilder ub = wiki.makeUB("upload");

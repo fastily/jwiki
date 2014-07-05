@@ -183,7 +183,7 @@ public class ClientQuery
 	 * @param title The title to use
 	 * @return A list of links to this page.
 	 */
-	public static String[] whatLinksHere(Wiki wiki, String title)
+	protected static String[] whatLinksHere(Wiki wiki, String title)
 	{
 		return getBackLinks(wiki, title, false);
 	}
@@ -195,7 +195,7 @@ public class ClientQuery
 	 * @param title The title to check.
 	 * @return The redirects linking to this page.
 	 */
-	public static String[] getRedirects(Wiki wiki, String title)
+	protected static String[] getRedirects(Wiki wiki, String title)
 	{
 		return getBackLinks(wiki, title, true);
 	}
@@ -207,7 +207,7 @@ public class ClientQuery
 	 * @param title The page to get text from.
 	 * @return The text of the page, or null if some error occurred.
 	 */
-	public static String getPageText(Wiki wiki, String title)
+	protected static String getPageText(Wiki wiki, String title)
 	{
 		Revision[] rl = getRevisions(wiki, title, 1, false);
 		return rl.length >= 1 && rl[0] != null ? rl[0].getText() : null;
@@ -222,7 +222,7 @@ public class ClientQuery
 	 * @param asc Set to true to list the oldest revisions first.
 	 * @return The revisions, as specified.
 	 */
-	public static Revision[] getRevisions(Wiki wiki, String title, int num, boolean olderfirst)
+	protected static Revision[] getRevisions(Wiki wiki, String title, int num, boolean olderfirst)
 	{
 		Logger.info(wiki, "Fetching revisions of " + title);
 		URLBuilder ub = wiki.makeUB("query", "prop", "revisions", "rvprop",
@@ -245,7 +245,7 @@ public class ClientQuery
 	 * @param ns Include these namespaces only. Specify as Strings (e.g. "File", "Category", "Main")
 	 * @return The list as specified, or the empty list if something went wrong. Check StackTraces.
 	 */
-	public static String[] getCategoryMembers(Wiki wiki, String cat, int max, String... ns)
+	protected static String[] getCategoryMembers(Wiki wiki, String cat, int max, String... ns)
 	{
 		String title = wiki.convertIfNotInNS(cat, "Category");
 		Logger.info(wiki, "Fetching category members of " + title);
@@ -263,7 +263,7 @@ public class ClientQuery
 	 * @param title The title to get categories of.
 	 * @return A list of categories, or the empty list if something went wrong.
 	 */
-	public static String[] getCategoriesOnPage(Wiki wiki, String title)
+	protected static String[] getCategoriesOnPage(Wiki wiki, String title)
 	{
 		Logger.info(wiki, "Getting categories of " + title);
 		URLBuilder ub = wiki.makeUB("query", "prop", "categories", "titles", FString.enc(title));
@@ -278,7 +278,7 @@ public class ClientQuery
 	 * @param ns include-only links in these namespace(s).
 	 * @return A list of links on the page.
 	 */
-	public static String[] getLinksOnPage(Wiki wiki, String title, String... ns)
+	protected static String[] getLinksOnPage(Wiki wiki, String title, String... ns)
 	{
 		Logger.info(wiki, "Fetching page links of " + title);
 		URLBuilder ub = wiki.makeUB("query", "prop", "links", "titles", FString.enc(title));
@@ -298,7 +298,7 @@ public class ClientQuery
 	 * @param ns Only include results from these namespaces. Leave blank to get all namespaces.
 	 * @return
 	 */
-	public static Contrib[] getContribs(Wiki wiki, String user, int max, String... ns)
+	protected static Contrib[] getContribs(Wiki wiki, String user, int max, String... ns)
 	{
 		Logger.info(wiki, "Fetching contribs of " + user);
 		URLBuilder ub = wiki.makeUB("query", "list", "usercontribs", "ucuser", FString.enc(user));
@@ -319,7 +319,7 @@ public class ClientQuery
 	 * @param title The category to check, including category prefix.
 	 * @return The number of elements in a category
 	 */
-	public static int getCategorySize(Wiki wiki, String title)
+	protected static int getCategorySize(Wiki wiki, String title)
 	{
 		Logger.info(wiki, "Fetching category size of " + title);
 		URLBuilder ub = wiki.makeUB("query", "prop", "categoryinfo", "titles", FString.enc(title));
@@ -345,7 +345,7 @@ public class ClientQuery
 	 * @param file The file to check. Must be a valid file name, including the "File:" prefix.
 	 * @return The list of pages linking to this file, or the empty array if something went wrong/file doesn't exist.
 	 */
-	public static String[] imageUsage(Wiki wiki, String file)
+	protected static String[] imageUsage(Wiki wiki, String file)
 	{
 		String fx = wiki.convertIfNotInNS(file, "File");
 		Logger.info(wiki, "Fetching image usage of " + fx);
@@ -360,7 +360,7 @@ public class ClientQuery
 	 * @param title The title to get transclusions of.
 	 * @return A list of transclusions, or the empty list if something went wrong.
 	 */
-	public static String[] whatTranscludesHere(Wiki wiki, String title)
+	protected static String[] whatTranscludesHere(Wiki wiki, String title)
 	{
 		Logger.info(wiki, "Fetching transclusions of " + title);
 		URLBuilder ub = wiki.makeUB("query", "list", "embeddedin", "eititle", FString.enc(title));
@@ -374,7 +374,7 @@ public class ClientQuery
 	 * @param title The title to check for images.
 	 * @return The list of images on the page, or the empty array if something went wrong.
 	 */
-	public static String[] getImagesOnPage(Wiki wiki, String title)
+	protected static String[] getImagesOnPage(Wiki wiki, String title)
 	{
 		Logger.info(wiki, "Fetching images linked to " + title);
 		URLBuilder ub = wiki.makeUB("query", "prop", "images", "titles", FString.enc(title));
@@ -392,7 +392,7 @@ public class ClientQuery
 	 * @param ns The namespace identifier (e.g. "File").
 	 * @return A list of titles as specified.
 	 */
-	public static String[] allPages(Wiki wiki, String prefix, boolean redirectsonly, int max, String ns)
+	protected static String[] allPages(Wiki wiki, String prefix, boolean redirectsonly, int max, String ns)
 	{
 		Logger.info(String.format("Grabbing a list of all pages with prefix " + prefix));
 		URLBuilder ub = wiki.makeUB("query", "list", "allpages", "apnamespace", "" + wiki.getNS(ns));
@@ -414,7 +414,7 @@ public class ClientQuery
 	 * @return A List of tuples (String, Boolean) indicating whether a the passed in title(s) exist(s). Returns an empty
 	 *         list if something went wrong.
 	 */
-	public static List<Tuple<String, Boolean>> exists(Wiki wiki, String... titles)
+	protected static List<Tuple<String, Boolean>> exists(Wiki wiki, String... titles)
 	{
 		Logger.info(wiki, "Checking to see if some pages exist");
 		URLBuilder ub = wiki.makeUB("query", "prop", "pageprops", "ppprop", "missing");
@@ -436,7 +436,7 @@ public class ClientQuery
 	 * @param user The username, without the "User:" prefix. <tt>user</tt> must be a valid username.
 	 * @return A list this user's uploads.
 	 */
-	public static String[] getUserUploads(Wiki wiki, String user)
+	protected static String[] getUserUploads(Wiki wiki, String user)
 	{
 		Logger.info(wiki, "Grabbing uploads of User:" + user);
 		URLBuilder ub = wiki.makeUB("query", "list", "allimages", "aisort", "timestamp", "aiuser", FString.enc(user));
@@ -452,7 +452,7 @@ public class ClientQuery
 	 * @param width The width to scale the image to. Disable scalers by passing in a number >= 0.
 	 * @return An ImageInfo object, or null if something went wrong.
 	 */
-	public static ImageInfo getImageInfo(Wiki wiki, String title, int height, int width)
+	protected static ImageInfo getImageInfo(Wiki wiki, String title, int height, int width)
 	{
 		if (wiki.whichNS(title) != wiki.getNS("File"))
 			return null;
@@ -484,7 +484,7 @@ public class ClientQuery
 	 * @param title The title to get templates from.
 	 * @return A list of templates on the page.
 	 */
-	public static String[] getTemplatesOnPage(Wiki wiki, String title)
+	protected static String[] getTemplatesOnPage(Wiki wiki, String title)
 	{
 		Logger.info(wiki, "Fetching transcluded templates on " + title);
 		URLBuilder ub = wiki.makeUB("query", "prop", "templates", "titles", FString.enc(title));
@@ -499,7 +499,7 @@ public class ClientQuery
 	 * @return A list of tuples, (title of page, short form of wiki this page is from), denoting the global usage of this
 	 *         file. Returns empty list if something went wrong.
 	 */
-	public static ArrayList<Tuple<String, String>> globalUsage(Wiki wiki, String title)
+	protected static ArrayList<Tuple<String, String>> globalUsage(Wiki wiki, String title)
 	{
 		if (wiki.whichNS(title) != wiki.getNS("File"))
 			return null;
@@ -526,7 +526,7 @@ public class ClientQuery
 	 * @param wiki The wiki object to use. You must be logged in to use this functionality.
 	 * @return A list of user groups, or the empty list if something went wrong.
 	 */
-	public static ArrayList<String> listGroupsRights(Wiki wiki)
+	protected static ArrayList<String> listGroupsRights(Wiki wiki)
 	{
 		Logger.info(wiki, "Getting our user groups list");
 		URLBuilder ub = wiki.makeUB("query", "list", "users", "usprop", "groups", "ususers", FString.enc(wiki.upx.x));
@@ -575,7 +575,7 @@ public class ClientQuery
 	 * @param file The file to get duplicates of
 	 * @return The list of files.
 	 */
-	public static ArrayList<Tuple<String, Boolean>> getDuplicatesOf(Wiki wiki, String file)
+	protected static ArrayList<Tuple<String, Boolean>> getDuplicatesOf(Wiki wiki, String file)
 	{
 		Logger.info(wiki, "Getting dupes of " + file);
 		String head = wiki.getNS(6); // MediaWiki is stupid and doesn't return File prefixes.
