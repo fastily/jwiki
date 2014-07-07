@@ -41,4 +41,12 @@ public class Settings
 	 */
 	protected static final String hprotocol = "https://";
 	
+	/**
+	 * Constructors disallowed.
+	 */
+	private Settings()
+	{
+		
+	}
+	
 }

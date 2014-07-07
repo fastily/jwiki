@@ -4,6 +4,7 @@ import static ft.Core.*;
 
 import java.io.File;
 import java.net.URL;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
@@ -167,7 +168,7 @@ public class CommonsMover
 			String desc;
 			File f;
 			if ((desc = getDesc()) != null && (f = downloadFile()) != null)
-				return wiki.upload(f, transferTo, desc, String.format("from [[w:%s]] ([[Commons:CommonsMover|CM]])", title))
+				return wiki.upload(Paths.get(f.getAbsolutePath()), transferTo, desc, String.format("from [[w:%s]] ([[Commons:CommonsMover|CM]])", title))
 						&& flagF8(transferTo);
 			return false;
 		}

@@ -63,6 +63,14 @@ public class FLogin
 	private static Console c;
 	
 	/**
+	 * Constructors disallowed.
+	 */
+	private FLogin()
+	{
+		
+	}
+	
+	/**
 	 * Internal method to create our cipher
 	 * 
 	 * @return This class's cipher.

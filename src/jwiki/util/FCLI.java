@@ -15,6 +15,15 @@ import org.apache.commons.cli.Options;
  */
 public class FCLI
 {
+
+	/**
+	 * All static methods, no constructors allowed.
+	 */
+	private FCLI()
+	{
+		
+	}
+	
 	/**
 	 * Make an option which takes a single arg.
 	 * 

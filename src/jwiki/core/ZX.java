@@ -1,15 +1,8 @@
 package jwiki.core;
 
-import java.nio.charset.Charset;
-import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 
 import jwiki.commons.Commons;
-import jwiki.util.FIO;
-import jwiki.util.FSystem;
-import jwiki.util.ReadFile;
-import jwiki.util.Tuple;
 import jwiki.util.WikiGen;
 
 public class ZX

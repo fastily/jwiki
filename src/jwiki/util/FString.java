@@ -6,6 +6,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
@@ -23,6 +24,14 @@ public class FString
 	 */
 	private static Random r = new Random();
 
+	/**
+	 * Constructors disallowed.
+	 */
+	private FString()
+	{
+		
+	}
+	
 	/**
 	 * Capitalizes the first character of a String
 	 * 
@@ -230,5 +239,23 @@ public class FString
 			if (t.y.booleanValue() == value)
 				l.add(t.x);
 		return l.toArray(new String[0]);
+	}
+	
+	/**
+	 * Creates a HashMap with String keys and values. Pass in each pair and value (in that order) into
+	 * <tt>sl</tt>. This will be one pair entered into resulting HashMap.
+	 * 
+	 * @param sl The list of elements to turn into a HashMap.
+	 * @return The resulting HashMap, or null if you specified an odd number of elements.
+	 */
+	public static HashMap<String, String> makeParamMap(String... sl)
+	{
+		if (sl.length % 2 == 1)
+			return null;
+		
+		HashMap<String, String> l = new HashMap<String, String>();
+		for (int i = 0; i < sl.length; i += 2)
+			l.put(sl[i], sl[i + 1]);
+		return l;
 	}
 }

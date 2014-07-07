@@ -1,7 +1,5 @@
 package jwiki.core;
 
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -10,6 +8,9 @@ import java.net.CookieManager;
 import java.net.HttpCookie;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -29,6 +30,13 @@ public class ClientRequest
 	 * Read timeout for URLConnections
 	 */
 	private static final int readTimeout = 360000;
+
+	/**
+	 * The format string for the chunked upload headers.
+	 */
+	private static final String chunkheaderfmt = "Content-Disposition: form-data; name=\"%s\"\r\n"
+			+ "Content-Type: %s; charset=UTF-8\r\n"
+			+ "Content-Transfer-Encoding: %s\r\n\r\n";
 
 	/**
 	 * Content encoding to use for URLEncoded forms.
@@ -57,7 +65,7 @@ public class ClientRequest
 		{
 			for (HttpCookie hc : cookiejar.getCookieStore().get(c.getURL().toURI()))
 				cookie += String.format("%s=%s;", hc.getName(), hc.getValue());
-			//System.out.println(cookie);
+			// System.out.println(cookie);
 		}
 		catch (Throwable e)
 		{
@@ -96,6 +104,7 @@ public class ClientRequest
 	{
 		URLConnection c = url.openConnection();
 		c.setRequestProperty("User-Agent", Settings.useragent); // required, or server will 403.
+		c.setRequestProperty("Connection", "keep-alive");
 
 		c.setConnectTimeout(connectTimeout);
 		c.setReadTimeout(readTimeout);
@@ -192,56 +201,82 @@ public class ClientRequest
 	}
 
 	/**
-	 * Performs a multipart/form-data post. Primarily intended for use while uploading files. Adapted from MER-C's <a
-	 * href="https://code.google.com/p/wiki-java/">wiki-java</a>
+	 * Performs a multipart/form-data post. Primarily intended for use while uploading files. Basically we're trying to
+	 * output something that looks like <a
+	 * href="https://www.mediawiki.org/w/index.php?title=API:Upload&oldid=842387#Sample_Raw_Upload">this</a>. The primary
+	 * goal for writing the upload code like this is for a minimal memory footprint; this means users on faster internet
+	 * connections could feasibly use a multi-threaded bot to quickly upload files without hitting some OutOfMemoryError.
 	 * 
-	 * @param url The URL to post to
-	 * @param params The parameters to post with. Accepted values are: String & byte[] arrays.
-	 * @param cookiejar The cookiejar to use
-	 * @return A Reply from the server.
-	 * @throws IOException Network error
+	 * @param url The URL to upload to
+	 * @param cookiejar the cookiejar to use
+	 * @param args The argument list to pass in.
+	 * @param filename The local name of the file we're uploading
+	 * @param fc The FileChannel to read bytes from
+	 * @return The reply from the server.
+	 * @throws IOException Network error.
 	 */
-	protected static ServerReply chunkPost(URL url, Map<String, ?> params, CookieManager cookiejar) throws IOException
+	protected static ServerReply chunkPost(URL url, CookieManager cookiejar, HashMap<String, String> args,
+			String filename, FileChannel fc) throws IOException
 	{
 		String boundary = "-----Boundary-----";
 		URLConnection c = makePost(url, cookiejar, "multipart/form-data; boundary=" + boundary);
 		boundary = "--" + boundary + "\r\n";
 
-		ByteArrayOutputStream bout = new ByteArrayOutputStream();
-		DataOutputStream out = new DataOutputStream(bout);
-		out.writeBytes(boundary);
-
-		for (Map.Entry<String, ?> entry : params.entrySet())
+		String temp = new String(boundary);
+		for (Map.Entry<String, String> t: args.entrySet())
 		{
-			String name = entry.getKey();
-			Object value = entry.getValue();
-			out.writeBytes("Content-Disposition: form-data; name=\"" + name + "\"\r\n");
-			if (value instanceof String)
-			{
-				out.writeBytes("Content-Type: text/plain; charset=UTF-8\r\n\r\n");
-				out.write(((String) value).getBytes("UTF-8"));
-			}
-			else if (value instanceof byte[])
-			{
-				out.writeBytes("Content-Type: application/octet-stream\r\n\r\n");
-				out.write((byte[]) value);
-			}
-			else
-				throw new UnsupportedOperationException("Unrecognized data type");
-
-			out.writeBytes("\r\n" + boundary);
+			temp += String.format(chunkheaderfmt, t.getKey(), "text/plain", "8bit");
+			temp += t.getValue();
+			temp += "\r\n" + boundary;
 		}
 
-		out.writeBytes("--\r\n");
-		out.close();
+		temp += String.format(chunkheaderfmt, "chunk\"; filename=\"" + filename, "application/octet-stream", "binary"); // hacky
 
-		OutputStream uout = c.getOutputStream();
-		uout.write(bout.toByteArray());
-		uout.close();
-		out.close();
+		//System.out.println(temp);
+		
+		OutputStream os = c.getOutputStream();
+		os.write(temp.getBytes("UTF-8"));
+
+		pipe(fc, os, ClientAction.chunksize);
+		os.write(new String("\r\n" + boundary + "--\r\n\r\n").getBytes("UTF-8"));
+		os.close();
 
 		grabCookies(c, cookiejar);
-
 		return new ServerReply(c.getInputStream());
+	}
+
+	/**
+	 * Reads bytes in from a file and redirects them to an outputstream. Useful for performing chunked uploads in a
+	 * memory friendly way. CAVEAT: This method does not close streams.
+	 * 
+	 * @param fc The filechannel to read bytes from
+	 * @param os The output stream to write bytes to.
+	 * @param max The maximum number of bytes to transfer. This *must* be a multiple of <tt>bf.capacity()</tt> if you
+	 *           want this feature to work properly.
+	 * @throws IOException If I/O error.
+	 */
+	private static void pipe(FileChannel fc, OutputStream os, long max) throws IOException
+	{		
+		byte[] uout = new byte[1024*512]; //set buffer size to 512kb
+		ByteBuffer buf = ByteBuffer.wrap(uout);
+
+		for (long i = 0; i < max;)
+		{
+			int read = fc.read(buf);
+			if (read == -1 )
+				break;
+			
+			/*System.out.println("Got here @ " + i);
+			System.out.println(uout.length);
+			System.out.println("read " + read);*/
+			i += read;
+			/*
+			for(int j = 0; j < 5; j++)
+				System.out.print(uout[j] + " ");
+			System.out.println();*/
+			
+			os.write(uout, 0, read);
+			buf.clear();
+		}
 	}
 }
