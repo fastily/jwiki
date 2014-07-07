@@ -1,7 +1,7 @@
 package jwiki.core;
 
-import java.io.File;
 import java.net.CookieManager;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -623,15 +623,15 @@ public class Wiki
 	/**
 	 * Upload a media file.
 	 * 
-	 * @param f The file to use
+	 * @param p The file to use
 	 * @param title The title to upload to. Must include "File:" prefix.
 	 * @param text The text to put on the file description page
 	 * @param reason The edit summary
 	 * @return True if we were successful.
 	 */
-	public boolean upload(File f, String title, String text, String reason)
+	public boolean upload(Path p, String title, String text, String reason)
 	{
-		return ClientAction.upload(this, f, title, text, reason);
+		return ClientAction.upload(this, p, title, text, reason);
 	}
 
 	/**

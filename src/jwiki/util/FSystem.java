@@ -4,7 +4,6 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.HashMap;
 
 /**
  * System related methods.
@@ -55,7 +54,6 @@ public class FSystem
 	 * 
 	 * @return True if we were successful.
 	 */
-	
 	public static boolean copyFile(String src, String dest)
 	{
 		try
@@ -68,27 +66,5 @@ public class FSystem
 			e.printStackTrace();
 			return false;
 		}
-	}
-	
-	/**
-	 * Creates a HashMap with keys as String, and Objects as values. Pass in each pair and value (in that order) into
-	 * <tt>ol</tt>. This will be one pair entered into resulting HashMap.
-	 * 
-	 * @param ol The list of elements to turn into a HashMap.
-	 * @return The resulting HashMap, or null if you specified an odd number of elements.
-	 */
-	public static HashMap<String, Object> makeParamMap(Object... ol)
-	{
-		HashMap<String, Object> l = new HashMap<String, Object>();
-		
-		if (ol.length % 2 == 1)
-			return null;
-		
-		for (int i = 0; i < ol.length; i += 2)
-			if (ol[i] instanceof String)
-				l.put((String) ol[i], ol[i + 1]);
-		
-		return l;
-	}
-	
+	}	
 }

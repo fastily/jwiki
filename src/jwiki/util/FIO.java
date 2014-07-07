@@ -1,16 +1,21 @@
 package jwiki.util;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.Charset;
 import java.nio.file.FileSystems;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
+import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
+import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.time.LocalTime;
 import java.util.ArrayList;
 
 /**
@@ -21,6 +26,13 @@ import java.util.ArrayList;
  */
 public class FIO
 {
+	/**
+	 * Constructors disallowed.
+	 */
+	private FIO()
+	{
+
+	}
 
 	/**
 	 * Reads contents of an InputStream to a String.
@@ -49,7 +61,8 @@ public class FIO
 	}
 
 	/**
-	 * Gets the file name pointed to by a path object and returns it as a String.  Works for both directories and files.
+	 * Gets the file name pointed to by a path object and returns it as a String. Works for both directories and files.
+	 * 
 	 * @param p The filename to get a name for.
 	 * @return The file's name
 	 */
@@ -74,6 +87,25 @@ public class FIO
 		int i = name.lastIndexOf('.'); // special case, file has no extension.
 
 		return i == -1 ? "" : name.substring(i + (useDot ? 0 : 1));
+	}
+
+	/**
+	 * Dumps lines to a file.
+	 * 
+	 * @param path The path to dump to
+	 * @param lines The lines to write out to. These will be separated by the system default line separator.
+	 */
+	public static void dumpToFile(String path, String... lines)
+	{
+		try (BufferedWriter bw = Files.newBufferedWriter(Paths.get(path), Charset.defaultCharset(), StandardOpenOption.CREATE,
+				StandardOpenOption.WRITE, StandardOpenOption.APPEND))
+		{
+			bw.write(FString.fenceMaker(FSystem.lsep, String.format("=== %s ===", LocalTime.now().toString(), lines)));
+		}
+		catch (Throwable e)
+		{
+			e.printStackTrace();
+		}
 	}
 
 	/**
@@ -154,7 +186,6 @@ public class FIO
 		 */
 		public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
 		{
-			// System.out.println("VISITNG: " + file.toString());
 			if (pm.matches(file))
 				pl.add(file);
 			return FileVisitResult.CONTINUE;

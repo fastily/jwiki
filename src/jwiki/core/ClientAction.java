@@ -1,13 +1,15 @@
 package jwiki.core;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.channels.FileChannel;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.HashMap;
 
 import jwiki.util.FError;
+import jwiki.util.FIO;
 import jwiki.util.FString;
-import jwiki.util.FSystem;
 
 /**
  * Performs an action on a wiki. Will never throw an exception. Most methods return some sort of value indicating
@@ -19,18 +21,18 @@ import jwiki.util.FSystem;
 public class ClientAction
 {
 	/**
-	 * The size of upload chunks.  Default = 4Mb
+	 * The size of upload chunks. Default = 4Mb
 	 */
-	private static final int chunksize = 1024 * 1024 * 4;
-	
+	protected static final int chunksize = 1024 * 1024 * 4;
+
 	/**
 	 * Hiding from javadoc
 	 */
 	private ClientAction()
 	{
-		
+
 	}
-	
+
 	/**
 	 * Edit a page, and check if the request actually went through.
 	 * 
@@ -46,10 +48,10 @@ public class ClientAction
 		Logger.info(wiki, "Editing " + title);
 		URLBuilder ub = wiki.makeUB();
 		ub.setAction("edit");
-		
+
 		String[] es = FString.massEnc(title, text, reason, wiki.token);
 		String posttext = URLBuilder.chainParams("title", es[0], "text", es[1], "summary", es[2], "token", es[3]);
-		
+
 		try
 		{
 			return ClientRequest.post(ub.makeURL(), posttext, wiki.cookiejar, ClientRequest.urlenc).resultIs("Success");
@@ -60,7 +62,7 @@ public class ClientAction
 			return false;
 		}
 	}
-	
+
 	/**
 	 * Undo the top revision of a page. PRECONDITION: <tt>title</tt> must point to a valid page.
 	 * 
@@ -84,7 +86,7 @@ public class ClientAction
 			return false;
 		}
 	}
-	
+
 	/**
 	 * Purges the cache of a page.
 	 * 
@@ -96,7 +98,7 @@ public class ClientAction
 	{
 		Logger.fyi(wiki, "Purging " + title);
 		URLBuilder ub = wiki.makeUB("purge", "titles", FString.enc(title));
-		
+
 		try
 		{
 			ServerReply r = ClientRequest.get(ub.makeURL(), wiki.cookiejar);
@@ -108,7 +110,7 @@ public class ClientAction
 			return false;
 		}
 	}
-	
+
 	/**
 	 * Deletes a page. You must have admin rights for this to work.
 	 * 
@@ -121,13 +123,14 @@ public class ClientAction
 	{
 		Logger.info(wiki, "Deleting " + title);
 		URLBuilder ub = wiki.makeUB("delete");
-		
+
 		String[] es = FString.massEnc(title, reason, wiki.token);
 		String posttext = URLBuilder.chainParams("title", es[0], "reason", es[1], "token", es[2]);
-		
+
 		try
 		{
-			return !ClientRequest.post(ub.makeURL(), posttext, wiki.cookiejar, ClientRequest.urlenc).hasErrorIfIgnore("missingtitle");
+			return !ClientRequest.post(ub.makeURL(), posttext, wiki.cookiejar, ClientRequest.urlenc).hasErrorIfIgnore(
+					"missingtitle");
 		}
 		catch (Throwable e)
 		{
@@ -135,10 +138,10 @@ public class ClientAction
 			return false;
 		}
 	}
-	
+
 	/**
-	 * Undelete a page. You must have admin rights on the wiki you are trying to perform this task on, otherwise it
-	 * won't go through.
+	 * Undelete a page. You must have admin rights on the wiki you are trying to perform this task on, otherwise it won't
+	 * go through.
 	 * 
 	 * @param wiki The wiki object to use
 	 * @param title The title to undelete
@@ -149,10 +152,10 @@ public class ClientAction
 	{
 		Logger.info(wiki, "Restoring " + title);
 		URLBuilder ub = wiki.makeUB("undelete");
-		
+
 		String[] es = FString.massEnc(title, reason, wiki.token);
 		String posttext = URLBuilder.chainParams("title", es[0], "reason", es[1], "token", es[2]);
-		
+
 		try
 		{
 			return !ClientRequest.post(ub.makeURL(), posttext, wiki.cookiejar, ClientRequest.urlenc).hasError();
@@ -163,95 +166,71 @@ public class ClientAction
 			return false;
 		}
 	}
-	
+
 	/**
-	 * Upload a media file.  No restrictions are placed on empty files (I don't know why you'd want one, but in case you do...)
-	 * 
+	 * Upload a media file to this wiki.  Uses the chunked uploads protocol.
 	 * @param wiki The wiki object to use
-	 * @param f The local file to upload
-	 * @param title The title to upload to. Must include 'File:' prefix.
-	 * @param text The text to upload with, which will appear on the file description page.
-	 * @param reason The edit summary to use.
+	 * @param p The path to the file we're uploading
+	 * @param title The title to upload to.  Should include the "File:" prefix
+	 * @param text The text to use on the file's description page
+	 * @param reason The edit summary
 	 * @return True if we were successful.
 	 */
-	protected static boolean upload(Wiki wiki, File f, String title, String text, String reason)
+	protected static boolean upload(Wiki wiki, Path p, String title, String text, String reason)
 	{
-		Logger.info(wiki, String.format("Uploading '%s' to '%s'", f.getName(), title));
 		String uploadTo = wiki.convertIfNotInNS(title, "File");
-		
-		long filesize = f.length();
-		long chunks = filesize / chunksize + ((filesize % chunksize) > 0 ? 1 : 0);
-		
+		String filename = FIO.getFileName(p);
+		String filekey = null;
 		URLBuilder ub = wiki.makeUB("upload");
 		
-		String filekey = null;
-		String filename = Namespace.nss(uploadTo);
-		
-		HashMap<String, Object> l = FSystem.makeParamMap("filename", filename, "token", wiki.token, "ignorewarnings",
-				"true", "stash", "1", "filesize", "" + filesize);
-		
-		try(FileInputStream in = new FileInputStream(f))
+		try(FileChannel fc = FileChannel.open(p, StandardOpenOption.READ))
 		{
-			for (int i = 0; i < chunks; i++)
+			long filesize = Files.size(p);
+			long chunks = filesize / chunksize + ((filesize % chunksize) > 0 ? 1 : 0);
+
+			HashMap<String, String> args = FString.makeParamMap("filename", Namespace.nss(uploadTo), "token", wiki.token, "ignorewarnings", "true",
+				"stash", "1", "filesize", "" + filesize);
+			
+			Logger.info(wiki, String.format("Uploading '%s' to '%s'", filename, title));
+			
+			for(long i = 0, offset = fc.position(), failcount = 0; i < chunks; )
 			{
-				Logger.log(wiki, String.format("(%s): Uploading chunk %d of %d", f.getName(), i + 1, chunks), "PURPLE");
-				
-				l.put("offset", "" + i * chunksize);
+				Logger.log(wiki, String.format("(%s): Uploading chunk %d of %d", filename, i + 1, chunks), "PURPLE");
+				//args.put("offset", "" + i * chunksize);
+				args.put("offset", "" + offset);
 				if (filekey != null)
-					l.put("filekey", filekey);
+					args.put("filekey", filekey);
 				
-				if ((filekey = uploadChunk(l, wiki, ub, f, in, i + 1)) == null)
-					throw new IOException("Server is being difficult today");
+				ServerReply r = ClientRequest.chunkPost(ub.makeURL(), wiki.cookiejar, args, filename, fc);
+				//System.out.println(filekey);
+			
+				if(r.hasError()) //allow 5x retries for failed chunks.
+				{
+					if(++failcount > 5)
+						throw new IOException("Server is being difficult today - failed to upload " + filename);
+					fc.position(offset);
+					Logger.error(wiki, String.format("Failed on chunk %d/%d.  Attempt %d/5", i+1, chunks, failcount));
+				}
+				else
+				{
+					filekey = r.getStringR("filekey");
+					offset = fc.position();
+					i++;
+					failcount = 0;
+				}
 			}
-			in.close();
-			return filekey != null ? unstash(wiki, filekey, filename, text, reason) : false;
+			
+			return filekey != null ? unstash(wiki, filekey, uploadTo, text, reason) : false;	
 		}
 		catch (Throwable e)
 		{
 			e.printStackTrace();
 			if (filekey != null)
-				unstash(wiki, filekey, filename, text, reason);
+				unstash(wiki, filekey, uploadTo, text, reason); //try unstashing anyways.
 			return false;
 		}
 	}
-	
-	/**
-	 * Uploads a single chunk, read out of a file, based on chunksize. Attempts a maximum of 5 uploads before giving up.
-	 * 
-	 * @param l The HashMap containing our parameters to pass to the server.
-	 * @param wiki The wiki object to use
-	 * @param ub The pre-defined URLBuilder
-	 * @param f The file we're uploading
-	 * @param in The inputstream created from the file we're uploading
-	 * @param id The chunk number this is.
-	 * @return The filekey retrieved from the server, or null if something went wrong.
-	 * @throws IOException Eh?
-	 */
-	private static String uploadChunk(HashMap<String, Object> l, Wiki wiki, URLBuilder ub, File f, FileInputStream in, int id)
-			throws IOException
-	{
-		int remain = in.available();
-		byte[] chunk = remain > chunksize ? new byte[chunksize] : new byte[remain];
-		in.read(chunk);
-		l.put("chunk\"; filename=\"" + f.getName(), chunk);
-		
-		ServerReply r = null;
-		for (int i = 0; i < 5; i++)
-		{
-			try
-			{
-				r = ClientRequest.chunkPost(ub.makeURL(), l, wiki.cookiejar);
-				break;
-			}
-			catch (Throwable e)
-			{
-				e.printStackTrace();
-				Logger.error(wiki, String.format("(%s): Encountered error @ chunk %d.  Retrying...", f.getName(), id));
-			}
-		}
-		return !r.hasError() ? r.getStringR("filekey") : null;
-	}
-	
+
 	/**
 	 * Try and unstash a file uploaded via chunked uploads.
 	 * 
@@ -266,7 +245,7 @@ public class ClientAction
 	{
 		Logger.info(wiki, String.format("Unstashing '%s' from temporary archive @ '%s'", title, filekey));
 		URLBuilder ub = wiki.makeUB("upload");
-		
+
 		String[] es = FString.massEnc(title, text, reason, wiki.token, filekey);
 		String posttext = URLBuilder.chainParams("filename", es[0], "text", es[1], "comment", es[2], "ignorewarnings", "true",
 				"filekey", es[4], "token", es[3]);
