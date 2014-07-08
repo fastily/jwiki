@@ -44,7 +44,7 @@ public abstract class WAction
 	/**
 	 * Performs this WAction's main job. To be explicitly defined in each subclass.
 	 * 
-	 * @param wiki The W object to use.
+	 * @param wiki The Wiki object to use.
 	 * @return True if the action we tried to perform succeeded.
 	 */
 	public abstract boolean doJob(Wiki wiki);

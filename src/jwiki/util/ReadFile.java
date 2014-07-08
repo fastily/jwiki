@@ -37,6 +37,7 @@ public class ReadFile
 	 * 
 	 * @param p The filename to read.
 	 * @param enc The encoding to use
+	 * @param ignoreBlanks Set to true to ignore blank lines.
 	 * 
 	 */
 	public ReadFile(String p, Charset enc, boolean ignoreBlanks)

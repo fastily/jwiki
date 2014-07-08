@@ -12,6 +12,8 @@
 ** Should I be using base64 encoding to output files?  This isn't a built-in and I'm lazy... (may not be too important, seeing how machines which don't support UTF-8 probably aren't supported by java 8 anyhow...)
 ** Keys *should* be randomly generated - based on OS names, serial number, etc, perhaps?  We can save these locally.
 
+* ClientTask should use nio.
+
 == Low Priority ==
 * Commons New Image Auditor
 * Legit JUnit Tests
