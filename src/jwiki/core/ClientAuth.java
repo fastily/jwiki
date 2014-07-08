@@ -4,7 +4,7 @@ import java.net.HttpCookie;
 import java.net.URI;
 
 /**
- * Perform wiki authentication & initialization tasks.
+ * Perform wiki authentication and initialization tasks.
  * 
  * @author Fastily
  *

@@ -59,7 +59,7 @@ public class MBot
 	/**
 	 * Starts the execution of this object.
 	 * 
-	 * @param wl The WAction objects to process
+	 * @param ml The WAction objects to process
 	 * @return A list of titles we failed to process.
 	 */
 	public WAction[] start(WAction[] ml)

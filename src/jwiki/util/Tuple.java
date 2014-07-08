@@ -34,9 +34,9 @@ public class Tuple<E, F>
 	}
 	
 	/**
-	 * Concatenate x & y values of this Tuple into a String.
+	 * Concatenate x and y values of this Tuple into a String.
 	 * 
-	 * @param format Optional argument. Specify null to disable. Use a custom format String for x & y (you must specify
+	 * @param format Optional argument. Specify null to disable. Use a custom format String for x and y (you must specify
 	 *            '%s' twice, or you'll get strange output/errors).
 	 * @return The concatenated String.
 	 */

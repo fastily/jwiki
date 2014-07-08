@@ -2,10 +2,10 @@ package jwiki.util;
 
 import java.net.URLEncoder;
 import java.nio.file.Path;
-import java.text.SimpleDateFormat;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
@@ -46,12 +46,12 @@ public class FString
 	/**
 	 * Generates a random file name for upload to wiki based on the entered file name
 	 * 
-	 * @param file The WikiFile to generate a random filename for.
+	 * @param p The Path to generate a random filename for.
 	 * @return The random wiki-uploadable file name
 	 */
 	public static String generateRandomFileName(Path p)
 	{
-		return String.format("%#o x %s.%s", r.nextInt(0xFF), new SimpleDateFormat("HH.mm.ss").format(new Date()),
+		return String.format("%#o x %s.%s", r.nextInt(0xFF), LocalTime.now().format(DateTimeFormatter.ofPattern("HH.mm.ss")),
 				FIO.getExtension(p, false)); 
 	}
 
@@ -226,7 +226,7 @@ public class FString
 	}
 
 	/**
-	 * Extract from a list of tuples, all String values from a <String, Boolean> where Boolean == value.
+	 * Extract from a list of tuples, all String values from a &lt;String, Boolean&gt; where Boolean == value.
 	 * 
 	 * @param bl The list of tuples to look at
 	 * @param value We'll extract a String with this value.

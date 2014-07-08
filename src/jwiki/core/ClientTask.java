@@ -13,20 +13,21 @@ import javax.imageio.ImageIO;
 
 /**
  * Class containing static methods which can perform miscellaneous tasks pertaining to MediaWiki.
+ * 
  * @author Fastily
  *
  */
 public class ClientTask
 {
-	
+
 	/**
 	 * Hiding constructor from javadoc.
 	 */
 	private ClientTask()
 	{
-		
+
 	}
-	
+
 	/**
 	 * Gets the resource pointed to by a URL as raw bytes. CAVEAT: if the resources pointed to by the URL exceed 128MB,
 	 * you will get a OutOfMemoryError. Avoid this by setting your heap space accordingly (e.g.
@@ -45,10 +46,10 @@ public class ClientTask
 			int c;
 			while ((c = in.read()) != -1)
 				out.write(c);
-			
+
 			in.close();
 			return out.toByteArray();
-			
+
 		}
 		catch (Throwable e)
 		{
@@ -56,15 +57,15 @@ public class ClientTask
 			return null;
 		}
 	}
-	
+
 	/**
 	 * Downloads and writes a media file to disk. Note that the file must be visible to you in order to download it.
 	 * 
-	 * @param title The title of the file to download <ins>on the Wiki</ins> <b>including</b> the " <tt>File:</tt>"
-	 *            prefix.
+	 * @param title The title of the file to download <span style="text-decoration:underline">on the Wiki</span>
+	 *           <b>including</b> the " <tt>File:</tt>" prefix.
 	 * @param localpath The pathname to save this file to (e.g. "<tt>/Users/Fastily/Example.jpg</tt> "). Note that if a
-	 *            file with that name already exists at that pathname, it <span
-	 *            style="color:Red;font-weight:bold">will</span> be overwritten!
+	 *           file with that name already exists at that pathname, it <span
+	 *           style="color:Red;font-weight:bold">will</span> be overwritten!
 	 * @param wiki The wiki object to use.
 	 * 
 	 * @return True if the operation was successful.
@@ -73,15 +74,15 @@ public class ClientTask
 	{
 		return downloadFile(title, localpath, wiki, -1, -1);
 	}
-	
+
 	/**
 	 * Downloads and writes a media file to disk. Note that the file must be visible to you in order to download it.
 	 * 
-	 * @param title The title of the file to download <ins>on the Wiki</ins> <b>including</b> the " <tt>File:</tt>"
-	 *            prefix.
+	 * @param title The title of the file to download <span style="text-decoration:underline">on the Wiki</span>
+	 *           <b>including</b> the " <tt>File:</tt>" prefix.
 	 * @param localpath The pathname to save this file to (e.g. "<tt>/Users/Fastily/Example.jpg</tt> "). Note that if a
-	 *            file with that name already exists at that pathname, it <span
-	 *            style="color:Red;font-weight:bold">will</span> be overwritten!
+	 *           file with that name already exists at that pathname, it <span
+	 *           style="color:Red;font-weight:bold">will</span> be overwritten!
 	 * @param wiki The wiki object to use.
 	 * @param height The height (in pixels) to scale to. Specify a number less than 1 to disable this feature.
 	 * @param width The width (in pixels) to scale to. Specify a number less than 1 to disable this feature.
@@ -99,7 +100,7 @@ public class ClientTask
 			url = x.getURL();
 		else
 			return false;
-		
+
 		try
 		{
 			FileOutputStream fos = new FileOutputStream(localpath);
@@ -111,10 +112,10 @@ public class ClientTask
 			e.printStackTrace();
 			return false;
 		}
-		
+
 		return true;
 	}
-	
+
 	/**
 	 * Downloads a media file from wiki and converts it to a BufferedImage, for use with GUI applications. Note that the
 	 * file must be visible to you in order to download it.
@@ -128,7 +129,7 @@ public class ClientTask
 	{
 		return downloadFile(title, wiki, -1, -1);
 	}
-	
+
 	/**
 	 * Downloads a media file from wiki and converts it to a BufferedImage, for use with GUI applications. Note that the
 	 * file must be visible to you in order to download it.
@@ -152,8 +153,8 @@ public class ClientTask
 			url = x.getURL();
 		else
 			return null;
-		
+
 		return ImageIO.read(new ByteArrayInputStream(getBytes(url, wiki.cookiejar)));
 	}
-	
+
 }

@@ -15,7 +15,7 @@ import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.time.LocalTime;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 /**
@@ -93,14 +93,18 @@ public class FIO
 	 * Dumps lines to a file.
 	 * 
 	 * @param path The path to dump to
+	 * @param timestamp If true, include a timestamp header boundary for each set of lines dumped.
 	 * @param lines The lines to write out to. These will be separated by the system default line separator.
 	 */
-	public static void dumpToFile(String path, String... lines)
+	public static void dumpToFile(String path, boolean timestamp, String... lines)
 	{
 		try (BufferedWriter bw = Files.newBufferedWriter(Paths.get(path), Charset.defaultCharset(), StandardOpenOption.CREATE,
 				StandardOpenOption.WRITE, StandardOpenOption.APPEND))
-		{
-			bw.write(FString.fenceMaker(FSystem.lsep, String.format("=== %s ===", LocalTime.now().toString(), lines)));
+		{			
+			if(timestamp)
+				bw.write(String.format("=== %s ===%n", LocalDateTime.now().toString()));
+			bw.write(FString.fenceMaker(FSystem.lsep, lines));
+			bw.close();
 		}
 		catch (Throwable e)
 		{

@@ -14,7 +14,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Class used to do GET & POST requests.
+ * Class used to do GET/POST requests.
  * 
  * @author Fastily
  * 
@@ -65,7 +65,6 @@ public class ClientRequest
 		{
 			for (HttpCookie hc : cookiejar.getCookieStore().get(c.getURL().toURI()))
 				cookie += String.format("%s=%s;", hc.getName(), hc.getValue());
-			// System.out.println(cookie);
 		}
 		catch (Throwable e)
 		{

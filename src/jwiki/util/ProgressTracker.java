@@ -3,7 +3,7 @@ package jwiki.util;
 import jwiki.core.Logger;
 
 /**
- * Simple progress tracker that outputs our progress to std out. Does not enforce curr <= end. This class is only for
+ * Simple progress tracker that outputs our progress to std out. Does not enforce curr &le; end. This class is only for
  * logging/tracking.
  * 
  * @author Fastily

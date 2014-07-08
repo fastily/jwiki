@@ -194,6 +194,8 @@ public class Wiki
 	/**
 	 * Checks if we're verified for the specified domain.
 	 * 
+	 * @param domain Do we have login credentials for this domain?
+	 * 
 	 * @return True if we're verified for the specified domain.
 	 */
 	public boolean isVerifiedFor(String domain)
@@ -367,7 +369,7 @@ public class Wiki
 	}
 
 	/**
-	 * Gets all the revisions of a page in descending order (newest -> oldest). Caveat: Pages such as the admin's notice
+	 * Gets all the revisions of a page in descending order (newest -&gt; oldest). Caveat: Pages such as the admin's notice
 	 * board have ~10<sup>6</sup> revisions. Watch your memory usage.
 	 * 
 	 * @param title The title to use.
@@ -589,8 +591,8 @@ public class Wiki
 	 * Get some information about a file on Wiki.
 	 * 
 	 * @param title The title of the file to use (must be in the file namespace and exist, else return Null)
-	 * @param height The height to scale the image to. Disable scalers by passing in a number >= 0.
-	 * @param width The width to scale the image to. Disable scalers by passing in a number >= 0.
+	 * @param height The height to scale the image to. Disable scalers by passing in a number &ge; 0.
+	 * @param width The width to scale the image to. Disable scalers by passing in a number &ge; 0.
 	 * @return An ImageInfo object, or null if something went wrong.
 	 */
 	public ImageInfo getImageInfo(String title, int height, int width)
