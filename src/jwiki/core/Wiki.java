@@ -12,7 +12,7 @@ import jwiki.util.FString;
 import jwiki.util.Tuple;
 
 /**
- * Entry point.  Query or perform actions on a Wiki.  Thread-safe.
+ * Entry point. Query or perform actions on a Wiki. Thread-safe.
  * 
  * @author Fastily
  * 
@@ -66,13 +66,13 @@ public class Wiki
 		boolean isNew = parent != null;
 		if (isNew)
 		{
-			//System.out.println("WE ARE HERE!!!!!");
+			// System.out.println("WE ARE HERE!!!!!");
 			wl = parent.wl;
 			cookiejar = parent.cookiejar;
 			ClientAuth.copyCentralAuthCookies(parent, domain);
 		}
 
-		if(!ClientAuth.doAuth(this, !isNew))
+		if (!ClientAuth.doAuth(this, !isNew))
 			throw new LoginException(String.format("Failed to log-in as %s @ %s", upx.x, domain));
 
 		wl.put(domain, this);
@@ -117,7 +117,8 @@ public class Wiki
 
 	/**
 	 * Gets a Wiki object for this domain. This method is cached, to save bandwidth. We will create a new wiki as
-	 * necessary.
+	 * necessary. PRECONDITION: The <a href="https://www.mediawiki.org/wiki/Extension:CentralAuth">CentralAuth</a>
+	 * extension MUST be installed on your MediaWiki cluster for this to work.
 	 * 
 	 * @param domain The domain to use
 	 * @return The wiki, or null if something went wrong.
@@ -369,8 +370,8 @@ public class Wiki
 	}
 
 	/**
-	 * Gets all the revisions of a page in descending order (newest -&gt; oldest). Caveat: Pages such as the admin's notice
-	 * board have ~10<sup>6</sup> revisions. Watch your memory usage.
+	 * Gets all the revisions of a page in descending order (newest -&gt; oldest). Caveat: Pages such as the admin's
+	 * notice board have ~10<sup>6</sup> revisions. Watch your memory usage.
 	 * 
 	 * @param title The title to use.
 	 * @return The list of revisions.

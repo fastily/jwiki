@@ -27,6 +27,12 @@ import java.util.ArrayList;
 public class FIO
 {
 	/**
+	 * A path matcher which will match files ok to upload to WMF wikis.
+	 */
+	private static final PathMatcher wmfuploadable = FileSystems.getDefault().getPathMatcher(
+			"regex:(?i).+?\\.(png|gif|jpg|jpeg|xcf|mid|ogg|ogv|oga|svg|djvu|tiff|tif|pdf|webm|flac|wav)");
+
+	/**
 	 * Constructors disallowed.
 	 */
 	private FIO()
@@ -88,7 +94,17 @@ public class FIO
 
 		return i == -1 ? "" : name.substring(i + (useDot ? 0 : 1));
 	}
-
+	
+	/**
+	 * Determines whether we can upload a given file to a WMF wiki.
+	 * @param p The path to check.
+	 * @return True if we can upload this to a WMF wiki.
+	 */
+	public static boolean canUploadToWMF(Path p)
+	{
+		return wmfuploadable.matches(p);
+	}
+	
 	/**
 	 * Dumps lines to a file.
 	 * 
@@ -100,8 +116,8 @@ public class FIO
 	{
 		try (BufferedWriter bw = Files.newBufferedWriter(Paths.get(path), Charset.defaultCharset(), StandardOpenOption.CREATE,
 				StandardOpenOption.WRITE, StandardOpenOption.APPEND))
-		{			
-			if(timestamp)
+		{
+			if (timestamp)
 				bw.write(String.format("=== %s ===%n", LocalDateTime.now().toString()));
 			bw.write(FString.fenceMaker(FSystem.lsep, lines));
 			bw.close();
@@ -116,14 +132,41 @@ public class FIO
 	 * Recursively search a directory for files whose names match the specified regex.
 	 * 
 	 * @param root The root directory to search
-	 * @param regex The regex to match files for. This MUST start with the 'regex:' prefix as described <a href=
+	 * @param pattern The pattern to match files for. This MUST start with the <tt>regex:</tt> OR <tt>glob:</tt> prefix
+	 *           as described <a href=
 	 *           "http://docs.oracle.com/javase/7/docs/api/java/nio/file/FileSystem.html#getPathMatcher%28java.lang.String%29"
 	 *           >here</a>.
-	 * @return A list of files matching the specified regex.
+	 * @return A list of files matching the specified pattern or null if something went wrong.
 	 */
-	public static ArrayList<Path> findFiles(Path root, String regex)
+	public static ArrayList<Path> findFiles(Path root, String pattern)
 	{
-		UploadFinder uf = new UploadFinder(regex);
+		return findFiles(root, FileSystems.getDefault().getPathMatcher(pattern));
+	}
+
+	/**
+	 * Recursively search a directory for files which can be uploaded to WMF wikis.
+	 * 
+	 * @param root The root directory to search. PRECONDITION: This MUST be a directory.
+	 * @return A list of files that we can upload to Commons, or null if something went wrong.
+	 */
+	public static ArrayList<Path> findFiles(Path root)
+	{
+		return findFiles(root, wmfuploadable);
+	}
+
+	/**
+	 * Supports public overloads of findFiles(). Abstracts nasty details of having to create a PathMatcher.
+	 * 
+	 * @param root The starting directory.
+	 * @param pm The PathMatcher to use to match files
+	 * @return A list of files we matched, or null if something went wrong.
+	 */
+	private static ArrayList<Path> findFiles(Path root, PathMatcher pm)
+	{
+		if (!Files.isDirectory(root))
+			return null;
+
+		UploadFinder uf = new UploadFinder(pm);
 		try
 		{
 			Files.walkFileTree(root, uf);
@@ -131,21 +174,10 @@ public class FIO
 		catch (Throwable e)
 		{
 			e.printStackTrace();
-			return new ArrayList<Path>();
+			return null;
 		}
 
 		return uf.pl;
-	}
-
-	/**
-	 * Recursively search a directory for files which can be uploaded to WMF wikis.
-	 * 
-	 * @param root The root directory to search
-	 * @return A list of files that we can upload to Commons
-	 */
-	public static ArrayList<Path> findFiles(Path root)
-	{
-		return findFiles(root, "regex:(?i).+?\\.(png|gif|jpg|jpeg|xcf|mid|ogg|ogv|oga|svg|djvu|tiff|tif|pdf|webm|flac|wav)");
 	}
 
 	/**
@@ -156,7 +188,6 @@ public class FIO
 	 */
 	private static class UploadFinder extends SimpleFileVisitor<Path>
 	{
-
 		/**
 		 * Matches files we're interested in
 		 */
@@ -172,9 +203,9 @@ public class FIO
 		 * 
 		 * @param regex Files to match.
 		 */
-		private UploadFinder(String regex)
+		private UploadFinder(PathMatcher pm)
 		{
-			pm = FileSystems.getDefault().getPathMatcher(regex);
+			this.pm = pm;
 		}
 
 		/**
