@@ -1,13 +1,12 @@
 package jwiki.core;
 
 import java.awt.image.BufferedImage;
-import java.io.BufferedInputStream;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.net.CookieManager;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 import javax.imageio.ImageIO;
 
@@ -21,7 +20,7 @@ public class ClientTask
 {
 
 	/**
-	 * Hiding constructor from javadoc.
+	 * Constructors disallowed
 	 */
 	private ClientTask()
 	{
@@ -29,91 +28,75 @@ public class ClientTask
 	}
 
 	/**
-	 * Gets the resource pointed to by a URL as raw bytes. CAVEAT: if the resources pointed to by the URL exceed 128MB,
-	 * you will get a OutOfMemoryError. Avoid this by setting your heap space accordingly (e.g.
-	 * <tt>java -Xmx512M myprog</tt> will set the max heap space to 512M for <tt>myprog.java</tt>).
+	 * Creates an InputStream pointing to the bytes of a file on a Wiki.
 	 * 
-	 * @param url The URL to use.
-	 * @param cookiejar The cookiejar to use. This parameter is optional; specifiy null to disable it.
-	 * @return A stream of bytes represented by the URL pointed to, or null if something went wrong.
+	 * @param title The title of the file to get, including the "File" prefix.
+	 * @param height The height thumbnail to retrieve (optional param, specify -1 to disable)
+	 * @param width The width thumbnail to retrieve (optional param, specify -1 to disable)
+	 * @param wiki The Wiki object to use
+	 * @return The file's InputStream
+	 * @throws IOException Network error
 	 */
-	private static byte[] getBytes(String url, CookieManager cookiejar)
+	private static InputStream getFileInputStream(String title, int height, int width, Wiki wiki) throws IOException
 	{
-		try
-		{
-			BufferedInputStream in = new BufferedInputStream(ClientRequest.genericGET(new URL(url), cookiejar));
-			ByteArrayOutputStream out = new ByteArrayOutputStream();
-			int c;
-			while ((c = in.read()) != -1)
-				out.write(c);
+		Logger.fyi(wiki, "Downloading " + title);
 
-			in.close();
-			return out.toByteArray();
+		ImageInfo x = wiki.getImageInfo(title, height, width);
+		String url;
+		if (x.thumburl != null)
+			url = x.thumburl;
+		else if (x.url != null)
+			url = x.url;
+		else
+			throw new IOException(String.format("Could not find the file '%s' to download", title));
 
-		}
-		catch (Throwable e)
-		{
-			e.printStackTrace();
-			return null;
-		}
+		return ClientRequest.genericGET(new URL(url), wiki.cookiejar);
 	}
 
 	/**
 	 * Downloads and writes a media file to disk. Note that the file must be visible to you in order to download it.
 	 * 
 	 * @param title The title of the file to download <span style="text-decoration:underline">on the Wiki</span>
-	 *           <b>including</b> the " <tt>File:</tt>" prefix.
 	 * @param localpath The pathname to save this file to (e.g. "<tt>/Users/Fastily/Example.jpg</tt> "). Note that if a
 	 *           file with that name already exists at that pathname, it <span
 	 *           style="color:Red;font-weight:bold">will</span> be overwritten!
 	 * @param wiki The wiki object to use.
-	 * 
-	 * @return True if the operation was successful.
+	 * @return True if we were successful.
 	 */
 	public static boolean downloadFile(String title, String localpath, Wiki wiki)
 	{
-		return downloadFile(title, localpath, wiki, -1, -1);
+		return downloadFile(title, localpath, -1, -1, wiki);
 	}
 
 	/**
 	 * Downloads and writes a media file to disk. Note that the file must be visible to you in order to download it.
 	 * 
 	 * @param title The title of the file to download <span style="text-decoration:underline">on the Wiki</span>
-	 *           <b>including</b> the " <tt>File:</tt>" prefix.
 	 * @param localpath The pathname to save this file to (e.g. "<tt>/Users/Fastily/Example.jpg</tt> "). Note that if a
 	 *           file with that name already exists at that pathname, it <span
 	 *           style="color:Red;font-weight:bold">will</span> be overwritten!
+	 * @param height The height thumbnail to retrieve (optional param, specify -1 to disable)
+	 * @param width The width thumbnail to retrieve (optional param, specify -1 to disable)
 	 * @param wiki The wiki object to use.
-	 * @param height The height (in pixels) to scale to. Specify a number less than 1 to disable this feature.
-	 * @param width The width (in pixels) to scale to. Specify a number less than 1 to disable this feature.
-	 * 
-	 * @return True if the operation was successful.
+	 * @return True if we were successful.
 	 */
-	public static boolean downloadFile(String title, String localpath, Wiki wiki, int height, int width)
+	public static boolean downloadFile(String title, String localpath, int height, int width, Wiki wiki)
 	{
-		Logger.fyi(wiki, "Downloading " + title);
-		ImageInfo x = wiki.getImageInfo(title, height, width);
-		String url;
-		if (x.getThumbURL() != null)
-			url = x.getThumbURL();
-		else if (x.getURL() != null)
-			url = x.getURL();
-		else
-			return false;
-
-		try
+		byte[] bf = new byte[1024 * 512]; // 512kb buffer.
+		int read;
+		try (InputStream in = getFileInputStream(title, height, width, wiki);
+				OutputStream out = Files.newOutputStream(Paths.get(localpath)))
 		{
-			FileOutputStream fos = new FileOutputStream(localpath);
-			fos.write(getBytes(url, wiki.cookiejar));
-			fos.close();
+			while ((read = in.read(bf)) > -1)
+				out.write(bf, 0, read);
+
+			return true;
 		}
 		catch (Throwable e)
 		{
 			e.printStackTrace();
 			return false;
 		}
-
-		return true;
 	}
 
 	/**
@@ -123,11 +106,10 @@ public class ClientTask
 	 * @param title The title of the file to download, including the "File:" prefix.
 	 * @param wiki The wiki object to use.
 	 * @return A BufferedImage, or null if something went wrong.
-	 * @throws IOException I/O error.
 	 */
-	public static BufferedImage downloadFile(String title, Wiki wiki) throws IOException
+	public static BufferedImage downloadFile(String title, Wiki wiki)
 	{
-		return downloadFile(title, wiki, -1, -1);
+		return downloadFile(title, -1, -1, wiki);
 	}
 
 	/**
@@ -135,26 +117,21 @@ public class ClientTask
 	 * file must be visible to you in order to download it.
 	 * 
 	 * @param title The title of the file to download, including the "File:" prefix.
+	 * @param height The height thumbnail to retrieve (optional param, specify -1 to disable)
+	 * @param width The width thumbnail to retrieve (optional param, specify -1 to disable)
 	 * @param wiki The wiki object to use.
-	 * @param height The height (in pixels) to scale to. Specify a number less than 1 to disable this feature.
-	 * @param width The width (in pixels) to scale to. Specify a number less than 1 to disable this feature.
-	 * 
 	 * @return A BufferedImage, or null if something went wrong.
-	 * @throws IOException I/O error.
 	 */
-	public static BufferedImage downloadFile(String title, Wiki wiki, int height, int width) throws IOException
+	public static BufferedImage downloadFile(String title, int height, int width, Wiki wiki)
 	{
-		Logger.fyi(wiki, "Downloading " + title);
-		ImageInfo x = wiki.getImageInfo(title, height, width);
-		String url;
-		if (x.getThumbURL() != null)
-			url = x.getThumbURL();
-		else if (x.getURL() != null)
-			url = x.getURL();
-		else
+		try
+		{
+			return ImageIO.read(getFileInputStream(title, height, width, wiki));
+		}
+		catch (Throwable e)
+		{
+			e.printStackTrace();
 			return null;
-
-		return ImageIO.read(new ByteArrayInputStream(getBytes(url, wiki.cookiejar)));
+		}
 	}
-
 }
