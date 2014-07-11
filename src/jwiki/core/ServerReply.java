@@ -110,7 +110,7 @@ public class ServerReply extends JSONObject
 	 * @param key The key to look for.
 	 * @return The requested value, or -1 if the key doesn't exist.
 	 */
-	public int getIntR(String key)
+	protected int getIntR(String key)
 	{
 		Object result = getR(this, key);
 		return result instanceof Integer ? ((Integer) result).intValue() : -1;
@@ -123,7 +123,7 @@ public class ServerReply extends JSONObject
 	 * @param key The key to look for.
 	 * @return The requested value, or "-1" if the key doesn't exist.
 	 */
-	public String getIntRAsString(String key)
+	protected String getIntRAsString(String key)
 	{
 		return "" + getIntR(key);
 	}
@@ -134,7 +134,7 @@ public class ServerReply extends JSONObject
 	 * @param key The key to look for.
 	 * @return The requested value, or null if the key doesn't exist.
 	 */
-	public String getStringR(String key)
+	protected String getStringR(String key)
 	{
 		Object result = getR(this, key);
 		return result instanceof String ? (String) result : null;
@@ -146,7 +146,7 @@ public class ServerReply extends JSONObject
 	 * @param key The key to look for.
 	 * @return The requested value, or null if the key doesn't exist.
 	 */
-	public ServerReply getJSONObjectR(String key)
+	protected ServerReply getJSONObjectR(String key)
 	{
 		Object result = getR(this, key);
 		return result instanceof JSONObject ? new ServerReply((JSONObject) result) : null;
@@ -158,7 +158,7 @@ public class ServerReply extends JSONObject
 	 * @param key The key to look for.
 	 * @return The requested value, or null if the key doesn't exist.
 	 */
-	public JSONArray getJSONArrayR(String key)
+	protected JSONArray getJSONArrayR(String key)
 	{
 		Object result = getR(this, key);
 		return result instanceof JSONArray ? (JSONArray) result : null;

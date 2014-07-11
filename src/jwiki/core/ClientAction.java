@@ -46,8 +46,7 @@ public class ClientAction
 	protected static boolean edit(Wiki wiki, String title, String text, String reason)
 	{
 		Logger.info(wiki, "Editing " + title);
-		URLBuilder ub = wiki.makeUB();
-		ub.setAction("edit");
+		URLBuilder ub = wiki.makeUB("edit");
 
 		String[] es = FString.massEnc(title, text, reason, wiki.token);
 		String posttext = URLBuilder.chainParams("title", es[0], "text", es[1], "summary", es[2], "token", es[3]);

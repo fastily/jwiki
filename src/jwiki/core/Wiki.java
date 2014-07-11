@@ -205,16 +205,6 @@ public class Wiki
 	}
 
 	/**
-	 * Convenience method, makes a URLBuilder.
-	 * 
-	 * @return A URLBuilder with our current domain.
-	 */
-	protected URLBuilder makeUB()
-	{
-		return new URLBuilder(domain);
-	}
-
-	/**
 	 * Creates a URLBuilder with a custom action & params. PRECONDITION: all <tt>params</tt> must be URLEncoded.
 	 * 
 	 * @param action The custom action to use
@@ -223,7 +213,7 @@ public class Wiki
 	 */
 	protected URLBuilder makeUB(String action, String... params)
 	{
-		URLBuilder ub = makeUB();
+		URLBuilder ub = new URLBuilder(domain);
 		ub.setAction(action);
 		ub.setParams(params);
 		return ub;
@@ -724,4 +714,9 @@ public class Wiki
 	{
 		return ClientQuery.listSpecialPages(this, page, max);
 	}
+	
+	
+	
+	
+	
 }

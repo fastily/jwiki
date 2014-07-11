@@ -101,18 +101,6 @@ public class FString
 	}
 
 	/**
-	 * Determines if a String array contains an <tt>item</tt>.
-	 * 
-	 * @param a The array to check
-	 * @param item The item to look for
-	 * @return True if we found <tt>item</tt> in <tt>a</tt>.
-	 */
-	public static boolean arrayContains(String[] a, String item)
-	{
-		return Arrays.asList(a).contains(item);
-	}
-
-	/**
 	 * Makes a regex for replacing titles/files on a page. Converts regex operators to their escaped counterparts.
 	 * 
 	 * @param title The title to convert into a regex.

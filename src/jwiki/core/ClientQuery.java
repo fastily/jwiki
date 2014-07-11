@@ -595,5 +595,5 @@ public class ClientQuery
 			}
 		}
 		return l;
-	}
+	}	
 }
