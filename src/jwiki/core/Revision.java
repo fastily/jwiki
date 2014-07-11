@@ -1,5 +1,6 @@
 package jwiki.core;
 
+import java.time.Instant;
 import java.util.ArrayList;
 
 import org.json.JSONArray;
@@ -14,18 +15,31 @@ import org.json.JSONObject;
 public class Revision
 {
 	/**
-	 * Interal field value. Page title, summary, user who made edit, and text of edit.
+	 * The title of the page this revision was made to
 	 */
-	private String title, summary, user, text;
+	public final String title;
 	
-	//TODO: Fixme
+	/**
+	 * The edit summary of this revision
+	 */
+	public final String summary;
+	
+	/**
+	 * The user who made this revision
+	 */
+	public final String user; 
+	
+	/**
+	 * The text of this revision
+	 */
+	public final String text; 
+	
 	/**
 	 * The timestamp set by the info returned by the server. MediaWiki returns dates in the form:
 	 * <tt>2013-12-16T00:25:17Z</tt>. You can parse it with the pattern <tt>yyyy-MM-dd'T'HH:mm:ss'Z'</tt>. CAVEAT:
-	 * MediaWiki sometimes returns garbage values for no apparent reason. Try+Catch is a MUST when parsing via
-	 * SimpleDateFormat (one is provided in the Constants class).
+	 * MediaWiki sometimes returns garbage values for no apparent reason. 
 	 */
-	private String timestamp;
+	public final Instant timestamp;
 	
 	/**
 	 * Constructor, creates a revision object.
@@ -35,8 +49,9 @@ public class Revision
 	 */
 	private Revision(String title, JSONObject rev)
 	{
+		
 		this.title = title;
-		timestamp = rev.getString("timestamp");
+		timestamp = Instant.parse(rev.getString("timestamp"));
 		summary = rev.getString("comment");
 		text = rev.getString("*");
 		user = rev.getString("user");
@@ -48,7 +63,7 @@ public class Revision
 	 * @param reply The reply from the server.
 	 * @return Revision data parsed from the JSONObject.
 	 */
-	protected static Revision[] makeRevs(ServerReply reply)
+	protected static ArrayList<Revision> makeRevs(ServerReply reply)
 	{
 		ArrayList<Revision> rl = new ArrayList<Revision>();
 		String title = "";
@@ -60,64 +75,14 @@ public class Revision
 			for (int i = 0; i < revs.length(); i++)
 				rl.add(new Revision(title, revs.getJSONObject(i)));
 			
-			return rl.toArray(new Revision[0]);
+			return rl;
 		}
 		catch (Throwable e)
 		{
 			//e.printStackTrace();
 			Logger.fyi("Looks like the page, " + title + ", doesn't have revisions");
-			return new Revision[0];
+			return new ArrayList<Revision>();
 		}
-	}
-	
-	/**
-	 * Gets the title associated with the revision.
-	 * 
-	 * @return The title associated with the revision.
-	 */
-	public String getTitle()
-	{
-		return title;
-	}
-	
-	/**
-	 * Gets the edit summary associated with the revision.
-	 * 
-	 * @return The edit summary associated with this revision.
-	 */
-	public String getSummary()
-	{
-		return summary;
-	}
-	
-	/**
-	 * Gets the name of the user who made the revision. Excludes 'User:' prefix.
-	 * 
-	 * @return The name of the user who made the revision.
-	 */
-	public String getUser()
-	{
-		return user;
-	}
-	
-	/**
-	 * Gets the text of a revision.
-	 * 
-	 * @return The text of this revision.
-	 */
-	public String getText()
-	{
-		return text;
-	}
-	
-	/**
-	 * Gets the time at which this revision was made.
-	 * 
-	 * @return A date representing the time the revision was made.
-	 */
-	public String getTimestamp()
-	{
-		return timestamp;
 	}
 	
 	/**
@@ -130,5 +95,4 @@ public class Revision
 		return String.format("----%nTitle:%s%nSummary:%s%nUser:%s%nText:%s%nTimestamp:%s%n----", title, summary, user, text,
 				timestamp.toString());
 	}
-	
 }

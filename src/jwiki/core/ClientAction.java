@@ -77,7 +77,7 @@ public class ClientAction
 		{
 			Revision[] rl = ClientQuery.getRevisions(wiki, title, 2, false);
 			return rl.length < 2 ? FError.printErrorAndReturn("There are fewer than two revisions in " + title, false) : edit(
-					wiki, title, rl[1].getText(), reason);
+					wiki, title, rl[1].text, reason);
 		}
 		catch (Throwable e)
 		{
