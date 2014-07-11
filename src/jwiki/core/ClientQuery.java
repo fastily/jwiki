@@ -210,7 +210,7 @@ public class ClientQuery
 	protected static String getPageText(Wiki wiki, String title)
 	{
 		Revision[] rl = getRevisions(wiki, title, 1, false);
-		return rl.length >= 1 && rl[0] != null ? rl[0].getText() : null;
+		return rl.length >= 1 && rl[0] != null ? rl[0].text : null;
 	}
 
 	/**
@@ -231,7 +231,7 @@ public class ClientQuery
 
 		ArrayList<Revision> rl = new ArrayList<Revision>();
 		for (ServerReply r : fatQuery(ub, num, "rvlimit", "rvcontinue", false, wiki))
-			rl.addAll(Arrays.asList(Revision.makeRevs(r)));
+			rl.addAll(Revision.makeRevs(r));
 
 		return rl.toArray(new Revision[0]);
 	}

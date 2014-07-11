@@ -1,7 +1,5 @@
 package jwiki.core;
 
-import java.text.SimpleDateFormat;
-
 /**
  * Contains a number of constants useful to the package.
  * 
@@ -19,12 +17,6 @@ public class Settings
 	 * The user agent we're using to make https requests.
 	 */
 	public static String useragent = "fpwertys";
-	
-	/**
-	 * The date format with which we're using to parse returned time stamps from the server. MediaWiki returns dates in
-	 * the form: <tt>2013-12-16T00:25:17Z</tt>
-	 */
-	protected static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
 	
 	/**
 	 * The maximum allowable number of results returned per query.  MediaWiki -> 500 per default.
@@ -48,5 +40,4 @@ public class Settings
 	{
 		
 	}
-	
 }

@@ -1,8 +1,8 @@
 package jwiki.core;
 
 import java.text.ParseException;
+import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Date;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -18,22 +18,32 @@ public class Contrib
 	/**
 	 * The name of the user who made the contribution.
 	 */
-	private String user;
+	public final String user;
 	
 	/**
 	 * Title and edit summary.
 	 */
-	private String title, summary;
+	public final String title;
 	
 	/**
-	 * The date at which this edit was made.
+	 * The edit summary used in this contribution.
 	 */
-	private Date timestamp;
+	public final String summary;
 	
 	/**
-	 * Revision id, parent page id.
+	 * The date and time at which this edit was made.
 	 */
-	private int revid, parentid;
+	public final Instant timestamp;
+	
+	/**
+	 * Revision id.
+	 */
+	public final int revid;
+	
+	/**
+	 * This revision's parent ID
+	 */
+	public final int parentid;
 	
 	/**
 	 * Creates a Contrib object from a JSONObject returned by the server, representing a single contribtion.
@@ -46,7 +56,7 @@ public class Contrib
 		user = jo.getString("user");
 		title = jo.getString("title");
 		summary = jo.getString("comment");
-		timestamp = Settings.sdf.parse(jo.getString("timestamp"));
+		timestamp = Instant.parse(jo.getString("timestamp"));
 		revid = jo.getInt("revid");
 		parentid = jo.getInt("parentid");
 	}
@@ -72,60 +82,6 @@ public class Contrib
 			return new Contrib[0];
 		}
 		return l.toArray(new Contrib[0]);
-	}
-	
-	/**
-	 * Gets the name of the user who made the edit.
-	 * @return The name of the user who made the edit.
-	 */
-	public String getUser()
-	{
-		return user;
-	}
-	
-	/**
-	 * Get the title of the page.
-	 * @return The title of the page
-	 */
-	public String getTitle()
-	{
-		return title;
-	}
-	
-	/**
-	 * Get the edit summary.
-	 * @return The edit summary.
-	 */
-	public String getSummary()
-	{
-		return summary;
-	}
-	
-	/**
-	 * Get the date the edit was made
-	 * @return The date the edit was made
-	 */
-	public Date getDate()
-	{
-		return timestamp;
-	}
-	
-	/**
-	 * Get the unique revision ID for this edit.
-	 * @return The unique revision ID for this edit
-	 */
-	public int getRevId()
-	{
-		return revid;
-	}
-	
-	/**
-	 * Get the Parent Page ID for this revision.
-	 * @return The Parent Page ID for this revision.
-	 */
-	public int getParentId()
-	{
-		return parentid;
 	}
 	
 	/**
