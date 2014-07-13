@@ -46,15 +46,4 @@ public class ImageInfo
 		url = r.getStringR("url");
 		thumburl = r.getStringR("thumburl");
 	}
-	
-	/**
-	 * Gets a String representation of this object.
-	 * 
-	 * @return A String representation of this object.
-	 */
-	public String toString()
-	{
-		return String.format("----%nSize: %d%nWidth: %d%nHeight %d%nURL: %s%nThumbURL: %s%n----%n", size, width, height, url,
-				thumburl);
-	}
 }
