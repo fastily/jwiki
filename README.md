@@ -16,16 +16,10 @@ Caveat: This library is under active development and so files/classes/functions 
 </ul>
 
 <h3>Dependencies</h3>
-The project relies on two freely licensed external libraries, namely:
-<ul>
-<li><a href="https://github.com/douglascrockford/JSON-java">JSON-java</a> (<a href="http://www.json.org/license.html">License</a>) - parse JSON formatted server responses </li> 
-<li><a href="http://svn.apache.org/viewvc/commons/proper/cli/trunk/src/">Commons CLI 1.3 (beta version)</a> (<a href="http://www.apache.org/licenses/">License</a>) - Significantly decrease the argument parsing overhead in my CLI tools (in the <tt>ft</tt> package)</li> 
-</ul>
-These libraries are bundled as jars in top of the repo's directory structure.  You may also download the newest version(s) of these libraries from the links above, but I cannot guarantee those versions will work with this framework.
+The project relies on one external library for JSON support <a href="https://github.com/douglascrockford/JSON-java">JSON-java</a> (<a href="http://www.json.org/license.html">License</a>).  It is bundled as a .jar in top of the repo's directory structure; use newer version(s) at your own discretion.
 
 <h3>Documentation</h3>
-<ul>
-<li>Main <a href="http://fastily.github.io/jwiki/docs/jwiki/">javadocs</a></li>
+<li><a href="http://fastily.github.io/jwiki/docs/jwiki/">Javadocs</a></li>
 <li>Quick start guide: check out <a href=https://github.com/fastily/jwiki/blob/master/src/jwiki/core/Wiki.java style="font-family:Lucida Console">Wiki.java</a>.  Everything you need in one nifty file!</li>
 </ul>
 
@@ -38,7 +32,7 @@ These libraries are bundled as jars in top of the repo's directory structure.  Y
 <h3>Project Objectives</h3>
 I created this framework with a few specific goals in mind:
 <ul>
-<li>Simple - _Anybody_ with a even beginner's knowledge of Java shall be able to use this framework.  I make it a point to avoid horrible things like complex objects and convoluted calls; this project isn't intended to show folks how amazing I am at the Java language, it's designed for the purpose of making their lives easy.</li>
-<li>Speed - This framework shall emphasize performance.  Time is a precious resource so why waste it waiting for some dumb program to finish :)</li>
-<li>Short - Changes or Queries to a Wiki shall be easy to perform.  I designed this framework so that API calls to a Wiki can be constructed in seconds with one line of code consisting of, for the most part, Java primitive types.  I believe one should spend less time coding, and more time getting done what one initially set out to complete.</li>
+<li>Simplicity - <b>Anybody</b> with a even beginner's knowledge of Java shall be able to use this framework.  I make it a point to avoid horrible things like complex objects and convoluted calls; this project isn't intended to show folks how amazing I am at the Java language, it's designed for the purpose of making their lives easy.</li>
+<li>Speediness - This framework shall emphasize performance.  Time is a precious resource so why waste it waiting for some dumb program to finish :)</li>
+<li>Shortness - Changes or Queries to a Wiki shall be easy to perform.  I designed this framework so that API calls to a Wiki can be constructed in seconds with one line of code consisting of, for the most part, Java primitive types.  I believe one should spend less time coding, and more time getting done what one initially set out to complete.</li>
 </ul>
