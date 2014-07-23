@@ -1,6 +1,6 @@
 package jwiki.mbot;
 
-import jwiki.core.Logger;
+import jwiki.core.ColorLog;
 import jwiki.core.Wiki;
 
 /**
@@ -56,7 +56,7 @@ public class EditItem extends WAction
 		else if (!add.isEmpty()) // prevent null edit if add is empty
 			return wiki.addText(title, add, summary, false);
 
-		Logger.error("Why is everythign null?");
+		ColorLog.error("Why is everythign null?");
 		return false;
 	}
 }

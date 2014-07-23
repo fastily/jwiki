@@ -6,6 +6,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.HashMap;
+import java.util.logging.Level;
 
 import jwiki.util.FError;
 import jwiki.util.FIO;
@@ -45,7 +46,7 @@ public class ClientAction
 	 */
 	protected static boolean edit(Wiki wiki, String title, String text, String reason)
 	{
-		Logger.info(wiki, "Editing " + title);
+		ColorLog.info(wiki, "Editing " + title);
 		URLBuilder ub = wiki.makeUB("edit");
 
 		String[] es = FString.massEnc(title, text, reason, wiki.token);
@@ -72,7 +73,7 @@ public class ClientAction
 	 */
 	protected static boolean undo(Wiki wiki, String title, String reason)
 	{
-		Logger.fyi(wiki, "Undoing newest revision of " + title);
+		ColorLog.fyi(wiki, "Undoing newest revision of " + title);
 		try
 		{
 			Revision[] rl = ClientQuery.getRevisions(wiki, title, 2, false);
@@ -95,7 +96,7 @@ public class ClientAction
 	 */
 	protected static boolean purge(Wiki wiki, String title)
 	{
-		Logger.fyi(wiki, "Purging " + title);
+		ColorLog.fyi(wiki, "Purging " + title);
 		URLBuilder ub = wiki.makeUB("purge", "titles", FString.enc(title));
 
 		try
@@ -120,7 +121,7 @@ public class ClientAction
 	 */
 	protected static boolean delete(Wiki wiki, String title, String reason)
 	{
-		Logger.info(wiki, "Deleting " + title);
+		ColorLog.info(wiki, "Deleting " + title);
 		URLBuilder ub = wiki.makeUB("delete");
 
 		String[] es = FString.massEnc(title, reason, wiki.token);
@@ -149,7 +150,7 @@ public class ClientAction
 	 */
 	protected static boolean undelete(Wiki wiki, String title, String reason)
 	{
-		Logger.info(wiki, "Restoring " + title);
+		ColorLog.info(wiki, "Restoring " + title);
 		URLBuilder ub = wiki.makeUB("undelete");
 
 		String[] es = FString.massEnc(title, reason, wiki.token);
@@ -167,10 +168,11 @@ public class ClientAction
 	}
 
 	/**
-	 * Upload a media file to this wiki.  Uses the chunked uploads protocol.
+	 * Upload a media file to this wiki. Uses the chunked uploads protocol.
+	 * 
 	 * @param wiki The wiki object to use
 	 * @param p The path to the file we're uploading
-	 * @param title The title to upload to.  Should include the "File:" prefix
+	 * @param title The title to upload to. Should include the "File:" prefix
 	 * @param text The text to use on the file's description page
 	 * @param reason The edit summary
 	 * @return True if we were successful.
@@ -181,34 +183,33 @@ public class ClientAction
 		String filename = FIO.getFileName(p);
 		String filekey = null;
 		URLBuilder ub = wiki.makeUB("upload");
-		
-		try(FileChannel fc = FileChannel.open(p, StandardOpenOption.READ))
+
+		try (FileChannel fc = FileChannel.open(p, StandardOpenOption.READ))
 		{
 			long filesize = Files.size(p);
 			long chunks = filesize / chunksize + ((filesize % chunksize) > 0 ? 1 : 0);
 
-			HashMap<String, String> args = FString.makeParamMap("filename", Namespace.nss(uploadTo), "token", wiki.token, "ignorewarnings", "true",
-				"stash", "1", "filesize", "" + filesize);
-			
-			Logger.info(wiki, String.format("Uploading '%s' to '%s'", filename, title));
-			
-			for(long i = 0, offset = fc.position(), failcount = 0; i < chunks; )
+			HashMap<String, String> args = FString.makeParamMap("filename", Namespace.nss(uploadTo), "token", wiki.token,
+					"ignorewarnings", "true", "stash", "1", "filesize", "" + filesize);
+
+			ColorLog.info(wiki, String.format("Uploading '%s' to '%s'", filename, title));
+
+			for (long i = 0, offset = fc.position(), failcount = 0; i < chunks;)
 			{
-				Logger.log(wiki, String.format("(%s): Uploading chunk %d of %d", filename, i + 1, chunks), "PURPLE");
-				//args.put("offset", "" + i * chunksize);
+				ColorLog.log(wiki, String.format("(%s): Uploading chunk %d of %d", filename, i + 1, chunks), Level.INFO, ColorLog.PURPLE);
+				
 				args.put("offset", "" + offset);
 				if (filekey != null)
 					args.put("filekey", filekey);
-				
+
 				ServerReply r = ClientRequest.chunkPost(ub.makeURL(), wiki.cookiejar, args, filename, fc);
-				//System.out.println(filekey);
-			
-				if(r.hasError()) //allow 5x retries for failed chunks.
+
+				if (r.hasError()) // allow 5x retries for failed chunks.
 				{
-					if(++failcount > 5)
+					if (++failcount > 5)
 						throw new IOException("Server is being difficult today - failed to upload " + filename);
 					fc.position(offset);
-					Logger.error(wiki, String.format("Failed on chunk %d/%d.  Attempt %d/5", i+1, chunks, failcount));
+					ColorLog.error(wiki, String.format("Failed on chunk %d/%d.  Attempt %d/5", i + 1, chunks, failcount));
 				}
 				else
 				{
@@ -218,14 +219,14 @@ public class ClientAction
 					failcount = 0;
 				}
 			}
-			
-			return filekey != null ? unstash(wiki, filekey, uploadTo, text, reason) : false;	
+
+			return filekey != null ? unstash(wiki, filekey, uploadTo, text, reason) : false;
 		}
 		catch (Throwable e)
 		{
 			e.printStackTrace();
 			if (filekey != null)
-				unstash(wiki, filekey, uploadTo, text, reason); //try unstashing anyways.
+				unstash(wiki, filekey, uploadTo, text, reason); // try unstashing anyways, b/c sometimes it succeeded
 			return false;
 		}
 	}
@@ -242,7 +243,7 @@ public class ClientAction
 	 */
 	private static boolean unstash(Wiki wiki, String filekey, String title, String text, String reason)
 	{
-		Logger.info(wiki, String.format("Unstashing '%s' from temporary archive @ '%s'", title, filekey));
+		ColorLog.info(wiki, String.format("Unstashing '%s' from temporary archive @ '%s'", title, filekey));
 		URLBuilder ub = wiki.makeUB("upload");
 
 		String[] es = FString.massEnc(title, text, reason, wiki.token, filekey);

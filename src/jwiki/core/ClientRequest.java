@@ -12,6 +12,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.zip.GZIPInputStream;
 
 /**
  * Class used to do GET/POST requests.
@@ -35,8 +36,7 @@ public class ClientRequest
 	 * The format string for the chunked upload headers.
 	 */
 	private static final String chunkheaderfmt = "Content-Disposition: form-data; name=\"%s\"\r\n"
-			+ "Content-Type: %s; charset=UTF-8\r\n"
-			+ "Content-Transfer-Encoding: %s\r\n\r\n";
+			+ "Content-Type: %s; charset=UTF-8\r\n" + "Content-Transfer-Encoding: %s\r\n\r\n";
 
 	/**
 	 * Content encoding to use for URLEncoded forms.
@@ -92,7 +92,13 @@ public class ClientRequest
 	}
 
 	/**
-	 * Prepares a URLConnection with the given url and cookiejar.
+	 * Prepares a URLConnection with the given url and cookiejar. <br>
+	 * Additional properties include:
+	 * <ul>
+	 * <li>Connection: keep-alive</li>
+	 * <li>Accept-Encoding: gzip</li>
+	 * <li>User-Agent: Whatever Settings.useragent is set to</li>
+	 * <ul>
 	 * 
 	 * @param url The URL to use.
 	 * @param cookiejar The cookiejar to use. This param is optional, specifiy null to disable.
@@ -104,6 +110,7 @@ public class ClientRequest
 		URLConnection c = url.openConnection();
 		c.setRequestProperty("User-Agent", Settings.useragent); // required, or server will 403.
 		c.setRequestProperty("Connection", "keep-alive");
+		c.setRequestProperty("Accept-Encoding", "gzip");
 
 		c.setConnectTimeout(connectTimeout);
 		c.setReadTimeout(readTimeout);
@@ -132,6 +139,20 @@ public class ClientRequest
 	}
 
 	/**
+	 * Checks if the response from the server is in gzip encoding. PRECONDITION: you must have already called connect()
+	 * on the URLConnection and received a response from the server for this to work properly.
+	 * 
+	 * @param c The URLConnection to check.
+	 * @return A gzip decoding inputstream or a normal inputstream if the response was not compressed.
+	 * @throws IOException Network error
+	 */
+	private static InputStream resolveCompression(URLConnection c) throws IOException
+	{
+		String ce = c.getHeaderField("Content-Encoding");
+		return ce != null && ce.toLowerCase().equals("gzip") ? new GZIPInputStream(c.getInputStream()) : c.getInputStream();
+	}
+
+	/**
 	 * Performs a generic POST request.
 	 * 
 	 * @param url The URL to use
@@ -151,7 +172,7 @@ public class ClientRequest
 		if (cookiejar != null)
 			grabCookies(c, cookiejar);
 
-		return c.getInputStream();
+		return resolveCompression(c);
 	}
 
 	/**
@@ -168,7 +189,7 @@ public class ClientRequest
 		c.connect();
 		if (cookiejar != null)
 			grabCookies(c, cookiejar);
-		return c.getInputStream();
+		return resolveCompression(c);
 	}
 
 	/**
@@ -214,15 +235,15 @@ public class ClientRequest
 	 * @return The reply from the server.
 	 * @throws IOException Network error.
 	 */
-	protected static ServerReply chunkPost(URL url, CookieManager cookiejar, HashMap<String, String> args,
-			String filename, FileChannel fc) throws IOException
+	protected static ServerReply chunkPost(URL url, CookieManager cookiejar, HashMap<String, String> args, String filename,
+			FileChannel fc) throws IOException
 	{
 		String boundary = "-----Boundary-----";
 		URLConnection c = makePost(url, cookiejar, "multipart/form-data; boundary=" + boundary);
 		boundary = "--" + boundary + "\r\n";
 
 		String temp = new String(boundary);
-		for (Map.Entry<String, String> t: args.entrySet())
+		for (Map.Entry<String, String> t : args.entrySet())
 		{
 			temp += String.format(chunkheaderfmt, t.getKey(), "text/plain", "8bit");
 			temp += t.getValue();
@@ -231,8 +252,6 @@ public class ClientRequest
 
 		temp += String.format(chunkheaderfmt, "chunk\"; filename=\"" + filename, "application/octet-stream", "binary"); // hacky
 
-		//System.out.println(temp);
-		
 		OutputStream os = c.getOutputStream();
 		os.write(temp.getBytes("UTF-8"));
 
@@ -241,7 +260,7 @@ public class ClientRequest
 		os.close();
 
 		grabCookies(c, cookiejar);
-		return new ServerReply(c.getInputStream());
+		return new ServerReply(resolveCompression(c));
 	}
 
 	/**
@@ -255,25 +274,18 @@ public class ClientRequest
 	 * @throws IOException If I/O error.
 	 */
 	private static void pipe(FileChannel fc, OutputStream os, long max) throws IOException
-	{		
-		byte[] uout = new byte[1024*512]; //set buffer size to 512kb
+	{
+		byte[] uout = new byte[1024 * 512]; // set buffer size to 512kb
 		ByteBuffer buf = ByteBuffer.wrap(uout);
 
 		for (long i = 0; i < max;)
 		{
 			int read = fc.read(buf);
-			if (read == -1 )
+			if (read == -1)
 				break;
-			
-			/*System.out.println("Got here @ " + i);
-			System.out.println(uout.length);
-			System.out.println("read " + read);*/
+
 			i += read;
-			/*
-			for(int j = 0; j < 5; j++)
-				System.out.print(uout[j] + " ");
-			System.out.println();*/
-			
+
 			os.write(uout, 0, read);
 			buf.clear();
 		}

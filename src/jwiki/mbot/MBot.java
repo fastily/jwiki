@@ -2,7 +2,7 @@ package jwiki.mbot;
 
 import java.util.ArrayList;
 
-import jwiki.core.Logger;
+import jwiki.core.ColorLog;
 import jwiki.core.Wiki;
 
 /**
@@ -71,12 +71,12 @@ public class MBot
 		
 		if (fails.length > 0)
 		{
-			Logger.warn(String.format("MBot failed to process (%d): ", fails.length));
+			ColorLog.warn(String.format("MBot failed to process (%d): ", fails.length));
 			for (WAction x : fails)
-				Logger.log(x.title, "PURPLE");
+				System.err.println(ColorLog.makeString(x.title, ColorLog.PURPLE));
 		}
 		else
-			Logger.fyi("MBot completed the task with 0 failures");
+			ColorLog.fyi("MBot completed the task with 0 failures");
 		
 		return fails;
 	}

@@ -4,18 +4,25 @@
 * Convert GlobalReplace to CLI and wrap it with GUI.
 ** GlobalReplace with 20+ images hits apihighlimit restriction.  Perhaps we should add a delay...
 
-* Timestamp parsing for time field (should be a date/time object, not a string) in Revision/Contrib is really messed up sometimes.  Is this broken server side?
-
 * FLogin crypto is crap.  Keeps out non-CS people, but this is a joke to reverse engineer... 
 ** Salt should be secure random generated.
 ** Use MD5/MD6 hashes?
 ** Should I be using base64 encoding to output files?  This isn't a built-in and I'm lazy... (may not be too important, seeing how machines which don't support UTF-8 probably aren't supported by java 8 anyhow...)
-** Keys *should* be randomly generated - based on OS names, serial number, etc, perhaps?  We can save these locally.
+** Keys *should* be randomly generated - based on OS names, serial number, etc, user's account, time generated, perhaps?  We can save these locally.
+*** There is a problem with this logic however, because the user isn't actually entering a password, and keys are going to be saved locally o_o.  I guess it's a step above plaintext...
 
-* ClientTask should use nio.
+* FLogin is still using old java.io.* ->  Update to nio.
+
+* query-continue is depreceated in favor continue
 
 == Low Priority ==
 * Commons New Image Auditor
 * Legit JUnit Tests
 * Generators?
 * Apparently addtext in edit already exists.
+* RevDel?  Image RevDel?
+* Log querying methods
+* Can we implement caching of some sort?  Is this offered by the server?  Should I do it client side?
+
+== Notes ==
+* For internal methods that return arrays, let's standardize them to use ArrayLists.

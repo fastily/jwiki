@@ -202,19 +202,19 @@ public class ServerReply extends JSONObject
 	 * @param key The key with which to get values for
 	 * @return A list of JSONObjects objects associated with the specified key.
 	 */
-	protected ServerReply[] bigJSONObjectGet(String key)
+	protected ArrayList<ServerReply> bigJSONObjectGet(String key)
 	{
 		ArrayList<ServerReply> jl = new ArrayList<ServerReply>();
 
 		JSONObject jo = getJSONObjectR(key);
 		if (jo == null)
-			return new ServerReply[0];
+			return jl; // jl is empty
 
 		String[] keys = JSONObject.getNames(jo);
 		if (keys != null)
 			for (String s : keys)
 				jl.add(new ServerReply(jo.getJSONObject(s)));
 
-		return jl.toArray(new ServerReply[0]);
+		return jl;
 	}
 }

@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-import jwiki.core.Logger;
+import jwiki.core.ColorLog;
 import jwiki.core.Wiki;
 import jwiki.util.ProgressTracker;
 
@@ -101,7 +101,7 @@ public class ThreadManager
 			if (!curr.doJob(wiki))
 				fails.add(curr);
 		}
-		Logger.fyi(me + "There's nothing left for me!");
+		ColorLog.fyi(me + "There's nothing left for me!");
 	}
 	
 	/**

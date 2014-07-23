@@ -27,7 +27,7 @@ public class ClientAuth
 	 */
 	private static boolean login(Wiki wiki)
 	{
-		Logger.info(String.format("Logging in as %s @ %s", wiki.whoami(), wiki.domain));
+		ColorLog.info(String.format("Logging in as %s @ %s", wiki.whoami(), wiki.domain));
 
 		URLBuilder ub = wiki.makeUB("login");
 
@@ -60,7 +60,7 @@ public class ClientAuth
 	 */
 	private static boolean generateEditToken(Wiki wiki)
 	{
-		Logger.info(wiki, "Fetching edit token");
+		ColorLog.info(wiki, "Fetching edit token");
 
 		URLBuilder ub = wiki.makeUB("tokens");
 		try
@@ -83,7 +83,7 @@ public class ClientAuth
 	 */
 	private static boolean generateNSL(Wiki wiki)
 	{
-		Logger.info(wiki, "Generating namespace list");
+		ColorLog.info(wiki, "Generating namespace list");
 		URLBuilder ub = wiki.makeUB("query", "meta", "siteinfo", "siprop", "namespaces");
 
 		try

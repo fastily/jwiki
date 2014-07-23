@@ -1,5 +1,7 @@
 /**
- * Contains the main classes in jwiki. Most of the classes here contain protected/private members which primarily exist
- * to serve <tt>Wiki.java</tt>. For most programmers, this is the only class you're going to need.
+ * Contains the main classes in jwiki. Most of the classes here contain protected/private members which hide away the
+ * nasty/complicated details which do not, and should not concern the typical programmer. These classes all serve
+ * <tt>Wiki.java</tt>; for most users, this is the only class you're going to need.
  */
 package jwiki.core;
+
