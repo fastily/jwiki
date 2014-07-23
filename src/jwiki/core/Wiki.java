@@ -12,10 +12,25 @@ import jwiki.util.FString;
 import jwiki.util.Tuple;
 
 /**
- * Entry point. Query or perform actions on a Wiki. Thread-safe.
+ * Main class of jwiki; most developers will only need this class. This class implements all queries/actions which jwiki
+ * can perform on a wiki. All methods are backed by static calls and are, to my knowledge, totally thread-safe. I had
+ * three specific design goals/principles in mind when creating jwiki:
+ * <ol>
+ * <li><span style="text-decoration:underline">Simplicity</span> &mdash; <i>Anybody</i> with a even beginner's knowledge
+ * of Java shall be able to use this framework. I make it a point to avoid horrible things like complex objects and
+ * convoluted calls; this project isn't intended to show folks how amazing I am at the Java language, it's designed for
+ * the purpose of making their lives easy.</li>
+ * <li><span style="text-decoration:underline">Speediness</span> &mdash; This framework shall emphasize performance.
+ * Time is a precious resource so why waste it waiting for some dumb program to finish :)</li>
+ * <li><span style="text-decoration:underline">Shortness</span> &mdash; Changes or queries to a Wiki shall be easy to
+ * perform. I designed this framework so that API calls to a Wiki can be constructed in seconds with one line of code
+ * consisting of, for the most part, Java primitive types. I believe one should spend less time coding, and more time
+ * getting done what one initially set out to complete.</li>
+ * </ol>
+ * <br>
+ * Here's a simple example that will edit an article by replacing the article text with some text of your choosing.
  * 
  * @author Fastily
- * 
  */
 public class Wiki
 {
@@ -66,7 +81,6 @@ public class Wiki
 		boolean isNew = parent != null;
 		if (isNew)
 		{
-			// System.out.println("WE ARE HERE!!!!!");
 			wl = parent.wl;
 			cookiejar = parent.cookiejar;
 			ClientAuth.copyCentralAuthCookies(parent, domain);
@@ -79,7 +93,7 @@ public class Wiki
 	}
 
 	/**
-	 * Internal constructor, use it to spawn a new wiki @ a different domain associated with this object.
+	 * Internal constructor, use it to spawn a new wiki at a different domain associated with this object.
 	 * 
 	 * @param curr The parent wiki object spawning this child wiki object.
 	 * @param domain The new domain of the child.
@@ -125,7 +139,7 @@ public class Wiki
 	 */
 	public synchronized Wiki getWiki(String domain)
 	{
-		Logger.fyi(this, String.format("Get Wiki for %s @ %s", whoami(), domain));
+		ColorLog.fyi(this, String.format("Get Wiki for %s @ %s", whoami(), domain));
 		try
 		{
 			return isVerifiedFor(domain) ? wl.get(domain) : new Wiki(this, domain);
@@ -714,9 +728,5 @@ public class Wiki
 	{
 		return ClientQuery.listSpecialPages(this, page, max);
 	}
-	
-	
-	
-	
-	
+
 }

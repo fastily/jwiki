@@ -1,6 +1,8 @@
 package jwiki.util;
 
-import jwiki.core.Logger;
+import java.util.logging.Level;
+
+import jwiki.core.ColorLog;
 
 /**
  * Simple progress tracker that outputs our progress to std out. Does not enforce curr &le; end. This class is only for
@@ -66,7 +68,7 @@ public class ProgressTracker
 	 */
 	public synchronized int inc(String head)
 	{
-		Logger.log(head + String.format(msg, ++curr, end), "green");
+		ColorLog.log(head + String.format(msg, ++curr, end), Level.INFO, ColorLog.GREEN);
 		return curr;
 	}
 	

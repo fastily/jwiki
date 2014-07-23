@@ -54,7 +54,7 @@ public class Revision extends DataEntry
 		catch (Throwable e)
 		{
 			// e.printStackTrace();
-			Logger.fyi("Looks like the page, " + title + ", doesn't have revisions");
+			ColorLog.fyi("Looks like the page, " + title + ", doesn't have revisions");
 			return new ArrayList<Revision>();
 		}
 	}

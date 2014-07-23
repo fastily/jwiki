@@ -39,7 +39,7 @@ public class ClientTask
 	 */
 	private static InputStream getFileInputStream(String title, int height, int width, Wiki wiki) throws IOException
 	{
-		Logger.fyi(wiki, "Downloading " + title);
+		ColorLog.fyi(wiki, "Downloading " + title);
 
 		ImageInfo x = wiki.getImageInfo(title, height, width);
 		String url;
