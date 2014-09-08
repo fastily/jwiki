@@ -144,7 +144,7 @@ public class Namespace
 	 */
 	public static String nss(String title)
 	{
-		int i = title.lastIndexOf(':');
+		int i = title.indexOf(':');
 		return i > 0 && i + 1 != title.length() ? title.substring(i + 1) : title;
 	}
 }

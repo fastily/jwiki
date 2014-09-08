@@ -27,12 +27,12 @@ public class Settings
 	/**
 	 * The maximum allowable number of entries to request data for per group entry.
 	 */
-	protected static final int groupquerymax = 25;
+	protected static final int groupquerymax = 50;
 
 	/**
 	 * The communications protocol we'll be using. Default = https.
 	 */
-	protected static final String hprotocol = "https://";
+	protected static final String comprotocol = "https://";
 	
 	/**
 	 * Constructors disallowed.

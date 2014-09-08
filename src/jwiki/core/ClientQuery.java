@@ -65,7 +65,6 @@ public class ClientQuery
 				if (r.hasError()) // if there are errors, we'll probably get them on the 1st try
 					break;
 
-				// JSONObject reply = r;
 				jl.add(r);
 				completed += fetch_num;
 
@@ -326,10 +325,7 @@ public class ClientQuery
 		try
 		{
 			ServerReply r = ClientRequest.get(ub.makeURL(), wiki.cookiejar);
-			if (r.hasError())
-				return -1;
-
-			return r.getIntR("size");
+			return r.hasError() ? -1 : r.getIntR("size");
 		}
 		catch (Throwable e)
 		{

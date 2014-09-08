@@ -69,7 +69,7 @@ public class ServerReply extends JSONObject
 		}
 
 		if (Settings.debug)
-			System.out.println(this);
+			System.out.println(toString(2));
 	}
 
 	/**

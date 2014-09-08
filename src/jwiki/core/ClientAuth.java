@@ -122,9 +122,9 @@ public class ClientAuth
 		try
 		{
 			String cn;
-			for (HttpCookie hc : wiki.cookiejar.getCookieStore().get(new URI(Settings.hprotocol + wiki.domain)))
+			for (HttpCookie hc : wiki.cookiejar.getCookieStore().get(new URI(Settings.comprotocol + wiki.domain)))
 				if ((cn = hc.getName()).contains("centralauth"))
-					wiki.cookiejar.getCookieStore().add(new URI(Settings.hprotocol + domain), new HttpCookie(cn, hc.getValue()));
+					wiki.cookiejar.getCookieStore().add(new URI(Settings.comprotocol + domain), new HttpCookie(cn, hc.getValue()));
 		}
 		catch (Throwable e)
 		{
