@@ -39,7 +39,7 @@ public class URLBuilder
 	protected URLBuilder(String domain)
 	{
 		if (domain != null && !domain.isEmpty())
-			base = String.format(Settings.hprotocol + "%s/w/api.php?format=json&action=", domain);
+			base = String.format(Settings.comprotocol + "%s/w/api.php?format=json&action=", domain);
 	}
 
 	/**
