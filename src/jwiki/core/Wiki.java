@@ -4,7 +4,6 @@ import java.net.CookieManager;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 import javax.security.auth.login.LoginException;
 
@@ -129,6 +128,10 @@ public class Wiki
 		this(user, px, domain, null);
 	}
 
+	/* //////////////////////////////////////////////////////////////////////////////// */
+	/* /////////////////////////// UTILITY FUNCTIONS ////////////////////////////////// */
+	/* //////////////////////////////////////////////////////////////////////////////// */
+
 	/**
 	 * Gets a Wiki object for this domain. This method is cached, to save bandwidth. We will create a new wiki as
 	 * necessary. PRECONDITION: The <a href="https://www.mediawiki.org/wiki/Extension:CentralAuth">CentralAuth</a>
@@ -233,9 +236,9 @@ public class Wiki
 		return ub;
 	}
 
-	// //////////////////////////////////////////////////////////////////////////////// //
-	// ///////////////////////// END OF UTILITY FUNCTIONS ///////////////////////////// //
-	// //////////////////////////////////////////////////////////////////////////////// //
+	/* //////////////////////////////////////////////////////////////////////////////// */
+	/* /////////////////////////////////// ACTIONS //////////////////////////////////// */
+	/* //////////////////////////////////////////////////////////////////////////////// */
 
 	/**
 	 * Edit a page, and check if the request actually went through.
@@ -329,35 +332,71 @@ public class Wiki
 	}
 
 	/**
-	 * Gets the list of groups a user is in.
+	 * Deletes a page. You must have admin rights or this won't work.
 	 * 
-	 * @return A list of user groups, or the empty list if something went wrong.
+	 * @param title Title to delete
+	 * @param reason The reason to use
+	 * @return True if the operation was successful.
 	 */
-	public ArrayList<String> listGroupsRights()
+	public boolean delete(String title, String reason)
 	{
-		return ClientQuery.listGroupsRights(this);
+		return ClientAction.delete(this, title, reason);
 	}
 
 	/**
-	 * Determines if we're an admin. Note that this method does not cache, so you should make one yourself if you need to
-	 * know a user's rights status multiple times.
+	 * Undelete a page. You must have admin rights on the wiki you are trying to perform this task on, otherwise it won't
+	 * go through.
 	 * 
-	 * @return True if this user is a sysop.
+	 * @param title The title to undelete
+	 * @param reason The reason to use
+	 * @return True if we successfully undeleted the page.
 	 */
-	public boolean isAdmin()
+	public boolean undelete(String title, String reason)
 	{
-		return listGroupsRights().contains("sysop");
+		return ClientAction.undelete(this, title, reason);
 	}
 
 	/**
-	 * Gets the text of a page on the specified wiki.
+	 * Upload a media file.
 	 * 
-	 * @param title The page to get text from.
-	 * @return The text of the page, or null if some error occurred.
+	 * @param p The file to use
+	 * @param title The title to upload to. Must include "File:" prefix.
+	 * @param text The text to put on the file description page
+	 * @param reason The edit summary
+	 * @return True if we were successful.
+	 */
+	public boolean upload(Path p, String title, String text, String reason)
+	{
+		return ClientAction.upload(this, p, title, text, reason);
+	}
+
+	/* //////////////////////////////////////////////////////////////////////////////// */
+	/* ///////////////////////////////// QUERIES ////////////////////////////////////// */
+	/* //////////////////////////////////////////////////////////////////////////////// */
+
+	/**
+	 * Gets the list of usergroups (rights) a user belongs to. Sample groups: sysop, user, autoconfirmed, editor.
+	 * 
+	 * @param user The user to get rights information for. Do not include "User:" prefix.
+	 * @return The usergroups <tt>user</tt> belongs to.
+	 */
+	public ArrayList<String> listGroupsRights(String user)
+	{
+		ColorLog.info(this, "Getting user rights for " + user);
+		return MassClientQuery.listUserRights(this, user).get(0).y;
+	}
+
+	/**
+	 * Gets the text of a page.
+	 * 
+	 * @param title The title to query
+	 * @return The text of the page, or an empty string if the page is non-existent/something went wrong.
 	 */
 	public String getPageText(String title)
 	{
-		return ClientQuery.getPageText(this, title);
+		ColorLog.info(this, "Getting page text of " + title);
+		ArrayList<String> temp = MassClientQuery.getPageText(this, title).get(0).y;
+		return temp.isEmpty() ? "" : temp.get(0);
 	}
 
 	/**
@@ -386,66 +425,52 @@ public class Wiki
 	}
 
 	/**
-	 * Deletes a page. You must have admin rights or this won't work.
+	 * Gets the number of elements contained in a category.
 	 * 
-	 * @param title Title to delete
-	 * @param reason The reason to use
-	 * @return True if the operation was successful.
-	 */
-	public boolean delete(String title, String reason)
-	{
-		return ClientAction.delete(this, title, reason);
-	}
-
-	/**
-	 * Undelete a page. You must have admin rights on the wiki you are trying to perform this task on, otherwise it won't
-	 * go through.
-	 * 
-	 * @param title The title to undelete
-	 * @param reason The reason to use
-	 * @return True if we successfully undeleted the page.
-	 */
-	public boolean undelete(String title, String reason)
-	{
-		return ClientAction.undelete(this, title, reason);
-	}
-
-	/**
-	 * Gets the number of elements in a category.
-	 * 
-	 * @param title The category to check, including category prefix.
-	 * @return The number of items in the category, or -1 if something went wrong.
+	 * @param title The title to query. PRECONDITION: Title *must* begin with the "Category:" prefix
+	 * @return The number of elements in the category. Value returned will be -1 if Category entered was empty <b>and</b>
+	 *         non-existent.
 	 */
 	public int getCategorySize(String title)
 	{
-		return ClientQuery.getCategorySize(this, title);
+		ColorLog.info(this, "Getting category size of " + title);
+		return MassClientQuery.getCategorySize(this, title).get(0).y.intValue();
 	}
 
 	/**
-	 * Gets ALL elements in a category.
+	 * Get all titles in a category.
 	 * 
-	 * @param title The title to retrieve pages from, including the "Category:" prefix.
+	 * @param title The category to query, including the "Category:" prefix.
 	 * @param ns Namespaces to include-only, passed in as prefixes, without the ":" (e.g. "File", "Category", "Main").
 	 *           Optional, leave blank to select all namespaces.
-	 * @return The list of elements in the category.
+	 * @return The list of titles in the category.
 	 */
-	public String[] getCategoryMembers(String title, String... ns)
+	public ArrayList<String> getCategoryMembers(String title, String... ns)
 	{
-		return getCategoryMembers(title, -1, ns);
+		ColorLog.info(this, "Getting category members from " + title);
+		URLBuilder ub = makeUB("query", "list", "categorymembers", "cmtitle", FString.enc(convertIfNotInNS(title, "Category")));
+		if (ns.length > 0)
+			ub.setParams("cmnamespace", FString.enc(FString.fenceMaker("|", nsl.prefixToNumStrings(ns))));
+		return QueryTools.queryForStrings(this, ub, "cmlimit", "categorymembers", "title");
 	}
 
 	/**
-	 * Gets the elements in a category.
+	 * Get a limited number of titles in a category. This could be seen as an optimizing routine - the method does not
+	 * fetch any more items than requested from the server.
 	 * 
-	 * @param title The title to retrieve pages from, including the "Category:" prefix.
-	 * @param max The maximum number of elements to return.
+	 * @param title The category to query, including the "Category:" prefix.
+	 * @param cap The maximum number of elements to return
 	 * @param ns Namespaces to include-only, passed in as prefixes, without the ":" (e.g. "File", "Category", "Main").
 	 *           Optional, leave blank to select all namespaces.
-	 * @return The list of elements in the category.
+	 * @return The list of titles, as specified, in the category.
 	 */
-	public String[] getCategoryMembers(String title, int max, String... ns)
+	public ArrayList<String> getCategoryMembers(String title, int cap, String... ns)
 	{
-		return ClientQuery.getCategoryMembers(this, title, max, ns);
+		ColorLog.info(this, "Getting category members from " + title);
+		URLBuilder ub = makeUB("query", "list", "categorymembers", "cmtitle", FString.enc(convertIfNotInNS(title, "Category")));
+		if (ns.length > 0)
+			ub.setParams("cmnamespace", FString.enc(FString.fenceMaker("|", nsl.prefixToNumStrings(ns))));
+		return QueryTools.limitedQueryForStrings(this, ub, "cmlimit", cap, "categorymembers", "title");
 	}
 
 	/**
@@ -454,35 +479,42 @@ public class Wiki
 	 * @param title The title to get categories of.
 	 * @return A list of categories, or the empty list if something went wrong.
 	 */
-	public String[] getCategoriesOnPage(String title)
+	public ArrayList<String> getCategoriesOnPage(String title)
 	{
-		return ClientQuery.getCategoriesOnPage(this, title);
+		ColorLog.info(this, "Getting categories on " + title);
+		return MassClientQuery.getCategoriesOnPage(this, title).get(0).y;
 	}
 
 	/**
-	 * Gets the links on a page.
+	 * Gets wiki links on a page.
 	 * 
-	 * @param title The title to get links from
+	 * @param title The title to query
 	 * @param ns Namespaces to include-only, passed in as prefixes, without the ":" (e.g. "File", "Category", "Main").
 	 *           Optional, leave blank to select all namespaces.
-	 * @return The list of links on the page.
+	 * @return The list of wiki links on the page.
 	 */
-	public String[] getLinksOnPage(String title, String... ns)
+	public ArrayList<String> getLinksOnPage(String title, String... ns)
 	{
-		return ClientQuery.getLinksOnPage(this, title, ns);
+		ColorLog.info(this, "Getting wiki links on " + title);
+		return MassClientQuery.getLinksOnPage(this, ns, title).get(0).y;
 	}
 
 	/**
-	 * Gets all existing links on a page.
+	 * Gets all existing or non-existing wiki links on a page.
 	 * 
-	 * @param title The title to get links from
+	 * @param exists Fetch mode. Set true to get existing pages and false to get missing/non-existent pages.
+	 * @param title The title to query
 	 * @param ns Namespaces to include-only, passed in as prefixes, without the ":" (e.g. "File", "Category", "Main").
 	 *           Optional, leave blank to select all namespaces.
-	 * @return The list of existing links on a page.
+	 * @return The list of existing links on <tt>title</tt>
 	 */
-	public String[] getValidLinksOnPage(String title, String... ns)
+	public ArrayList<String> getLinksOnPage(boolean exists, String title, String... ns)
 	{
-		return exists(getLinksOnPage(title, ns), true);
+		ArrayList<String> l = new ArrayList<String>();
+		for(Tuple<String, Boolean> t : MassClientQuery.exists(this, getLinksOnPage(title, ns).toArray(new String[0])))
+			if(t.y.booleanValue() == exists)
+				l.add(t.x);
+		return l;
 	}
 
 	/**
@@ -544,41 +576,15 @@ public class Wiki
 	}
 
 	/**
-	 * Determines whether the specified title exists on the wiki.
+	 * Checks if a title exists.
 	 * 
-	 * @param title The title to check.
+	 * @param title The title to query.
 	 * @return True if the title exists.
-	 * @see #exists(String[])
 	 */
 	public boolean exists(String title)
 	{
-		return exists(new String[] { title }).get(0).y.booleanValue();
-	}
-
-	/**
-	 * Checks to see if a page/pages exist. Returns a set of tuples (in no particular order), in the form
-	 * <tt>(String title, Boolean exists)</tt>.
-	 * 
-	 * @param titles The title(s) to check.
-	 * @return A List of tuples (String, Boolean) indicating whether a the passed in title(s) exist(s). Returns an empty
-	 *         list if something went wrong.
-	 * @see #exists(String)
-	 */
-	public List<Tuple<String, Boolean>> exists(String... titles)
-	{
-		return ClientQuery.exists(this, titles);
-	}
-
-	/**
-	 * Check if a title exists, and depending on the second param, return all existing or non-existent tiltes.
-	 * 
-	 * @param titles The titles to check
-	 * @param e Set to true to get all existing files, or false to get all non-existent files.
-	 * @return A list of titles as specified.
-	 */
-	public String[] exists(String[] titles, boolean e)
-	{
-		return FString.booleanTuple(exists(titles), e);
+		ColorLog.info(this, "Checking to see if title exists: " + title);
+		return MassClientQuery.exists(this, title).get(0).y.booleanValue();
 	}
 
 	/**
@@ -625,20 +631,6 @@ public class Wiki
 	public String[] whatTranscludesHere(String title)
 	{
 		return ClientQuery.whatTranscludesHere(this, title);
-	}
-
-	/**
-	 * Upload a media file.
-	 * 
-	 * @param p The file to use
-	 * @param title The title to upload to. Must include "File:" prefix.
-	 * @param text The text to put on the file description page
-	 * @param reason The edit summary
-	 * @return True if we were successful.
-	 */
-	public boolean upload(Path p, String title, String text, String reason)
-	{
-		return ClientAction.upload(this, p, title, text, reason);
 	}
 
 	/**
@@ -728,5 +720,4 @@ public class Wiki
 	{
 		return ClientQuery.listSpecialPages(this, page, max);
 	}
-
 }

@@ -34,29 +34,6 @@ public class Tuple<E, F>
 	}
 	
 	/**
-	 * Concatenate x and y values of this Tuple into a String.
-	 * 
-	 * @param format Optional argument. Specify null to disable. Use a custom format String for x and y (you must specify
-	 *            '%s' twice, or you'll get strange output/errors).
-	 * @return The concatenated String.
-	 */
-	public String conc(String format)
-	{
-		return format != null ? String.format(format, x.toString(), y.toString()) : x.toString() + y.toString();
-	}
-	
-	/**
-	 * Checks to see if two tuples are equal in value.
-	 * 
-	 * @param other The other tuple to compare this one with.
-	 * @return True if the two tuples are equal in value.
-	 */
-	public boolean equals(Tuple<E, F> other)
-	{
-		return other != null && other instanceof Tuple && y.equals(other.y) && x.equals(other.x);
-	}
-	
-	/**
 	 * Gets a String representation of this object. Nice for debugging.
 	 * 
 	 * @return A String representation of this object.

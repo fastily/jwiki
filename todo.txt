@@ -17,14 +17,10 @@
 
 * Drop Logger from code.
 
+* Use only ArrayLists for lists of objects.  Type Safety and OO principles are important IMO.
+
 == Low Priority ==
 * Commons New Image Auditor
-* Legit JUnit Tests
-* Generators?
 * Apparently addtext in edit already exists.
 * RevDel?  Image RevDel?
 * Log querying methods
-* Can we implement caching of some sort?  Is this offered by the server?  Should I do it client side?
-
-== Notes ==
-* For internal methods that return arrays, let's standardize them to use ArrayLists.

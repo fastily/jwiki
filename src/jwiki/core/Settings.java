@@ -34,6 +34,8 @@ public class Settings
 	 */
 	protected static final String comprotocol = "https://";
 	
+	//public static String blah = "";
+	
 	/**
 	 * Constructors disallowed.
 	 */
