@@ -36,9 +36,9 @@ public class QueryTools
 
 	}
 
-	// //////////////////////////////////////////////////////////////////////////////// //
-	// ////////////////////////////// QUERY FUNCTIONS ///////////////////////////////// //
-	// //////////////////////////////////////////////////////////////////////////////// //
+	/* //////////////////////////////////////////////////////////////////////////////// */
+	/* ////////////////////////////// QUERY FUNCTIONS ///////////////////////////////// */
+	/* //////////////////////////////////////////////////////////////////////////////// */
 
 	/**
 	 * Send a single query to the server and read the reply.
@@ -98,10 +98,11 @@ public class QueryTools
 	 * @param ub The URLBuilder to use. CAVEAT: anything assigned to the '<tt>titles</tt>' param <i>will</i> be
 	 *           overwritten with elements passed into this method's '<tt>titles</tt>'. In other words, don't set the '
 	 *           <tt>titles</tt>' param when creating <tt>ub</tt>
+	 * @param tkey The parameter name for the list of titles to pass to the server.
 	 * @param titles The titles to query.
 	 * @return The replies from the server.
 	 */
-	public static ArrayList<ServerReply> doGroupQuery(Wiki wiki, URLBuilder ub, String... titles)
+	public static ArrayList<ServerReply> doGroupQuery(Wiki wiki, URLBuilder ub, String tkey, String... titles)
 	{
 		ArrayList<ServerReply> srl = new ArrayList<ServerReply>();
 
@@ -112,7 +113,7 @@ public class QueryTools
 			for (int i = 0; i < Settings.groupquerymax && l.peek() != null; i++)
 				t.add(l.poll());
 
-			ub.setParams("titles", FString.enc(FString.fenceMaker("|", titles)));
+			ub.setParams(tkey, FString.enc(FString.fenceMaker("|", titles)));
 			System.out.println(ub.makeURL().toString());
 
 			ServerReply r = doSingleQuery(wiki, ub);
@@ -185,9 +186,9 @@ public class QueryTools
 		}
 	}
 
-	// //////////////////////////////////////////////////////////////////////////////// //
-	// //////////////////////////////// PARSE TOOLS /////////////////////////////////// //
-	// //////////////////////////////////////////////////////////////////////////////// //
+	/* //////////////////////////////////////////////////////////////////////////////// */
+	/* //////////////////////////////// PARSE TOOLS /////////////////////////////////// */
+	/* //////////////////////////////////////////////////////////////////////////////// */
 
 	/**
 	 * Gets a specified String (using its key) from each JSONObject in a JSONArray in a JSONObject. Returns an empty list
@@ -237,9 +238,9 @@ public class QueryTools
 			hl.get(title).addAll(l);
 	}
 
-	// //////////////////////////////////////////////////////////////////////////////// //
-	// /////////////////////// MIXED QUERY & PARSE TOOLS ////////////////////////////// //
-	// //////////////////////////////////////////////////////////////////////////////// //
+	/* //////////////////////////////////////////////////////////////////////////////// */
+	/* /////////////////////// MIXED QUERY & PARSE TOOLS ////////////////////////////// */
+	/* //////////////////////////////////////////////////////////////////////////////// */
 
 	/**
 	 * Parses a reply from the server in which the heierarchy is pages -> id -> name, [{title : blargh},...]. To be used
@@ -248,20 +249,24 @@ public class QueryTools
 	 * @param wiki The wiki object to use
 	 * @param ub The URLObject to use
 	 * @param limString The limit string to use with this query (e.g. ailimit). Note that this parameter <i>will</i> be
-	 *           overwritten in <tt>ub</tt>.
+	 *           overwritten in <tt>ub</tt>.  This is an optional param - disable with null.
 	 * @param arrayKey The key pointing to the JSONArray we want to use
 	 * @param arrayElementKey The key pointing to the String in each JSONObject contained in the JSONArray pointed to by
 	 *           <tt>arrayKey</tt>
 	 * @param titlekey The key pointing the title this object is associated with - contained within each top level
+	 * @param tkey The parameter to pass to the server which will be paired with <tt>titles</tt>
+	 * @param titles The list of titles to send to the server.
 	 * @return A list of results we retrieved from the data set, where each tuple is <tt>(title, list_of_results)</tt>.
-	 * @see #listQueryAndParse(Wiki, URLBuilder, String, String, String)
 	 */
-	protected static ArrayList<Tuple<String, ArrayList<String>>> multiItemQueryStringParse(Wiki wiki, URLBuilder ub,
-			String limString, String arrayKey, String arrayElementKey, String titlekey)
+	protected static ArrayList<Tuple<String, ArrayList<String>>> multiQueryForStrings(Wiki wiki, URLBuilder ub,
+			String limString, String arrayKey, String arrayElementKey, String titlekey, String tkey, String...titles)
 	{
 		HashMap<String, ArrayList<String>> hl = new HashMap<String, ArrayList<String>>();
 
-		ub.setParams(limString, "2");
+		if(limString != null)
+			ub.setParams(limString, "max");
+		ub.setParams(tkey, FString.enc(FString.fenceMaker("|", titles)));
+		
 		for (ServerReply r1 : doMultiQuery(wiki, ub))
 			for (ServerReply r2 : r1.bigJSONObjectGet("pages"))
 				mapListMerge(hl, r2.getString(titlekey), getStringsFromJSONObjectArray(r2, arrayKey, arrayElementKey));
@@ -271,6 +276,37 @@ public class QueryTools
 			out.add(new Tuple<String, ArrayList<String>>(e.getKey(), e.getValue()));
 
 		return out;
+	}
+
+	/**
+	 * Makes a group query and parses the reply where the reply is a list of JSONObjects with a JSONArray of Strings we
+	 * want.
+	 * 
+	 * @param wiki The wiki object to use
+	 * @param ub The URLBuilder to use.  Caveat: if you set key <tt>titles</tt>, it will be overwritten!
+	 * @param topArrayKey The key pointing to the list of JSONObjects we want.
+	 * @param titlekey The String to key to each value (ArrayList) in the returned list.
+	 * @param arrayKey The key pointing to each array
+	 * @param tkey The parameter to pass to the server which will be paired with <tt>titles</tt>
+	 * @param titles The list of titles to send to the server.
+	 * @return A list of results from the server.
+	 */
+	protected static ArrayList<Tuple<String, ArrayList<String>>> groupQueryForLists(Wiki wiki, URLBuilder ub,
+			String topArrayKey, String titlekey, String arrayKey, String tkey, String... titles)
+	{
+		ArrayList<Tuple<String, ArrayList<String>>> l = new ArrayList<Tuple<String, ArrayList<String>>>();
+	
+		for (ServerReply r : doGroupQuery(wiki, ub, tkey, titles))
+		{
+			JSONArray ja = r.getJSONArrayR(topArrayKey);
+			for (int i = 0; i < ja.length(); i++)
+			{
+				JSONObject jo = ja.getJSONObject(i);
+				l.add(new Tuple<String, ArrayList<String>>(jo.getString(titlekey), FString.jsonArrayToString(jo
+						.getJSONArray(arrayKey))));
+			}
+		}
+		return l;
 	}
 
 	/**
@@ -287,7 +323,7 @@ public class QueryTools
 	 *           <tt>arrayKey</tt>
 	 * @return A list of results we retrieved from the data set,.
 	 */
-	protected static ArrayList<String> limitedQueryAndStringParse(Wiki wiki, URLBuilder ub, String limString, int cap,
+	protected static ArrayList<String> limitedQueryForStrings(Wiki wiki, URLBuilder ub, String limString, int cap,
 			String arrayKey, String arrayElementKey)
 	{
 		ArrayList<String> l = new ArrayList<String>();
@@ -308,9 +344,8 @@ public class QueryTools
 	 * @param arrayElementKey The key pointing to the String in each JSONObject contained in the JSONArray pointed to by
 	 *           <tt>arrayKey</tt>
 	 * @return A list of results we retrieved from the data set.
-	 * @see #multiItemQueryStringParse(Wiki, URLBuilder, String, String, String, String)
 	 */
-	protected static ArrayList<String> listQueryAndParse(Wiki wiki, URLBuilder ub, String limString, String arrayKey,
+	protected static ArrayList<String> queryForStrings(Wiki wiki, URLBuilder ub, String limString, String arrayKey,
 			String arrayElementKey)
 	{
 		ArrayList<String> l = new ArrayList<String>();

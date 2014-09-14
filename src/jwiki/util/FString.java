@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
 
+import org.json.JSONArray;
+
 /**
  * Contains personalized String related methods for my bot programs.
  * 
@@ -29,9 +31,9 @@ public class FString
 	 */
 	private FString()
 	{
-		
+
 	}
-	
+
 	/**
 	 * Capitalizes the first character of a String
 	 * 
@@ -52,7 +54,7 @@ public class FString
 	public static String generateRandomFileName(Path p)
 	{
 		return String.format("%#o x %s.%s", r.nextInt(0xFF), LocalTime.now().format(DateTimeFormatter.ofPattern("HH.mm.ss")),
-				FIO.getExtension(p, false)); 
+				FIO.getExtension(p, false));
 	}
 
 	/**
@@ -177,7 +179,7 @@ public class FString
 	{
 		if (planks.length == 0)
 			return "";
-		else if(planks.length == 1)
+		else if (planks.length == 1)
 			return planks[0];
 
 		String fmt = (post.isEmpty() || post == null ? "" : post) + "%s";
@@ -188,7 +190,7 @@ public class FString
 
 		return x;
 	}
-
+	
 	/**
 	 * Splits an array of Strings into an array of array of Strings.
 	 * 
@@ -228,10 +230,10 @@ public class FString
 				l.add(t.x);
 		return l.toArray(new String[0]);
 	}
-	
+
 	/**
-	 * Creates a HashMap with String keys and values. Pass in each pair and value (in that order) into
-	 * <tt>sl</tt>. This will be one pair entered into resulting HashMap.
+	 * Creates a HashMap with String keys and values. Pass in each pair and value (in that order) into <tt>sl</tt>. This
+	 * will be one pair entered into resulting HashMap.
 	 * 
 	 * @param sl The list of elements to turn into a HashMap.
 	 * @return The resulting HashMap, or null if you specified an odd number of elements.
@@ -240,10 +242,26 @@ public class FString
 	{
 		if (sl.length % 2 == 1)
 			return null;
-		
+
 		HashMap<String, String> l = new HashMap<String, String>();
 		for (int i = 0; i < sl.length; i += 2)
 			l.put(sl[i], sl[i + 1]);
+		return l;
+	}
+
+	/**
+	 * Converts a list of strings in a JSONArray to a list of Strings. PRECONDITION: <tt>ja</tt> *must* be a list of
+	 * Strings or you will get strange results.
+	 * 
+	 * @param ja The JSONArray to get Strings from
+	 * @return A list of Strings found in <tt>ja</tt>.
+	 */
+	public static ArrayList<String> jsonArrayToString(JSONArray ja)
+	{
+		ArrayList<String> l = new ArrayList<String>();
+		for (int i = 0; i < ja.length(); i++)
+			l.add(ja.getString(i));
+
 		return l;
 	}
 }

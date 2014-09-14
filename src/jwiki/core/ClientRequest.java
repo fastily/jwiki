@@ -202,6 +202,7 @@ public class ClientRequest
 	 */
 	protected static ServerReply get(URL url, CookieManager cookiejar) throws IOException
 	{
+		//System.out.println(url);
 		return new ServerReply(genericGET(url, cookiejar));
 	}
 
