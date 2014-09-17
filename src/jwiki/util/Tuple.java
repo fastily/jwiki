@@ -6,20 +6,20 @@ package jwiki.util;
  * 
  * @author Fastily
  * 
- * @param <E> The type of Object allowed for the first Object in the tuple.
- * @param <F> The type of Object allowed for the second Object in the tuple.
+ * @param <K> The type of Object allowed for the first Object in the tuple.
+ * @param <V> The type of Object allowed for the second Object in the tuple.
  */
-public class Tuple<E, F>
+public class Tuple<K, V>
 {
 	/**
 	 * The x value of the tuple
 	 */
-	public final E x;
+	public final K x;
 	
 	/**
 	 * The y value of the tuple
 	 */
-	public final F y;
+	public final V y;
 	
 	/**
 	 * Creates a Tuple from the parameter values.
@@ -27,7 +27,7 @@ public class Tuple<E, F>
 	 * @param x The x value of the tuple
 	 * @param y The y value of the tuple
 	 */
-	public Tuple(E x, F y)
+	public Tuple(K x, V y)
 	{
 		this.x = x;
 		this.y = y;

@@ -36,7 +36,7 @@ public class Wiki
 	/**
 	 * Our list of currently logged in Wiki's associated with this object. Useful for global operations.
 	 */
-	private HashMap<String, Wiki> wl = new HashMap<String, Wiki>();
+	private HashMap<String, Wiki> wl = new HashMap<>();
 
 	/**
 	 * Our edit token
@@ -447,11 +447,7 @@ public class Wiki
 	 */
 	public ArrayList<String> getCategoryMembers(String title, String... ns)
 	{
-		ColorLog.info(this, "Getting category members from " + title);
-		URLBuilder ub = makeUB("query", "list", "categorymembers", "cmtitle", FString.enc(convertIfNotInNS(title, "Category")));
-		if (ns.length > 0)
-			ub.setParams("cmnamespace", FString.enc(FString.fenceMaker("|", nsl.prefixToNumStrings(ns))));
-		return QueryTools.queryForStrings(this, ub, "cmlimit", "categorymembers", "title");
+		return getCategoryMembers(title, -1, ns);
 	}
 
 	/**
@@ -459,7 +455,7 @@ public class Wiki
 	 * fetch any more items than requested from the server.
 	 * 
 	 * @param title The category to query, including the "Category:" prefix.
-	 * @param cap The maximum number of elements to return
+	 * @param cap The maximum number of elements to return. Optional param - set to 0 to disable.
 	 * @param ns Namespaces to include-only, passed in as prefixes, without the ":" (e.g. "File", "Category", "Main").
 	 *           Optional, leave blank to select all namespaces.
 	 * @return The list of titles, as specified, in the category.
@@ -470,7 +466,10 @@ public class Wiki
 		URLBuilder ub = makeUB("query", "list", "categorymembers", "cmtitle", FString.enc(convertIfNotInNS(title, "Category")));
 		if (ns.length > 0)
 			ub.setParams("cmnamespace", FString.enc(FString.fenceMaker("|", nsl.prefixToNumStrings(ns))));
-		return QueryTools.limitedQueryForStrings(this, ub, "cmlimit", cap, "categorymembers", "title");
+
+		return cap > 0 ? QueryTools.limitedQueryForStrings(this, ub, "cmlimit", cap, "categorymembers", "title")
+				: QueryTools.queryForStrings(this, ub, "cmlimit", "categorymembers", "title", "cmtitle",
+						convertIfNotInNS(title, "Category"));
 	}
 
 	/**
@@ -510,9 +509,9 @@ public class Wiki
 	 */
 	public ArrayList<String> getLinksOnPage(boolean exists, String title, String... ns)
 	{
-		ArrayList<String> l = new ArrayList<String>();
-		for(Tuple<String, Boolean> t : MassClientQuery.exists(this, getLinksOnPage(title, ns).toArray(new String[0])))
-			if(t.y.booleanValue() == exists)
+		ArrayList<String> l = new ArrayList<>();
+		for (Tuple<String, Boolean> t : MassClientQuery.exists(this, getLinksOnPage(title, ns).toArray(new String[0])))
+			if (t.y.booleanValue() == exists)
 				l.add(t.x);
 		return l;
 	}
@@ -543,36 +542,41 @@ public class Wiki
 	}
 
 	/**
-	 * Gets all uploads of a user.
+	 * Get a user's uploads.
 	 * 
-	 * @param user The username, without the "User:" prefix. <tt>user</tt> must be a valid username.
-	 * @return A list this user's uploads.
+	 * @param user The username, without the "User:" prefix. PRECONDITION: <tt>user</tt> must be a valid username.
+	 * @return This user's uploads
 	 */
-	public String[] getUserUploads(String user)
+	public ArrayList<String> getUserUploads(String user)
 	{
-		return ClientQuery.getUserUploads(this, user);
+		ColorLog.info(this, "Fetching uploads for " + user);
+		return QueryTools.queryForStrings(this, makeUB("query", "list", "allimages", "aisort", "timestamp"), "ailimit",
+				"allimages", "title", "aiuser", Namespace.nss(user));
 	}
 
 	/**
 	 * Gets the list of local pages that are displaying the given image.
 	 * 
-	 * @param file The file to check. Must be a valid file name, including the "File:" prefix.
+	 * @param title The title to query. PRECONDITION: Must be a valid (exists on wiki) file name.
 	 * @return The list of pages linking to this file, or the empty array if something went wrong/file doesn't exist.
 	 */
-	public String[] imageUsage(String file)
+	public ArrayList<String> imageUsage(String title)
 	{
-		return ClientQuery.imageUsage(this, file);
+		ColorLog.info(this, "Fetching local file usage of " + title);
+		return QueryTools.queryForStrings(this, makeUB("query", "list", "imageusage"), "iulimit", "imageusage", "title",
+				"iutitle", convertIfNotInNS(title, "File"));
 	}
 
 	/**
-	 * Gets the images linked on a page. By this I mean images which are displayed on a page.
+	 * Gets titles of images linked on a page.
 	 * 
-	 * @param title The title to check for images.
-	 * @return The list of images on the page, or the empty array if something went wrong.
+	 * @param title The title to query
+	 * @return The images found on <tt>title</tt>
 	 */
-	public String[] getImagesOnPage(String title)
+	public ArrayList<String> getImagesOnPage(String title)
 	{
-		return ClientQuery.getImagesOnPage(this, title);
+		ColorLog.info(this, "Getting files on " + title);
+		return MassClientQuery.getImagesOnPage(this, title).get(0).y;
 	}
 
 	/**
@@ -612,75 +616,107 @@ public class Wiki
 	}
 
 	/**
-	 * Gets the templates transcluded on a page.
+	 * Gets templates transcluded on a page.
 	 * 
-	 * @param title The title to get templates from.
-	 * @return A list of templates on the page.
+	 * @param title The title to query.
+	 * @return The templates transcluded on <tt>title</tt>
 	 */
-	public String[] getTemplatesOnPage(String title)
+	public ArrayList<String> getTemplatesOnPage(String title)
 	{
-		return ClientQuery.getTemplatesOnPage(this, title);
+		ColorLog.info(this, "Getting templates transcluded on " + title);
+		return MassClientQuery.getTemplatesOnPage(this, title).get(0).y;
 	}
 
 	/**
-	 * Gets a list of pages transcluding <tt>title</tt>.
+	 * Get a list of pages transcluding the given template.
 	 * 
-	 * @param title The title to get transclusions of.
-	 * @return A list of transclusions, or the empty list if something went wrong.
+	 * @param title The title to query. You *must* include the namespace prefix (e.g. "Template:") or you will get
+	 *           strange results.
+	 * @return The pages transcluding <tt>title</tt>.
 	 */
-	public String[] whatTranscludesHere(String title)
+	public ArrayList<String> whatTranscludesHere(String title)
 	{
-		return ClientQuery.whatTranscludesHere(this, title);
+		ColorLog.info(this, "Getting list of pages that transclude " + title);
+		return QueryTools.queryForStrings(this, makeUB("query", "list", "embeddedin"), "eilimit", "embeddedin", "title",
+				"eititle", title);
 	}
 
 	/**
-	 * Gets the global file usage for a media file.
+	 * Gets the global usage of a file.
 	 * 
-	 * @param title The title to check. Must start with "File:" prefix.
+	 * @param title The title to query. Must start with "File:" prefix.
 	 * @return A list of tuples, (title of page, short form of wiki this page is from), denoting the global usage of this
 	 *         file. Returns empty list if something went wrong.
 	 */
 	public ArrayList<Tuple<String, String>> globalUsage(String title)
 	{
-		return ClientQuery.globalUsage(this, title);
+		ColorLog.info(this, "Getting global usage for " + title);
+		return MassClientQuery.globalUsage(this, title).get(0).y;
 	}
 
 	/**
-	 * Gets the direct links to a page (excluding links from redirects). To get links from redirects, use
-	 * <tt>getRedirects()</tt> and call this method on each element in the list returned.
+	 * Fetches backlinks to a page.
 	 * 
-	 * @param title The title to use
-	 * @return A list of links to this page.
+	 * @param title The title to query
+	 * @param redirs Set to true to fetch redirects only. Set to false to filter out all redirects.
+	 * @return A list of backlinks
 	 */
-	public String[] whatLinksHere(String title)
+	private ArrayList<String> getBacklinks(String title, boolean redirs)
 	{
-		return ClientQuery.whatLinksHere(this, title);
+		return QueryTools.queryForStrings(this,
+				makeUB("query", "list", "backlinks", "blfilterredir", redirs ? "redirects" : "nonredirects"), "bllimit",
+				"backlinks", "title", "bltitle", title);
+	}
+
+	/**
+	 * Gets a list of direct links to a page (excluding links from redirects). To get links from redirects, use
+	 * <tt>getRedirectsToHere()</tt> and call this method on each element in the list returned.
+	 * 
+	 * @param title The title to query
+	 * @return A list of links to this page.
+	 * 
+	 * @see #getRedirectsToHere(String)
+	 */
+	public ArrayList<String> whatLinksHere(String title)
+	{
+		return getBacklinks(title, false);
 	}
 
 	/**
 	 * Gets the redirects of a page.
 	 * 
-	 * @param title The title to check.
+	 * @param title The title to query
 	 * @return The redirects linking to this page.
+	 * @see #whatLinksHere(String)
 	 */
-	public String[] getRedirects(String title)
+	public ArrayList<String> getRedirectsToHere(String title)
 	{
-		return ClientQuery.getRedirects(this, title);
+		return getBacklinks(title, true);
 	}
 
 	/**
-	 * Gets a list of pages on the Wiki.
+	 * Get a list of all pages from the Wiki.
 	 * 
 	 * @param prefix Get files starting with this String. DO NOT include a namespace prefix (e.g. "File:"). Param is
 	 *           optional, use null or empty string to disable.
 	 * @param redirectsonly Set this to true to get redirects only.
 	 * @param max The max number of titles to return. Specify -1 to get all pages.
 	 * @param ns The namespace identifier (e.g. "File").
-	 * @return A list of titles as specified.
+	 * @return A list of titles on this Wiki
 	 */
-	public String[] allPages(String prefix, boolean redirectsonly, int max, String ns)
+	public ArrayList<String> allPages(String prefix, boolean redirectsonly, int cap, String ns)
 	{
-		return ClientQuery.allPages(this, prefix, redirectsonly, max, ns);
+		ColorLog.info(this, "Doing all pages fetch for " + prefix);
+		URLBuilder ub = makeUB("query", "list", "allpages");
+		if (prefix != null)
+			ub.setParams("apprefix", FString.enc(prefix));
+		if (ns != null)
+			ub.setParams("apnamespace", "" + nsl.convert("User"));
+		if (redirectsonly)
+			ub.setParams("apfilterredir", "redirects");
+
+		return cap > 0 ? QueryTools.limitedQueryForStrings(this, ub, "aplimit", cap, "allpages", "title") : QueryTools
+				.queryForStrings(this, ub, "aplimit", "allpages", "title", null);
 	}
 
 	/**
@@ -688,10 +724,11 @@ public class Wiki
 	 * 
 	 * @param namespace The namespace identifier, without the ':' (e.g. "File")
 	 * @param prefix Get all titles in the specified namespace, that start with this String.
-	 * @return The list of titles, as specified.
+	 * @return The list of titles starting with the specified prefix
 	 */
-	public String[] prefixIndex(String namespace, String prefix)
+	public ArrayList<String> prefixIndex(String namespace, String prefix)
 	{
+		ColorLog.info(this, "Doing prefix index search for " + prefix);
 		return allPages(prefix, false, -1, namespace);
 	}
 
