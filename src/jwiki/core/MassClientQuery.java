@@ -60,7 +60,7 @@ public class MassClientQuery
 	 */
 	public static ArrayList<Tuple<String, Integer>> getCategorySize(Wiki wiki, String... titles)
 	{
-		ArrayList<Tuple<String, Integer>> l = new ArrayList<Tuple<String, Integer>>();
+		ArrayList<Tuple<String, Integer>> l = new ArrayList<>();
 		for (ServerReply r : QueryTools.doGroupQuery(wiki, wiki.makeUB("query", "prop", "categoryinfo"), "titles", titles))
 			for (ServerReply r1 : r.bigJSONObjectGet("pages"))
 				l.add(new Tuple<String, Integer>(r1.getString("title"), new Integer(r1.getIntR("size"))));
@@ -97,21 +97,61 @@ public class MassClientQuery
 			ub.setParams("plnamespace", FString.enc(FString.fenceMaker("|", wiki.nsl.prefixToNumStrings(ns))));
 		return QueryTools.multiQueryForStrings(wiki, ub, "pllimit", "links", "title", "title", "titles", titles);
 	}
-	
+
 	/**
 	 * Checks if a title exists.
+	 * 
 	 * @param wiki The wiki object to use
 	 * @param titles The titles to query
-	 * @return A list of results keyed by title.  True = exists.
+	 * @return A list of results keyed by title. True = exists.
 	 */
-	public static ArrayList<Tuple<String, Boolean>> exists(Wiki wiki, String...titles)
+	public static ArrayList<Tuple<String, Boolean>> exists(Wiki wiki, String... titles)
 	{
-		ArrayList<Tuple<String, Boolean>> l = new ArrayList<Tuple<String, Boolean>>();
-		for(ServerReply r : QueryTools.doGroupQuery(wiki, wiki.makeUB("query", "prop", "pageprops", "ppprop", "missing"), "titles", titles))
-			for(ServerReply r1 : r.bigJSONObjectGet("pages"))
+		ArrayList<Tuple<String, Boolean>> l = new ArrayList<>();
+		for (ServerReply r : QueryTools.doGroupQuery(wiki, wiki.makeUB("query", "prop", "pageprops", "ppprop", "missing"),
+				"titles", titles))
+			for (ServerReply r1 : r.bigJSONObjectGet("pages"))
 				l.add(new Tuple<String, Boolean>(r1.getString("title"), new Boolean(!r1.has("missing"))));
-		
+
 		return l;
 	}
-	
+
+	/**
+	 * Gets titles of images linked on a page.
+	 * 
+	 * @param wiki The wiki object to use
+	 * @param titles The titles to query
+	 * @return A list of results keyed by title.
+	 */
+	public static ArrayList<Tuple<String, ArrayList<String>>> getImagesOnPage(Wiki wiki, String... titles)
+	{
+		return QueryTools.multiQueryForStrings(wiki, wiki.makeUB("query", "prop", "images"), "imlimit", "images", "title",
+				"title", "titles", titles);
+	}
+
+	/**
+	 * Gets templates transcluded on a page.
+	 * 
+	 * @param wiki The wiki object to use
+	 * @param titles The titles to query
+	 * @return A list of results keyed by title.
+	 */
+	public static ArrayList<Tuple<String, ArrayList<String>>> getTemplatesOnPage(Wiki wiki, String... titles)
+	{
+		return QueryTools.multiQueryForStrings(wiki, wiki.makeUB("query", "prop", "templates"), "tllimit", "templates",
+				"title", "title", "titles", titles);
+	}
+
+	/**
+	 * Gets the global usage of a file.
+	 * @param wiki The wiki object to use
+	 * @param titles The titles to query
+	 * @return A list of results keyed by title.  The inner tuple is of the form (title, shorthand url notation).
+	 */
+	public static ArrayList<Tuple<String, ArrayList<Tuple<String, String>>>> globalUsage(Wiki wiki, String... titles)
+	{
+		return QueryTools.multiQueryForTuples(wiki, wiki.makeUB("query", "prop", "globalusage"), "gulimit", "globalusage",
+				"title", "wiki", "title", "titles", titles);
+	}
+
 }

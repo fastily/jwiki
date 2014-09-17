@@ -24,3 +24,5 @@
 * Apparently addtext in edit already exists.
 * RevDel?  Image RevDel?
 * Log querying methods
+
+* Internationalize namespaces.  I hardcode instances of namespace prefixes in English - these should be dynamically generated via namespace IDs
