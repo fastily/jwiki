@@ -1,12 +1,9 @@
 package jwiki.core;
 
-import java.text.ParseException;
 import java.time.Instant;
 import java.util.ArrayList;
 
 import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 /**
  * Represents a contribution made by a user.
@@ -17,50 +14,42 @@ import org.json.JSONObject;
 public class Contrib extends DataEntry
 {
 	/**
-	 * Revision id.
+	 * This contribution's revision id.
 	 */
 	public final int revid;
 
 	/**
-	 * This revision's parent ID
+	 * This contribution's parent ID
 	 */
 	public final int parentid;
 
 	/**
-	 * Creates a Contrib object from a JSONObject returned by the server, representing a single contribtion.
+	 * Creates a Contrib object from a JSONObject returned by the server, representing a single contribution.
 	 * 
-	 * @param jo The JSONObject returned by the server, representing a contribution.
-	 * @throws JSONException Bad reply
-	 * @throws ParseException Eh?
+	 * @param r The JSONObject returned by the server, representing a contribution.
 	 */
-	private Contrib(JSONObject jo) throws JSONException, ParseException
+	private Contrib(ServerReply r)
 	{
-		super(jo.getString("user"), jo.getString("title"), jo.getString("comment"), Instant.parse(jo.getString("timestamp")));
-		revid = jo.getInt("revid");
-		parentid = jo.getInt("parentid");
+		super(r.getString("user"), r.getString("title"), r.getString("comment"), Instant.parse(r.getString("timestamp")));
+		revid = r.getInt("revid");
+		parentid = r.getInt("parentid");
 	}
 
 	/**
-	 * Creates an array of Contrib objects from the given reply by the server.
+	 * Creates a list of Contrib objects from the reply by the server.
 	 * 
-	 * @param reply The reply made by the server.
-	 * @return A list of Contrib objects created from this server response.
+	 * @param srl The replies from the server.
+	 * @return A list of Contribs created from the server's reply.
 	 */
-	protected static Contrib[] makeContribs(ServerReply reply)
+	protected static ArrayList<Contrib> makeContribs(ArrayList<ServerReply> srl)
 	{
-		ArrayList<Contrib> l = new ArrayList<Contrib>();
-		try
+		ArrayList<Contrib> l = new ArrayList<>();
+		for (ServerReply r : srl)
 		{
-			JSONArray jl = reply.getJSONArrayR("usercontribs");
+			JSONArray jl = r.getJSONArrayR("usercontribs");
 			for (int i = 0; i < jl.length(); i++)
-				l.add(new Contrib(jl.getJSONObject(i)));
-
+				l.add(new Contrib(new ServerReply(jl.getJSONObject(i))));
 		}
-		catch (Throwable e)
-		{
-			e.printStackTrace();
-			return new Contrib[0];
-		}
-		return l.toArray(new Contrib[0]);
+		return l;
 	}
 }

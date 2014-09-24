@@ -144,9 +144,10 @@ public class MassClientQuery
 
 	/**
 	 * Gets the global usage of a file.
+	 * 
 	 * @param wiki The wiki object to use
 	 * @param titles The titles to query
-	 * @return A list of results keyed by title.  The inner tuple is of the form (title, shorthand url notation).
+	 * @return A list of results keyed by title. The inner tuple is of the form (title, shorthand url notation).
 	 */
 	public static ArrayList<Tuple<String, ArrayList<Tuple<String, String>>>> globalUsage(Wiki wiki, String... titles)
 	{
@@ -154,4 +155,34 @@ public class MassClientQuery
 				"title", "wiki", "title", "titles", titles);
 	}
 
+	/**
+	 * Gets duplicates of a file. Note that results are returned *without* a namespace prefix.
+	 * 
+	 * @param wiki The wiki object to use
+	 * @param localOnly Set to true if you only want to look for files in the local repository.
+	 * @param titles The titles to query
+	 * @return A list of results keyed by title.
+	 */
+	public static ArrayList<Tuple<String, ArrayList<String>>> getDuplicatesOf(Wiki wiki, boolean localOnly, String... titles)
+	{
+		URLBuilder ub = wiki.makeUB("query", "prop", "duplicatefiles");
+		if (localOnly)
+			ub.setParams("dflocalonly", "");
+
+		return QueryTools.multiQueryForStrings(wiki, ub, "dflimit", "duplicatefiles", "name", "title", "titles", titles);
+	}
+
+	/**
+	 * Queries a special page.
+	 * 
+	 * @param wiki The wiki object to use
+	 * @param cap The maximum number of results to return
+	 * @param pname The name of the special page (e.g. ListDuplicatedFiles).  This is case-sensitive.
+	 * @return Results of the query.
+	 */
+	protected static ArrayList<String> querySpecialPage(Wiki wiki, int cap, String pname)
+	{
+		return QueryTools.limitedQueryForStrings(wiki, wiki.makeUB("query", "list", "querypage", "qppage", pname), "qplimit",
+				cap, "results", "title", null, null);
+	}
 }

@@ -5,6 +5,7 @@ import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.logging.Level;
 
@@ -76,9 +77,9 @@ public class ClientAction
 		ColorLog.fyi(wiki, "Undoing newest revision of " + title);
 		try
 		{
-			Revision[] rl = ClientQuery.getRevisions(wiki, title, 2, false);
-			return rl.length < 2 ? FError.printErrorAndReturn("There are fewer than two revisions in " + title, false) : edit(
-					wiki, title, rl[1].text, reason);
+			ArrayList<Revision> rl = wiki.getRevisions(title, 2, false);
+			return rl.size() < 2 ? FError.printErrorAndReturn("There are fewer than two revisions in " + title, false) : edit(
+					wiki, title, rl.get(1).text, reason);
 		}
 		catch (Throwable e)
 		{
