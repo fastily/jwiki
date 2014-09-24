@@ -4,10 +4,9 @@ import java.time.Instant;
 import java.util.ArrayList;
 
 import org.json.JSONArray;
-import org.json.JSONObject;
 
 /**
- * Represents a revision in the history of a page.
+ * Represents a single revision in the history of a page.
  * 
  * @author Fastily
  * 
@@ -22,40 +21,32 @@ public class Revision extends DataEntry
 	/**
 	 * Constructor, creates a revision object.
 	 * 
-	 * @param title The title of the page we're using. This isn't included in the JSONObject representing a revision.
-	 * @param rev The JSONObject representation of the revision to parse.
+	 * @param title The title of the page we're using. NB: This isn't explicitly included in the JSONObject from the
+	 *           server
+	 * @param r The ServerReply containing the revision to parse.
 	 */
-	private Revision(String title, JSONObject rev)
+	private Revision(String title, ServerReply r)
 	{
-		super(rev.getString("user"), title, rev.getString("comment"), Instant.parse(rev.getString("timestamp")));
-		text = rev.getString("*");
+		super(r.getString("user"), title, r.getString("comment"), Instant.parse(r.getString("timestamp")));
+		text = r.getString("*");
 	}
 
 	/**
-	 * Makes revisions with the JSON reply from the server.
+	 * Makes revisions with the reply from the server.
 	 * 
-	 * @param reply The reply from the server.
-	 * @return Revision data parsed from the JSONObject.
+	 * @param srl The list of replies from the server.
+	 * @return Revision data parsed from the server reply.
 	 */
-	protected static ArrayList<Revision> makeRevs(ServerReply reply)
+	protected static ArrayList<Revision> makeRevs(ArrayList<ServerReply> srl)
 	{
-		ArrayList<Revision> rl = new ArrayList<Revision>();
-		String title = "";
-		try
-		{
-			title = reply.getStringR("title");
-			JSONArray revs = reply.getJSONArrayR("revisions");
+		ArrayList<Revision> rl = new ArrayList<>();
 
-			for (int i = 0; i < revs.length(); i++)
-				rl.add(new Revision(title, revs.getJSONObject(i)));
-
-			return rl;
-		}
-		catch (Throwable e)
+		for (ServerReply r : srl)
 		{
-			// e.printStackTrace();
-			ColorLog.fyi("Looks like the page, " + title + ", doesn't have revisions");
-			return new ArrayList<Revision>();
+			JSONArray ja = r.getJSONArrayR("revisions");
+			for (int i = 0; i < ja.length(); i++)
+				rl.add(new Revision(r.getStringR("title"), new ServerReply(ja.getJSONObject(i))));
 		}
+		return rl;
 	}
 }

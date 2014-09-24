@@ -90,15 +90,21 @@ public class QueryTools
 	 * 
 	 * @param wiki The wiki object to use
 	 * @param ub The URLBuilder to use
+	 * @param limString The limit string (e.g. ailimit). If this is set in <tt>ub</tt>, it <i>will</i> be overwritten.
+	 *           This is an optional param. Set to null to disable.
 	 * @param tkey The parameter to pass to the server which will be paired with <tt>titles</tt>. Note that
 	 *           <tt>titles</tt> in <tt>ub</tt> *will* be overwritten.
 	 * @param titles The list of titles to send to the server. PRECONDITION: These should not be URL-encoded.
 	 * @return The replies from the server.
 	 */
-	public static ArrayList<ServerReply> doMultiQuery(Wiki wiki, URLBuilder ub, String tkey, String... titles)
+	public static ArrayList<ServerReply> doMultiQuery(Wiki wiki, URLBuilder ub, String limString, String tkey,
+			String... titles)
 	{
 		ArrayList<ServerReply> l = new ArrayList<>();
+
 		ub.setParams("continue", ""); // MW 1.21+
+		if (limString != null)
+			ub.setParams(limString, "max");
 
 		LinkedList<String> atl = new LinkedList<>(Arrays.asList(titles));
 
@@ -175,10 +181,17 @@ public class QueryTools
 	 * @param ub The URLBuilder to use
 	 * @param limString The limit string (e.g. ailimit). If this is set in <tt>ub</tt>, it <i>will</i> be overwritten.
 	 * @param cap The maximum number of entries to return.
+	 * @param tkey The parameter name for the list of titles to pass to the server. Optional param - set to null to
+	 *           disable.
+	 * @param title The titles to query. Optional param - used by tkey. Also set this to null if you disabled tkey.
 	 * @return A list of ServerReplies we collected.
 	 */
-	public static ArrayList<ServerReply> doLimitedQuery(Wiki wiki, URLBuilder ub, String limString, int cap)
+	public static ArrayList<ServerReply> doLimitedQuery(Wiki wiki, URLBuilder ub, String limString, int cap, String tkey,
+			String title)
 	{
+		if (tkey != null)
+			ub.setParams(tkey, FString.enc(title));
+
 		ArrayList<ServerReply> l = new ArrayList<>();
 		if (maxQuerySize >= cap)
 		{
@@ -194,6 +207,9 @@ public class QueryTools
 				ServerReply r = doSingleQuery(wiki, ub);
 				if (r != null)
 					l.add(r);
+
+				if (!applyContinue(ub, r))
+					break;
 
 				done += fetch_num;
 				if (cap - done < maxQuerySize) // runs n times instead of n-1, but meh, still O(n)
@@ -223,7 +239,6 @@ public class QueryTools
 		}
 		catch (Throwable e)
 		{
-			e.printStackTrace();
 			return false;
 		}
 	}
@@ -245,11 +260,11 @@ public class QueryTools
 	private static ArrayList<String> getStringsFromJSONObjectArray(ServerReply r, String arrayKey, String arrayElementKey)
 	{
 		ArrayList<String> l = new ArrayList<>();
-		
+
 		JSONArray ja = r.getJSONArrayR(arrayKey);
-		if(ja == null)
+		if (ja == null)
 			return l;
-		
+
 		for (int i = 0; i < ja.length(); i++)
 			l.add(ja.getJSONObject(i).getString(arrayElementKey));
 
@@ -341,10 +356,7 @@ public class QueryTools
 	{
 		HashMap<String, ArrayList<String>> hl = new HashMap<>();
 
-		if (limString != null)
-			ub.setParams(limString, "max");
-
-		for (ServerReply r1 : doMultiQuery(wiki, ub, tkey, titles))
+		for (ServerReply r1 : doMultiQuery(wiki, ub, limString, tkey, titles))
 			for (ServerReply r2 : r1.bigJSONObjectGet("pages"))
 				mapListMerge(hl, r2.getString(titlekey), getStringsFromJSONObjectArray(r2, arrayKey, arrayElementKey));
 
@@ -375,10 +387,7 @@ public class QueryTools
 	{
 		HashMap<String, ArrayList<Tuple<String, String>>> hl = new HashMap<>();
 
-		if (limString != null)
-			ub.setParams(limString, "max");
-
-		for (ServerReply r1 : doMultiQuery(wiki, ub, tkey, titles))
+		for (ServerReply r1 : doMultiQuery(wiki, ub, limString, tkey, titles))
 			for (ServerReply r2 : r1.bigJSONObjectGet("pages"))
 				mapListMerge(hl, r2.getString(titlekey),
 						getTuplesFromJSONObjectArray(r2, arrayKey, arrayElementKey1, arrayElementKey2));
@@ -429,13 +438,16 @@ public class QueryTools
 	 * @param arrayKey The key pointing to the JSONArray we want to use
 	 * @param arrayElementKey The key pointing to the String in each JSONObject contained in the JSONArray pointed to by
 	 *           <tt>arrayKey</tt>
+	 * @param tkey The parameter name for the list of titles to pass to the server. Optional param - set to null to
+	 *           disable.
+	 * @param title The titles to query. Optional param - used by tkey. Also set this to null if you disabled tkey.
 	 * @return A list of results we retrieved from the data set,.
 	 */
 	protected static ArrayList<String> limitedQueryForStrings(Wiki wiki, URLBuilder ub, String limString, int cap,
-			String arrayKey, String arrayElementKey)
+			String arrayKey, String arrayElementKey, String tkey, String title)
 	{
 		ArrayList<String> l = new ArrayList<>();
-		for (ServerReply r : doLimitedQuery(wiki, ub, limString, cap))
+		for (ServerReply r : doLimitedQuery(wiki, ub, limString, cap, tkey, title))
 			l.addAll(getStringsFromJSONObjectArray(r, arrayKey, arrayElementKey));
 		return l;
 	}
@@ -447,7 +459,7 @@ public class QueryTools
 	 * @param wiki The wiki object to use
 	 * @param ub The URLBuilder to use
 	 * @param limString The limit string to use with this query (e.g. ailimit). Note that this parameter <i>will</i> be
-	 *           overwritten in <tt>ub</tt>.
+	 *           overwritten in <tt>ub</tt>. This is an optional param - disable with null.
 	 * @param arrayKey The key pointing to the JSONArray we want to use
 	 * @param arrayElementKey The key pointing to the String in each JSONObject contained in the JSONArray pointed to by
 	 *           <tt>arrayKey</tt>
@@ -459,8 +471,7 @@ public class QueryTools
 			String arrayElementKey, String tkey, String... titles)
 	{
 		ArrayList<String> l = new ArrayList<>();
-		ub.setParams(limString, "max");
-		for (ServerReply r : tkey != null ? doMultiQuery(wiki, ub, tkey, titles) : doNoTitleMultiQuery(wiki, ub))
+		for (ServerReply r : tkey != null ? doMultiQuery(wiki, ub, limString, tkey, titles) : doNoTitleMultiQuery(wiki, ub))
 			l.addAll(getStringsFromJSONObjectArray(r, arrayKey, arrayElementKey));
 		return l;
 	}

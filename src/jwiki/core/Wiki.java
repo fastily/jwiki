@@ -402,24 +402,30 @@ public class Wiki
 	/**
 	 * Gets the revisions of a page.
 	 * 
-	 * @param title The title to use.
-	 * @param num The max number of revisions to return. Specify -1 to get all revisions
-	 * @param olderfirst Set to true to start enumerating from the oldest revisions of the page to the newest.
-	 * @return The list of revisions, as specified, or an empty list if something went wrong.
+	 * @param title The title to query
+	 * @param cap The maximum number of results to return. Optional param: set to any number zero or less to disable.
+	 * @param olderFirst Set to true to enumerate from older → newer revisions
+	 * @return A list of page revisions
 	 */
-	public Revision[] getRevisions(String title, int num, boolean olderfirst)
+	public ArrayList<Revision> getRevisions(String title, int cap, boolean olderFirst)
 	{
-		return ClientQuery.getRevisions(this, title, num, olderfirst);
+		ColorLog.info(this, "Getting revisions from " + title);
+		URLBuilder ub = makeUB("query", "prop", "revisions", "rvprop",
+				URLBuilder.chainProps("timestamp", "user", "comment", "content"));
+		if (olderFirst)
+			ub.setParams("rvdir", "newer"); // MediaWiki is weird.
+		return Revision.makeRevs(cap > 0 ? QueryTools.doLimitedQuery(this, ub, "rvlimit", cap, "titles", title) : QueryTools
+				.doMultiQuery(this, ub, "rvlimit", "titles", title));
 	}
 
 	/**
-	 * Gets all the revisions of a page in descending order (newest -&gt; oldest). Caveat: Pages such as the admin's
-	 * notice board have ~10<sup>6</sup> revisions. Watch your memory usage.
+	 * Gets all the revisions of a page. Caveat: Pages such as the admin's notice board have ~10<sup>6</sup> revisions.
+	 * Watch your memory usage. Revisions are returned in order of newer → older revisions
 	 * 
-	 * @param title The title to use.
-	 * @return The list of revisions.
+	 * @param title The title to query.
+	 * @return A list of page revisions
 	 */
-	public Revision[] getRevisions(String title)
+	public ArrayList<Revision> getRevisions(String title)
 	{
 		return getRevisions(title, -1, false);
 	}
@@ -467,7 +473,7 @@ public class Wiki
 		if (ns.length > 0)
 			ub.setParams("cmnamespace", FString.enc(FString.fenceMaker("|", nsl.prefixToNumStrings(ns))));
 
-		return cap > 0 ? QueryTools.limitedQueryForStrings(this, ub, "cmlimit", cap, "categorymembers", "title")
+		return cap > 0 ? QueryTools.limitedQueryForStrings(this, ub, "cmlimit", cap, "categorymembers", "title", null, null)
 				: QueryTools.queryForStrings(this, ub, "cmlimit", "categorymembers", "title", "cmtitle",
 						convertIfNotInNS(title, "Category"));
 	}
@@ -519,26 +525,36 @@ public class Wiki
 	/**
 	 * Gets the contributions of a user.
 	 * 
-	 * @param user The username to use, without the "User:" prefix.
-	 * @param max The maximum number of results to return.
+	 * @param user The user to get contribs for, without the "User:" prefix.
+	 * @param cap The maximum number of results to return.
+	 * @param olderFirst Set to true to enumerate from older → newer revisions
 	 * @param ns Namespace filter. Optional, leave blank to select all namespaces.
-	 * @return The list of contributions, as specified.
+	 * @return A list of contributions.
 	 */
-	public Contrib[] getContribs(String user, int max, String... ns)
+	public ArrayList<Contrib> getContribs(String user, int cap, boolean olderFirst, String... ns)
 	{
-		return ClientQuery.getContribs(this, user, max, ns);
+		ColorLog.info(this, "Fetching contribs of " + user);
+		URLBuilder ub = makeUB("query", "list", "usercontribs");
+		if (ns.length > 0)
+			ub.setParams("ucnamespace", FString.enc(FString.fenceMaker("|", nsl.prefixToNumStrings(ns))));
+		if (olderFirst)
+			ub.setParams("ucdir", "newer");
+
+		return Contrib.makeContribs(cap > -1 ? QueryTools.doLimitedQuery(this, ub, "uclimit", cap, "ucuser", user)
+				: QueryTools.doMultiQuery(this, ub, "cuser", user));
 	}
 
 	/**
-	 * Gets the contributions of a user.
+	 * Gets all contributions of a user. Revisions are returned in order of newer → older revisions. Some users have well
+	 * over a million contributions. Watch your memory usage!
 	 * 
-	 * @param user The username to use, without the "User:" prefix.
+	 * @param user The user to get contribs for, without the "User:" prefix.
 	 * @param ns Namespace filter. Optional, leave blank to select all namespaces.
-	 * @return The list of contributions, as specified.
+	 * @return A list of contributions.
 	 */
-	public Contrib[] getContribs(String user, String... ns)
+	public ArrayList<Contrib> getContribs(String user, String... ns)
 	{
-		return getContribs(user, -1, ns);
+		return getContribs(user, -1, false, ns);
 	}
 
 	/**
@@ -612,7 +628,9 @@ public class Wiki
 	 */
 	public ImageInfo getImageInfo(String title, int height, int width)
 	{
-		return ClientQuery.getImageInfo(this, title, height, width);
+		//TODO: Rewrite to FileInfo pending release of wmf1.25
+		//return ClientQuery.getImageInfo(this, title, height, width);
+		return null;
 	}
 
 	/**
@@ -706,7 +724,7 @@ public class Wiki
 	 */
 	public ArrayList<String> allPages(String prefix, boolean redirectsonly, int cap, String ns)
 	{
-		ColorLog.info(this, "Doing all pages fetch for " + prefix);
+		ColorLog.info(this, "Doing all pages fetch for " + prefix == null ? "all pages" : prefix);
 		URLBuilder ub = makeUB("query", "list", "allpages");
 		if (prefix != null)
 			ub.setParams("apprefix", FString.enc(prefix));
@@ -715,7 +733,7 @@ public class Wiki
 		if (redirectsonly)
 			ub.setParams("apfilterredir", "redirects");
 
-		return cap > 0 ? QueryTools.limitedQueryForStrings(this, ub, "aplimit", cap, "allpages", "title") : QueryTools
+		return cap > 0 ? QueryTools.limitedQueryForStrings(this, ub, "aplimit", cap, "allpages", "title", null, null) : QueryTools
 				.queryForStrings(this, ub, "aplimit", "allpages", "title", null);
 	}
 
@@ -733,28 +751,27 @@ public class Wiki
 	}
 
 	/**
-	 * Gets a list of duplicate files. Tuple returned is as follows <tt>(String, Boolean)</tt>, where the string is the
-	 * title of the duplicate, and where the boolean indicates whether the file is part of the local repository (enwp is
-	 * local repository and commons is the shared repository). If you're using a wiki that is not associated with another
-	 * wiki, ignore this param.
+	 * Gets duplicates of a file. Note that results are returned *without* a namespace prefix.
 	 * 
-	 * @param file The file to get duplicates of
-	 * @return The list of files.
+	 * @param title The title to query. PRECONDITION: You MUST include the namespace prefix (e.g. "File:")
+	 * @param localOnly Set to true to restrict results to <b>local</b> duplicates only.
+	 * @return Duplicates of this file.
 	 */
-	public ArrayList<Tuple<String, Boolean>> getDuplicatesOf(String file)
+	public ArrayList<String> getDuplicatesOf(String title, boolean localOnly)
 	{
-		return ClientQuery.getDuplicatesOf(this, file);
+		ColorLog.info(this, "Getting duplicates of " + title);
+		return MassClientQuery.getDuplicatesOf(this, localOnly, title).get(0).y;
 	}
 
 	/**
-	 * List all duplicate files.
+	 * Gets a list of duplicated files on the Wiki.
 	 * 
-	 * @param page The page to fetch dupes of
-	 * @param max The maximum number of dupes to get. Disable with -1.
-	 * @return A list of duplicate files.
+	 * @param cap The maximum number of titles to return
+	 * @return Duplicated files on the Wiki.
 	 */
-	public String[] listDuplicateFiles(String page, int max)
+	public ArrayList<String> listDuplicateFiles(int cap)
 	{
-		return ClientQuery.listSpecialPages(this, page, max);
+		ColorLog.info(this, "Getting duplicated files on the wiki");
+		return MassClientQuery.querySpecialPage(this, cap, "ListDuplicatedFiles");
 	}
 }
