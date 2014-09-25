@@ -47,9 +47,9 @@ public class MBot
 	}
 	
 	/**
-	 * Sets the maximum permissible number of threads.
+	 * Set the maximum permissible number of threads.
 	 * 
-	 * @param num the maximum number of threads
+	 * @param num the maximum number of threads to allow simultaneously
 	 */
 	public synchronized void setNum(int num)
 	{
@@ -57,26 +57,26 @@ public class MBot
 	}
 	
 	/**
-	 * Starts the execution of this object.
+	 * Run a job on set of WActions.
 	 * 
-	 * @param ml The WAction objects to process
-	 * @return A list of titles we failed to process.
+	 * @param ml The WActions to process
+	 * @return A list of WActions that failed.
 	 */
-	public WAction[] start(WAction[] ml)
+	public <T extends WAction> ArrayList<WAction> start(ArrayList<T> ml)
 	{
 		ThreadManager m = new ThreadManager(ml, wiki, num);
 		m.start();
 		
-		WAction[] fails = m.getFails();
+		ArrayList<WAction> fails = m.getFails();
 		
-		if (fails.length > 0)
+		if (fails.size() > 0)
 		{
-			ColorLog.warn(String.format("MBot failed to process (%d): ", fails.length));
+			ColorLog.warn(String.format("MBot failed to process (%d): ", fails.size()));
 			for (WAction x : fails)
 				System.err.println(ColorLog.makeString(x.title, ColorLog.PURPLE));
 		}
 		else
-			ColorLog.fyi("MBot completed the task with 0 failures");
+			ColorLog.fyi("MBot completed the task with no failures");
 		
 		return fails;
 	}
@@ -84,24 +84,24 @@ public class MBot
 	/**
 	 * Mass delete pages.
 	 * 
-	 * @param reason The edit summary to use
+	 * @param reason The log summary
 	 * @param pages The pages to delete
 	 * @return A list of pages we failed to delete.
 	 */
-	public WAction[] massDelete(String reason, String... pages)
+	public ArrayList<WAction> massDelete(String reason, String... pages)
 	{
-		return start(DeleteItem.makeDeleteItems(reason, pages).toArray(new WAction[0]));
+		return start(DeleteItem.makeDeleteItems(reason, pages));
 	}
 	
 	/**
-	 * Performs a mass undeletion
-	 * @param reason The reason to use
+	 * Mass undelete pages.
+	 * @param reason The log summary
 	 * @param pages The pages to undelete
 	 * @return A list of pages we did/could not undelete.
 	 */
-	public WAction[] massRestore(String reason, String...pages)
+	public ArrayList<WAction> massRestore(String reason, String...pages)
 	{
-		ArrayList<WAction> wl = new ArrayList<WAction>();
+		ArrayList<WAction> wl = new ArrayList<>();
 		for(String s : pages)
 		{
 			wl.add(new WAction(s, null, reason) {
@@ -111,25 +111,25 @@ public class MBot
 				}
 			});
 		}
-		return start(wl.toArray(new WAction[0]));
+		return start(wl);
 	}
 	
 	
 	/**
-	 * Mass edit pages.
+	 * Mass edit pages. WARNING: <code>add</code> and <code>replace</code> should not both be null, unless you want the method to do nothing.
 	 * 
 	 * @param reason The edit summary
-	 * @param add The text to add. Optional -- set to null to exclude
-	 * @param replace The text to replace, in regex form. Optional -- set to null to exclude
-	 * @param replacement The replacement text. Optional -- depends on <tt>replace</tt> being != null.
-	 * @param pages The titles to edit
+	 * @param add The text to add. Optional param: set null to exclude
+	 * @param replace The text to replace, in regex form. Optional param: set null to exclude
+	 * @param replacement The replacement text. Optional param: depends on <code>replace</code> being != null.
+	 * @param pages The pages to edit
 	 * @return A list of WActions we failed to process.
 	 */
-	public WAction[] massEdit(String reason, String add, String replace, String replacement, String... pages)
+	public ArrayList<WAction> massEdit(String reason, String add, String replace, String replacement, String... pages)
 	{
-		ArrayList<EditItem> wl = new ArrayList<EditItem>();
+		ArrayList<EditItem> wl = new ArrayList<>();
 		for (String s : pages)
 			wl.add(new EditItem(s, reason, add, replace, replacement));
-		return start(wl.toArray(new EditItem[0]));
+		return start(wl);
 	}
 }

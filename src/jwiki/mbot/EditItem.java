@@ -4,7 +4,7 @@ import jwiki.core.ColorLog;
 import jwiki.core.Wiki;
 
 /**
- * Simple implementation of an item to edit, using MBot.
+ * Simple MBot page edit function.
  * 
  * @author Fastily
  * 
@@ -27,7 +27,7 @@ public class EditItem extends WAction
 	private String replacement;
 
 	/**
-	 * Constructor, sets params
+	 * Constructor.
 	 * 
 	 * @param title The title to use
 	 * @param reason The edit summary
@@ -44,10 +44,7 @@ public class EditItem extends WAction
 	}
 
 	/**
-	 * Does the edit, as specified by WAction.
-	 * 
-	 * @param wiki The wiki object to use.
-	 * @return True if we were successful.
+	 * Performs an edit.
 	 */
 	public boolean doJob(Wiki wiki)
 	{
@@ -56,7 +53,7 @@ public class EditItem extends WAction
 		else if (!add.isEmpty()) // prevent null edit if add is empty
 			return wiki.addText(title, add, summary, false);
 
-		ColorLog.error("Why is everythign null?");
+		ColorLog.error(String.format("MBot: add and replace are both null for EditItem keyed to %s.  Skipping.", title));
 		return false;
 	}
 }
