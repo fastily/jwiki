@@ -1,7 +1,6 @@
 package jwiki.mbot;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import jwiki.core.ColorLog;
@@ -10,67 +9,68 @@ import jwiki.util.ProgressTracker;
 
 /**
  * Manages and generates threads on behalf of MBot.
+ * 
  * @author Fastily
  *
  */
 public class ThreadManager
 {
 	/**
-	 * Our list of MActions to act upon.
+	 * The list tracking MActions left to process.
 	 */
-	private final ConcurrentLinkedQueue<WAction> todo = new ConcurrentLinkedQueue<WAction>();
-	
+	private final ConcurrentLinkedQueue<WAction> todo = new ConcurrentLinkedQueue<>();
+
 	/**
-	 * The list of MActions that failed for whatever reason.
+	 * The list tracking MActions that failed.
 	 */
-	private final ConcurrentLinkedQueue<WAction> fails = new ConcurrentLinkedQueue<WAction>();
-	
+	private final ConcurrentLinkedQueue<WAction> fails = new ConcurrentLinkedQueue<>();
+
 	/**
-	 * Our progress tracker
+	 * The progress tracker to use
 	 */
 	private final ProgressTracker pt;
-	
+
 	/**
-	 * Our wiki object which we'll be using for queries.
+	 * The wiki object to use for queries.
 	 */
 	private Wiki wiki;
-	
+
 	/**
-	 * The maximum number of threads to run
+	 * The maximum number of threads permitted to execute simultaneously
 	 */
 	private int num;
-	
+
 	/**
 	 * Constructor, takes a list of items to process and the wiki object to work with.
 	 * 
 	 * @param wl The list of items to process.
 	 * @param wiki The wiki object to use.
-	 * @param num The number of threads to run.
+	 * @param num The maximum number of threads permitted to execute simultaneously
 	 */
-	protected ThreadManager(WAction[] wl, Wiki wiki, int num)
+	protected <T extends WAction> ThreadManager(ArrayList<T> wl, Wiki wiki, int num)
 	{
-		todo.addAll(Arrays.asList(wl));
-		pt = new ProgressTracker(wl.length);
-		
+		todo.addAll(wl);
+		pt = new ProgressTracker(wl.size());
+
 		this.wiki = wiki;
 		this.num = num;
 	}
-	
+
 	/**
-	 * Starts running this ThreadManager. It'll create a maximum number of threads as specified in the constructor and
-	 * then attempt to process every passed in MAction.
+	 * Runs this ThreadManager. Creates the maximum number of threads requested (if necessary) and
+	 * processes each MAction.
 	 */
 	protected void start()
 	{
-		ArrayList<Thread> threads = new ArrayList<Thread>();
-		int tcnt = Math.min(todo.size(), num); // dynamically recalculated. Keep out of for loop.
+		ArrayList<Thread> threads = new ArrayList<>();
+		int tcnt = Math.min(todo.size(), num); // dynamically recalculated like an idiot by JVM. Keep out of for loop.
 		for (int i = 0; i < tcnt; i++)
 		{
 			Thread t = new Thread(() -> doJob());
 			threads.add(t);
 			t.start();
 		}
-		
+
 		for (Thread t : threads)
 		{
 			try
@@ -83,18 +83,18 @@ public class ThreadManager
 			}
 		}
 	}
-	
+
 	/**
-	 * Should be called by a thread to processing of todo.
+	 * Helper function called by threads consuming elements of <code>todo</code>.
 	 */
 	private void doJob()
 	{
 		if (todo.peek() == null)
 			return;
-		
+
 		String me = Thread.currentThread().getName() + ": ";
-		WAction curr;
 		
+		WAction curr;
 		while ((curr = todo.poll()) != null)
 		{
 			pt.inc(me);
@@ -103,14 +103,14 @@ public class ThreadManager
 		}
 		ColorLog.fyi(me + "There's nothing left for me!");
 	}
-	
+
 	/**
-	 * Gets the list of failures. This will be empty until you've run start().
+	 * Gets the list of failed MActions. This will be empty until <code>start()</code> has finished executing.
 	 * 
-	 * @return The current list of failures (i.e. WAction objects whose doJob() functions returned false).
+	 * @return The list of failures (i.e. WAction objects whose <code>doJob()</code> functions returned false).
 	 */
-	protected WAction[] getFails()
+	protected ArrayList<WAction> getFails()
 	{
-		return fails.toArray(new WAction[0]);
+		return new ArrayList<WAction>(fails);
 	}
 }

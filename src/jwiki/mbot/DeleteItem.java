@@ -1,11 +1,13 @@
 package jwiki.mbot;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import jwiki.core.Wiki;
 
 /**
- * Simple implementation of WAction representing a deletion action.
+ * Simple MBot deletion function.
+ * 
  * @author Fastily
  *
  */
@@ -13,6 +15,7 @@ public class DeleteItem extends WAction
 {
 	/**
 	 * Constructor, takes title and deletion summary
+	 * 
 	 * @param title The title to use
 	 * @param summary The log summary to use
 	 */
@@ -22,27 +25,38 @@ public class DeleteItem extends WAction
 	}
 
 	/**
-	 * Performs the deletion. Called by the enclosing MBot's ThreadManager.
-	 * 
-	 * @param wiki The wiki object to use
-	 * @return True if we were successful.
+	 * Performs the deletion.
 	 */
 	public boolean doJob(Wiki wiki)
 	{
 		return wiki.delete(title, summary);
 	}
-	
+
 	/**
-	 * Mass create DeleteItems.
-	 * @param reason The reason to use when deleting this
-	 * @param titles The titles to delete 
-	 * @return A list of DeleteItems as specified.
+	 * Mass create DeleteItems from titles & deletion reason.
+	 * 
+	 * @param reason The log summary to enter
+	 * @param titles Titles to delete
+	 * @return A list of DeleteItems
 	 */
 	public static ArrayList<DeleteItem> makeDeleteItems(String reason, String... titles)
 	{
+		return makeDeleteItems(reason, (ArrayList<String>) Arrays.asList(titles));
+	}
+
+	/**
+	 * Mass create DeleteItems from titles & deletion reason.
+	 * 
+	 * @param reason The log summary to enter
+	 * @param titles Titles to delete
+	 * @return A list of DeleteItems
+	 */
+	public static ArrayList<DeleteItem> makeDeleteItems(String reason, ArrayList<String> titles)
+	{
 		ArrayList<DeleteItem> l = new ArrayList<DeleteItem>();
-		for(String s : titles)
+		for (String s : titles)
 			l.add(new DeleteItem(s, reason));
 		return l;
 	}
+
 }

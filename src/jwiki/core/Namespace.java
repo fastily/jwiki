@@ -18,7 +18,7 @@ public class Namespace
 	/**
 	 * The back-end storage system for namespace.
 	 */
-	private HashMap<Object, Tuple<Integer, String>> l = new HashMap<Object, Tuple<Integer, String>>();
+	private HashMap<Object, Tuple<Integer, String>> l = new HashMap<>();
 	
 	/**
 	 * Private constructor, used by makeNamespace()
@@ -46,7 +46,7 @@ public class Namespace
 				continue;
 			Integer id = new Integer(curr.getInt("id"));
 			
-			Tuple<Integer, String> t = new Tuple<Integer, String>(id, name);
+			Tuple<Integer, String> t = new Tuple<>(id, name);
 			ns.l.put(name.toLowerCase(), t);
 			ns.l.put(id, t);
 		}

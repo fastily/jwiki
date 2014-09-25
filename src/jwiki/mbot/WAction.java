@@ -13,26 +13,26 @@ import jwiki.core.Wiki;
 public abstract class WAction
 {
 	/**
-	 * The title we'll be editing.
+	 * The page to act on
 	 */
 	public final String title;
 
 	/**
-	 * The text we'll be adding to the page (if applicable)
+	 * The text to add to the page named by <code>title</code>, where applicable
 	 */
 	protected String text;
 
 	/**
-	 * The reason/edit summary to use
+	 * The log reason/edit summary to use
 	 */
 	protected String summary;
 	
 	/**
 	 * Constructor for a WAction.
 	 * 
-	 * @param title Title to use
-	 * @param text Text to use (specify null if not applicable)
-	 * @param reason Reason to use
+	 * @param title The page to act on
+	 * @param text The text to add to the page named by <code>title</code>, where applicable. Optional Param: set null to disable.
+	 * @param reason The log reason/edit summary to use
 	 */
 	protected WAction(String title, String text, String summary)
 	{
@@ -42,7 +42,7 @@ public abstract class WAction
 	}
 
 	/**
-	 * Performs this WAction's main job. To be explicitly defined in each subclass.
+	 * Performs this WAction's main task. *Must* be explicitly defined in each subclass.
 	 * 
 	 * @param wiki The Wiki object to use.
 	 * @return True if the action we tried to perform succeeded.
@@ -51,8 +51,6 @@ public abstract class WAction
 	
 	/**
 	 * Creates a String representation of this WAction.  Useful for debugging.
-	 * 
-	 * @return A debug string.
 	 */
 	public String toString()
 	{
@@ -60,17 +58,16 @@ public abstract class WAction
 	}
 	
 	/**
-	 * Grabs the title fields of the passed in MActions and returns them in an Array.
+	 * Gets the title fields of the passed in MActions and returns them in a list.
 	 * 
-	 * @param actions The actions to grab titles from
-	 * @return The list of titles as Strings.
+	 * @param actions The list to get titles from
+	 * @return The list of titles
 	 */
-	public static String[] convertToString(WAction... actions)
+	public static <T extends WAction> ArrayList<String> convertToString(ArrayList<T> actions)
 	{
-		ArrayList<String> l = new ArrayList<String>();
+		ArrayList<String> l = new ArrayList<>();
 		for (WAction w : actions)
 			l.add(w.title);
-		
-		return l.toArray(new String[0]);
+		return l;
 	}
 }
