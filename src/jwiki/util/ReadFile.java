@@ -19,7 +19,7 @@ public class ReadFile
 	/**
 	 * Data structure storing lines read in.
 	 */
-	private ArrayList<String> l = new ArrayList<String>();
+	public final ArrayList<String> l = new ArrayList<>();
 
 	/**
 	 * Constructor, takes a pathname. Uses default charset for OS. e.g. Windows = unicode, nix = utf-8. Ignores
@@ -60,17 +60,6 @@ public class ReadFile
 	}
 
 	/**
-	 * Returns the items in this ReadFile as an array of Strings, one item per newline.
-	 * 
-	 * @return The array of Strings as specified.
-	 */
-	public String[] getList()
-	{
-		return l.toArray(new String[0]);
-
-	}
-
-	/**
 	 * Takes each item in this object's list and splits it using the specified token, and places it into a hashmap. If
 	 * the token does not exist, then the line is skipped. Useful for storing data.
 	 * 
@@ -80,7 +69,7 @@ public class ReadFile
 	 */
 	public HashMap<String, String> getSplitList(String delim)
 	{
-		HashMap<String, String> h = new HashMap<String, String>();
+		HashMap<String, String> h = new HashMap<>();
 		for (String s : l)
 		{
 			int i = s.indexOf(delim);

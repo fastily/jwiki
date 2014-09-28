@@ -3,7 +3,9 @@ package jwiki.core;
 import java.net.CookieManager;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 
 import javax.security.auth.login.LoginException;
 
@@ -197,6 +199,24 @@ public class Wiki
 		return nsl.whichNS(title);
 	}
 
+	/**
+	 * Filters pages by NS.  Only pages in <code>ns</code> are selected.
+	 * @param pages Titles to filter
+	 * @param ns Pages in this/these namespace(s) to return.  Use shorthand format (e.g. Namespace title without ':')
+	 * @return Pages in namespace(s) listed in <code>ns</code>
+	 */
+	public ArrayList<String> filterByNS(ArrayList<String> pages, String...ns)
+	{
+		ArrayList<String> l = new ArrayList<>();
+		List<String> nl = Arrays.asList(ns);
+		
+		for(String s : pages)
+			if(nl.contains(getNS(whichNS(s))))
+				l.add(s);
+		
+		return l;
+	}
+	
 	/**
 	 * Check if title in specified namespace. If not in specified namespace, convert it.
 	 * 
