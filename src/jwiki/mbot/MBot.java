@@ -100,6 +100,7 @@ public class MBot
 	 * @return A list of pages we did/could not undelete.
 	 */
 	public ArrayList<WAction> massRestore(String reason, ArrayList<String> pages)
+
 	{
 		ArrayList<WAction> wl = new ArrayList<>();
 		for(String s : pages)
@@ -125,7 +126,9 @@ public class MBot
 	 * @param pages The pages to edit
 	 * @return A list of WActions we failed to process.
 	 */
+
 	public ArrayList<WAction> massEdit(String reason, String add, String replace, String replacement, ArrayList<String> pages)
+
 	{
 		ArrayList<EditItem> wl = new ArrayList<>();
 		for (String s : pages)
