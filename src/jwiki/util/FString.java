@@ -53,7 +53,7 @@ public class FString
 	 */
 	public static String generateRandomFileName(Path p)
 	{
-		return String.format("%#o x %s.%s", r.nextInt(0xFF), LocalTime.now().format(DateTimeFormatter.ofPattern("HH.mm.ss")),
+		return String.format("%s x %#o.%s", LocalTime.now().format(DateTimeFormatter.ofPattern("HH.mm.ss")), r.nextInt(0xFF),
 				FIO.getExtension(p, false));
 	}
 
@@ -171,7 +171,7 @@ public class FString
 	 * Concatenate Strings. Solution to the fencepost problem. Makes patterned Strings like "This|So|Much|Easier".
 	 * 
 	 * @param post The String to go between planks. Optional param, use empty string/null to disable. You can (and
-	 *           shoudl) also specify the '%n' operator in order to add new lines.
+	 *           should) also specify the '%n' operator in order to add new lines.
 	 * @param planks The planks of the fence post problem. Posts divide planks.
 	 * @return The completed fencepost string.
 	 */
@@ -190,45 +190,18 @@ public class FString
 
 		return x;
 	}
-	
-	/**
-	 * Splits an array of Strings into an array of array of Strings.
-	 * 
-	 * @param max The maximum number of elements per array.
-	 * @param strings The list of Strings to split.
-	 * @return The split array of String[]s.
-	 */
-	public static String[][] splitStringArray(int max, String... strings)
-	{
-		ArrayList<String[]> l = new ArrayList<String[]>();
-
-		if (strings.length <= max)
-			return new String[][] { strings };
-
-		int overflow = strings.length % max;
-		for (int i = 0; i < strings.length - overflow; i += max)
-			l.add(Arrays.copyOfRange(strings, i, i + max));
-
-		if (overflow > 0)
-			l.add(Arrays.copyOfRange(strings, strings.length - overflow, strings.length));
-
-		return l.toArray(new String[0][]);
-	}
 
 	/**
-	 * Extract from a list of tuples, all String values from a &lt;String, Boolean&gt; where Boolean == value.
+	 * Concatenate Strings. Solution to the fencepost problem. Makes patterned Strings like "This|So|Much|Easier".
 	 * 
-	 * @param bl The list of tuples to look at
-	 * @param value We'll extract a String with this value.
-	 * @return A list of matching strings.
+	 * @param post The String to go between planks. Optional param, use empty string/null to disable. You can (and
+	 *           should) also specify the '%n' operator in order to add new lines.
+	 * @param planks The planks of the fence post problem. Posts divide planks.
+	 * @return The completed fencepost string.
 	 */
-	public static String[] booleanTuple(List<Tuple<String, Boolean>> bl, boolean value)
+	public static String fenceMaker(String post, ArrayList<String> planks)
 	{
-		ArrayList<String> l = new ArrayList<String>();
-		for (Tuple<String, Boolean> t : bl)
-			if (t.y.booleanValue() == value)
-				l.add(t.x);
-		return l.toArray(new String[0]);
+		return fenceMaker(post, planks.toArray(new String[0]));
 	}
 
 	/**

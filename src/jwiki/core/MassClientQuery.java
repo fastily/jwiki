@@ -117,6 +117,24 @@ public class MassClientQuery
 	}
 
 	/**
+	 * Checks if a title exists.  Can filter results based on whether pages exist.
+	 * @param wiki The wiki object to use
+	 * @param exists Set to true to select all pages that exist.  False selects all that don't exist
+	 * @param titles The titles to query
+	 * @return A list of titles that exist or don't exist.
+	 */
+	public static ArrayList<String> exists(Wiki wiki, boolean exists, String...titles)
+	{
+		ArrayList<String> l = new ArrayList<>();
+		for(Tuple<String, Boolean> t : exists(wiki, titles))
+			if(t.y.booleanValue() == exists)
+				l.add(t.x);
+		
+		return l;
+	}
+	
+	
+	/**
 	 * Gets titles of images linked on a page.
 	 * 
 	 * @param wiki The wiki object to use

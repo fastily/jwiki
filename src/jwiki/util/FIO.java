@@ -112,7 +112,7 @@ public class FIO
 	 * @param timestamp If true, include a timestamp header boundary for each set of lines dumped.
 	 * @param lines The lines to write out to. These will be separated by the system default line separator.
 	 */
-	public static void dumpToFile(String path, boolean timestamp, String... lines)
+	public static void dumpToFile(String path, boolean timestamp, ArrayList<String> lines)
 	{
 		try (BufferedWriter bw = Files.newBufferedWriter(Paths.get(path), Charset.defaultCharset(), StandardOpenOption.CREATE,
 				StandardOpenOption.WRITE, StandardOpenOption.APPEND))
@@ -127,6 +127,9 @@ public class FIO
 			e.printStackTrace();
 		}
 	}
+	
+	
+	
 
 	/**
 	 * Recursively search a directory for files whose names match the specified regex.
