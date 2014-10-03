@@ -16,13 +16,13 @@ import javax.imageio.ImageIO;
  * @author Fastily
  *
  */
-public class ClientTask
+public class CTask
 {
 
 	/**
 	 * Constructors disallowed
 	 */
-	private ClientTask()
+	private CTask()
 	{
 
 	}
@@ -50,7 +50,7 @@ public class ClientTask
 		else
 			throw new IOException(String.format("Could not find the file '%s' to download", title));
 
-		return ClientRequest.genericGET(new URL(url), wiki.cookiejar);
+		return CRequest.genericGET(new URL(url), wiki.cookiejar);
 	}
 
 	/**

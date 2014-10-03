@@ -84,10 +84,10 @@ public class Wiki
 		{
 			wl = parent.wl;
 			cookiejar = parent.cookiejar;
-			ClientAuth.copyCentralAuthCookies(parent, domain);
+			CAuth.copyCentralAuthCookies(parent, domain);
 		}
 
-		if (!ClientAuth.doAuth(this, !isNew))
+		if (!CAuth.doAuth(this, !isNew))
 			throw new LoginException(String.format("Failed to log-in as %s @ %s", upx.x, domain));
 
 		wl.put(domain, this);
@@ -271,7 +271,7 @@ public class Wiki
 	 */
 	public boolean edit(String title, String text, String reason)
 	{
-		return ClientAction.edit(this, title, text, reason);
+		return CAction.edit(this, title, text, reason);
 	}
 
 	/**
@@ -326,7 +326,7 @@ public class Wiki
 	 */
 	public boolean undo(String title, String reason)
 	{
-		return ClientAction.undo(this, title, reason);
+		return CAction.undo(this, title, reason);
 	}
 
 	/**
@@ -348,7 +348,7 @@ public class Wiki
 	 */
 	public boolean purge(String title)
 	{
-		return ClientAction.purge(this, title);
+		return CAction.purge(this, title);
 	}
 
 	/**
@@ -360,7 +360,7 @@ public class Wiki
 	 */
 	public boolean delete(String title, String reason)
 	{
-		return ClientAction.delete(this, title, reason);
+		return CAction.delete(this, title, reason);
 	}
 
 	/**
@@ -373,7 +373,7 @@ public class Wiki
 	 */
 	public boolean undelete(String title, String reason)
 	{
-		return ClientAction.undelete(this, title, reason);
+		return CAction.undelete(this, title, reason);
 	}
 
 	/**
@@ -387,7 +387,7 @@ public class Wiki
 	 */
 	public boolean upload(Path p, String title, String text, String reason)
 	{
-		return ClientAction.upload(this, p, title, text, reason);
+		return CAction.upload(this, p, title, text, reason);
 	}
 
 	/* //////////////////////////////////////////////////////////////////////////////// */
@@ -403,7 +403,7 @@ public class Wiki
 	public ArrayList<String> listGroupsRights(String user)
 	{
 		ColorLog.info(this, "Getting user rights for " + user);
-		return MassClientQuery.listUserRights(this, user).get(0).y;
+		return MQuery.listUserRights(this, user).get(0).y;
 	}
 
 	/**
@@ -415,7 +415,7 @@ public class Wiki
 	public String getPageText(String title)
 	{
 		ColorLog.info(this, "Getting page text of " + title);
-		ArrayList<String> temp = MassClientQuery.getPageText(this, title).get(0).y;
+		ArrayList<String> temp = MQuery.getPageText(this, title).get(0).y;
 		return temp.isEmpty() ? "" : temp.get(0);
 	}
 
@@ -460,7 +460,7 @@ public class Wiki
 	public int getCategorySize(String title)
 	{
 		ColorLog.info(this, "Getting category size of " + title);
-		return MassClientQuery.getCategorySize(this, title).get(0).y.intValue();
+		return MQuery.getCategorySize(this, title).get(0).y.intValue();
 	}
 
 	/**
@@ -507,7 +507,7 @@ public class Wiki
 	public ArrayList<String> getCategoriesOnPage(String title)
 	{
 		ColorLog.info(this, "Getting categories on " + title);
-		return MassClientQuery.getCategoriesOnPage(this, title).get(0).y;
+		return MQuery.getCategoriesOnPage(this, title).get(0).y;
 	}
 
 	/**
@@ -521,7 +521,7 @@ public class Wiki
 	public ArrayList<String> getLinksOnPage(String title, String... ns)
 	{
 		ColorLog.info(this, "Getting wiki links on " + title);
-		return MassClientQuery.getLinksOnPage(this, ns, title).get(0).y;
+		return MQuery.getLinksOnPage(this, ns, title).get(0).y;
 	}
 
 	/**
@@ -536,7 +536,7 @@ public class Wiki
 	public ArrayList<String> getLinksOnPage(boolean exists, String title, String... ns)
 	{
 		ArrayList<String> l = new ArrayList<>();
-		for (Tuple<String, Boolean> t : MassClientQuery.exists(this, getLinksOnPage(title, ns).toArray(new String[0])))
+		for (Tuple<String, Boolean> t : MQuery.exists(this, getLinksOnPage(title, ns).toArray(new String[0])))
 			if (t.y.booleanValue() == exists)
 				l.add(t.x);
 		return l;
@@ -612,7 +612,7 @@ public class Wiki
 	public ArrayList<String> getImagesOnPage(String title)
 	{
 		ColorLog.info(this, "Getting files on " + title);
-		return MassClientQuery.getImagesOnPage(this, title).get(0).y;
+		return MQuery.getImagesOnPage(this, title).get(0).y;
 	}
 
 	/**
@@ -624,7 +624,7 @@ public class Wiki
 	public boolean exists(String title)
 	{
 		ColorLog.info(this, "Checking to see if title exists: " + title);
-		return MassClientQuery.exists(this, title).get(0).y.booleanValue();
+		return MQuery.exists(this, title).get(0).y.booleanValue();
 	}
 
 	/**
@@ -662,7 +662,7 @@ public class Wiki
 	public ArrayList<String> getTemplatesOnPage(String title)
 	{
 		ColorLog.info(this, "Getting templates transcluded on " + title);
-		return MassClientQuery.getTemplatesOnPage(this, title).get(0).y;
+		return MQuery.getTemplatesOnPage(this, title).get(0).y;
 	}
 
 	/**
@@ -689,7 +689,7 @@ public class Wiki
 	public ArrayList<Tuple<String, String>> globalUsage(String title)
 	{
 		ColorLog.info(this, "Getting global usage for " + title);
-		return MassClientQuery.globalUsage(this, title).get(0).y;
+		return MQuery.globalUsage(this, title).get(0).y;
 	}
 
 	/**
@@ -780,7 +780,7 @@ public class Wiki
 	public ArrayList<String> getDuplicatesOf(String title, boolean localOnly)
 	{
 		ColorLog.info(this, "Getting duplicates of " + title);
-		return MassClientQuery.getDuplicatesOf(this, localOnly, title).get(0).y;
+		return MQuery.getDuplicatesOf(this, localOnly, title).get(0).y;
 	}
 
 	/**
@@ -792,6 +792,6 @@ public class Wiki
 	public ArrayList<String> listDuplicateFiles(int cap)
 	{
 		ColorLog.info(this, "Getting duplicated files on the wiki");
-		return MassClientQuery.querySpecialPage(this, cap, "ListDuplicatedFiles");
+		return MQuery.querySpecialPage(this, cap, "ListDuplicatedFiles");
 	}
 }

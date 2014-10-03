@@ -47,11 +47,11 @@ public class QueryTools
 	 * @param ub The URLBuilder to use
 	 * @param rl The list to put retrieved ServerReplies in.
 	 */
-	private static void doQuerySet(Wiki wiki, URLBuilder ub, ArrayList<ServerReply> rl)
+	private static void doQuerySet(Wiki wiki, URLBuilder ub, ArrayList<Reply> rl)
 	{
 		while (true)
 		{
-			ServerReply r = doSingleQuery(wiki, ub);
+			Reply r = doSingleQuery(wiki, ub);
 			if (r == null || r.hasError())
 				break;
 
@@ -71,11 +71,11 @@ public class QueryTools
 	 * @param ub The URLBuilder to use.
 	 * @return The reply from the server.
 	 */
-	public static ServerReply doSingleQuery(Wiki wiki, URLBuilder ub)
+	public static Reply doSingleQuery(Wiki wiki, URLBuilder ub)
 	{
 		try
 		{
-			return ClientRequest.get(ub.makeURL(), wiki.cookiejar);
+			return CRequest.get(ub.makeURL(), wiki.cookiejar);
 		}
 		catch (Throwable e)
 		{
@@ -97,10 +97,10 @@ public class QueryTools
 	 * @param titles The list of titles to send to the server. PRECONDITION: These should not be URL-encoded.
 	 * @return The replies from the server.
 	 */
-	public static ArrayList<ServerReply> doMultiQuery(Wiki wiki, URLBuilder ub, String limString, String tkey,
+	public static ArrayList<Reply> doMultiQuery(Wiki wiki, URLBuilder ub, String limString, String tkey,
 			String... titles)
 	{
-		ArrayList<ServerReply> l = new ArrayList<>();
+		ArrayList<Reply> l = new ArrayList<>();
 
 		ub.setParams("continue", ""); // MW 1.21+
 		if (limString != null)
@@ -129,9 +129,9 @@ public class QueryTools
 	 * @param ub The URLBuilder to use
 	 * @return The replies from the server.
 	 */
-	public static ArrayList<ServerReply> doNoTitleMultiQuery(Wiki wiki, URLBuilder ub)
+	public static ArrayList<Reply> doNoTitleMultiQuery(Wiki wiki, URLBuilder ub)
 	{
-		ArrayList<ServerReply> l = new ArrayList<>();
+		ArrayList<Reply> l = new ArrayList<>();
 		ub.setParams("continue", ""); // MW 1.21+
 		doQuerySet(wiki, ub, l);
 
@@ -150,9 +150,9 @@ public class QueryTools
 	 * @param titles The titles to query.
 	 * @return The replies from the server.
 	 */
-	public static ArrayList<ServerReply> doGroupQuery(Wiki wiki, URLBuilder ub, String tkey, String... titles)
+	public static ArrayList<Reply> doGroupQuery(Wiki wiki, URLBuilder ub, String tkey, String... titles)
 	{
-		ArrayList<ServerReply> srl = new ArrayList<>();
+		ArrayList<Reply> srl = new ArrayList<>();
 
 		LinkedList<String> l = new LinkedList<String>(Arrays.asList(titles));
 		while (!l.isEmpty())
@@ -161,10 +161,10 @@ public class QueryTools
 			for (int i = 0; i < Settings.groupquerymax && l.peek() != null; i++)
 				t.add(l.poll());
 
-			ub.setParams(tkey, FString.enc(FString.fenceMaker("|", titles)));
-			System.out.println(ub.makeURL().toString());
+			ub.setParams(tkey, FString.enc(FString.fenceMaker("|", t.toArray(new String[0]))));
+			//System.out.println(ub.makeURL().toString());
 
-			ServerReply r = doSingleQuery(wiki, ub);
+			Reply r = doSingleQuery(wiki, ub);
 			if (r != null)
 				srl.add(r);
 			else
@@ -186,17 +186,17 @@ public class QueryTools
 	 * @param title The titles to query. Optional param - used by tkey. Also set this to null if you disabled tkey.
 	 * @return A list of ServerReplies we collected.
 	 */
-	public static ArrayList<ServerReply> doLimitedQuery(Wiki wiki, URLBuilder ub, String limString, int cap, String tkey,
+	public static ArrayList<Reply> doLimitedQuery(Wiki wiki, URLBuilder ub, String limString, int cap, String tkey,
 			String title)
 	{
 		if (tkey != null)
 			ub.setParams(tkey, FString.enc(title));
 
-		ArrayList<ServerReply> l = new ArrayList<>();
+		ArrayList<Reply> l = new ArrayList<>();
 		if (maxQuerySize >= cap)
 		{
 			ub.setParams(limString, "" + cap);
-			ServerReply r = doSingleQuery(wiki, ub);
+			Reply r = doSingleQuery(wiki, ub);
 			if (r != null)
 				l.add(r);
 		}
@@ -204,7 +204,7 @@ public class QueryTools
 			for (int fetch_num = maxQuerySize, done = 0; done < cap;)
 			{
 				ub.setParams(limString, "" + fetch_num);
-				ServerReply r = doSingleQuery(wiki, ub);
+				Reply r = doSingleQuery(wiki, ub);
 				if (r != null)
 					l.add(r);
 
@@ -227,7 +227,7 @@ public class QueryTools
 	 * @param r The ServerReply from the most recent, previous request to the server created by <tt>ub</tt>.
 	 * @return True if we encountered no errors.
 	 */
-	public static boolean applyContinue(URLBuilder ub, ServerReply r)
+	public static boolean applyContinue(URLBuilder ub, Reply r)
 	{
 		try
 		{
@@ -257,7 +257,7 @@ public class QueryTools
 	 *           <tt>arrayKey</tt>
 	 * @return The list of Strings we found.
 	 */
-	private static ArrayList<String> getStringsFromJSONObjectArray(ServerReply r, String arrayKey, String arrayElementKey)
+	private static ArrayList<String> getStringsFromJSONObjectArray(Reply r, String arrayKey, String arrayElementKey)
 	{
 		ArrayList<String> l = new ArrayList<>();
 
@@ -282,7 +282,7 @@ public class QueryTools
 	 *           <tt>arrayKey</tt> that we want to use as the second element in the Tuple
 	 * @return The list of Tuples we found.
 	 */
-	private static ArrayList<Tuple<String, String>> getTuplesFromJSONObjectArray(ServerReply r, String arrayKey,
+	private static ArrayList<Tuple<String, String>> getTuplesFromJSONObjectArray(Reply r, String arrayKey,
 			String arrayElementKey1, String arrayElementKey2)
 	{
 		ArrayList<Tuple<String, String>> l = new ArrayList<>();
@@ -356,8 +356,8 @@ public class QueryTools
 	{
 		HashMap<String, ArrayList<String>> hl = new HashMap<>();
 
-		for (ServerReply r1 : doMultiQuery(wiki, ub, limString, tkey, titles))
-			for (ServerReply r2 : r1.bigJSONObjectGet("pages"))
+		for (Reply r1 : doMultiQuery(wiki, ub, limString, tkey, titles))
+			for (Reply r2 : r1.bigJSONObjectGet("pages"))
 				mapListMerge(hl, r2.getString(titlekey), getStringsFromJSONObjectArray(r2, arrayKey, arrayElementKey));
 
 		return mapToList(hl);
@@ -387,8 +387,8 @@ public class QueryTools
 	{
 		HashMap<String, ArrayList<Tuple<String, String>>> hl = new HashMap<>();
 
-		for (ServerReply r1 : doMultiQuery(wiki, ub, limString, tkey, titles))
-			for (ServerReply r2 : r1.bigJSONObjectGet("pages"))
+		for (Reply r1 : doMultiQuery(wiki, ub, limString, tkey, titles))
+			for (Reply r2 : r1.bigJSONObjectGet("pages"))
 				mapListMerge(hl, r2.getString(titlekey),
 						getTuplesFromJSONObjectArray(r2, arrayKey, arrayElementKey1, arrayElementKey2));
 
@@ -413,7 +413,7 @@ public class QueryTools
 	{
 		ArrayList<Tuple<String, ArrayList<String>>> l = new ArrayList<>();
 
-		for (ServerReply r : doGroupQuery(wiki, ub, tkey, titles))
+		for (Reply r : doGroupQuery(wiki, ub, tkey, titles))
 		{
 			JSONArray ja = r.getJSONArrayR(topArrayKey);
 			for (int i = 0; i < ja.length(); i++)
@@ -447,7 +447,7 @@ public class QueryTools
 			String arrayKey, String arrayElementKey, String tkey, String title)
 	{
 		ArrayList<String> l = new ArrayList<>();
-		for (ServerReply r : doLimitedQuery(wiki, ub, limString, cap, tkey, title))
+		for (Reply r : doLimitedQuery(wiki, ub, limString, cap, tkey, title))
 			l.addAll(getStringsFromJSONObjectArray(r, arrayKey, arrayElementKey));
 		return l;
 	}
@@ -471,7 +471,7 @@ public class QueryTools
 			String arrayElementKey, String tkey, String... titles)
 	{
 		ArrayList<String> l = new ArrayList<>();
-		for (ServerReply r : tkey != null ? doMultiQuery(wiki, ub, limString, tkey, titles) : doNoTitleMultiQuery(wiki, ub))
+		for (Reply r : tkey != null ? doMultiQuery(wiki, ub, limString, tkey, titles) : doNoTitleMultiQuery(wiki, ub))
 			l.addAll(getStringsFromJSONObjectArray(r, arrayKey, arrayElementKey));
 		return l;
 	}

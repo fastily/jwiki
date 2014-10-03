@@ -20,7 +20,7 @@ import jwiki.util.FString;
  * @author Fastily
  * 
  */
-public class ClientAction
+public class CAction
 {
 	/**
 	 * The size of upload chunks. Default = 4Mb
@@ -30,7 +30,7 @@ public class ClientAction
 	/**
 	 * Hiding from javadoc
 	 */
-	private ClientAction()
+	private CAction()
 	{
 
 	}
@@ -55,7 +55,7 @@ public class ClientAction
 
 		try
 		{
-			return ClientRequest.post(ub.makeURL(), posttext, wiki.cookiejar, ClientRequest.urlenc).resultIs("Success");
+			return CRequest.post(ub.makeURL(), posttext, wiki.cookiejar, CRequest.urlenc).resultIs("Success");
 		}
 		catch (Throwable e)
 		{
@@ -102,7 +102,7 @@ public class ClientAction
 
 		try
 		{
-			ServerReply r = ClientRequest.get(ub.makeURL(), wiki.cookiejar);
+			Reply r = CRequest.get(ub.makeURL(), wiki.cookiejar);
 			return !r.hasError() && r.getJSONArray("purge").getJSONObject(0).has("purged");
 		}
 		catch (Throwable e)
@@ -130,7 +130,7 @@ public class ClientAction
 
 		try
 		{
-			return !ClientRequest.post(ub.makeURL(), posttext, wiki.cookiejar, ClientRequest.urlenc).hasErrorIfIgnore(
+			return !CRequest.post(ub.makeURL(), posttext, wiki.cookiejar, CRequest.urlenc).hasErrorIfIgnore(
 					"missingtitle");
 		}
 		catch (Throwable e)
@@ -159,7 +159,7 @@ public class ClientAction
 
 		try
 		{
-			return !ClientRequest.post(ub.makeURL(), posttext, wiki.cookiejar, ClientRequest.urlenc).hasError();
+			return !CRequest.post(ub.makeURL(), posttext, wiki.cookiejar, CRequest.urlenc).hasError();
 		}
 		catch (Throwable e)
 		{
@@ -203,7 +203,7 @@ public class ClientAction
 				if (filekey != null)
 					args.put("filekey", filekey);
 
-				ServerReply r = ClientRequest.chunkPost(ub.makeURL(), wiki.cookiejar, args, filename, fc);
+				Reply r = CRequest.chunkPost(ub.makeURL(), wiki.cookiejar, args, filename, fc);
 
 				if (r.hasError()) // allow 5x retries for failed chunks.
 				{
@@ -252,7 +252,7 @@ public class ClientAction
 				"filekey", es[4], "token", es[3]);
 		try
 		{
-			return ClientRequest.post(ub.makeURL(), posttext, wiki.cookiejar, ClientRequest.urlenc).resultIs("Success");
+			return CRequest.post(ub.makeURL(), posttext, wiki.cookiejar, CRequest.urlenc).resultIs("Success");
 		}
 		catch (IOException e)
 		{

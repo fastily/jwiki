@@ -9,12 +9,12 @@ import java.net.URI;
  * @author Fastily
  *
  */
-public class ClientAuth
+public class CAuth
 {
 	/**
 	 * No constructors allowed; all static methods.
 	 */
-	private ClientAuth()
+	private CAuth()
 	{
 
 	}
@@ -36,13 +36,13 @@ public class ClientAuth
 
 		try
 		{
-			ServerReply r = ClientRequest.post(ub.makeURL(), posttext.getParamsAsString(), wiki.cookiejar, null);
+			Reply r = CRequest.post(ub.makeURL(), posttext.getParamsAsString(), wiki.cookiejar, null);
 			if (r.hasError())
 				return false;
 			else if (r.resultIs("NeedToken"))
 			{
 				posttext.setParams("lgpassword", wiki.upx.y, "lgtoken", r.getStringR("token"));
-				return ClientRequest.post(ub.makeURL(), posttext.getParamsAsString(), wiki.cookiejar, null).resultIs("Success");
+				return CRequest.post(ub.makeURL(), posttext.getParamsAsString(), wiki.cookiejar, null).resultIs("Success");
 			}
 		}
 		catch (Throwable e)
@@ -58,21 +58,13 @@ public class ClientAuth
 	 * @param wiki The wiki object to obtain an edit token for.
 	 * @return True if we were successful.
 	 */
-	private static boolean generateEditToken(Wiki wiki)
+	private static boolean getEditToken(Wiki wiki)
 	{
 		ColorLog.info(wiki, "Fetching edit token");
-
-		URLBuilder ub = wiki.makeUB("tokens");
-		try
-		{
-			wiki.token = ClientRequest.get(ub.makeURL(), wiki.cookiejar).getStringR("edittoken");
-			return wiki.token != null;
-		}
-		catch (Throwable e)
-		{
-			e.printStackTrace();
-			return false;
-		}
+		
+		Reply r = QueryTools.doSingleQuery(wiki, wiki.makeUB("query", "meta", "tokens", "type", "csrf"));
+		wiki.token = r.getStringR("csrftoken");
+		return wiki.token != null;
 	}
 
 	/**
@@ -81,14 +73,14 @@ public class ClientAuth
 	 * @param wiki The wiki object to generate an namespace list for.
 	 * @return True if we were successful.
 	 */
-	private static boolean generateNSL(Wiki wiki)
+	private static boolean getNSL(Wiki wiki)
 	{
-		ColorLog.info(wiki, "Generating namespace list");
+		ColorLog.info(wiki, "Fetching namespace list");
 		URLBuilder ub = wiki.makeUB("query", "meta", "siteinfo", "siprop", "namespaces");
 
 		try
 		{
-			wiki.nsl = Namespace.makeNamespace(ClientRequest.get(ub.makeURL(), wiki.cookiejar).getJSONObjectR("namespaces"));
+			wiki.nsl = Namespace.makeNamespace(CRequest.get(ub.makeURL(), wiki.cookiejar).getJSONObjectR("namespaces"));
 			return wiki.nsl != null;
 		}
 		catch (Throwable e)
@@ -108,7 +100,7 @@ public class ClientAuth
 	 */
 	protected static boolean doAuth(Wiki wiki, boolean newLogin)
 	{
-		return (newLogin ? login(wiki) : true) && generateEditToken(wiki) && generateNSL(wiki);
+		return (newLogin ? login(wiki) : true) && getEditToken(wiki) && getNSL(wiki);
 	}
 
 	/**
