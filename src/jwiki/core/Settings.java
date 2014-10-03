@@ -16,13 +16,8 @@ public class Settings
 	/**
 	 * The user agent we're using to make https requests.
 	 */
-	public static String useragent = String.format("fastily-jwiki using %s (%s)", System.getProperty("os.name"),
-			System.getProperty("os.version"));
-
-	/**
-	 * The maximum allowable number of results returned per query. MediaWiki -> 500 per default.
-	 */
-	protected static final int maxquerysz = 500;
+	public static String useragent = String.format("libjwiki on %s (%s) using JRE %s", System.getProperty("os.name"),
+			System.getProperty("os.version"), System.getProperty("java.version"));
 
 	/**
 	 * The maximum allowable number of entries to request data for per group entry.
@@ -33,8 +28,6 @@ public class Settings
 	 * The communications protocol we'll be using. Default = https.
 	 */
 	protected static final String comprotocol = "https://";
-	
-	//public static String blah = "";
 	
 	/**
 	 * Constructors disallowed.

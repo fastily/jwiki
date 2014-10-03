@@ -38,7 +38,7 @@ public class ImageInfo
 	 * 
 	 * @param jo The JSONObject to use.
 	 */
-	protected ImageInfo(ServerReply r)
+	protected ImageInfo(Reply r)
 	{
 		size = r.getIntR("size"); 
 		width = r.getIntR("width");

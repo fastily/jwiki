@@ -14,12 +14,12 @@ import jwiki.util.Tuple;
  * @author Fastily
  * @see Wiki
  */
-public class MassClientQuery
+public class MQuery
 {
 	/**
 	 * Constructors disallowed
 	 */
-	private MassClientQuery()
+	private MQuery()
 	{
 
 	}
@@ -61,8 +61,8 @@ public class MassClientQuery
 	public static ArrayList<Tuple<String, Integer>> getCategorySize(Wiki wiki, String... titles)
 	{
 		ArrayList<Tuple<String, Integer>> l = new ArrayList<>();
-		for (ServerReply r : QueryTools.doGroupQuery(wiki, wiki.makeUB("query", "prop", "categoryinfo"), "titles", titles))
-			for (ServerReply r1 : r.bigJSONObjectGet("pages"))
+		for (Reply r : QueryTools.doGroupQuery(wiki, wiki.makeUB("query", "prop", "categoryinfo"), "titles", titles))
+			for (Reply r1 : r.bigJSONObjectGet("pages"))
 				l.add(new Tuple<String, Integer>(r1.getString("title"), new Integer(r1.getIntR("size"))));
 
 		return l;
@@ -98,6 +98,7 @@ public class MassClientQuery
 		return QueryTools.multiQueryForStrings(wiki, ub, "pllimit", "links", "title", "title", "titles", titles);
 	}
 
+	//TODO: Get rid of this
 	/**
 	 * Checks if a title exists.
 	 * 
@@ -108,9 +109,9 @@ public class MassClientQuery
 	public static ArrayList<Tuple<String, Boolean>> exists(Wiki wiki, String... titles)
 	{
 		ArrayList<Tuple<String, Boolean>> l = new ArrayList<>();
-		for (ServerReply r : QueryTools.doGroupQuery(wiki, wiki.makeUB("query", "prop", "pageprops", "ppprop", "missing"),
+		for (Reply r : QueryTools.doGroupQuery(wiki, wiki.makeUB("query", "prop", "pageprops", "ppprop", "missing"),
 				"titles", titles))
-			for (ServerReply r1 : r.bigJSONObjectGet("pages"))
+			for (Reply r1 : r.bigJSONObjectGet("pages"))
 				l.add(new Tuple<String, Boolean>(r1.getString("title"), new Boolean(!r1.has("missing"))));
 
 		return l;
@@ -131,6 +132,18 @@ public class MassClientQuery
 				l.add(t.x);
 		
 		return l;
+	}
+	
+	/**
+	 * Checks if a title exists.  Can filter results based on whether pages exist.
+	 * @param wiki The wiki object to use
+	 * @param exists Set to true to select all pages that exist.  False selects all that don't exist
+	 * @param titles The titles to query
+	 * @return A list of titles that exist or don't exist.
+	 */
+	public static  ArrayList<String> exists(Wiki wiki, boolean exists, ArrayList<String> titles)
+	{
+		return exists(wiki, exists, titles.toArray(new String[0]));
 	}
 	
 	

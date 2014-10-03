@@ -20,7 +20,7 @@ import java.util.zip.GZIPInputStream;
  * @author Fastily
  * 
  */
-public class ClientRequest
+public class CRequest
 {
 	/**
 	 * Connection timeout for URLConnections
@@ -46,7 +46,7 @@ public class ClientRequest
 	/**
 	 * All static methods; no constructors allowed.
 	 */
-	private ClientRequest()
+	private CRequest()
 	{
 
 	}
@@ -200,10 +200,10 @@ public class ClientRequest
 	 * @return The result of the GET request.
 	 * @throws IOException Network error.
 	 */
-	protected static ServerReply get(URL url, CookieManager cookiejar) throws IOException
+	protected static Reply get(URL url, CookieManager cookiejar) throws IOException
 	{
 		//System.out.println(url);
-		return new ServerReply(genericGET(url, cookiejar));
+		return new Reply(genericGET(url, cookiejar));
 	}
 
 	/**
@@ -216,9 +216,9 @@ public class ClientRequest
 	 * @return A Reply object containing the result.
 	 * @throws IOException Network error.
 	 */
-	protected static ServerReply post(URL url, String text, CookieManager cookiejar, String contenttype) throws IOException
+	protected static Reply post(URL url, String text, CookieManager cookiejar, String contenttype) throws IOException
 	{
-		return new ServerReply(genericPOST(url, cookiejar, contenttype, text));
+		return new Reply(genericPOST(url, cookiejar, contenttype, text));
 	}
 
 	/**
@@ -236,7 +236,7 @@ public class ClientRequest
 	 * @return The reply from the server.
 	 * @throws IOException Network error.
 	 */
-	protected static ServerReply chunkPost(URL url, CookieManager cookiejar, HashMap<String, String> args, String filename,
+	protected static Reply chunkPost(URL url, CookieManager cookiejar, HashMap<String, String> args, String filename,
 			FileChannel fc) throws IOException
 	{
 		String boundary = "-----Boundary-----";
@@ -256,12 +256,12 @@ public class ClientRequest
 		OutputStream os = c.getOutputStream();
 		os.write(temp.getBytes("UTF-8"));
 
-		pipe(fc, os, ClientAction.chunksize);
+		pipe(fc, os, CAction.chunksize);
 		os.write(new String("\r\n" + boundary + "--\r\n\r\n").getBytes("UTF-8"));
 		os.close();
 
 		grabCookies(c, cookiejar);
-		return new ServerReply(resolveCompression(c));
+		return new Reply(resolveCompression(c));
 	}
 
 	/**

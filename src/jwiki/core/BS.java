@@ -1,7 +1,6 @@
 package jwiki.core;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 import jwiki.util.Tuple;
 
@@ -9,11 +8,13 @@ public class BS
 {
 	public static void main(String[] args) throws Throwable
 	{
+		System.out.println(Settings.useragent);
+		//System.out.println(System.getProperty("java.version"));
 		 Wiki wiki = new Wiki("FastilyClone", "");
+		 wiki.edit("User:FastilyClone/ABC", "Blah", "test");
 
-		printA(wiki.filterByNS(new ArrayList<String>(Arrays.asList(new String[] {"User:Fastily", "Commons:AN", "Mainer", "Lol"})), "User"));
-		
-		
+
+		 //printA(MQuery.exists(wiki, true, wiki.getLinksOnPage("User:FastilyClone/UC")));
 	}
 
 	public static void printTAL(ArrayList<Tuple<String, ArrayList<String>>> l)

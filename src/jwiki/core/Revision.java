@@ -25,7 +25,7 @@ public class Revision extends DataEntry
 	 *           server
 	 * @param r The ServerReply containing the revision to parse.
 	 */
-	private Revision(String title, ServerReply r)
+	private Revision(String title, Reply r)
 	{
 		super(r.getString("user"), title, r.getString("comment"), Instant.parse(r.getString("timestamp")));
 		text = r.getString("*");
@@ -37,15 +37,15 @@ public class Revision extends DataEntry
 	 * @param srl The list of replies from the server.
 	 * @return Revision data parsed from the server reply.
 	 */
-	protected static ArrayList<Revision> makeRevs(ArrayList<ServerReply> srl)
+	protected static ArrayList<Revision> makeRevs(ArrayList<Reply> srl)
 	{
 		ArrayList<Revision> rl = new ArrayList<>();
 
-		for (ServerReply r : srl)
+		for (Reply r : srl)
 		{
 			JSONArray ja = r.getJSONArrayR("revisions");
 			for (int i = 0; i < ja.length(); i++)
-				rl.add(new Revision(r.getStringR("title"), new ServerReply(ja.getJSONObject(i))));
+				rl.add(new Revision(r.getStringR("title"), new Reply(ja.getJSONObject(i))));
 		}
 		return rl;
 	}

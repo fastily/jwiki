@@ -1,19 +1,14 @@
 == Priority ==
-* Create MassClientQuery class to perform multiple queries at once in a single query.  Obvious performance boost for the end user.
-
 * Convert GlobalReplace to CLI and wrap it with GUI.
 ** GlobalReplace with 20+ images hits apihighlimit restriction.  Perhaps we should add a delay...
 
 * FLogin crypto is crap.  Keeps out non-CS people, but this is a joke to reverse engineer... 
 ** Salt should be secure random generated.
 ** Use MD5/MD6 hashes?
-** Should I be using base64 encoding to output files?  This isn't a built-in and I'm lazy... (may not be too important, seeing how machines which don't support UTF-8 probably aren't supported by java 8 anyhow...)
 ** Keys *should* be randomly generated - based on OS names, serial number, etc, user's account, time generated, perhaps?  We can save these locally.
 *** There is a problem with this logic however, because the user isn't actually entering a password, and keys are going to be saved locally o_o.  I guess it's a step above plaintext...
 
 * FLogin is still using old java.io.* ->  Update to nio.
-
-* query-continue is depreceated in favor continue
 
 * Drop Logger from code.
 
@@ -26,5 +21,7 @@
 * Log querying methods
 
 * Internationalize namespaces.  I hardcode instances of namespace prefixes in English - these should be dynamically generated via namespace IDs
+
+* Token handling has changed - use meta=tokens
 
 * Theres a ton of tt markers.  Copyedit comments.

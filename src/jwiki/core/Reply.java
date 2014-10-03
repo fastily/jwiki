@@ -17,7 +17,7 @@ import org.json.JSONObject;
  * @author Fastily
  *
  */
-public class ServerReply extends JSONObject
+public class Reply extends JSONObject
 {
 
 	/**
@@ -40,7 +40,7 @@ public class ServerReply extends JSONObject
 	 * Constructor, takes a JSONObject and creates a ServerReply from it.
 	 * @param jo The JSONObject to turn into a ServerReply.
 	 */
-	protected ServerReply(JSONObject jo)
+	protected Reply(JSONObject jo)
 	{
 		super(jo.toString());
 	}
@@ -52,7 +52,7 @@ public class ServerReply extends JSONObject
 	 * 
 	 * @param is The inputstream we got from the server.
 	 */
-	protected ServerReply(InputStream is)
+	protected Reply(InputStream is)
 	{
 		super(FIO.inputStreamToString(is));
 		//System.out.println(Settings.blah);
@@ -148,10 +148,10 @@ public class ServerReply extends JSONObject
 	 * @param key The key to look for.
 	 * @return The requested value, or null if the key doesn't exist.
 	 */
-	protected ServerReply getJSONObjectR(String key)
+	protected Reply getJSONObjectR(String key)
 	{
 		Object result = getR(this, key);
-		return result instanceof JSONObject ? new ServerReply((JSONObject) result) : null;
+		return result instanceof JSONObject ? new Reply((JSONObject) result) : null;
 	}
 
 	/**
@@ -204,9 +204,9 @@ public class ServerReply extends JSONObject
 	 * @param key The key with which to get values for
 	 * @return A list of JSONObjects objects associated with the specified key.
 	 */
-	protected ArrayList<ServerReply> bigJSONObjectGet(String key)
+	protected ArrayList<Reply> bigJSONObjectGet(String key)
 	{
-		ArrayList<ServerReply> jl = new ArrayList<ServerReply>();
+		ArrayList<Reply> jl = new ArrayList<Reply>();
 
 		JSONObject jo = getJSONObjectR(key);
 		if (jo == null)
@@ -215,7 +215,7 @@ public class ServerReply extends JSONObject
 		String[] keys = JSONObject.getNames(jo);
 		if (keys != null)
 			for (String s : keys)
-				jl.add(new ServerReply(jo.getJSONObject(s)));
+				jl.add(new Reply(jo.getJSONObject(s)));
 
 		return jl;
 	}
