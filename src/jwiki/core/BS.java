@@ -3,17 +3,26 @@ package jwiki.core;
 import java.util.ArrayList;
 
 import jwiki.util.Tuple;
+import jwiki.util.WikiGen;
 
 public class BS
 {
 	public static void main(String[] args) throws Throwable
 	{
 		System.out.println(Settings.useragent);
-		//System.out.println(System.getProperty("java.version"));
-		 Wiki wiki = new Wiki("FastilyClone", "");
-		 wiki.edit("User:FastilyClone/ABC", "Blah", "test");
+		
+		 Wiki wiki = WikiGen.generate("FastilyClone");
+		// wiki.edit("User:Fastily/OL", "hi", "test");
+		// System.out.println(wiki.delete("User:Fastily/OL", "User requested deletion in own [[Commons:Userpage|userspace]]"));
 
+		 //printTAL(MQuery.fileUsage(wiki, FString.toSAL("File:San Diego Zoo Safari Park 150 2014-08-29.JPG", "File:Antarctica 6400px from Blue Marble.jpg")));
 
+		 System.out.println(wiki.getWiki("en.wikipedia.org").getPageText("Wikipedia:Sandbox"));
+		 
+		System.out.println( wiki.getWiki("en.wikipedia.org").getPageText("WP:AN") );
+		 
+		 System.out.println(wiki.whichNS("File:Fastily.jpg"));
+		 
 		 //printA(MQuery.exists(wiki, true, wiki.getLinksOnPage("User:FastilyClone/UC")));
 	}
 

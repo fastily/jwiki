@@ -202,7 +202,6 @@ public class CRequest
 	 */
 	protected static Reply get(URL url, CookieManager cookiejar) throws IOException
 	{
-		//System.out.println(url);
 		return new Reply(genericGET(url, cookiejar));
 	}
 

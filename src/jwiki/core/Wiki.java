@@ -200,23 +200,24 @@ public class Wiki
 	}
 
 	/**
-	 * Filters pages by NS.  Only pages in <code>ns</code> are selected.
+	 * Filters pages by NS. Only pages in <code>ns</code> are selected.
+	 * 
 	 * @param pages Titles to filter
-	 * @param ns Pages in this/these namespace(s) to return.  Use shorthand format (e.g. Namespace title without ':')
+	 * @param ns Pages in this/these namespace(s) to return. Use shorthand format (e.g. Namespace title without ':')
 	 * @return Pages in namespace(s) listed in <code>ns</code>
 	 */
-	public ArrayList<String> filterByNS(ArrayList<String> pages, String...ns)
+	public ArrayList<String> filterByNS(ArrayList<String> pages, String... ns)
 	{
 		ArrayList<String> l = new ArrayList<>();
 		List<String> nl = Arrays.asList(ns);
-		
-		for(String s : pages)
-			if(nl.contains(getNS(whichNS(s))))
+
+		for (String s : pages)
+			if (nl.contains(getNS(whichNS(s))))
 				l.add(s);
-		
+
 		return l;
 	}
-	
+
 	/**
 	 * Check if title in specified namespace. If not in specified namespace, convert it.
 	 * 
@@ -403,7 +404,7 @@ public class Wiki
 	public ArrayList<String> listGroupsRights(String user)
 	{
 		ColorLog.info(this, "Getting user rights for " + user);
-		return MQuery.listUserRights(this, user).get(0).y;
+		return MQuery.listUserRights(this, FString.toSAL(user)).get(0).y;
 	}
 
 	/**
@@ -415,7 +416,7 @@ public class Wiki
 	public String getPageText(String title)
 	{
 		ColorLog.info(this, "Getting page text of " + title);
-		ArrayList<String> temp = MQuery.getPageText(this, title).get(0).y;
+		ArrayList<String> temp = MQuery.getPageText(this, FString.toSAL(title)).get(0).y;
 		return temp.isEmpty() ? "" : temp.get(0);
 	}
 
@@ -435,7 +436,7 @@ public class Wiki
 		if (olderFirst)
 			ub.setParams("rvdir", "newer"); // MediaWiki is weird.
 		return Revision.makeRevs(cap > 0 ? QueryTools.doLimitedQuery(this, ub, "rvlimit", cap, "titles", title) : QueryTools
-				.doMultiQuery(this, ub, "rvlimit", "titles", title));
+				.doMultiQuery(this, ub, "rvlimit", "titles", FString.toSAL(title)));
 	}
 
 	/**
@@ -460,7 +461,7 @@ public class Wiki
 	public int getCategorySize(String title)
 	{
 		ColorLog.info(this, "Getting category size of " + title);
-		return MQuery.getCategorySize(this, title).get(0).y.intValue();
+		return MQuery.getCategorySize(this, FString.toSAL(title)).get(0).y.intValue();
 	}
 
 	/**
@@ -491,11 +492,11 @@ public class Wiki
 		ColorLog.info(this, "Getting category members from " + title);
 		URLBuilder ub = makeUB("query", "list", "categorymembers", "cmtitle", FString.enc(convertIfNotInNS(title, "Category")));
 		if (ns.length > 0)
-			ub.setParams("cmnamespace", FString.enc(FString.fenceMaker("|", nsl.prefixToNumStrings(ns))));
+			ub.setParams("cmnamespace", URLBuilder.chainProps(nsl.prefixToNumStrings(ns)));
 
 		return cap > 0 ? QueryTools.limitedQueryForStrings(this, ub, "cmlimit", cap, "categorymembers", "title", null, null)
 				: QueryTools.queryForStrings(this, ub, "cmlimit", "categorymembers", "title", "cmtitle",
-						convertIfNotInNS(title, "Category"));
+						FString.toSAL(convertIfNotInNS(title, "Category")));
 	}
 
 	/**
@@ -507,7 +508,7 @@ public class Wiki
 	public ArrayList<String> getCategoriesOnPage(String title)
 	{
 		ColorLog.info(this, "Getting categories on " + title);
-		return MQuery.getCategoriesOnPage(this, title).get(0).y;
+		return MQuery.getCategoriesOnPage(this, FString.toSAL(title)).get(0).y;
 	}
 
 	/**
@@ -521,7 +522,7 @@ public class Wiki
 	public ArrayList<String> getLinksOnPage(String title, String... ns)
 	{
 		ColorLog.info(this, "Getting wiki links on " + title);
-		return MQuery.getLinksOnPage(this, ns, title).get(0).y;
+		return MQuery.getLinksOnPage(this, ns, FString.toSAL(title)).get(0).y;
 	}
 
 	/**
@@ -536,7 +537,7 @@ public class Wiki
 	public ArrayList<String> getLinksOnPage(boolean exists, String title, String... ns)
 	{
 		ArrayList<String> l = new ArrayList<>();
-		for (Tuple<String, Boolean> t : MQuery.exists(this, getLinksOnPage(title, ns).toArray(new String[0])))
+		for (Tuple<String, Boolean> t : MQuery.exists(this, getLinksOnPage(title, ns)))
 			if (t.y.booleanValue() == exists)
 				l.add(t.x);
 		return l;
@@ -561,7 +562,7 @@ public class Wiki
 			ub.setParams("ucdir", "newer");
 
 		return Contrib.makeContribs(cap > -1 ? QueryTools.doLimitedQuery(this, ub, "uclimit", cap, "ucuser", user)
-				: QueryTools.doMultiQuery(this, ub, "cuser", user));
+				: QueryTools.doMultiQuery(this, ub, "uclimit", "cuser", FString.toSAL(user)));
 	}
 
 	/**
@@ -587,20 +588,19 @@ public class Wiki
 	{
 		ColorLog.info(this, "Fetching uploads for " + user);
 		return QueryTools.queryForStrings(this, makeUB("query", "list", "allimages", "aisort", "timestamp"), "ailimit",
-				"allimages", "title", "aiuser", Namespace.nss(user));
+				"allimages", "title", "aiuser", FString.toSAL(Namespace.nss(user)));
 	}
-
+	
 	/**
-	 * Gets the list of local pages that are displaying the given image.
-	 * 
-	 * @param title The title to query. PRECONDITION: Must be a valid (exists on wiki) file name.
-	 * @return The list of pages linking to this file, or the empty array if something went wrong/file doesn't exist.
+	 * Gets a list of pages linking to a file.
+	 * @param title The title to query.  PRECONDITION: This must be a valid file name prefixed with the "File:" prefix,
+	 *           or you will get strange results.
+	 * @return A list of pages linking to the file.
 	 */
-	public ArrayList<String> imageUsage(String title)
+	public ArrayList<String> fileUsage(String title)
 	{
 		ColorLog.info(this, "Fetching local file usage of " + title);
-		return QueryTools.queryForStrings(this, makeUB("query", "list", "imageusage"), "iulimit", "imageusage", "title",
-				"iutitle", convertIfNotInNS(title, "File"));
+		return MQuery.fileUsage(this, FString.toSAL(title)).get(0).y;
 	}
 
 	/**
@@ -612,7 +612,7 @@ public class Wiki
 	public ArrayList<String> getImagesOnPage(String title)
 	{
 		ColorLog.info(this, "Getting files on " + title);
-		return MQuery.getImagesOnPage(this, title).get(0).y;
+		return MQuery.getImagesOnPage(this, FString.toSAL(title)).get(0).y;
 	}
 
 	/**
@@ -624,7 +624,7 @@ public class Wiki
 	public boolean exists(String title)
 	{
 		ColorLog.info(this, "Checking to see if title exists: " + title);
-		return MQuery.exists(this, title).get(0).y.booleanValue();
+		return MQuery.exists(this, FString.toSAL(title)).get(0).y.booleanValue();
 	}
 
 	/**
@@ -648,9 +648,9 @@ public class Wiki
 	 */
 	public ImageInfo getImageInfo(String title, int height, int width)
 	{
-		//TODO: Rewrite to FileInfo pending release of wmf1.25
-		//return ClientQuery.getImageInfo(this, title, height, width);
-		return null;
+		// TODO: Rewrite to FileInfo pending release of wmf1.25
+		// return ClientQuery.getImageInfo(this, title, height, width);
+		throw new UnsupportedOperationException("Disabled pending release fileinfo with wmf1.26?");
 	}
 
 	/**
@@ -662,21 +662,20 @@ public class Wiki
 	public ArrayList<String> getTemplatesOnPage(String title)
 	{
 		ColorLog.info(this, "Getting templates transcluded on " + title);
-		return MQuery.getTemplatesOnPage(this, title).get(0).y;
+		return MQuery.getTemplatesOnPage(this, FString.toSAL(title)).get(0).y;
 	}
 
 	/**
-	 * Get a list of pages transcluding the given template.
+	 * Gets a list of pages transcluding a template.
 	 * 
 	 * @param title The title to query. You *must* include the namespace prefix (e.g. "Template:") or you will get
 	 *           strange results.
-	 * @return The pages transcluding <tt>title</tt>.
+	 * @return The pages transcluding <code>title</code>.
 	 */
 	public ArrayList<String> whatTranscludesHere(String title)
 	{
 		ColorLog.info(this, "Getting list of pages that transclude " + title);
-		return QueryTools.queryForStrings(this, makeUB("query", "list", "embeddedin"), "eilimit", "embeddedin", "title",
-				"eititle", title);
+		return MQuery.transcludesIn(this, FString.toSAL(title)).get(0).y;
 	}
 
 	/**
@@ -689,47 +688,33 @@ public class Wiki
 	public ArrayList<Tuple<String, String>> globalUsage(String title)
 	{
 		ColorLog.info(this, "Getting global usage for " + title);
-		return MQuery.globalUsage(this, title).get(0).y;
+		return MQuery.globalUsage(this, FString.toSAL(title)).get(0).y;
 	}
 
 	/**
-	 * Fetches backlinks to a page.
+	 * Gets a list of links or redirects to a page.
 	 * 
 	 * @param title The title to query
-	 * @param redirs Set to true to fetch redirects only. Set to false to filter out all redirects.
-	 * @return A list of backlinks
+	 * @param redirects Set to true to get redirects only. Set to false to filter out all redirects.
+	 * @return A list of links or redirects to this page.
 	 */
-	private ArrayList<String> getBacklinks(String title, boolean redirs)
+	public ArrayList<String> whatLinksHere(String title, boolean redirects)
 	{
-		return QueryTools.queryForStrings(this,
-				makeUB("query", "list", "backlinks", "blfilterredir", redirs ? "redirects" : "nonredirects"), "bllimit",
-				"backlinks", "title", "bltitle", title);
+		ColorLog.info("Getting links to " + title);
+		return MQuery.linksHere(this, redirects, FString.toSAL(title)).get(0).y;
 	}
 
 	/**
-	 * Gets a list of direct links to a page (excluding links from redirects). To get links from redirects, use
-	 * <tt>getRedirectsToHere()</tt> and call this method on each element in the list returned.
+	 * Gets a list of direct links to a page. CAVEAT: This does not get any pages linking to a redirect pointing to this
+	 * page; in order to do this you will first need to obtain a list of redirects to the target, and then call
+	 * <code>whatLinksHere()</code> on each of those redirects.
 	 * 
 	 * @param title The title to query
 	 * @return A list of links to this page.
-	 * 
-	 * @see #getRedirectsToHere(String)
 	 */
 	public ArrayList<String> whatLinksHere(String title)
 	{
-		return getBacklinks(title, false);
-	}
-
-	/**
-	 * Gets the redirects of a page.
-	 * 
-	 * @param title The title to query
-	 * @return The redirects linking to this page.
-	 * @see #whatLinksHere(String)
-	 */
-	public ArrayList<String> getRedirectsToHere(String title)
-	{
-		return getBacklinks(title, true);
+		return whatLinksHere(title, false);
 	}
 
 	/**
@@ -753,8 +738,8 @@ public class Wiki
 		if (redirectsonly)
 			ub.setParams("apfilterredir", "redirects");
 
-		return cap > 0 ? QueryTools.limitedQueryForStrings(this, ub, "aplimit", cap, "allpages", "title", null, null) : QueryTools
-				.queryForStrings(this, ub, "aplimit", "allpages", "title", null);
+		return cap > 0 ? QueryTools.limitedQueryForStrings(this, ub, "aplimit", cap, "allpages", "title", null, null)
+				: QueryTools.queryForStrings(this, ub, "aplimit", "allpages", "title", null, null);
 	}
 
 	/**
@@ -780,7 +765,7 @@ public class Wiki
 	public ArrayList<String> getDuplicatesOf(String title, boolean localOnly)
 	{
 		ColorLog.info(this, "Getting duplicates of " + title);
-		return MQuery.getDuplicatesOf(this, localOnly, title).get(0).y;
+		return MQuery.getDuplicatesOf(this, localOnly, FString.toSAL(title)).get(0).y;
 	}
 
 	/**

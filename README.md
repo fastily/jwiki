@@ -27,7 +27,7 @@ The project relies on one external library for JSON support <a href="https://git
 <h3>System requirements</h3>
 <ul>
 <li>Client *must* be running a minimum Java version 8+ (1.8+)</li>
-<li>For best results, use with <a href="https://www.mediawiki.org/wiki/MediaWiki">MediaWiki</a> version 1.23+</li>
+<li>For best results, use with <a href="https://www.mediawiki.org/wiki/MediaWiki">MediaWiki</a> version 1.25+</li>
 </ul>
 
 <h3>Project Objectives</h3>
