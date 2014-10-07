@@ -65,7 +65,7 @@ public class FString
 	 */
 	public static String[] splitCombo(String longstring)
 	{
-		ArrayList<String> l = new ArrayList<String>();
+		ArrayList<String> l = new ArrayList<>();
 		Scanner m = new Scanner(longstring);
 
 		while (m.hasNextLine())
@@ -216,7 +216,7 @@ public class FString
 		if (sl.length % 2 == 1)
 			return null;
 
-		HashMap<String, String> l = new HashMap<String, String>();
+		HashMap<String, String> l = new HashMap<>();
 		for (int i = 0; i < sl.length; i += 2)
 			l.put(sl[i], sl[i + 1]);
 		return l;
@@ -237,4 +237,16 @@ public class FString
 
 		return l;
 	}
+
+	/**
+	 * Turns an array of Strings into an ArrayList of Strings.
+	 * 
+	 * @param strings The list of Strings to incorporate.
+	 * @return The array as an ArrayList
+	 */
+	public static ArrayList<String> toSAL(String... strings)
+	{
+		return new ArrayList<>(Arrays.asList(strings));
+	}
+
 }

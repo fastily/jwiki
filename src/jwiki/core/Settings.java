@@ -27,7 +27,7 @@ public class Settings
 	/**
 	 * The communications protocol we'll be using. Default = https.
 	 */
-	protected static final String comprotocol = "https://";
+	protected static final String compro = "https://";
 	
 	/**
 	 * Constructors disallowed.

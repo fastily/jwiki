@@ -12,7 +12,7 @@
 
 * Drop Logger from code.
 
-* Use only ArrayLists for lists of objects.  Type Safety and OO principles are important IMO.
+* Use only ArrayLists for lists of objects.  Type Safety and OO principles are important.
 
 == Low Priority ==
 * Commons New Image Auditor
@@ -22,6 +22,6 @@
 
 * Internationalize namespaces.  I hardcode instances of namespace prefixes in English - these should be dynamically generated via namespace IDs
 
-* Token handling has changed - use meta=tokens
-
 * Theres a ton of tt markers.  Copyedit comments.
+
+* Better system for handling actions - I want integration with MBot.  How about MAction & ActionTools?

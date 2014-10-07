@@ -5,8 +5,6 @@ import java.util.HashMap;
 
 import jwiki.util.Tuple;
 
-import org.json.JSONObject;
-
 /**
  * Represents a namespace list for a Wiki object.
  * 
@@ -16,12 +14,12 @@ import org.json.JSONObject;
 public class Namespace
 {
 	/**
-	 * The back-end storage system for namespace.
+	 * Stores key-value pairs for namespace.
 	 */
 	private HashMap<Object, Tuple<Integer, String>> l = new HashMap<>();
 	
 	/**
-	 * Private constructor, used by makeNamespace()
+	 * Private constructor
 	 */
 	private Namespace()
 	{
@@ -29,27 +27,26 @@ public class Namespace
 	}
 	
 	/**
-	 * Makes a namepsace object with a given JSONObject from the server.
+	 * Makes a namespace object with a reply from the server.
 	 * 
-	 * @param jo JSONObject from the server.
-	 * @return The Namespace.
+	 * @param r Reply from the server.
+	 * @return The Namespace list
 	 */
-	protected static Namespace makeNamespace(JSONObject jo)
+	protected static Namespace makeNamespace(Reply r)
 	{
-		
 		Namespace ns = new Namespace();
-		for (String s : JSONObject.getNames(jo))
+		for(Reply x : r.bigJSONObjectGet("namespaces"))
 		{
-			JSONObject curr = jo.getJSONObject(s);
-			String name = curr.getString("*");
-			if (name.isEmpty()) // omit empty string, which is actually Main.
-				continue;
-			Integer id = new Integer(curr.getInt("id"));
+			String name = x.getString("*");
+			if(name.isEmpty())
+				name = "Main";
 			
+			Integer id = new Integer(x.getInt("id"));
 			Tuple<Integer, String> t = new Tuple<>(id, name);
 			ns.l.put(name.toLowerCase(), t);
 			ns.l.put(id, t);
 		}
+		
 		return ns;
 	}
 	
@@ -84,9 +81,7 @@ public class Namespace
 	 */
 	protected String convert(Integer i)
 	{
-		if (l.containsKey(i))
-			return l.get(i).y;
-		return i.intValue() == 0 ? "Main" : null; // edge case & error
+		return l.get(i).y;
 	}
 	
 	/**
@@ -102,23 +97,11 @@ public class Namespace
 		String x = prefix.toLowerCase();
 		if (l.containsKey(x))
 			return l.get(x).x.intValue();
-		else if (prefix.equals("") || prefix.equals("Main"))
+		else if (prefix.trim().isEmpty())
 			return 0;
 		else
 			throw new IllegalArgumentException(String.format("'%s' is not a recognized prefix.", prefix));
 	}
-	
-	/**
-	 * Takes a prefix and converts it to its numerical representation.
-	 * 
-	 * @param prefix The prefix to convert, without the ":".
-	 * @return The numerical representation for the prefix.
-	 */
-	protected String prefixToNumString(String prefix)
-	{
-		return "" + convert(prefix);
-	}
-	
 	
 	/**
 	 * Takes several prefixes and simultaenously converts them to their numerical representations.
@@ -128,10 +111,9 @@ public class Namespace
 	 */
 	protected String[] prefixToNumStrings(String... prefixes)
 	{
-		ArrayList<String> l = new ArrayList<String>();
+		ArrayList<String> l = new ArrayList<>();
 		for (String s : prefixes)
-			l.add(prefixToNumString(s));
-		
+			l.add("" + convert(s));
 		return l.toArray(new String[0]);
 	}
 	

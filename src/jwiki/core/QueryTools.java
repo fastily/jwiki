@@ -1,7 +1,6 @@
 package jwiki.core;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
@@ -69,7 +68,7 @@ public class QueryTools
 	 * 
 	 * @param wiki The wiki object to use.
 	 * @param ub The URLBuilder to use.
-	 * @return The reply from the server.
+	 * @return The reply from the server or null if something went wrong.
 	 */
 	public static Reply doSingleQuery(Wiki wiki, URLBuilder ub)
 	{
@@ -98,7 +97,7 @@ public class QueryTools
 	 * @return The replies from the server.
 	 */
 	public static ArrayList<Reply> doMultiQuery(Wiki wiki, URLBuilder ub, String limString, String tkey,
-			String... titles)
+			ArrayList<String> titles)
 	{
 		ArrayList<Reply> l = new ArrayList<>();
 
@@ -106,14 +105,14 @@ public class QueryTools
 		if (limString != null)
 			ub.setParams(limString, "max");
 
-		LinkedList<String> atl = new LinkedList<>(Arrays.asList(titles));
+		LinkedList<String> atl = new LinkedList<>(titles);
 
 		while (!atl.isEmpty())
 		{
 			ArrayList<String> t = new ArrayList<>();
 			for (int i = 0; i < Settings.groupquerymax && atl.peek() != null; i++)
 				t.add(atl.poll());
-			ub.setParams(tkey, FString.enc(FString.fenceMaker("|", t.toArray(new String[0]))));
+			ub.setParams(tkey, URLBuilder.chainProps(t.toArray(new String[0])));
 
 			doQuerySet(wiki, ub, l);
 		}
@@ -150,19 +149,18 @@ public class QueryTools
 	 * @param titles The titles to query.
 	 * @return The replies from the server.
 	 */
-	public static ArrayList<Reply> doGroupQuery(Wiki wiki, URLBuilder ub, String tkey, String... titles)
+	public static ArrayList<Reply> doGroupQuery(Wiki wiki, URLBuilder ub, String tkey, ArrayList<String> titles)
 	{
 		ArrayList<Reply> srl = new ArrayList<>();
 
-		LinkedList<String> l = new LinkedList<String>(Arrays.asList(titles));
+		LinkedList<String> l = new LinkedList<>(titles);
 		while (!l.isEmpty())
 		{
 			ArrayList<String> t = new ArrayList<>();
 			for (int i = 0; i < Settings.groupquerymax && l.peek() != null; i++)
 				t.add(l.poll());
 
-			ub.setParams(tkey, FString.enc(FString.fenceMaker("|", t.toArray(new String[0]))));
-			//System.out.println(ub.makeURL().toString());
+			ub.setParams(tkey, URLBuilder.chainProps(t.toArray(new String[0])));
 
 			Reply r = doSingleQuery(wiki, ub);
 			if (r != null)
@@ -352,7 +350,7 @@ public class QueryTools
 	 * @return A list of results we retrieved from the data set, where each tuple is <tt>(title, list_of_results)</tt>.
 	 */
 	protected static ArrayList<Tuple<String, ArrayList<String>>> multiQueryForStrings(Wiki wiki, URLBuilder ub,
-			String limString, String arrayKey, String arrayElementKey, String titlekey, String tkey, String... titles)
+			String limString, String arrayKey, String arrayElementKey, String titlekey, String tkey, ArrayList<String> titles)
 	{
 		HashMap<String, ArrayList<String>> hl = new HashMap<>();
 
@@ -383,7 +381,7 @@ public class QueryTools
 	 */
 	protected static ArrayList<Tuple<String, ArrayList<Tuple<String, String>>>> multiQueryForTuples(Wiki wiki, URLBuilder ub,
 			String limString, String arrayKey, String arrayElementKey1, String arrayElementKey2, String titlekey, String tkey,
-			String... titles)
+			ArrayList<String> titles)
 	{
 		HashMap<String, ArrayList<Tuple<String, String>>> hl = new HashMap<>();
 
@@ -409,7 +407,7 @@ public class QueryTools
 	 * @return A list of results from the server.
 	 */
 	protected static ArrayList<Tuple<String, ArrayList<String>>> groupQueryForLists(Wiki wiki, URLBuilder ub,
-			String topArrayKey, String titlekey, String arrayKey, String tkey, String... titles)
+			String topArrayKey, String titlekey, String arrayKey, String tkey, ArrayList<String> titles)
 	{
 		ArrayList<Tuple<String, ArrayList<String>>> l = new ArrayList<>();
 
@@ -468,12 +466,11 @@ public class QueryTools
 	 * @return A list of results we retrieved from the data set.
 	 */
 	protected static ArrayList<String> queryForStrings(Wiki wiki, URLBuilder ub, String limString, String arrayKey,
-			String arrayElementKey, String tkey, String... titles)
+			String arrayElementKey, String tkey, ArrayList<String> titles)
 	{
 		ArrayList<String> l = new ArrayList<>();
 		for (Reply r : tkey != null ? doMultiQuery(wiki, ub, limString, tkey, titles) : doNoTitleMultiQuery(wiki, ub))
 			l.addAll(getStringsFromJSONObjectArray(r, arrayKey, arrayElementKey));
 		return l;
 	}
-
 }

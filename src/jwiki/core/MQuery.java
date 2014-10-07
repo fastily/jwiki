@@ -2,7 +2,6 @@ package jwiki.core;
 
 import java.util.ArrayList;
 
-import jwiki.util.FString;
 import jwiki.util.Tuple;
 
 /**
@@ -31,7 +30,7 @@ public class MQuery
 	 * @param users The list of users to get rights information for. Do not include "User:" prefix.
 	 * @return The list of results keyed by username.
 	 */
-	public static ArrayList<Tuple<String, ArrayList<String>>> listUserRights(Wiki wiki, String... users)
+	public static ArrayList<Tuple<String, ArrayList<String>>> listUserRights(Wiki wiki, ArrayList<String> users)
 	{
 		return QueryTools.groupQueryForLists(wiki, wiki.makeUB("query", "list", "users", "usprop", "groups"), "users", "name",
 				"groups", "ususers", users);
@@ -44,7 +43,7 @@ public class MQuery
 	 * @param titles The titles to query.
 	 * @return A list of results keyed by title.
 	 */
-	public static ArrayList<Tuple<String, ArrayList<String>>> getCategoriesOnPage(Wiki wiki, String... titles)
+	public static ArrayList<Tuple<String, ArrayList<String>>> getCategoriesOnPage(Wiki wiki, ArrayList<String> titles)
 	{
 		return QueryTools.multiQueryForStrings(wiki, wiki.makeUB("query", "prop", "categories"), "cllimit", "categories",
 				"title", "title", "titles", titles);
@@ -58,7 +57,7 @@ public class MQuery
 	 * @return A list of results keyed by title. Value returned will be -1 if Category entered was empty <b>and</b>
 	 *         non-existent.
 	 */
-	public static ArrayList<Tuple<String, Integer>> getCategorySize(Wiki wiki, String... titles)
+	public static ArrayList<Tuple<String, Integer>> getCategorySize(Wiki wiki, ArrayList<String> titles)
 	{
 		ArrayList<Tuple<String, Integer>> l = new ArrayList<>();
 		for (Reply r : QueryTools.doGroupQuery(wiki, wiki.makeUB("query", "prop", "categoryinfo"), "titles", titles))
@@ -75,7 +74,7 @@ public class MQuery
 	 * @param titles The titles to query
 	 * @return A list of results keyed by title.
 	 */
-	public static ArrayList<Tuple<String, ArrayList<String>>> getPageText(Wiki wiki, String... titles)
+	public static ArrayList<Tuple<String, ArrayList<String>>> getPageText(Wiki wiki, ArrayList<String> titles)
 	{
 		return QueryTools.multiQueryForStrings(wiki, wiki.makeUB("query", "prop", "revisions", "rvprop", "content"), null,
 				"revisions", "*", "title", "titles", titles);
@@ -90,15 +89,56 @@ public class MQuery
 	 * @param titles The titles to query.
 	 * @return A list of results keyed by title.
 	 */
-	public static ArrayList<Tuple<String, ArrayList<String>>> getLinksOnPage(Wiki wiki, String[] ns, String... titles)
+	public static ArrayList<Tuple<String, ArrayList<String>>> getLinksOnPage(Wiki wiki, String[] ns, ArrayList<String> titles)
 	{
 		URLBuilder ub = wiki.makeUB("query", "prop", "links");
 		if (ns != null && ns.length > 0)
-			ub.setParams("plnamespace", FString.enc(FString.fenceMaker("|", wiki.nsl.prefixToNumStrings(ns))));
+			ub.setParams("plnamespace", URLBuilder.chainProps(wiki.nsl.prefixToNumStrings(ns)));
 		return QueryTools.multiQueryForStrings(wiki, ub, "pllimit", "links", "title", "title", "titles", titles);
 	}
 
-	//TODO: Get rid of this
+	/**
+	 * Get pages redirecting to or linking to a page.
+	 * 
+	 * @param wiki The wiki object to use
+	 * @param redirects Set to true to search for redirects. False searches for non-redirects.
+	 * @param titles The titles to query
+	 * @return A list of results keyed by title.
+	 */
+	public static ArrayList<Tuple<String, ArrayList<String>>> linksHere(Wiki wiki, boolean redirects, ArrayList<String> titles)
+	{
+		return QueryTools.multiQueryForStrings(wiki,
+				wiki.makeUB("query", "prop", "linkshere", "lhprop", "title", "lhshow", redirects ? "redirect" : "!redirect"),
+				"lhlimit", "linkshere", "title", "title", "titles", titles);
+	}
+
+	/**
+	 * Gets a list of pages transcluding a template.
+	 * 
+	 * @param wiki The wiki object to use
+	 * @param titles The titles to query
+	 * @return A list of results keyed by title.
+	 */
+	public static ArrayList<Tuple<String, ArrayList<String>>> transcludesIn(Wiki wiki, ArrayList<String> titles)
+	{
+		return QueryTools.multiQueryForStrings(wiki, wiki.makeUB("query", "prop", "transcludedin", "tiprop", "title"),
+				"tilimit", "transcludedin", "title", "title", "titles", titles);
+	}
+
+	/**
+	 * Gets a list of pages linking to a file.
+	 * 
+	 * @param wiki The wiki object to use
+	 * @param titles The titles to query. PRECONDITION: These must be valid file names prefixed with the "File:" prefix,
+	 *           or you will get strange results.
+	 * @return A list of results keyed by title.
+	 */
+	public static ArrayList<Tuple<String, ArrayList<String>>> fileUsage(Wiki wiki, ArrayList<String> titles)
+	{
+		return QueryTools.multiQueryForStrings(wiki, wiki.makeUB("query", "prop", "fileusage"), "fulimit", "fileusage",
+				"title", "title", "titles", titles);
+	}
+
 	/**
 	 * Checks if a title exists.
 	 * 
@@ -106,11 +146,11 @@ public class MQuery
 	 * @param titles The titles to query
 	 * @return A list of results keyed by title. True = exists.
 	 */
-	public static ArrayList<Tuple<String, Boolean>> exists(Wiki wiki, String... titles)
+	public static ArrayList<Tuple<String, Boolean>> exists(Wiki wiki, ArrayList<String> titles)
 	{
 		ArrayList<Tuple<String, Boolean>> l = new ArrayList<>();
-		for (Reply r : QueryTools.doGroupQuery(wiki, wiki.makeUB("query", "prop", "pageprops", "ppprop", "missing"),
-				"titles", titles))
+		for (Reply r : QueryTools.doGroupQuery(wiki, wiki.makeUB("query", "prop", "pageprops", "ppprop", "missing"), "titles",
+				titles))
 			for (Reply r1 : r.bigJSONObjectGet("pages"))
 				l.add(new Tuple<String, Boolean>(r1.getString("title"), new Boolean(!r1.has("missing"))));
 
@@ -118,35 +158,23 @@ public class MQuery
 	}
 
 	/**
-	 * Checks if a title exists.  Can filter results based on whether pages exist.
+	 * Checks if a title exists. Can filter results based on whether pages exist.
+	 * 
 	 * @param wiki The wiki object to use
-	 * @param exists Set to true to select all pages that exist.  False selects all that don't exist
+	 * @param exists Set to true to select all pages that exist. False selects all that don't exist
 	 * @param titles The titles to query
 	 * @return A list of titles that exist or don't exist.
 	 */
-	public static ArrayList<String> exists(Wiki wiki, boolean exists, String...titles)
+	public static ArrayList<String> exists(Wiki wiki, boolean exists, ArrayList<String> titles)
 	{
 		ArrayList<String> l = new ArrayList<>();
-		for(Tuple<String, Boolean> t : exists(wiki, titles))
-			if(t.y.booleanValue() == exists)
+		for (Tuple<String, Boolean> t : exists(wiki, titles))
+			if (t.y.booleanValue() == exists)
 				l.add(t.x);
-		
+
 		return l;
 	}
-	
-	/**
-	 * Checks if a title exists.  Can filter results based on whether pages exist.
-	 * @param wiki The wiki object to use
-	 * @param exists Set to true to select all pages that exist.  False selects all that don't exist
-	 * @param titles The titles to query
-	 * @return A list of titles that exist or don't exist.
-	 */
-	public static  ArrayList<String> exists(Wiki wiki, boolean exists, ArrayList<String> titles)
-	{
-		return exists(wiki, exists, titles.toArray(new String[0]));
-	}
-	
-	
+
 	/**
 	 * Gets titles of images linked on a page.
 	 * 
@@ -154,7 +182,7 @@ public class MQuery
 	 * @param titles The titles to query
 	 * @return A list of results keyed by title.
 	 */
-	public static ArrayList<Tuple<String, ArrayList<String>>> getImagesOnPage(Wiki wiki, String... titles)
+	public static ArrayList<Tuple<String, ArrayList<String>>> getImagesOnPage(Wiki wiki, ArrayList<String> titles)
 	{
 		return QueryTools.multiQueryForStrings(wiki, wiki.makeUB("query", "prop", "images"), "imlimit", "images", "title",
 				"title", "titles", titles);
@@ -167,7 +195,7 @@ public class MQuery
 	 * @param titles The titles to query
 	 * @return A list of results keyed by title.
 	 */
-	public static ArrayList<Tuple<String, ArrayList<String>>> getTemplatesOnPage(Wiki wiki, String... titles)
+	public static ArrayList<Tuple<String, ArrayList<String>>> getTemplatesOnPage(Wiki wiki, ArrayList<String> titles)
 	{
 		return QueryTools.multiQueryForStrings(wiki, wiki.makeUB("query", "prop", "templates"), "tllimit", "templates",
 				"title", "title", "titles", titles);
@@ -180,7 +208,7 @@ public class MQuery
 	 * @param titles The titles to query
 	 * @return A list of results keyed by title. The inner tuple is of the form (title, shorthand url notation).
 	 */
-	public static ArrayList<Tuple<String, ArrayList<Tuple<String, String>>>> globalUsage(Wiki wiki, String... titles)
+	public static ArrayList<Tuple<String, ArrayList<Tuple<String, String>>>> globalUsage(Wiki wiki, ArrayList<String> titles)
 	{
 		return QueryTools.multiQueryForTuples(wiki, wiki.makeUB("query", "prop", "globalusage"), "gulimit", "globalusage",
 				"title", "wiki", "title", "titles", titles);
@@ -194,7 +222,7 @@ public class MQuery
 	 * @param titles The titles to query
 	 * @return A list of results keyed by title.
 	 */
-	public static ArrayList<Tuple<String, ArrayList<String>>> getDuplicatesOf(Wiki wiki, boolean localOnly, String... titles)
+	public static ArrayList<Tuple<String, ArrayList<String>>> getDuplicatesOf(Wiki wiki, boolean localOnly, ArrayList<String> titles)
 	{
 		URLBuilder ub = wiki.makeUB("query", "prop", "duplicatefiles");
 		if (localOnly)
@@ -208,7 +236,7 @@ public class MQuery
 	 * 
 	 * @param wiki The wiki object to use
 	 * @param cap The maximum number of results to return
-	 * @param pname The name of the special page (e.g. ListDuplicatedFiles).  This is case-sensitive.
+	 * @param pname The name of the special page (e.g. ListDuplicatedFiles). This is case-sensitive.
 	 * @return Results of the query.
 	 */
 	protected static ArrayList<String> querySpecialPage(Wiki wiki, int cap, String pname)

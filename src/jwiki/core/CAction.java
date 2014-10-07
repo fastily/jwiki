@@ -36,11 +36,33 @@ public class CAction
 	}
 
 	/**
-	 * Edit a page, and check if the request actually went through.
+	 * Performs an action on wiki requiring a simple POST request.
 	 * 
-	 * @param wiki The wiki to use.
-	 * @param title The title to use
-	 * @param text The text to use
+	 * @param wiki The wiki object to use
+	 * @param ub The URLBuilder to use
+	 * @param params The parameters to post, in order of param, value, param, value...
+	 * @return A reply from the server or null if something went wrong.
+	 */
+	protected static Reply doAction(Wiki wiki, URLBuilder ub, String... params)
+	{
+		try
+		{
+			return CRequest
+					.post(ub.makeURL(), URLBuilder.chainParams(FString.massEnc(params)), wiki.cookiejar, CRequest.urlenc);
+		}
+		catch (Throwable e)
+		{
+			e.printStackTrace();
+			return null;
+		}
+	}
+
+	/**
+	 * Edit a page
+	 * 
+	 * @param wiki The object wiki to use.
+	 * @param title The title to edit
+	 * @param text The new page text to set <code>title</code> to.
 	 * @param reason The edit summary to use
 	 * 
 	 * @return True if the operation was successful.
@@ -48,72 +70,43 @@ public class CAction
 	protected static boolean edit(Wiki wiki, String title, String text, String reason)
 	{
 		ColorLog.info(wiki, "Editing " + title);
-		URLBuilder ub = wiki.makeUB("edit");
-
-		String[] es = FString.massEnc(title, text, reason, wiki.token);
-		String posttext = URLBuilder.chainParams("title", es[0], "text", es[1], "summary", es[2], "token", es[3]);
-
-		try
-		{
-			return CRequest.post(ub.makeURL(), posttext, wiki.cookiejar, CRequest.urlenc).resultIs("Success");
-		}
-		catch (Throwable e)
-		{
-			e.printStackTrace();
-			return false;
-		}
+		Reply r = doAction(wiki, wiki.makeUB("edit"), "title", title, "text", text, "summary", reason, "token", wiki.token);
+		return r != null && r.resultIs("Success");
 	}
 
 	/**
-	 * Undo the top revision of a page. PRECONDITION: <tt>title</tt> must point to a valid page.
+	 * Undo the top revision of a page. PRECONDITION: <code>title</code> must point to an existing page.
 	 * 
 	 * @param wiki The wiki object to use
 	 * @param title The title to edit
 	 * @param reason The reason to use
-	 * @return True if we were successful.
+	 * @return True if the operation was successful.
 	 */
 	protected static boolean undo(Wiki wiki, String title, String reason)
 	{
-		ColorLog.fyi(wiki, "Undoing newest revision of " + title);
-		try
-		{
-			ArrayList<Revision> rl = wiki.getRevisions(title, 2, false);
-			return rl.size() < 2 ? FError.printErrorAndReturn("There are fewer than two revisions in " + title, false) : edit(
-					wiki, title, rl.get(1).text, reason);
-		}
-		catch (Throwable e)
-		{
-			e.printStackTrace();
-			return false;
-		}
+		ColorLog.fyi(wiki, "Undoing top revision of " + title);
+		ArrayList<Revision> rl = wiki.getRevisions(title, 2, false);
+		return rl.size() < 2 ? FError.printErrorAndReturn("There are fewer than two revisions in " + title, false) : edit(
+				wiki, title, rl.get(1).text, reason);
 	}
 
+	// TODO: Purge module can actually take multiple titles
 	/**
 	 * Purges the cache of a page.
 	 * 
 	 * @param wiki The wiki object to use
-	 * @param title The title of the page to purge
+	 * @param title The title to purge.
 	 * @return True if we were successful.
 	 */
 	protected static boolean purge(Wiki wiki, String title)
 	{
 		ColorLog.fyi(wiki, "Purging " + title);
-		URLBuilder ub = wiki.makeUB("purge", "titles", FString.enc(title));
-
-		try
-		{
-			Reply r = CRequest.get(ub.makeURL(), wiki.cookiejar);
-			return !r.hasError() && r.getJSONArray("purge").getJSONObject(0).has("purged");
-		}
-		catch (Throwable e)
-		{
-			e.printStackTrace();
-			return false;
-		}
+		Reply r = QueryTools.doSingleQuery(wiki, wiki.makeUB("purge", "titles", FString.enc(title)));
+		return r != null && !r.hasError() && r.getJSONArray("purge").getJSONObject(0).has("purged");
 	}
 
 	/**
-	 * Deletes a page. You must have admin rights for this to work.
+	 * Deletes a page. Requires sysop privileges on wiki.
 	 * 
 	 * @param wiki The wiki object to use.
 	 * @param title The title to use.
@@ -123,26 +116,12 @@ public class CAction
 	protected static boolean delete(Wiki wiki, String title, String reason)
 	{
 		ColorLog.info(wiki, "Deleting " + title);
-		URLBuilder ub = wiki.makeUB("delete");
-
-		String[] es = FString.massEnc(title, reason, wiki.token);
-		String posttext = URLBuilder.chainParams("title", es[0], "reason", es[1], "token", es[2]);
-
-		try
-		{
-			return !CRequest.post(ub.makeURL(), posttext, wiki.cookiejar, CRequest.urlenc).hasErrorIfIgnore(
-					"missingtitle");
-		}
-		catch (Throwable e)
-		{
-			e.printStackTrace();
-			return false;
-		}
+		Reply r = doAction(wiki, wiki.makeUB("delete"), "title", title, "reason", reason, "token", wiki.token);
+		return r != null && !r.hasErrorIfIgnore("missingtitle");
 	}
 
 	/**
-	 * Undelete a page. You must have admin rights on the wiki you are trying to perform this task on, otherwise it won't
-	 * go through.
+	 * Undelete a page. Requires sysop privileges on wiki.
 	 * 
 	 * @param wiki The wiki object to use
 	 * @param title The title to undelete
@@ -152,20 +131,8 @@ public class CAction
 	protected static boolean undelete(Wiki wiki, String title, String reason)
 	{
 		ColorLog.info(wiki, "Restoring " + title);
-		URLBuilder ub = wiki.makeUB("undelete");
-
-		String[] es = FString.massEnc(title, reason, wiki.token);
-		String posttext = URLBuilder.chainParams("title", es[0], "reason", es[1], "token", es[2]);
-
-		try
-		{
-			return !CRequest.post(ub.makeURL(), posttext, wiki.cookiejar, CRequest.urlenc).hasError();
-		}
-		catch (Throwable e)
-		{
-			e.printStackTrace();
-			return false;
-		}
+		Reply r = doAction(wiki, wiki.makeUB("undelete"), "title", title, "reason", reason, "token", wiki.token);
+		return r != null && !r.hasError();
 	}
 
 	/**
@@ -197,8 +164,9 @@ public class CAction
 
 			for (long i = 0, offset = fc.position(), failcount = 0; i < chunks;)
 			{
-				ColorLog.log(wiki, String.format("(%s): Uploading chunk %d of %d", filename, i + 1, chunks), Level.INFO, ColorLog.PURPLE);
-				
+				ColorLog.log(wiki, String.format("(%s): Uploading chunk %d of %d", filename, i + 1, chunks), Level.INFO,
+						ColorLog.PURPLE);
+
 				args.put("offset", "" + offset);
 				if (filekey != null)
 					args.put("filekey", filekey);
@@ -233,7 +201,7 @@ public class CAction
 	}
 
 	/**
-	 * Try and unstash a file uploaded via chunked uploads.
+	 * Unstash a file uploaded via chunked uploads.
 	 * 
 	 * @param wiki The wiki object to use.
 	 * @param filekey The filekey to use
@@ -245,19 +213,8 @@ public class CAction
 	private static boolean unstash(Wiki wiki, String filekey, String title, String text, String reason)
 	{
 		ColorLog.info(wiki, String.format("Unstashing '%s' from temporary archive @ '%s'", title, filekey));
-		URLBuilder ub = wiki.makeUB("upload");
-
-		String[] es = FString.massEnc(title, text, reason, wiki.token, filekey);
-		String posttext = URLBuilder.chainParams("filename", es[0], "text", es[1], "comment", es[2], "ignorewarnings", "true",
-				"filekey", es[4], "token", es[3]);
-		try
-		{
-			return CRequest.post(ub.makeURL(), posttext, wiki.cookiejar, CRequest.urlenc).resultIs("Success");
-		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
-			return false;
-		}
+		Reply r = doAction(wiki, wiki.makeUB("upload"), "filename", title, "text", text, "comment", reason, "token",
+				wiki.token, "filekey", filekey, "ignorewarnings", "true");
+		return r != null && r.resultIs("Success");
 	}
 }

@@ -29,7 +29,7 @@ public class URLBuilder
 	/**
 	 * The parameter list to append to the URL.
 	 */
-	private HashMap<String, String> pl = new HashMap<String, String>();
+	private HashMap<String, String> pl = new HashMap<>();
 
 	/**
 	 * Constructor, takes the domain name we'll be working with.
@@ -39,7 +39,7 @@ public class URLBuilder
 	protected URLBuilder(String domain)
 	{
 		if (domain != null && !domain.isEmpty())
-			base = String.format(Settings.comprotocol + "%s/w/api.php?format=json&action=", domain);
+			base = String.format(Settings.compro + "%s/w/api.php?format=json&action=", domain);
 	}
 
 	/**
@@ -77,7 +77,14 @@ public class URLBuilder
 	{
 		try
 		{
-			return new URL(base + action + getParamsAsString());
+			ArrayList<String> hold = new ArrayList<>();
+			for (Map.Entry<String, String> e : pl.entrySet())
+			{
+				hold.add(e.getKey());
+				hold.add(e.getValue());
+			}
+			
+			return new URL(base + action + chainParams(hold.toArray(new String[0])));
 		}
 		catch (Throwable e)
 		{
@@ -86,26 +93,9 @@ public class URLBuilder
 		}
 	}
 
-	
-	/**
-	 * Gets the params of this object as text. Everything will be properly chained, and in order.
-	 * 
-	 * @return The list of params as a String.
-	 */
-	protected String getParamsAsString()
-	{
-		ArrayList<String> hold = new ArrayList<String>();
-		for (Map.Entry<String, String> e : pl.entrySet())
-		{
-			hold.add(e.getKey());
-			hold.add(e.getValue());
-		}
-		return chainParams(hold.toArray(new String[0]));
-	}
-
 	/**
 	 * Chains parameters for use in a URL. Pass in parameters as pairs. For example,
-	 * <tt>chainParams("title", "foo", "cmcontinue", "derp")</tt> gives you "<tt>&title=foo&cmcontinue=derp</tt>". You
+	 * <code>chainParams("title", "foo", "cmcontinue", "derp")</code> gives you "<code>&title=foo&cmcontinue=derp</code>". You
 	 * must pass in an even number of parameters, or you'll get an UnsupportedOperationException.
 	 * 
 	 * @param params The parameters to chain.

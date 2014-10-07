@@ -63,7 +63,7 @@ public abstract class WAction
 	 * @param actions The list to get titles from
 	 * @return The list of titles
 	 */
-	public static <T extends WAction> ArrayList<String> convertToString(ArrayList<T> actions)
+	public static <T extends WAction> ArrayList<String> toString(ArrayList<T> actions)
 	{
 		ArrayList<String> l = new ArrayList<>();
 		for (WAction w : actions)
