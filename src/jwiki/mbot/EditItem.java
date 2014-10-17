@@ -22,7 +22,7 @@ public class EditItem extends WAction
 	private String replace;
 
 	/**
-	 * The replacement text. Only used if <tt>replace</tt> is != null
+	 * The replacement text. Only used if <code>replace</code> is != null
 	 */
 	private String replacement;
 
@@ -33,7 +33,7 @@ public class EditItem extends WAction
 	 * @param reason The edit summary
 	 * @param add The text to add. Optional -- set to null to exclude
 	 * @param replace The text to replace, in regex form. Optional -- set to null to exclude
-	 * @param replacement The replacement text. Optional -- depends on <tt>replace</tt> being != null.
+	 * @param replacement The replacement text. Optional -- depends on <code>replace</code> being != null.
 	 */
 	public EditItem(String title, String reason, String add, String replace, String replacement)
 	{

@@ -104,7 +104,7 @@ public class Namespace
 	}
 	
 	/**
-	 * Takes several prefixes and simultaenously converts them to their numerical representations.
+	 * Takes several prefixes and simultaneously converts them to their numerical representations.
 	 * 
 	 * @param prefixes The prefixes to convert, without the ":".
 	 * @return The numerical representations for the prefixes, in the order passed in.

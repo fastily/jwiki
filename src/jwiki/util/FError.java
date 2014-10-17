@@ -98,7 +98,7 @@ public class FError
 	 * Print an error message and return a boolean
 	 * @param err The error message to print to std err.
 	 * @param value The value to return
-	 * @return <tt>value</tt>
+	 * @return <code>value</code>
 	 */
 	public static boolean printErrorAndReturn(String err, boolean value)
 	{

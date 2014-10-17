@@ -1,7 +1,7 @@
 package jwiki.core;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 import jwiki.util.FSystem;
 
@@ -55,14 +55,14 @@ public enum ColorLog
 	WHITE(37);
 
 	/**
+	 * The date formatter prefixing output.
+	 */
+	private static final DateTimeFormatter df = DateTimeFormatter.ofPattern("MMM dd, yyyy hh:mm:ss a");
+
+	/**
 	 * Indicates whether we are using a terminal that supports color.
 	 */
 	private static final boolean noColor = FSystem.isWindows || System.getProperty("os.version").startsWith("10.6");
-
-	/**
-	 * The logger we'll be using to log events.
-	 */
-	private static final Logger log = Logger.getLogger("jwiki");
 
 	/**
 	 * The value of the enum
@@ -78,7 +78,8 @@ public enum ColorLog
 	}
 
 	/**
-	 * Formats a String for ASCII colored escape output if the system you're using supports it.
+	 * Formats a String for ASCII colored escape output if the system you're using supports it. Returns non-escaped ASCII
+	 * text otherwise.
 	 * 
 	 * @param text The text to color
 	 * @param c The color to use
@@ -90,15 +91,15 @@ public enum ColorLog
 	}
 
 	/**
-	 * Logs a message to the std error stream
+	 * Logs a message to the standard error output stream
 	 * 
 	 * @param s The message
-	 * @param l The level to log the message at
+	 * @param l The identifier to log the message at (e.g. "INFO", "WARNING")
 	 * @param c The color to print the message with. Output will only be colored if this terminal supports it.
 	 */
-	public static void log(String s, Level l, ColorLog c)
+	public static void log(String s, String l, ColorLog c)
 	{
-		log.log(l, makeString(s, c));
+		System.err.printf("%s%n%s: %s%n", LocalDateTime.now().format(df), l, makeString(s, c));
 	}
 
 	/**
@@ -106,10 +107,10 @@ public enum ColorLog
 	 * 
 	 * @param wiki The wiki object to use
 	 * @param s The String to print
-	 * @param l The level to log the message at
+	 * @param l The identifier to log the message at (e.g. "INFO", "WARNING")
 	 * @param c The color to print the message with. Output will only be colored if this terminal supports it.
 	 */
-	protected static void log(Wiki wiki, String s, Level l, ColorLog c)
+	protected static void log(Wiki wiki, String s, String l, ColorLog c)
 	{
 		log(String.format("[%s @ %s]: %s", wiki.upx.x, wiki.domain, s), l, c);
 	}
@@ -121,7 +122,7 @@ public enum ColorLog
 	 */
 	public static void warn(String s)
 	{
-		log(s, Level.WARNING, YELLOW);
+		log(s, "WARNING", YELLOW);
 	}
 
 	/**
@@ -132,7 +133,7 @@ public enum ColorLog
 	 */
 	protected static void warn(Wiki wiki, String s)
 	{
-		log(wiki, s, Level.WARNING, YELLOW);
+		log(wiki, s, "WARNING", YELLOW);
 	}
 
 	/**
@@ -142,7 +143,7 @@ public enum ColorLog
 	 */
 	public static void info(String s)
 	{
-		log(s, Level.INFO, GREEN);
+		log(s, "INFO", GREEN);
 	}
 
 	/**
@@ -153,7 +154,7 @@ public enum ColorLog
 	 */
 	protected static void info(Wiki wiki, String s)
 	{
-		log(wiki, s, Level.INFO, GREEN);
+		log(wiki, s, "INFO", GREEN);
 	}
 
 	/**
@@ -163,7 +164,7 @@ public enum ColorLog
 	 */
 	public static void error(String s)
 	{
-		log(s, Level.SEVERE, RED);
+		log(s, "ERROR", RED);
 	}
 
 	/**
@@ -174,7 +175,7 @@ public enum ColorLog
 	 */
 	protected static void error(Wiki wiki, String s)
 	{
-		log(wiki, s, Level.SEVERE, RED);
+		log(wiki, s, "ERROR", RED);
 	}
 
 	/**
@@ -184,7 +185,7 @@ public enum ColorLog
 	 */
 	public static void fyi(String s)
 	{
-		log(s, Level.INFO, CYAN);
+		log(s, "FYI", CYAN);
 	}
 
 	/**
@@ -195,6 +196,6 @@ public enum ColorLog
 	 */
 	protected static void fyi(Wiki wiki, String s)
 	{
-		log(wiki, s, Level.INFO, CYAN);
+		log(wiki, s, "FYI", CYAN);
 	}
 }

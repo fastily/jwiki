@@ -135,7 +135,7 @@ public class FIO
 	 * Recursively search a directory for files whose names match the specified regex.
 	 * 
 	 * @param root The root directory to search
-	 * @param pattern The pattern to match files for. This MUST start with the <tt>regex:</tt> OR <tt>glob:</tt> prefix
+	 * @param pattern The pattern to match files for. This MUST start with the <code>regex:</code> OR <code>glob:</code> prefix
 	 *           as described <a href=
 	 *           "http://docs.oracle.com/javase/7/docs/api/java/nio/file/FileSystem.html#getPathMatcher%28java.lang.String%29"
 	 *           >here</a>.

@@ -1,7 +1,5 @@
 package jwiki.util;
 
-import java.util.logging.Level;
-
 import jwiki.core.ColorLog;
 
 /**
@@ -24,7 +22,7 @@ public class ProgressTracker
 	private int end;
 	
 	/**
-	 * Message to output. Must contain 2x <tt>%d</tt>s, otherwise we'll get funny errors. First <tt>%d</tt> is
+	 * Message to output. Must contain 2x <code>%d</code>s, otherwise we'll get funny errors. First <code>%d</code> is
 	 * numerator, second one is denominator.
 	 */
 	private String msg = "Processing item %d of %d";
@@ -40,8 +38,8 @@ public class ProgressTracker
 	}
 	
 	/**
-	 * Changes the default log message. Must contain 2x <tt>%d</tt>s, otherwise we'll get funny errors. First
-	 * <tt>%d</tt> is numerator, second one is denominator.
+	 * Changes the default log message. Must contain 2x <code>%d</code>s, otherwise we'll get funny errors. First
+	 * <code>%d</code> is numerator, second one is denominator.
 	 * 
 	 * @param msg The new message.
 	 */
@@ -68,7 +66,7 @@ public class ProgressTracker
 	 */
 	public synchronized int inc(String head)
 	{
-		ColorLog.log(head + String.format(msg, ++curr, end), Level.INFO, ColorLog.GREEN);
+		ColorLog.log(head + String.format(msg, ++curr, end), "INFO", ColorLog.GREEN);
 		return curr;
 	}
 	

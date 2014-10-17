@@ -53,7 +53,7 @@ public class CRequest
 
 	/**
 	 * Sets the cookies of a URLConnection using the specified cookiejar <b>PRECONDITION</b>: You must not have not yet
-	 * called <tt>connect()</tt> on <tt>c</tt>, otherwise you'll get an error.
+	 * called <code>connect()</code> on <code>c</code>, otherwise you'll get an error.
 	 * 
 	 * @param c The URLConnection to use.
 	 * @param cookiejar The cookiejar to use
@@ -269,7 +269,7 @@ public class CRequest
 	 * 
 	 * @param fc The filechannel to read bytes from
 	 * @param os The output stream to write bytes to.
-	 * @param max The maximum number of bytes to transfer. This *must* be a multiple of <tt>bf.capacity()</tt> if you
+	 * @param max The maximum number of bytes to transfer. This *must* be a multiple of <code>bf.capacity()</code> if you
 	 *           want this feature to work properly.
 	 * @throws IOException If I/O error.
 	 */

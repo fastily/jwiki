@@ -7,7 +7,6 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.logging.Level;
 
 import jwiki.util.FError;
 import jwiki.util.FIO;
@@ -164,7 +163,7 @@ public class CAction
 
 			for (long i = 0, offset = fc.position(), failcount = 0; i < chunks;)
 			{
-				ColorLog.log(wiki, String.format("(%s): Uploading chunk %d of %d", filename, i + 1, chunks), Level.INFO,
+				ColorLog.log(wiki, String.format("(%s): Uploading chunk %d of %d", filename, i + 1, chunks), "INFO",
 						ColorLog.PURPLE);
 
 				args.put("offset", "" + offset);

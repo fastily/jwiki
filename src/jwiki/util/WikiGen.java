@@ -7,7 +7,7 @@ import jwiki.core.Wiki;
 import jwiki.mbot.MBot;
 
 /**
- * Generates Wiki objects from login credentials created after running '<tt>java FLogin</tt>'.
+ * Generates Wiki objects from login credentials created after running '<code>java FLogin</code>'.
  * 
  * @author Fastily
  *
@@ -22,7 +22,7 @@ public class WikiGen
 	/**
 	 * Create a cache so we don't login multiple times. Combination is: entry -> (username, wiki object)
 	 */
-	private static final HashMap<String, Wiki> cache = new HashMap<String, Wiki>();
+	private static final HashMap<String, Wiki> cache = new HashMap<>();
 	
 	/**
 	 * Hiding constructor from javadoc
