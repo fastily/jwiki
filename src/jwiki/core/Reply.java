@@ -177,7 +177,7 @@ public class Reply extends JSONObject
 	}
 
 	/**
-	 * Checks if we have an error, excluding those codes listed in <tt>codes</tt>.
+	 * Checks if we have an error, excluding those codes listed in <code>codes</code>.
 	 * 
 	 * @param codes The error codes to ignore. Act like there's no error.
 	 * @return False if we didn't find an error.

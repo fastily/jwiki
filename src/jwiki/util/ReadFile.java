@@ -10,7 +10,7 @@ import java.util.HashMap;
 /**
  * Reads a text file in, line by line. CAVEAT: Only works with small plaintext files! This is meant for reading
  * configuration files, or short lists. If you're doing something extreme, use
- * <tt>newBufferedReader(Path path, Charset cs)</tt> in <tt>Files</tt>.
+ * <code>newBufferedReader(Path path, Charset cs)</code> in <code>Files</code>.
  * 
  * @author Fastily
  */

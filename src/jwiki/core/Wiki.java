@@ -13,23 +13,8 @@ import jwiki.util.FString;
 import jwiki.util.Tuple;
 
 /**
- * Main class of jwiki; most developers will only need this class. This class implements all queries/actions which jwiki
- * can perform on a wiki. All methods are backed by static calls and are, to my knowledge, totally thread-safe. I had
- * three specific design goals/principles in mind when creating jwiki:
- * <ol>
- * <li><span style="text-decoration:underline">Simplicity</span> &mdash; <i>Anybody</i> with a even beginner's knowledge
- * of Java shall be able to use this framework. I make it a point to avoid horrible things like complex objects and
- * convoluted calls; this project isn't intended to show folks how amazing I am at the Java language, it's designed for
- * the purpose of making their lives easy.</li>
- * <li><span style="text-decoration:underline">Speediness</span> &mdash; This framework shall emphasize performance.
- * Time is a precious resource so why waste it waiting for some dumb program to finish :)</li>
- * <li><span style="text-decoration:underline">Shortness</span> &mdash; Changes or queries to a Wiki shall be easy to
- * perform. I designed this framework so that API calls to a Wiki can be constructed in seconds with one line of code
- * consisting of, for the most part, Java primitive types. I believe one should spend less time coding, and more time
- * getting done what one initially set out to complete.</li>
- * </ol>
- * <br>
- * Here's a simple example that will edit an article by replacing the article text with some text of your choosing.
+ * Main class of libjwiki; most developers will only need this class. This class implements all queries/actions which
+ * libjwiki can perform on a wiki. All methods are backed by static calls and thread-safe.
  * 
  * @author Fastily
  */
@@ -243,7 +228,7 @@ public class Wiki
 	}
 
 	/**
-	 * Creates a URLBuilder with a custom action & params. PRECONDITION: all <tt>params</tt> must be URLEncoded.
+	 * Creates a URLBuilder with a custom action & params. PRECONDITION: all <code>params</code> must be URLEncoded.
 	 * 
 	 * @param action The custom action to use
 	 * @param params The params to use.
@@ -276,7 +261,7 @@ public class Wiki
 	}
 
 	/**
-	 * Appends text to a page. If <tt>title</tt> does not exist, then create the page normally with <tt>text</tt>
+	 * Appends text to a page. If <code>title</code> does not exist, then create the page normally with <code>text</code>
 	 * 
 	 * @param title The title to edit.
 	 * @param add The text to append
@@ -319,7 +304,7 @@ public class Wiki
 	}
 
 	/**
-	 * Undo the top revision of a page. PRECONDITION: <tt>title</tt> must point to a valid page.
+	 * Undo the top revision of a page. PRECONDITION: <code>title</code> must point to a valid page.
 	 * 
 	 * @param title The title to edit
 	 * @param reason The reason to use
@@ -399,7 +384,7 @@ public class Wiki
 	 * Gets the list of usergroups (rights) a user belongs to. Sample groups: sysop, user, autoconfirmed, editor.
 	 * 
 	 * @param user The user to get rights information for. Do not include "User:" prefix.
-	 * @return The usergroups <tt>user</tt> belongs to.
+	 * @return The usergroups <code>user</code> belongs to.
 	 */
 	public ArrayList<String> listGroupsRights(String user)
 	{
@@ -532,7 +517,7 @@ public class Wiki
 	 * @param title The title to query
 	 * @param ns Namespaces to include-only, passed in as prefixes, without the ":" (e.g. "File", "Category", "Main").
 	 *           Optional, leave blank to select all namespaces.
-	 * @return The list of existing links on <tt>title</tt>
+	 * @return The list of existing links on <code>title</code>
 	 */
 	public ArrayList<String> getLinksOnPage(boolean exists, String title, String... ns)
 	{
@@ -581,7 +566,7 @@ public class Wiki
 	/**
 	 * Get a user's uploads.
 	 * 
-	 * @param user The username, without the "User:" prefix. PRECONDITION: <tt>user</tt> must be a valid username.
+	 * @param user The username, without the "User:" prefix. PRECONDITION: <code>user</code> must be a valid username.
 	 * @return This user's uploads
 	 */
 	public ArrayList<String> getUserUploads(String user)
@@ -590,11 +575,12 @@ public class Wiki
 		return QueryTools.queryForStrings(this, makeUB("query", "list", "allimages", "aisort", "timestamp"), "ailimit",
 				"allimages", "title", "aiuser", FString.toSAL(Namespace.nss(user)));
 	}
-	
+
 	/**
 	 * Gets a list of pages linking to a file.
-	 * @param title The title to query.  PRECONDITION: This must be a valid file name prefixed with the "File:" prefix,
-	 *           or you will get strange results.
+	 * 
+	 * @param title The title to query. PRECONDITION: This must be a valid file name prefixed with the "File:" prefix, or
+	 *           you will get strange results.
 	 * @return A list of pages linking to the file.
 	 */
 	public ArrayList<String> fileUsage(String title)
@@ -607,7 +593,7 @@ public class Wiki
 	 * Gets titles of images linked on a page.
 	 * 
 	 * @param title The title to query
-	 * @return The images found on <tt>title</tt>
+	 * @return The images found on <code>title</code>
 	 */
 	public ArrayList<String> getImagesOnPage(String title)
 	{
@@ -657,7 +643,7 @@ public class Wiki
 	 * Gets templates transcluded on a page.
 	 * 
 	 * @param title The title to query.
-	 * @return The templates transcluded on <tt>title</tt>
+	 * @return The templates transcluded on <code>title</code>
 	 */
 	public ArrayList<String> getTemplatesOnPage(String title)
 	{

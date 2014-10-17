@@ -205,7 +205,7 @@ public class FString
 	}
 
 	/**
-	 * Creates a HashMap with String keys and values. Pass in each pair and value (in that order) into <tt>sl</tt>. This
+	 * Creates a HashMap with String keys and values. Pass in each pair and value (in that order) into <code>sl</code>. This
 	 * will be one pair entered into resulting HashMap.
 	 * 
 	 * @param sl The list of elements to turn into a HashMap.
@@ -223,11 +223,11 @@ public class FString
 	}
 
 	/**
-	 * Converts a list of strings in a JSONArray to a list of Strings. PRECONDITION: <tt>ja</tt> *must* be a list of
+	 * Converts a list of strings in a JSONArray to a list of Strings. PRECONDITION: <code>ja</code> *must* be a list of
 	 * Strings or you will get strange results.
 	 * 
 	 * @param ja The JSONArray to get Strings from
-	 * @return A list of Strings found in <tt>ja</tt>.
+	 * @return A list of Strings found in <code>ja</code>.
 	 */
 	public static ArrayList<String> jsonArrayToString(JSONArray ja)
 	{

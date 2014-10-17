@@ -13,7 +13,7 @@ import org.json.JSONObject;
 
 /**
  * Contains base methods for making queries to the MediaWiki API. Use of this class is intended for anybody wishing to
- * implement their own custom API queries that I have not included in <tt>Wiki.java</tt>. This is not for the faint of
+ * implement their own custom API queries that I have not included in <code>Wiki.java</code>. This is not for the faint of
  * heart, so consider yourself warned :P
  * 
  * @see Wiki
@@ -89,10 +89,10 @@ public class QueryTools
 	 * 
 	 * @param wiki The wiki object to use
 	 * @param ub The URLBuilder to use
-	 * @param limString The limit string (e.g. ailimit). If this is set in <tt>ub</tt>, it <i>will</i> be overwritten.
+	 * @param limString The limit string (e.g. ailimit). If this is set in <code>ub</code>, it <i>will</i> be overwritten.
 	 *           This is an optional param. Set to null to disable.
-	 * @param tkey The parameter to pass to the server which will be paired with <tt>titles</tt>. Note that
-	 *           <tt>titles</tt> in <tt>ub</tt> *will* be overwritten.
+	 * @param tkey The parameter to pass to the server which will be paired with <code>titles</code>. Note that
+	 *           <code>titles</code> in <code>ub</code> *will* be overwritten.
 	 * @param titles The list of titles to send to the server. PRECONDITION: These should not be URL-encoded.
 	 * @return The replies from the server.
 	 */
@@ -142,9 +142,9 @@ public class QueryTools
 	 * server and then saves the results as ServerReplies.
 	 * 
 	 * @param wiki The wiki object to use
-	 * @param ub The URLBuilder to use. CAVEAT: anything assigned to the '<tt>titles</tt>' param <i>will</i> be
-	 *           overwritten with elements passed into this method's '<tt>titles</tt>'. In other words, don't set the '
-	 *           <tt>titles</tt>' param when creating <tt>ub</tt>
+	 * @param ub The URLBuilder to use. CAVEAT: anything assigned to the '<code>titles</code>' param <i>will</i> be
+	 *           overwritten with elements passed into this method's '<code>titles</code>'. In other words, don't set the '
+	 *           <code>titles</code>' param when creating <code>ub</code>
 	 * @param tkey The parameter name for the list of titles to pass to the server.
 	 * @param titles The titles to query.
 	 * @return The replies from the server.
@@ -177,7 +177,7 @@ public class QueryTools
 	 * 
 	 * @param wiki The wiki object to use
 	 * @param ub The URLBuilder to use
-	 * @param limString The limit string (e.g. ailimit). If this is set in <tt>ub</tt>, it <i>will</i> be overwritten.
+	 * @param limString The limit string (e.g. ailimit). If this is set in <code>ub</code>, it <i>will</i> be overwritten.
 	 * @param cap The maximum number of entries to return.
 	 * @param tkey The parameter name for the list of titles to pass to the server. Optional param - set to null to
 	 *           disable.
@@ -217,12 +217,12 @@ public class QueryTools
 	}
 
 	/**
-	 * Identifies the <tt>continue</tt> JSONObject in a ServerReply and applies it to a URLBuilder. PRECONDITION: there
-	 * MUST be a <tt>continue</tt> obejct in <tt>r</tt>; this method does not explicitly test for MediaWiki errors or for
-	 * the presence of a <tt>continue</tt> object.a
+	 * Identifies the <code>continue</code> JSONObject in a ServerReply and applies it to a URLBuilder. PRECONDITION: there
+	 * MUST be a <code>continue</code> obejct in <code>r</code>; this method does not explicitly test for MediaWiki errors or for
+	 * the presence of a <code>continue</code> object.a
 	 * 
 	 * @param ub The URLBuilder to apply the continue params to
-	 * @param r The ServerReply from the most recent, previous request to the server created by <tt>ub</tt>.
+	 * @param r The ServerReply from the most recent, previous request to the server created by <code>ub</code>.
 	 * @return True if we encountered no errors.
 	 */
 	public static boolean applyContinue(URLBuilder ub, Reply r)
@@ -252,7 +252,7 @@ public class QueryTools
 	 * @param r The main ServerReply whose JSONArray we'll be using.
 	 * @param arrayKey The key pointing to the JSONArray we want to use
 	 * @param arrayElementKey The key pointing to the String in each JSONObject contained in the JSONArray pointed to by
-	 *           <tt>arrayKey</tt>
+	 *           <code>arrayKey</code>
 	 * @return The list of Strings we found.
 	 */
 	private static ArrayList<String> getStringsFromJSONObjectArray(Reply r, String arrayKey, String arrayElementKey)
@@ -275,9 +275,9 @@ public class QueryTools
 	 * @param r The main ServerReply whose JSONArray we'll be using.
 	 * @param arrayKey The key pointing to the JSONArray we want to use
 	 * @param arrayElementKey1 The key pointing to the String in each JSONObject contained in the JSONArray pointed to by
-	 *           <tt>arrayKey</tt> that we want to use as the first element in the Tuple
+	 *           <code>arrayKey</code> that we want to use as the first element in the Tuple
 	 * @param arrayElementKey2 The key pointing to the String in each JSONObject contained in the JSONArray pointed to by
-	 *           <tt>arrayKey</tt> that we want to use as the second element in the Tuple
+	 *           <code>arrayKey</code> that we want to use as the second element in the Tuple
 	 * @return The list of Tuples we found.
 	 */
 	private static ArrayList<Tuple<String, String>> getTuplesFromJSONObjectArray(Reply r, String arrayKey,
@@ -298,9 +298,9 @@ public class QueryTools
 	}
 
 	/**
-	 * Puts a list into a HashMap pointed to by <tt>title</tt>. If <tt>title</tt> is already present in <tt>hl</tt>,
-	 * merge <tt>l</tt> with value mapped to <tt>title</tt>. Does nothing if <tt>title</tt> is in <tt>hl</tt> and if
-	 * <tt>l</tt> is empty.
+	 * Puts a list into a HashMap pointed to by <code>title</code>. If <code>title</code> is already present in <code>hl</code>,
+	 * merge <code>l</code> with value mapped to <code>title</code>. Does nothing if <code>title</code> is in <code>hl</code> and if
+	 * <code>l</code> is empty.
 	 * 
 	 * @param hl The HashMap to perform changes to
 	 * @param title The key to look for
@@ -340,14 +340,14 @@ public class QueryTools
 	 * @param wiki The wiki object to use
 	 * @param ub The URLObject to use
 	 * @param limString The limit string to use with this query (e.g. ailimit). Note that this parameter <i>will</i> be
-	 *           overwritten in <tt>ub</tt>. This is an optional param - disable with null.
+	 *           overwritten in <code>ub</code>. This is an optional param - disable with null.
 	 * @param arrayKey The key pointing to the JSONArray we want to use
 	 * @param arrayElementKey The key pointing to the String in each JSONObject contained in the JSONArray pointed to by
-	 *           <tt>arrayKey</tt>
+	 *           <code>arrayKey</code>
 	 * @param titlekey The key pointing the title this object is associated with - contained within each top level
-	 * @param tkey The parameter to pass to the server which will be paired with <tt>titles</tt>
+	 * @param tkey The parameter to pass to the server which will be paired with <code>titles</code>
 	 * @param titles The list of titles to send to the server. PRECONDITION: These should not be URL-encoded.
-	 * @return A list of results we retrieved from the data set, where each tuple is <tt>(title, list_of_results)</tt>.
+	 * @return A list of results we retrieved from the data set, where each tuple is <code>(title, list_of_results)</code>.
 	 */
 	protected static ArrayList<Tuple<String, ArrayList<String>>> multiQueryForStrings(Wiki wiki, URLBuilder ub,
 			String limString, String arrayKey, String arrayElementKey, String titlekey, String tkey, ArrayList<String> titles)
@@ -368,16 +368,16 @@ public class QueryTools
 	 * @param wiki The wiki object to use
 	 * @param ub The URLObject to use
 	 * @param limString The limit string to use with this query (e.g. ailimit). Note that this parameter <i>will</i> be
-	 *           overwritten in <tt>ub</tt>. This is an optional param - disable with null.
+	 *           overwritten in <code>ub</code>. This is an optional param - disable with null.
 	 * @param arrayKey The key pointing to the JSONArray we want to use
 	 * @param arrayElementKey1 The key pointing to the String in each JSONObject contained in the JSONArray pointed to by
-	 *           <tt>arrayKey</tt> that will be used for the first element in the returned Tuple
+	 *           <code>arrayKey</code> that will be used for the first element in the returned Tuple
 	 * @param arrayElementKey2 The key pointing to the String in each JSONObject contained in the JSONArray pointed to by
-	 *           <tt>arrayKey</tt> that will be used for the second element in the returned Tuple
+	 *           <code>arrayKey</code> that will be used for the second element in the returned Tuple
 	 * @param titlekey The key pointing the title this object is associated with - contained within each top level
-	 * @param tkey The parameter to pass to the server which will be paired with <tt>titles</tt>
+	 * @param tkey The parameter to pass to the server which will be paired with <code>titles</code>
 	 * @param titles The list of titles to send to the server. PRECONDITION: These should not be URL-encoded.
-	 * @return A list of results we retrieved from the data set, where each tuple is <tt>(title, list_of_results)</tt>.
+	 * @return A list of results we retrieved from the data set, where each tuple is <code>(title, list_of_results)</code>.
 	 */
 	protected static ArrayList<Tuple<String, ArrayList<Tuple<String, String>>>> multiQueryForTuples(Wiki wiki, URLBuilder ub,
 			String limString, String arrayKey, String arrayElementKey1, String arrayElementKey2, String titlekey, String tkey,
@@ -398,11 +398,11 @@ public class QueryTools
 	 * want.
 	 * 
 	 * @param wiki The wiki object to use
-	 * @param ub The URLBuilder to use. Caveat: if you set key <tt>titles</tt>, it will be overwritten!
+	 * @param ub The URLBuilder to use. Caveat: if you set key <code>titles</code>, it will be overwritten!
 	 * @param topArrayKey The key pointing to the list of JSONObjects we want.
 	 * @param titlekey The String to key to each value (ArrayList) in the returned list.
 	 * @param arrayKey The key pointing to each array
-	 * @param tkey The parameter to pass to the server which will be paired with <tt>titles</tt>
+	 * @param tkey The parameter to pass to the server which will be paired with <code>titles</code>
 	 * @param titles The list of titles to send to the server.
 	 * @return A list of results from the server.
 	 */
@@ -431,11 +431,11 @@ public class QueryTools
 	 * @param wiki The wiki object to use.
 	 * @param ub The URLBuilder to use.
 	 * @param limString The limit string to use (e.g. ailimit). Note that this <i>will</i> be overwritten if previously
-	 *           set in <tt>ub</tt>.
+	 *           set in <code>ub</code>.
 	 * @param cap The maximum number of elements to return
 	 * @param arrayKey The key pointing to the JSONArray we want to use
 	 * @param arrayElementKey The key pointing to the String in each JSONObject contained in the JSONArray pointed to by
-	 *           <tt>arrayKey</tt>
+	 *           <code>arrayKey</code>
 	 * @param tkey The parameter name for the list of titles to pass to the server. Optional param - set to null to
 	 *           disable.
 	 * @param title The titles to query. Optional param - used by tkey. Also set this to null if you disabled tkey.
@@ -457,11 +457,11 @@ public class QueryTools
 	 * @param wiki The wiki object to use
 	 * @param ub The URLBuilder to use
 	 * @param limString The limit string to use with this query (e.g. ailimit). Note that this parameter <i>will</i> be
-	 *           overwritten in <tt>ub</tt>. This is an optional param - disable with null.
+	 *           overwritten in <code>ub</code>. This is an optional param - disable with null.
 	 * @param arrayKey The key pointing to the JSONArray we want to use
 	 * @param arrayElementKey The key pointing to the String in each JSONObject contained in the JSONArray pointed to by
-	 *           <tt>arrayKey</tt>
-	 * @param tkey The parameter to pass to the server which will be paired with <tt>titles</tt>
+	 *           <code>arrayKey</code>
+	 * @param tkey The parameter to pass to the server which will be paired with <code>titles</code>
 	 * @param titles The list of titles to send to the server. PRECONDITION: These should not be URL-encoded.
 	 * @return A list of results we retrieved from the data set.
 	 */

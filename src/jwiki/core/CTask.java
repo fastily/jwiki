@@ -57,7 +57,7 @@ public class CTask
 	 * Downloads and writes a media file to disk. Note that the file must be visible to you in order to download it.
 	 * 
 	 * @param title The title of the file to download <span style="text-decoration:underline">on the Wiki</span>
-	 * @param localpath The pathname to save this file to (e.g. "<tt>/Users/Fastily/Example.jpg</tt> "). Note that if a
+	 * @param localpath The pathname to save this file to (e.g. "<code>/Users/Fastily/Example.jpg</code> "). Note that if a
 	 *           file with that name already exists at that pathname, it <span
 	 *           style="color:Red;font-weight:bold">will</span> be overwritten!
 	 * @param wiki The wiki object to use.
@@ -72,7 +72,7 @@ public class CTask
 	 * Downloads and writes a media file to disk. Note that the file must be visible to you in order to download it.
 	 * 
 	 * @param title The title of the file to download <span style="text-decoration:underline">on the Wiki</span>
-	 * @param localpath The pathname to save this file to (e.g. "<tt>/Users/Fastily/Example.jpg</tt> "). Note that if a
+	 * @param localpath The pathname to save this file to (e.g. "<code>/Users/Fastily/Example.jpg</code> "). Note that if a
 	 *           file with that name already exists at that pathname, it <span
 	 *           style="color:Red;font-weight:bold">will</span> be overwritten!
 	 * @param height The height thumbnail to retrieve (optional param, specify -1 to disable)
