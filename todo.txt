@@ -10,8 +10,6 @@
 
 * FLogin is still using old java.io.* ->  Update to nio.
 
-* Fix borked Logging utility.
-
 * Use only ArrayLists for lists of objects.  Type Safety and OO principles are important.
 
 == Low Priority ==
@@ -21,7 +19,5 @@
 * Log querying methods
 
 * Internationalize namespaces.  I think I hard-code instances of namespace prefixes in English - these should be dynamically generated via namespace IDs
-
-* There's a ton of tt markers, which are non-compliant with HTML 5.
 
 * Better system for handling actions - I want integration with MBot.  How about MAction & ActionTools?

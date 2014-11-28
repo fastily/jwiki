@@ -11,8 +11,18 @@ public class BS
 	{
 		System.out.println(Settings.useragent);
 
-		Wiki wiki = WikiGen.generate("FastilyClone");
-		System.out.println(wiki.getWiki("en.wikipedia.org").getPageText("Wikipedia:Sandbox"));
+		Wiki wiki = WikiGen.generate("Fastily");
+		ArrayList<String> l = new ArrayList<>();
+		for(int i = 0; i < 10; i++)
+			l.add("User:FastilyClone/AV" + i);
+		
+		/*
+		for(String s : l)
+			wiki.edit(s, s, s);
+		
+		CAction.replace(wiki, "(?si)(fastily)", "Foobar", "Testing replace", l);*/
+		
+		CAction.delete(wiki, "User requested deletion in own [[Commons:User pages|userspace]]", l);
 
 	}
 

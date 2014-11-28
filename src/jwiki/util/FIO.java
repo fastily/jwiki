@@ -127,9 +127,6 @@ public class FIO
 			e.printStackTrace();
 		}
 	}
-	
-	
-	
 
 	/**
 	 * Recursively search a directory for files whose names match the specified regex.
