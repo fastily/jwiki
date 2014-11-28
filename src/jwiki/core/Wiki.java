@@ -51,6 +51,11 @@ public class Wiki
 	protected CookieManager cookiejar = new CookieManager();
 
 	/**
+	 * Our MBot for mass actions.
+	 */
+	private final MBot mbot;
+
+	/**
 	 * Constructor, sets username, password, and domain. The user password combo must be valid or program will exit
 	 * 
 	 * @param user The username to use
@@ -63,6 +68,7 @@ public class Wiki
 	{
 		upx = new Tuple<String, String>(Namespace.nss(user), px);
 		this.domain = domain;
+		mbot = new MBot(this);
 
 		boolean isNew = parent != null;
 		if (isNew)
@@ -242,6 +248,18 @@ public class Wiki
 		return ub;
 	}
 
+	/**
+	 * Submit a task to be processed using concurrency.
+	 * 
+	 * @param tasks The tasks to process
+	 * @param maxThreads The maximum number of threads to instantiate.
+	 * @return A list of tasks we couldn't execute.
+	 */
+	public <T extends MBot.Task> ArrayList<MBot.Task> submit(ArrayList<T> tasks, int maxThreads)
+	{
+		return mbot.submit(tasks, maxThreads);
+	}
+
 	/* //////////////////////////////////////////////////////////////////////////////// */
 	/* /////////////////////////////////// ACTIONS //////////////////////////////////// */
 	/* //////////////////////////////////////////////////////////////////////////////// */
@@ -257,7 +275,7 @@ public class Wiki
 	 */
 	public boolean edit(String title, String text, String reason)
 	{
-		return CAction.edit(this, title, text, reason);
+		return WAction.edit(this, title, text, reason);
 	}
 
 	/**
@@ -271,8 +289,7 @@ public class Wiki
 	 */
 	public boolean addText(String title, String add, String reason, boolean top)
 	{
-		String s = getPageText(title);
-		return s == null ? edit(title, add, reason) : edit(title, top ? add + s : s + add, reason);
+		return WAction.addText(this, title, add, reason, !top);
 	}
 
 	/**
@@ -312,7 +329,7 @@ public class Wiki
 	 */
 	public boolean undo(String title, String reason)
 	{
-		return CAction.undo(this, title, reason);
+		return WAction.undo(this, title, reason);
 	}
 
 	/**
@@ -334,7 +351,7 @@ public class Wiki
 	 */
 	public boolean purge(String title)
 	{
-		return CAction.purge(this, title);
+		return WAction.purge(this, title);
 	}
 
 	/**
@@ -346,7 +363,8 @@ public class Wiki
 	 */
 	public boolean delete(String title, String reason)
 	{
-		return CAction.delete(this, title, reason);
+		ColorLog.info(this, "Deleting " + title);
+		return CAction.delete(this, reason, FString.toSAL(title)).isEmpty();
 	}
 
 	/**
@@ -359,7 +377,8 @@ public class Wiki
 	 */
 	public boolean undelete(String title, String reason)
 	{
-		return CAction.undelete(this, title, reason);
+		ColorLog.info(this, "Restoring " + title);
+		return CAction.undelete(this, false, reason, FString.toSAL(title)).isEmpty();
 	}
 
 	/**
@@ -373,7 +392,7 @@ public class Wiki
 	 */
 	public boolean upload(Path p, String title, String text, String reason)
 	{
-		return CAction.upload(this, p, title, text, reason);
+		return WAction.upload(this, p, title, text, reason);
 	}
 
 	/* //////////////////////////////////////////////////////////////////////////////// */
@@ -709,7 +728,7 @@ public class Wiki
 	 * @param prefix Get files starting with this String. DO NOT include a namespace prefix (e.g. "File:"). Param is
 	 *           optional, use null or empty string to disable.
 	 * @param redirectsonly Set this to true to get redirects only.
-	 * @param max The max number of titles to return. Specify -1 to get all pages.
+	 * @param cap The max number of titles to return. Specify -1 to get all pages.
 	 * @param ns The namespace identifier (e.g. "File").
 	 * @return A list of titles on this Wiki
 	 */

@@ -255,7 +255,7 @@ public class CRequest
 		OutputStream os = c.getOutputStream();
 		os.write(temp.getBytes("UTF-8"));
 
-		pipe(fc, os, CAction.chunksize);
+		pipe(fc, os, WAction.chunksize);
 		os.write(new String("\r\n" + boundary + "--\r\n\r\n").getBytes("UTF-8"));
 		os.close();
 

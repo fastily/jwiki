@@ -30,8 +30,8 @@ public class CAuth
 		ColorLog.info(String.format("Logging in as %s @ %s", wiki.upx.x, wiki.domain));
 
 		URLBuilder ub = wiki.makeUB("login");
-		Reply r = CAction.doAction(wiki, ub, "lgname", wiki.upx.x);
-		return r == null || r.hasError() || !r.resultIs("NeedToken") ? false : CAction.doAction(wiki, ub, "lgname",
+		Reply r = WAction.doAction(wiki, ub, "lgname", wiki.upx.x);
+		return r == null || r.hasError() || !r.resultIs("NeedToken") ? false : WAction.doAction(wiki, ub, "lgname",
 				wiki.upx.x, "lgpassword", wiki.upx.y, "lgtoken", r.getStringR("token")).resultIs("Success");
 	}
 

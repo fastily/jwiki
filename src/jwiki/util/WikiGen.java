@@ -4,7 +4,6 @@ import java.util.HashMap;
 
 import jwiki.core.Namespace;
 import jwiki.core.Wiki;
-import jwiki.mbot.MBot;
 
 /**
  * Generates Wiki objects from login credentials created after running '<code>java FLogin</code>'.
@@ -75,42 +74,5 @@ public class WikiGen
 	public static Wiki generate(String user)
 	{
 		return generate(user, "commons.wikimedia.org");
-	}
-	
-	/**
-	 * Creates an MBot based off user and domain.
-	 * 
-	 * @param user User to use
-	 * @param domain Domain to use
-	 * @return An MBot with specified settings.
-	 * 
-	 * @see #genM(String)
-	 */
-	public static MBot genM(String user, String domain)
-	{
-		return new MBot(generate(user, domain));
-	}
-	
-	/**
-	 * Creates an MBot based off user. Domain = 'commons.wikimedia.org'
-	 * 
-	 * @param user Username to use
-	 * @return MBot with specified settings.
-	 */
-	public static MBot genM(String user)
-	{
-		return new MBot(generate(user));
-	}
-	
-	/**
-	 * Create MBot based off user and thread count. Domain = 'commons.wikimedia.org'
-	 * 
-	 * @param user The user to use
-	 * @param threads The maxmimum number of threads to instantiate.
-	 * @return The MBot.
-	 */
-	public static MBot genM(String user, int threads)
-	{
-		return new MBot(generate(user), threads);
 	}
 }

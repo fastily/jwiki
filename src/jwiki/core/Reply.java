@@ -26,7 +26,7 @@ public class Reply extends JSONObject
 	private String result;
 
 	/**
-	 * A specific error code that we recieved.
+	 * A specific error code that we received.
 	 */
 	private String errcode = null;
 
@@ -40,7 +40,7 @@ public class Reply extends JSONObject
 	 * Constructor, takes a JSONObject and creates a ServerReply from it.
 	 * @param jo The JSONObject to turn into a ServerReply.
 	 */
-	protected Reply(JSONObject jo)
+	public Reply(JSONObject jo)
 	{
 		super(jo.toString());
 	}
@@ -55,7 +55,6 @@ public class Reply extends JSONObject
 	protected Reply(InputStream is)
 	{
 		super(FIO.inputStreamToString(is));
-		//System.out.println(Settings.blah);
 		
 		result = getStringR("result");
 
@@ -112,23 +111,12 @@ public class Reply extends JSONObject
 	 * @param key The key to look for.
 	 * @return The requested value, or -1 if the key doesn't exist.
 	 */
-	protected int getIntR(String key)
+	public int getIntR(String key)
 	{
 		Object result = getR(this, key);
 		return result instanceof Integer ? ((Integer) result).intValue() : -1;
 	}
 
-	/**
-	 * Recursively search this ServerReply for a key, and return it's associated value (which was originally an int) as a
-	 * String.
-	 * 
-	 * @param key The key to look for.
-	 * @return The requested value, or "-1" if the key doesn't exist.
-	 */
-	protected String getIntRAsString(String key)
-	{
-		return "" + getIntR(key);
-	}
 
 	/**
 	 * Recursively search this ServerReply for a key, and return it's associated value as a string.
@@ -136,7 +124,7 @@ public class Reply extends JSONObject
 	 * @param key The key to look for.
 	 * @return The requested value, or null if the key doesn't exist.
 	 */
-	protected String getStringR(String key)
+	public String getStringR(String key)
 	{
 		Object result = getR(this, key);
 		return result instanceof String ? (String) result : null;
@@ -148,7 +136,7 @@ public class Reply extends JSONObject
 	 * @param key The key to look for.
 	 * @return The requested value, or null if the key doesn't exist.
 	 */
-	protected Reply getJSONObjectR(String key)
+	public Reply getJSONObjectR(String key)
 	{
 		Object result = getR(this, key);
 		return result instanceof JSONObject ? new Reply((JSONObject) result) : null;
@@ -160,7 +148,7 @@ public class Reply extends JSONObject
 	 * @param key The key to look for.
 	 * @return The requested value, or null if the key doesn't exist.
 	 */
-	protected JSONArray getJSONArrayR(String key)
+	public JSONArray getJSONArrayR(String key)
 	{
 		Object result = getR(this, key);
 		return result instanceof JSONArray ? (JSONArray) result : null;
@@ -171,7 +159,7 @@ public class Reply extends JSONObject
 	 * 
 	 * @return True if we had an error
 	 */
-	protected boolean hasError()
+	public boolean hasError()
 	{
 		return errcode != null;
 	}
@@ -182,7 +170,7 @@ public class Reply extends JSONObject
 	 * @param codes The error codes to ignore. Act like there's no error.
 	 * @return False if we didn't find an error.
 	 */
-	protected boolean hasErrorIfIgnore(String... codes)
+	public boolean hasErrorIfIgnore(String... codes)
 	{
 		return errcode != null ? !Arrays.asList(codes).contains(errcode) : false;
 	}
@@ -193,7 +181,7 @@ public class Reply extends JSONObject
 	 * @param code The code to search for when looking for a result param.
 	 * @return True if the code matches the result param.
 	 */
-	protected boolean resultIs(String code)
+	public boolean resultIs(String code)
 	{
 		return code.equals(result);
 	}
@@ -204,7 +192,7 @@ public class Reply extends JSONObject
 	 * @param key The key with which to get values for
 	 * @return A list of JSONObjects objects associated with the specified key.
 	 */
-	protected ArrayList<Reply> bigJSONObjectGet(String key)
+	public ArrayList<Reply> bigJSONObjectGet(String key)
 	{
 		ArrayList<Reply> jl = new ArrayList<Reply>();
 

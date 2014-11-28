@@ -2,7 +2,7 @@ JWIKI
 =========
 This is a MediaWiki [API](https://www.mediawiki.org/wiki/API:Main_page) client-side library.  It can be used by developers to build bots/tools or perform analytics on a Wiki.  My goal is to create a simple, reliable, efficient, and low-overhead framework for anybody seeking to make use of the MediaWiki API.
 
-NB: This library is under active development so files/classes/functions may move, change, and/or disappear without warning.
+_NB_: This library is under active development so files/classes/functions may move, change, and/or disappear without warning.
 
 ##Features
 * Edit and delete pages, upload files (via the chunked upload protocol)
@@ -16,7 +16,7 @@ JSON support is provided by [JSON-java](https://github.com/douglascrockford/JSON
 
 ##Requirements
 * Minimum [JDK/JRE](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html) version: **8u20**
-* Officially supported for [MediaWiki](https://www.mediawiki.org/wiki/MediaWiki) **1.25+**
+* Officially supported for [MediaWiki](https://www.mediawiki.org/wiki/MediaWiki): **1.25+**
 
 ##Getting Started
 * [Javadocs](http://fastily.github.io/jwiki/docs/jwiki/)
@@ -24,16 +24,15 @@ JSON support is provided by [JSON-java](https://github.com/douglascrockford/JSON
 
 ####Sample Code
 ```java
-import javax.security.auth.login.LoginException;
 import jwiki.core.Wiki;
 
-//This program edits a page by replacing its text with text of your choosing.
+//Edit a page by replacing its text with text of your choosing.
 public class JwikiExample
 {
-   public static void main(String[] args) throws LoginException
+   public static void main(String[] args) throws Throwable
    {
-     Wiki wiki = new Wiki("Username", “Password”, "en.wikipedia.org"); // login
-     wiki.edit("SomePage", "SomeText", "EditSummary"); // perform action
+     Wiki wiki = new Wiki("Username", "Password", "en.wikipedia.org"); // login
+     wiki.edit("SomePage", "SomeText", "EditSummary"); // edit
    }
 }
 ```

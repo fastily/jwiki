@@ -48,15 +48,16 @@ public class FLogin
 	private static final PBEParameterSpec pbeps = new PBEParameterSpec(salt, 20);
 	
 	/**
-	 * The default .px.txt location.
-	 */
-	protected static final String pxloc1 = String.format("%s%s%s", FSystem.home, FSystem.psep, ".px.txt");
-	
-	/**
 	 * The secondary .px.txt location
 	 */
 	protected static final String pxloc2 = ".px.txt";
 	
+	/**
+	 * The default .px.txt location.
+	 */
+	protected static final String pxloc1 = String.format("%s%s%s", FSystem.home, FSystem.psep, pxloc2);
+	
+
 	/**
 	 * If main() is called, this will be initialized to the JVM's console.
 	 */
@@ -83,7 +84,7 @@ public class FLogin
 		}
 		catch (Throwable e)
 		{
-			FError.errAndExit(e);
+			FError.errAndExit(e, null);
 		}
 		return null; // dead code to shut up compiler
 	}
@@ -101,7 +102,7 @@ public class FLogin
 		}
 		catch (Throwable e)
 		{
-			FError.errAndExit(e);
+			FError.errAndExit(e, null);
 		}
 		return null; // dead code to shut up compiler
 	}
@@ -135,7 +136,7 @@ public class FLogin
 		}
 		catch (Throwable e)
 		{
-			FError.errAndExit(e);
+			FError.errAndExit(e, null);
 		}
 		return null; // dead code to shut up compiler
 	}
@@ -155,7 +156,7 @@ public class FLogin
 		}
 		catch (Throwable e)
 		{
-			FError.errAndExit(e);
+			FError.errAndExit(e, null);
 		}
 		return null; // dead code to shut up compiler
 	}
