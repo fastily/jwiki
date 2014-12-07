@@ -76,11 +76,6 @@ public class MBot
 		private final ProgressTracker pt;
 
 		/**
-		 * The wiki object to use for queries.
-		 */
-		// private Wiki wiki;
-
-		/**
 		 * The maximum number of threads permitted to execute simultaneously
 		 */
 		private int num;
@@ -96,7 +91,6 @@ public class MBot
 			todo.addAll(wl);
 			pt = new ProgressTracker(wl.size());
 
-			// this.wiki = wiki;
 			this.num = num;
 		}
 
@@ -178,7 +172,7 @@ public class MBot
 		 * @param title The page to act on
 		 * @param text The text to add to the page named by <code>title</code>, where applicable. Optional Param: set null
 		 *           to disable.
-		 * @param reason The log reason/edit summary to use
+		 * @param summary The log reason/edit summary to use
 		 */
 		public Task(String title, String text, String summary)
 		{

@@ -37,7 +37,6 @@ public class FError
 	 * 
 	 * @param e The error object.
 	 * @param s Additional error message.  Disable with null.
-	 * @see #errAndExit(Throwable)
 	 */
 	public static void errAndExit(Throwable e, String s)
 	{
@@ -51,7 +50,6 @@ public class FError
 	 * 
 	 * @param s The error message
 	 * @param err Exit error code.
-	 * @see #showErrorAndExit(String)
 	 */
 	public static void showErrorAndExit(String s, int err)
 	{
