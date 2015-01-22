@@ -173,7 +173,7 @@ public class FLogin
 		char[] p1 = c.readPassword("Enter password for %s: ", u);
 		char[] p2 = c.readPassword("Confirm/Re-enter password for %s: ", u);
 		
-		return Arrays.equals(p1, p2) ? new Tuple<String, String>(u, new String(p1)) : null;
+		return Arrays.equals(p1, p2) ? new Tuple<>(u, new String(p1)) : null;
 	}
 	
 	/**

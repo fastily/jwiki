@@ -130,7 +130,7 @@ public class FString
 	{
 		String s1 = s.substring(0, s.indexOf(delim));
 		String s2 = s.substring(s.indexOf(delim) + delim.length());
-		return new Tuple<String, String>(s1, s2);
+		return new Tuple<>(s1, s2);
 	}
 
 	/**
@@ -160,7 +160,7 @@ public class FString
 	 */
 	public static String[] massEnc(String... strings)
 	{
-		ArrayList<String> l = new ArrayList<String>();
+		ArrayList<String> l = new ArrayList<>();
 		for (String s : strings)
 			l.add(enc(s));
 
@@ -231,7 +231,7 @@ public class FString
 	 */
 	public static ArrayList<String> jsonArrayToString(JSONArray ja)
 	{
-		ArrayList<String> l = new ArrayList<String>();
+		ArrayList<String> l = new ArrayList<>();
 		for (int i = 0; i < ja.length(); i++)
 			l.add(ja.getString(i));
 
