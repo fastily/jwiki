@@ -142,7 +142,6 @@ public class MBot
 			ColorLog.fyi(me + "There's nothing left for me!");
 		}
 	}
-
 	/**
 	 * Represents an individual task.
 	 * 

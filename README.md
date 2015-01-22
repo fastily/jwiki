@@ -1,6 +1,6 @@
 JWIKI
 =========
-This is a MediaWiki [API](https://www.mediawiki.org/wiki/API:Main_page) client-side library.  It can be used by developers to build bots/tools or perform analytics on a Wiki.  My goal is to create a simple, reliable, efficient, and low-overhead framework for anybody seeking to make use of the MediaWiki API.
+This is a MediaWiki [API](https://www.mediawiki.org/wiki/API:Main_page) client-side library.  It can be used by developers to build bots/tools and/or perform analytics on a Wiki.  My goal is to create a simple, reliable, efficient, and low-overhead framework for anybody seeking to make use of the MediaWiki API.
 
 _NB_: This library is under active development so files/classes/functions may move, change, and/or disappear without warning.
 
@@ -37,9 +37,9 @@ public class JwikiExample
 }
 ```
 
-##Project Objectives
-I designed this framework the following goals in mind:
+##Project Goals
+I designed jwiki with the following goals in mind:
 
-* **Simple** - _Anybody_ with a beginner's knowledge of Java shall be able to use this framework.  I avoid horrible things like complex custom objects and convoluted calls; this project isn't for showing off my Java skills, it's designed to save time and effort.
-* **Speed** - This framework shall emphasize performance.  Time is a precious resource so why waste it waiting for some dumb program :)
-* **Succinct** - Changes and queries shall be easy to perform.  I designed this framework so API calls to a Wiki can be constructed in seconds with one line of code consisting of, for the most part, Java primitive types.  I believe one should spend less time coding and more time completing tasks.
+* **Simple** - _Anybody_ with a beginner's knowledge of Java shall be able to use this framework.  I avoid horrible things like complex custom objects and convoluted calls; this project isn't for showing off my Java skills - it's designed to save my users time and effort.
+* **Speed** - This framework shall emphasize performance.  Time is a precious resource so why spend it waiting for some dumb program to finish :)
+* **Succinct** - Changes and queries shall be easy to perform.  I designed this framework so API calls can be constructed with one line of code consisting of simple objects and primitive types.

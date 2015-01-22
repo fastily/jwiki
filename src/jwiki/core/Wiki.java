@@ -41,7 +41,7 @@ public class Wiki
 	protected final String domain;
 
 	/**
-	 * Our username & password: Tuple -> (user, pass).
+	 * Our username & password: Tuple -&gt; (user, pass).
 	 */
 	protected final Tuple<String, String> upx;
 
@@ -293,7 +293,8 @@ public class Wiki
 	}
 
 	/**
-	 * Removes text from a page.
+	 * Removes text from a page. Does nothing if the replacement requested wouldn't change any text on wiki (method still
+	 * returns true however).
 	 * 
 	 * @param title The title to perform the replacement at.
 	 * @param regex A regex matching the text to remove.
@@ -306,7 +307,8 @@ public class Wiki
 	}
 
 	/**
-	 * Replaces text on a page.
+	 * Replaces text on a page. Does nothing if the replacement requested wouldn't change any text on wiki (method still
+	 * returns true however).
 	 * 
 	 * @param title The title to perform replacement on.
 	 * @param regex The regex matching the text to replace.
@@ -317,7 +319,11 @@ public class Wiki
 	public boolean replaceText(String title, String regex, String replacement, String reason)
 	{
 		String s = getPageText(title);
-		return s != null ? edit(title, s.replaceAll(regex, replacement), reason) : false;
+		if (s == null)
+			return false;
+
+		String rx = s.replaceAll(regex, replacement);
+		return rx.equals(s) ? true : edit(title, rx, reason);
 	}
 
 	/**
@@ -364,7 +370,7 @@ public class Wiki
 	public boolean delete(String title, String reason)
 	{
 		ColorLog.info(this, "Deleting " + title);
-		return CAction.delete(this, reason, FString.toSAL(title)).isEmpty();
+		return WAction.delete(this, title, reason);
 	}
 
 	/**
@@ -378,7 +384,7 @@ public class Wiki
 	public boolean undelete(String title, String reason)
 	{
 		ColorLog.info(this, "Restoring " + title);
-		return CAction.undelete(this, false, reason, FString.toSAL(title)).isEmpty();
+		return WAction.undelete(this, title, reason, false);
 	}
 
 	/**
