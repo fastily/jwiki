@@ -2,6 +2,7 @@ package jwiki.core;
 
 import java.util.ArrayList;
 
+import jwiki.dwrap.ImageInfo;
 import jwiki.util.Tuple;
 
 /**
@@ -34,6 +35,33 @@ public class MQuery
 	{
 		return QueryTools.groupQueryForLists(wiki, wiki.makeUB("query", "list", "users", "usprop", "groups"), "users", "name",
 				"groups", "ususers", users);
+	}
+
+	/**
+	 * Gets imageinfo for files.
+	 * 
+	 * @param wiki The wiki objec to use
+	 * @param width Generate a thumbnail of the file with this width. Optional param, set to -1 to disable
+	 * @param height Generate a thumbnail of the file with this height. Optional param, set to -1 to disable
+	 * @param titles The titles to query
+	 * @return A list of ImageInfo, keyed by title.
+	 */
+	public static ArrayList<Tuple<String, ImageInfo>> getImageInfo(Wiki wiki, int width, int height, ArrayList<String> titles)
+	{
+		URLBuilder ub = wiki.makeUB("query", "prop", "imageinfo", "iiprop",
+				URLBuilder.chainProps("canonicaltitle", "url", "size"));
+
+		if (width > 0)
+			ub.setParams("iiurlwidth", "" + width);
+		if (height > 0)
+			ub.setParams("iiurlheight", "" + height);
+
+		ArrayList<Tuple<String, ImageInfo>> l = new ArrayList<>();
+		for (Reply r : QueryTools.doGroupQuery(wiki, ub, "titles", titles))
+			for (Reply x : r.bigJSONObjectGet("pages"))
+				l.add(new Tuple<>(x.getString("title"), new ImageInfo(x)));
+
+		return l;
 	}
 
 	/**
@@ -222,7 +250,8 @@ public class MQuery
 	 * @param titles The titles to query
 	 * @return A list of results keyed by title.
 	 */
-	public static ArrayList<Tuple<String, ArrayList<String>>> getDuplicatesOf(Wiki wiki, boolean localOnly, ArrayList<String> titles)
+	public static ArrayList<Tuple<String, ArrayList<String>>> getDuplicatesOf(Wiki wiki, boolean localOnly,
+			ArrayList<String> titles)
 	{
 		URLBuilder ub = wiki.makeUB("query", "prop", "duplicatefiles");
 		if (localOnly)

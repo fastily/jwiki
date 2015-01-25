@@ -9,6 +9,9 @@ import java.util.List;
 
 import javax.security.auth.login.LoginException;
 
+import jwiki.dwrap.Contrib;
+import jwiki.dwrap.ImageInfo;
+import jwiki.dwrap.Revision;
 import jwiki.util.FString;
 import jwiki.util.Tuple;
 
@@ -445,8 +448,14 @@ public class Wiki
 				URLBuilder.chainProps("timestamp", "user", "comment", "content"));
 		if (olderFirst)
 			ub.setParams("rvdir", "newer"); // MediaWiki is weird.
-		return Revision.makeRevs(cap > 0 ? QueryTools.doLimitedQuery(this, ub, "rvlimit", cap, "titles", title) : QueryTools
-				.doMultiQuery(this, ub, "rvlimit", "titles", FString.toSAL(title)));
+
+		ArrayList<Revision> l = new ArrayList<>();
+		for (Reply r : cap > 0 ? QueryTools.doLimitedQuery(this, ub, "rvlimit", cap, "titles", title) : QueryTools
+				.doMultiQuery(this, ub, "rvlimit", "titles", FString.toSAL(title)))
+			for (Reply x : r.getJSONArrayListR("revisions"))
+				l.add(new Revision(r.getStringR("title"), x));
+
+		return l;
 	}
 
 	/**
@@ -571,8 +580,12 @@ public class Wiki
 		if (olderFirst)
 			ub.setParams("ucdir", "newer");
 
-		return Contrib.makeContribs(cap > -1 ? QueryTools.doLimitedQuery(this, ub, "uclimit", cap, "ucuser", user)
-				: QueryTools.doMultiQuery(this, ub, "uclimit", "cuser", FString.toSAL(user)));
+		ArrayList<Contrib> l = new ArrayList<>();
+		for (Reply r : cap > -1 ? QueryTools.doLimitedQuery(this, ub, "uclimit", cap, "ucuser", user) : QueryTools
+				.doMultiQuery(this, ub, "uclimit", "cuser", FString.toSAL(user)))
+			for (Reply x : r.getJSONArrayListR("usercontribs"))
+				l.add(new Contrib(x));
+		return l;
 	}
 
 	/**
@@ -659,9 +672,8 @@ public class Wiki
 	 */
 	public ImageInfo getImageInfo(String title, int height, int width)
 	{
-		// TODO: Rewrite to FileInfo pending release of wmf1.25
-		// return ClientQuery.getImageInfo(this, title, height, width);
-		throw new UnsupportedOperationException("Disabled pending release fileinfo with wmf1.26?");
+		ColorLog.info(this, "Getting image info for " + title);
+		return MQuery.getImageInfo(this, width, height, FString.toSAL(title)).get(0).y;
 	}
 
 	/**

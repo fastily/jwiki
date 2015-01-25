@@ -119,7 +119,7 @@ public class FIO
 		{
 			if (timestamp)
 				bw.write(String.format("=== %s ===%n", LocalDateTime.now().toString()));
-			bw.write(FString.fenceMaker(FSystem.lsep, lines));
+			bw.write(FString.fenceMaker(FSystem.lsep, lines) + "\n\n");
 			bw.close();
 		}
 		catch (Throwable e)

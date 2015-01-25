@@ -1,4 +1,4 @@
-package jwiki.core;
+package jwiki.dwrap;
 
 import java.time.Instant;
 

@@ -12,7 +12,7 @@ import org.json.JSONObject;
 
 /**
  * Represents a reply from the server. A reply from a MediaWiki server is a JSONObject; this class is an extension to
- * JSONObject, and contains some preprocessing and error detecting methods.
+ * JSONObject, and contains some pre-processing and error detecting methods.
  * 
  * @author Fastily
  *
@@ -35,17 +35,16 @@ public class Reply extends JSONObject
 	 */
 	private static final List<String> whitelist = Arrays.asList(new String[] { "NeedToken", "Success", "Continue" });
 
-	
 	/**
 	 * Constructor, takes a JSONObject and creates a ServerReply from it.
+	 * 
 	 * @param jo The JSONObject to turn into a ServerReply.
 	 */
 	public Reply(JSONObject jo)
 	{
 		super(jo.toString());
 	}
-	
-	
+
 	/**
 	 * Constructor, takes in an inputstream and reads out the bytes to a ServerReply. The inputstream is closed
 	 * automatically after reading is complete.
@@ -55,7 +54,7 @@ public class Reply extends JSONObject
 	protected Reply(InputStream is)
 	{
 		super(FIO.inputStreamToString(is));
-		
+
 		result = getStringR("result");
 
 		if (has("error"))
@@ -117,7 +116,6 @@ public class Reply extends JSONObject
 		return result instanceof Integer ? ((Integer) result).intValue() : -1;
 	}
 
-
 	/**
 	 * Recursively search this ServerReply for a key, and return it's associated value as a string.
 	 * 
@@ -143,7 +141,7 @@ public class Reply extends JSONObject
 	}
 
 	/**
-	 * Recursively search this ServerReply for a key, and return it's associated value as a JSONArray.
+	 * Recursively search this Reply for a key, and return it's associated value as a JSONArray.
 	 * 
 	 * @param key The key to look for.
 	 * @return The requested value, or null if the key doesn't exist.
@@ -152,6 +150,24 @@ public class Reply extends JSONObject
 	{
 		Object result = getR(this, key);
 		return result instanceof JSONArray ? (JSONArray) result : null;
+	}
+
+	/**
+	 * Recursively search this Reply for a a JSONArray and return the contained JSONObjects in an ArrayList.
+	 * 
+	 * @param key The key to search with.
+	 * @return The JSONObjects in an ArrayList, or an empty list if we couldn't find the specified object.
+	 */
+	public ArrayList<Reply> getJSONArrayListR(String key)
+	{
+		ArrayList<Reply> l = new ArrayList<>();
+		JSONArray ja = getJSONArrayR(key);
+		if (ja == null)
+			return l;
+
+		for (int i = 0; i < ja.length(); i++)
+			l.add(new Reply(ja.getJSONObject(i)));
+		return l;
 	}
 
 	/**

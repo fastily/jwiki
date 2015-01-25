@@ -44,7 +44,7 @@ public class QueryTools
 	 * 
 	 * @param wiki The wiki object to use
 	 * @param ub The URLBuilder to use
-	 * @param rl The list to put retrieved ServerReplies in.
+	 * @param rl The list to put retrieved Replies in.
 	 */
 	private static void doQuerySet(Wiki wiki, URLBuilder ub, ArrayList<Reply> rl)
 	{
@@ -133,7 +133,6 @@ public class QueryTools
 		ArrayList<Reply> l = new ArrayList<>();
 		ub.setParams("continue", ""); // MW 1.21+
 		doQuerySet(wiki, ub, l);
-
 		return l;
 	}
 
@@ -217,12 +216,12 @@ public class QueryTools
 	}
 
 	/**
-	 * Identifies the <code>continue</code> JSONObject in a ServerReply and applies it to a URLBuilder. PRECONDITION: there
+	 * Identifies the <code>continue</code> JSONObject in a Reply and applies it to a URLBuilder. PRECONDITION: there
 	 * MUST be a <code>continue</code> obejct in <code>r</code>; this method does not explicitly test for MediaWiki errors or for
 	 * the presence of a <code>continue</code> object.a
 	 * 
 	 * @param ub The URLBuilder to apply the continue params to
-	 * @param r The ServerReply from the most recent, previous request to the server created by <code>ub</code>.
+	 * @param r The Reply from the most recent, previous request to the server created by <code>ub</code>.
 	 * @return True if we encountered no errors.
 	 */
 	public static boolean applyContinue(URLBuilder ub, Reply r)
@@ -249,7 +248,7 @@ public class QueryTools
 	 * Gets a specified String (using its key) from each JSONObject in a JSONArray in a JSONObject. Returns an empty list
 	 * if there were no results or if something went wrong.
 	 * 
-	 * @param r The main ServerReply whose JSONArray we'll be using.
+	 * @param r The main Reply whose JSONArray we'll be using.
 	 * @param arrayKey The key pointing to the JSONArray we want to use
 	 * @param arrayElementKey The key pointing to the String in each JSONObject contained in the JSONArray pointed to by
 	 *           <code>arrayKey</code>
@@ -258,21 +257,15 @@ public class QueryTools
 	private static ArrayList<String> getStringsFromJSONObjectArray(Reply r, String arrayKey, String arrayElementKey)
 	{
 		ArrayList<String> l = new ArrayList<>();
-
-		JSONArray ja = r.getJSONArrayR(arrayKey);
-		if (ja == null)
-			return l;
-
-		for (int i = 0; i < ja.length(); i++)
-			l.add(ja.getJSONObject(i).getString(arrayElementKey));
-
+		for(Reply rx : r.getJSONArrayListR(arrayKey))
+			l.add(rx.getStringR(arrayElementKey));
 		return l;
 	}
 
 	/**
 	 * Grabs two Strings (and packs them into a Tuple) from a JSONArray of JSONObjects containing Strings.
 	 * 
-	 * @param r The main ServerReply whose JSONArray we'll be using.
+	 * @param r The main Reply whose JSONArray we'll be using.
 	 * @param arrayKey The key pointing to the JSONArray we want to use
 	 * @param arrayElementKey1 The key pointing to the String in each JSONObject contained in the JSONArray pointed to by
 	 *           <code>arrayKey</code> that we want to use as the first element in the Tuple

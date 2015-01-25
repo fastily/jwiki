@@ -8,6 +8,7 @@ import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import jwiki.dwrap.Revision;
 import jwiki.util.FError;
 import jwiki.util.FIO;
 import jwiki.util.FString;
@@ -56,7 +57,6 @@ public class WAction
 		}
 	}
 
-	//TODO: Add delay for RateLimitError
 	/**
 	 * Edit a page
 	 * 

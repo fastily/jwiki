@@ -1,23 +1,12 @@
 == Priority ==
 * Convert GlobalReplace to CLI and wrap it with GUI.
-** GlobalReplace with 20+ images hits apihighlimit restriction.  Perhaps we should add a delay...
-
-* FLogin crypto is crap.  Keeps out non-CS people, but this is a joke to reverse engineer... 
-** Salt should be secure random generated.
-** Use MD5/MD6 hashes?
-** Keys *should* be randomly generated - based on OS names, serial number, etc, user's account, time generated, perhaps?  We can save these locally.
-*** There is a problem with this logic however, because the user isn't actually entering a password, and keys are going to be saved locally o_o.  I guess it's a step above plaintext...
-
-* FLogin is still using old java.io.* ->  Update to nio.
+** GlobalReplace with 20+ images hits apihighlimit restriction.  Implement agresive save strategy.
 
 * Use only ArrayLists for lists of objects.  Type Safety and OO principles are important.
 
 == Low Priority ==
 * Commons New Image Auditor
-* Apparently addtext in edit already exists.
 * RevDel?  Image RevDel?
 * Log querying methods
 
 * Internationalize namespaces.  I think I hard-code instances of namespace prefixes in English - these should be dynamically generated via namespace IDs
-
-* Better system for handling actions - I want integration with MBot.  How about MAction & ActionTools?

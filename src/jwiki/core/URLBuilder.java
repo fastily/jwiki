@@ -83,7 +83,7 @@ public class URLBuilder
 				hold.add(e.getKey());
 				hold.add(e.getValue());
 			}
-			
+
 			return new URL(base + action + chainParams(hold.toArray(new String[0])));
 		}
 		catch (Throwable e)
@@ -95,8 +95,8 @@ public class URLBuilder
 
 	/**
 	 * Chains parameters for use in a URL. Pass in parameters as pairs. For example,
-	 * <code>chainParams("title", "foo", "cmcontinue", "derp")</code> gives you "<code>&title=foo&cmcontinue=derp</code>". You
-	 * must pass in an even number of parameters, or you'll get an UnsupportedOperationException.
+	 * <code>chainParams("title", "foo", "cmcontinue", "derp")</code> gives you "<code>&title=foo&cmcontinue=derp</code>
+	 * ". You must pass in an even number of parameters, or you'll get an UnsupportedOperationException.
 	 * 
 	 * @param params The parameters to chain.
 	 * @return The chained properties as a string.
@@ -113,7 +113,8 @@ public class URLBuilder
 	}
 
 	/**
-	 * Chains and encodes URL parameter properties. Properties: e.g. "timestamp|user|comments|content".
+	 * Chains and encodes URL parameter properties. Properties: e.g. "timestamp|user|comments|content". Auto applies URL
+	 * encoding.
 	 * 
 	 * @param props The properties to chain.
 	 * @return The chained set of properties, separated by pipes as necessary.
