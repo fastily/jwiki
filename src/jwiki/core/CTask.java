@@ -10,6 +10,8 @@ import java.nio.file.Paths;
 
 import javax.imageio.ImageIO;
 
+import jwiki.dwrap.ImageInfo;
+
 /**
  * Class containing static methods which can perform miscellaneous tasks pertaining to MediaWiki.
  * 
