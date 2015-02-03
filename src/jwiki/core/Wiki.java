@@ -372,7 +372,6 @@ public class Wiki
 	 */
 	public boolean delete(String title, String reason)
 	{
-		ColorLog.info(this, "Deleting " + title);
 		return WAction.delete(this, title, reason);
 	}
 

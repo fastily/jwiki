@@ -42,4 +42,13 @@ public class Tuple<K, V>
 	{
 		return String.format("(%s, %s)", x.toString(), y.toString());
 	}
+	
+	/**
+	 * Gets a hashcode for this object.  Good for using this in mapping constructs. 
+	 */
+	public int hashCode()
+	{
+		return x.hashCode() ^ y.hashCode();
+	}
+	
 }
