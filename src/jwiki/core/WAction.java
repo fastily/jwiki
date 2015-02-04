@@ -10,7 +10,6 @@ import java.util.HashMap;
 
 import jwiki.dwrap.Revision;
 import jwiki.util.FError;
-import jwiki.util.FIO;
 import jwiki.util.FString;
 
 /**
@@ -47,8 +46,7 @@ public class WAction
 	{
 		try
 		{
-			return CRequest
-					.post(ub.makeURL(), URLBuilder.chainParams(FString.massEnc(params)), wiki.cookiejar, CRequest.urlenc);
+			return Req.post(ub.makeURL(), URLBuilder.chainParams(FString.massEnc(params)), wiki.cookiejar, Req.urlenc);
 		}
 		catch (Throwable e)
 		{
@@ -64,14 +62,36 @@ public class WAction
 	 * @param title The title to edit
 	 * @param text The new page text to set <code>title</code> to.
 	 * @param reason The edit summary to use
+	 * @param agressive If true, program will try 10 times 
 	 * 
 	 * @return True if the operation was successful.
 	 */
-	protected static boolean edit(Wiki wiki, String title, String text, String reason)
+	protected static boolean edit(Wiki wiki, String title, String text, String reason, boolean agressive)
 	{
 		ColorLog.info(wiki, "Editing " + title);
-		Reply r = doAction(wiki, wiki.makeUB("edit"), "title", title, "text", text, "summary", reason, "token", wiki.token);
-		return r != null && r.resultIs("Success");
+		
+		int attempt = agressive ? 10 : 1;
+		for (int i = 0; i < attempt; i++)
+		{
+			if (agressive && i < 0)
+				ColorLog.info(wiki, String.format("Editing '%s', trial: %d/%d", title, i, attempt));
+
+			Reply r = doAction(wiki, wiki.makeUB("edit"), "title", title, "text", text, "summary", reason, "token", wiki.token);
+			if (r != null && r.resultIs("Success"))
+				return true;
+			
+			if(r.getErrorCode().equals("ratelimited"))
+				try
+				{
+					ColorLog.warn(wiki, "Rate Limited! Sleeping 30 sec");
+					Thread.sleep(30000);
+				}
+				catch (InterruptedException e)
+				{
+					
+				}
+		}
+		return false;
 	}
 
 	/**
@@ -106,8 +126,8 @@ public class WAction
 	{
 		ColorLog.info(wiki, "Undoing top revision of " + title);
 		ArrayList<Revision> rl = wiki.getRevisions(title, 2, false);
-		return rl.size() < 2 ? FError.printErrAndRet("There are fewer than two revisions in " + title, false) : edit(
-				wiki, title, rl.get(1).text, reason);
+		return rl.size() < 2 ? FError.printErrAndRet("There are fewer than two revisions in " + title, false) : edit(wiki,
+				title, rl.get(1).text, reason, false);
 	}
 
 	/**
@@ -139,7 +159,8 @@ public class WAction
 		int attempt = agressive ? 10 : 1;
 		for (int i = 0; i < attempt; i++)
 		{
-			ColorLog.info(wiki, String.format("Undeleting '%s' trial: %d/%d", title, i, attempt));
+			if (agressive && i < 0)
+				ColorLog.info(wiki, String.format("Undeleting '%s' trial: %d/%d", title, i, attempt));
 			Reply r = doAction(wiki, wiki.makeUB("undelete"), "title", title, "reason", reason, "token", wiki.token);
 			if (r != null && !r.hasError())
 				return true;
@@ -175,7 +196,7 @@ public class WAction
 	protected static boolean upload(Wiki wiki, Path p, String title, String text, String reason)
 	{
 		String uploadTo = wiki.convertIfNotInNS(title, "File");
-		String filename = FIO.getFileName(p);
+		String filename = p.getFileName().toString();
 		String filekey = null;
 		URLBuilder ub = wiki.makeUB("upload");
 
@@ -198,7 +219,7 @@ public class WAction
 				if (filekey != null)
 					args.put("filekey", filekey);
 
-				Reply r = CRequest.chunkPost(ub.makeURL(), wiki.cookiejar, args, filename, fc);
+				Reply r = Req.chunkPost(ub.makeURL(), wiki.cookiejar, args, filename, fc);
 
 				if (r.hasError()) // allow 5x retries for failed chunks.
 				{

@@ -1,12 +1,9 @@
 package jwiki.util;
 
 import java.nio.file.FileSystems;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 
 /**
- * System related methods.
+ * Useful, frequently used system properties
  * 
  * @author Fastily
  * 
@@ -45,26 +42,4 @@ public class FSystem
 	{
 		
 	}
-	
-	/**
-	 * Copies a file on disk.
-	 * 
-	 * @param src The path of the source file
-	 * @param dest The location to copy the file to.
-	 * 
-	 * @return True if we were successful.
-	 */
-	public static boolean copyFile(String src, String dest)
-	{
-		try
-		{
-			Files.copy(Paths.get(src), Paths.get(dest), StandardCopyOption.REPLACE_EXISTING);
-			return true;
-		}
-		catch (Throwable e)
-		{
-			e.printStackTrace();
-			return false;
-		}
-	}	
 }

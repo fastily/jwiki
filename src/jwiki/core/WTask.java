@@ -18,13 +18,13 @@ import jwiki.dwrap.ImageInfo;
  * @author Fastily
  *
  */
-public class CTask
+public class WTask
 {
 
 	/**
 	 * Constructors disallowed
 	 */
-	private CTask()
+	private WTask()
 	{
 
 	}
@@ -52,7 +52,7 @@ public class CTask
 		else
 			throw new IOException(String.format("Could not find the file '%s' to download", title));
 
-		return CRequest.genericGET(new URL(url), wiki.cookiejar);
+		return Req.genericGET(new URL(url), wiki.cookiejar);
 	}
 
 	/**

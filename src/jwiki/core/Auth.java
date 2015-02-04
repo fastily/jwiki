@@ -9,12 +9,12 @@ import java.net.URI;
  * @author Fastily
  *
  */
-public class CAuth
+public class Auth
 {
 	/**
 	 * No constructors allowed; all static methods.
 	 */
-	private CAuth()
+	private Auth()
 	{
 
 	}

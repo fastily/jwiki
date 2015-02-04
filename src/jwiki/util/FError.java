@@ -1,7 +1,5 @@
 package jwiki.util;
 
-import javax.swing.JOptionPane;
-
 import jwiki.core.ColorLog;
 
 /**
@@ -42,19 +40,6 @@ public class FError
 	{
 		e.printStackTrace();
 		errAndExit(s);
-	}
-	
-	
-	/**
-	 * Shows error as Messagebox and exits.
-	 * 
-	 * @param s The error message
-	 * @param err Exit error code.
-	 */
-	public static void showErrorAndExit(String s, int err)
-	{
-		JOptionPane.showMessageDialog(null, s);
-		System.exit(err);
 	}
 	
 	/**

@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import jwiki.util.FIO;
+import jwiki.util.FString;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -53,7 +53,7 @@ public class Reply extends JSONObject
 	 */
 	protected Reply(InputStream is)
 	{
-		super(FIO.inputStreamToString(is));
+		super(FString.inputStreamToString(is));
 
 		result = getStringR("result");
 
@@ -168,6 +168,16 @@ public class Reply extends JSONObject
 		for (int i = 0; i < ja.length(); i++)
 			l.add(new Reply(ja.getJSONObject(i)));
 		return l;
+	}
+
+	/**
+	 * Gets this Reply's error code, if applicable
+	 * 
+	 * @return The error code, or null if everything is okay.
+	 */
+	public String getErrorCode()
+	{
+		return errcode;
 	}
 
 	/**

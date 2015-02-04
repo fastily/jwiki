@@ -138,7 +138,7 @@ public class CAction
 						text = wiki.getPageText(title).replaceAll(replace, replacement);
 						if (add != null)
 							text = append ? text + add : add + text;
-						return WAction.edit(wiki, title, text, reason);
+						return WAction.edit(wiki, title, text, reason, false);
 					}
 				}
 			});

@@ -74,7 +74,7 @@ public class QueryTools
 	{
 		try
 		{
-			return CRequest.get(ub.makeURL(), wiki.cookiejar);
+			return Req.get(ub.makeURL(), wiki.cookiejar);
 		}
 		catch (Throwable e)
 		{

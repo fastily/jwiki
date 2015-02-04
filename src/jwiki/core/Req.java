@@ -20,7 +20,7 @@ import java.util.zip.GZIPInputStream;
  * @author Fastily
  * 
  */
-public class CRequest
+public class Req
 {
 	/**
 	 * Connection timeout for URLConnections
@@ -46,7 +46,7 @@ public class CRequest
 	/**
 	 * All static methods; no constructors allowed.
 	 */
-	private CRequest()
+	private Req()
 	{
 
 	}

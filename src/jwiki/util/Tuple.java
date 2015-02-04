@@ -44,7 +44,7 @@ public class Tuple<K, V>
 	}
 	
 	/**
-	 * Gets a hashcode for this object.  Good for using this in mapping constructs. 
+	 * Gets a hashcode for this object.  Good for mapping constructs. 
 	 */
 	public int hashCode()
 	{
