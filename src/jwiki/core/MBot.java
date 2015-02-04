@@ -110,7 +110,6 @@ public class MBot
 			}
 
 			for (Thread t : threads)
-			{
 				try
 				{
 					t.join();
@@ -119,7 +118,6 @@ public class MBot
 				{
 					e.printStackTrace();
 				}
-			}
 		}
 
 		/**
@@ -187,7 +185,7 @@ public class MBot
 		 * @return True if the action we tried to perform succeeded.
 		 */
 		public abstract boolean doJob(Wiki wiki);
-
+		
 		/**
 		 * Creates a String representation of this Task. Useful for debugging.
 		 */

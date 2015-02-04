@@ -1,30 +1,23 @@
 package jwiki.util;
 
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.URLEncoder;
-import java.nio.file.Path;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Random;
-import java.util.Scanner;
 
 import org.json.JSONArray;
 
 /**
- * Contains personalized String related methods for my bot programs.
+ * Miscellaneous String related routines I find myself using repeatedly.
  * 
  * @author Fastily
  * 
  */
 public class FString
 {
-	/**
-	 * Static random object for methods that require a random object.
-	 */
-	private static Random r = new Random();
 
 	/**
 	 * Constructors disallowed.
@@ -35,102 +28,29 @@ public class FString
 	}
 
 	/**
-	 * Capitalizes the first character of a String
+	 * Reads contents of an InputStream to a String.
 	 * 
-	 * @param s The String to work with
-	 * @return A new copy of the passed in String, with the first character capitalized.
+	 * @param is The InputStream to read into a String
+	 * @return The String we made from the InputStream, or the empty String if something went wrong.
 	 */
-	public static String capitalize(String s)
+	public static String inputStreamToString(InputStream is)
 	{
-		return s.length() < 2 ? s.toUpperCase() : s.substring(0, 1).toUpperCase() + s.substring(1);
-	}
+		try (BufferedReader in = new BufferedReader(new InputStreamReader(is, "UTF-8")))
+		{
+			String x = "";
 
-	/**
-	 * Generates a random file name for upload to wiki based on the entered file name
-	 * 
-	 * @param p The Path to generate a random filename for.
-	 * @return The random wiki-uploadable file name
-	 */
-	public static String generateRandomFileName(Path p)
-	{
-		return String.format("%s x %#o.%s", LocalTime.now().format(DateTimeFormatter.ofPattern("HH.mm.ss")), r.nextInt(0xFF),
-				FIO.getExtension(p, false));
-	}
+			String line;
+			while ((line = in.readLine()) != null)
+				x += line + "\n";
 
-	/**
-	 * Splits a long string into a list of strings using newline chars as deliminators.
-	 * 
-	 * @param longstring The string to split
-	 * @return A list of strings.
-	 */
-	public static String[] splitCombo(String longstring)
-	{
-		ArrayList<String> l = new ArrayList<>();
-		Scanner m = new Scanner(longstring);
-
-		while (m.hasNextLine())
-			l.add(m.nextLine().trim());
-
-		m.close();
-		return l.toArray(new String[0]);
-	}
-
-	/**
-	 * Determines if two String arrays share elements.
-	 * 
-	 * @param a Array 1
-	 * @param b Array 2
-	 * @return True if the arrays intersect.
-	 */
-	public static boolean arraysIntersect(String[] a, String[] b)
-	{
-		return arraysIntersect(Arrays.asList(a), Arrays.asList(b));
-	}
-
-	/**
-	 * Determines if two String Lists share elements.
-	 * 
-	 * @param a List 1
-	 * @param b List 2
-	 * @return True if the Lists intersect.
-	 */
-	public static boolean arraysIntersect(List<String> a, List<String> b)
-	{
-		for (String s : a)
-			if (b.contains(s))
-				return true;
-		return false;
-	}
-
-	/**
-	 * Makes a regex for replacing titles/files on a page. Converts regex operators to their escaped counterparts.
-	 * 
-	 * @param title The title to convert into a regex.
-	 * @return The regex.
-	 */
-	public static String makePageTitleRegex(String title)
-	{
-		String temp = new String(title);
-		for (String s : new String[] { "(", ")", "[", "]", "{", "}", "^", "-", "=", "$", "!", "|", "?", "*", "+", ".", "<",
-				">" })
-			temp = temp.replace(s, "\\" + s);
-		temp = temp.replaceAll("( |_)", "( |_)");
-		return temp;
-	}
-
-	/**
-	 * Splits a string on a deliminator. The deliminator is omitted. PRECONDITION: There must be a delim present, and at
-	 * least one character after the end of the first instance of the deliminator.
-	 * 
-	 * @param s The string to split
-	 * @param delim The delim to use
-	 * @return A tuple representing the object split.
-	 */
-	public static Tuple<String, String> splitOn(String s, String delim)
-	{
-		String s1 = s.substring(0, s.indexOf(delim));
-		String s2 = s.substring(s.indexOf(delim) + delim.length());
-		return new Tuple<>(s1, s2);
+			is.close();
+			return x.trim();
+		}
+		catch (Throwable e)
+		{
+			e.printStackTrace();
+			return "";
+		}
 	}
 
 	/**
@@ -205,8 +125,8 @@ public class FString
 	}
 
 	/**
-	 * Creates a HashMap with String keys and values. Pass in each pair and value (in that order) into <code>sl</code>. This
-	 * will be one pair entered into resulting HashMap.
+	 * Creates a HashMap with String keys and values. Pass in each pair and value (in that order) into <code>sl</code>.
+	 * This will be one pair entered into resulting HashMap.
 	 * 
 	 * @param sl The list of elements to turn into a HashMap.
 	 * @return The resulting HashMap, or null if you specified an odd number of elements.
@@ -248,5 +168,4 @@ public class FString
 	{
 		return new ArrayList<>(Arrays.asList(strings));
 	}
-
 }

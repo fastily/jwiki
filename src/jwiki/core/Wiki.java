@@ -78,10 +78,10 @@ public class Wiki
 		{
 			wl = parent.wl;
 			cookiejar = parent.cookiejar;
-			CAuth.copyCentralAuthCookies(parent, domain);
+			Auth.copyCentralAuthCookies(parent, domain);
 		}
 
-		if (!CAuth.doAuth(this, !isNew))
+		if (!Auth.doAuth(this, !isNew))
 			throw new LoginException(String.format("Failed to log-in as %s @ %s", upx.x, domain));
 
 		wl.put(domain, this);
@@ -278,7 +278,7 @@ public class Wiki
 	 */
 	public boolean edit(String title, String text, String reason)
 	{
-		return WAction.edit(this, title, text, reason);
+		return WAction.edit(this, title, text, reason, true);
 	}
 
 	/**
