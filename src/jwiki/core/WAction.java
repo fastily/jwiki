@@ -127,7 +127,7 @@ public class WAction
 		ColorLog.info(wiki, "Undoing top revision of " + title);
 		ArrayList<Revision> rl = wiki.getRevisions(title, 2, false);
 		return rl.size() < 2 ? FError.printErrAndRet("There are fewer than two revisions in " + title, false) : edit(wiki,
-				title, rl.get(1).text, reason, false);
+				title, rl.get(1).text, reason, true);
 	}
 
 	/**

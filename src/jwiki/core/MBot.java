@@ -3,10 +3,9 @@ package jwiki.core;
 import java.util.ArrayList;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-import jwiki.util.ProgressTracker;
-
 /**
- * Facilitates the use and design of multi-threaded bots derived from the jwiki library.
+ * A customizable, multi-threaded bot framework. Create a class overriding MBot.Task, and implement the
+ * <code>doJob()</code> method.
  * 
  * @author Fastily
  */
@@ -71,27 +70,32 @@ public class MBot
 		private final ConcurrentLinkedQueue<Task> fails = new ConcurrentLinkedQueue<>();
 
 		/**
-		 * The progress tracker to use
+		 * Keep track of the number of completed items.
 		 */
-		private final ProgressTracker pt;
-
+		private int completed = 0;
+				
+		/**
+		 * Keep track of the total number of items.
+		 */
+	    private final int total;
+		
 		/**
 		 * The maximum number of threads permitted to execute simultaneously
 		 */
-		private int num;
+		private int maxthreads;
 
 		/**
 		 * Constructor, takes a list of items to process and the wiki object to work with.
 		 * 
 		 * @param wl The list of items to process.
-		 * @param num The maximum number of threads permitted to execute simultaneously
+		 * @param maxthreads The maximum number of threads permitted to execute simultaneously
 		 */
-		private <T extends Task> ThreadManager(ArrayList<T> wl, int num)
+		private <T extends Task> ThreadManager(ArrayList<T> wl, int maxthreads)
 		{
 			todo.addAll(wl);
-			pt = new ProgressTracker(wl.size());
-
-			this.num = num;
+			total = wl.size();
+			
+			this.maxthreads = maxthreads;
 		}
 
 		/**
@@ -101,7 +105,7 @@ public class MBot
 		private void start()
 		{
 			ArrayList<Thread> threads = new ArrayList<>();
-			int tcnt = Math.min(todo.size(), num); // dynamically recalculated like an idiot by JVM. Keep out of for loop.
+			int tcnt = Math.min(todo.size(), maxthreads); // dynamically recalculated by JVM. Keep out of for loop.
 			for (int i = 0; i < tcnt; i++)
 			{
 				Thread t = new Thread(() -> doJob());
@@ -119,6 +123,15 @@ public class MBot
 					e.printStackTrace();
 				}
 		}
+		
+		/**
+		 * Increments the number of completed items.
+		 * @param head The log message header.  This should be the thread's name.
+		 */
+		private synchronized void incCompleted(String head)
+		{
+			ColorLog.log(String.format("[%s]: Processing item %d of %d", head, ++completed, total), "INFO", ColorLog.GREEN);
+		}
 
 		/**
 		 * Helper function called by threads consuming elements of <code>todo</code>.
@@ -128,18 +141,20 @@ public class MBot
 			if (todo.peek() == null)
 				return;
 
-			String me = Thread.currentThread().getName() + ": ";
+			String me = Thread.currentThread().getName();
 
 			Task curr;
 			while ((curr = todo.poll()) != null)
 			{
-				pt.inc(me);
+				incCompleted(me);
 				if (!curr.doJob(wiki))
 					fails.add(curr);
 			}
 			ColorLog.fyi(me + "There's nothing left for me!");
 		}
 	}
+
+	
 	/**
 	 * Represents an individual task.
 	 * 
@@ -179,13 +194,13 @@ public class MBot
 		}
 
 		/**
-		 * Performs this Task's main task. *Must* be explicitly defined in each subclass.
+		 * Performs this Task's main task.
 		 * 
 		 * @param wiki The Wiki object to use.
 		 * @return True if the action we tried to perform succeeded.
 		 */
 		public abstract boolean doJob(Wiki wiki);
-		
+
 		/**
 		 * Creates a String representation of this Task. Useful for debugging.
 		 */

@@ -9,7 +9,7 @@ _NB_: This library is under active development so files/classes/functions may mo
 * Query special pages, get category members, get links on a page, get template transclusions
 * Supported MediaWiki extensions include [CentralAuth](https://www.mediawiki.org/wiki/Extension:CentralAuth) and [GlobalUsage](https://www.mediawiki.org/wiki/Extension:GlobalUsage).
 * Bundled with a versatile, extensible multi-threaded bot framework to quickly perform changes or analytics.
-* An flexible, extensible interface that allows advanced users to implement custom API queries.
+* A flexible, extensible interface that allows advanced users to implement custom API queries.
 
 ##Dependencies
 JSON support is provided by [JSON-java](https://github.com/douglascrockford/JSON-java).  This is bundled as a JAR archive at the top of the repository’s directory structure; use a newer version at your own discretion.

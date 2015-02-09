@@ -16,8 +16,8 @@ import jwiki.util.FString;
 import jwiki.util.Tuple;
 
 /**
- * Main class of libjwiki; most developers will only need this class. This class implements all queries/actions which
- * libjwiki can perform on a wiki. All methods are backed by static calls and thread-safe.
+ * Main class of libjwiki. Most developers will only need this class. This class implements all queries/actions which
+ * libjwiki can perform on a wiki. All methods are backed by static calls and are thread-safe.
  * 
  * @author Fastily
  */
@@ -69,7 +69,7 @@ public class Wiki
 	 */
 	private Wiki(String user, String px, String domain, Wiki parent) throws LoginException
 	{
-		upx = new Tuple<String, String>(Namespace.nss(user), px);
+		upx = new Tuple<>(Namespace.nss(user), px);
 		this.domain = domain;
 		mbot = new MBot(this);
 
