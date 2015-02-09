@@ -46,7 +46,6 @@ public class Namespace
 			ns.l.put(name.toLowerCase(), t);
 			ns.l.put(id, t);
 		}
-		
 		return ns;
 	}
 	

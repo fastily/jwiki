@@ -1,14 +1,12 @@
-== Priority ==
-* Convert GlobalReplace to CLI and wrap it with GUI.
-** GlobalReplace with 20+ images hits apihighlimit restriction.  Implement agresive save strategy.
+* Commons [New] Image Auditor
+* RevDel & Image RevDel
+* Log Fetching
+* Recent Changes
+* Search
 
-* Use only ArrayLists for lists of objects.  Type Safety and OO principles are important.
+* Internationalize namespaces. I hard-code instances of namespace prefixes in English - these should be dynamically generated via namespace IDs
+** Namespace handling just sucks in general.  I need to fix this...
 
-== Low Priority ==
-* Commons New Image Auditor
-* RevDel?  Image RevDel?
-* Log querying methods
-
-* Internationalize namespaces.  I think I hard-code instances of namespace prefixes in English - these should be dynamically generated via namespace IDs
-* Namespace handling just sucks in general.  I need to fix this...
 * MBot organization will benefit from lambdas and aggregate ops
+
+* Purge should take multiple params in WAction
