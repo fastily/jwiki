@@ -112,16 +112,15 @@ public class MQuery
 	 * Get wiki links on a page.
 	 * 
 	 * @param wiki The wiki object to use
-	 * @param ns Namespaces to include-only, passed in as prefixes, without the ":" (e.g. "File", "Category", "Main").
-	 *           Optional, set to null to disable.
+	 * @param ns Namespaces to include-only. Optional, set to null to disable.
 	 * @param titles The titles to query.
 	 * @return A list of results keyed by title.
 	 */
-	public static ArrayList<Tuple<String, ArrayList<String>>> getLinksOnPage(Wiki wiki, String[] ns, ArrayList<String> titles)
+	public static ArrayList<Tuple<String, ArrayList<String>>> getLinksOnPage(Wiki wiki, NS[] ns, ArrayList<String> titles)
 	{
 		URLBuilder ub = wiki.makeUB("query", "prop", "links");
 		if (ns != null && ns.length > 0)
-			ub.setParams("plnamespace", URLBuilder.chainProps(wiki.nsl.prefixToNumStrings(ns)));
+			ub.setParams("plnamespace", wiki.nsl.createFilter(true, ns));
 		return QueryTools.multiQueryForStrings(wiki, ub, "pllimit", "links", "title", "title", "titles", titles);
 	}
 

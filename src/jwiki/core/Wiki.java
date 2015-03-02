@@ -3,9 +3,8 @@ package jwiki.core;
 import java.net.CookieManager;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 
 import javax.security.auth.login.LoginException;
 
@@ -34,9 +33,9 @@ public class Wiki
 	protected String token;
 
 	/**
-	 * Our namespace list
+	 * Our namespace manager
 	 */
-	protected Namespace nsl;
+	protected NS.NSManager nsl;
 
 	/**
 	 * Our domain
@@ -69,7 +68,7 @@ public class Wiki
 	 */
 	private Wiki(String user, String px, String domain, Wiki parent) throws LoginException
 	{
-		upx = new Tuple<>(Namespace.nss(user), px);
+		upx = new Tuple<>(user, px);
 		this.domain = domain;
 		mbot = new MBot(this);
 
@@ -161,67 +160,70 @@ public class Wiki
 	}
 
 	/**
-	 * Takes a namespace and gets its number. PRECONDITION: the prefix must be a valid namespace prefix.
+	 * Takes a Namespace prefix and gets a NS representation of it. PRECONDITION: the prefix must be a valid namespace
+	 * prefix. WARNING: This method is CASE-SENSITIVE, so be sure to spell and capitalize the prefix <ins>exactly</ins>
+	 * as it would appear on-wiki.
 	 * 
 	 * @param prefix The prefix to use, without the ":".
-	 * @return The numerical representation of the namespace.
+	 * @return An NS representation of the prefix.
 	 */
-	protected int getNS(String prefix)
+	public NS getNS(String prefix)
 	{
-		return nsl.convert(prefix);
+		return nsl.get(prefix);
 	}
 
 	/**
-	 * Takes a namespace number and returns its name.
+	 * Gets the namespace, in NS form, of a title. No namespace or an invalid namespace is assumed to be part of Main.
 	 * 
-	 * @param num The namespace number to get the canonical name for.
-	 * @return The namespace prefix associated with this number, or null if it doesn't exist.
+	 * @param title The title to get an NS for.
+	 * @return The title's NS.
 	 */
-	protected String getNS(int num)
-	{
-		return nsl.convert(num);
-	}
-
-	/**
-	 * Gets the number of the namespace for the title passed in. No namespace is assumed to be main namespace.
-	 * 
-	 * @param title The title to check the namespace number for.
-	 * @return The integer number of the namespace of the title.
-	 */
-	public int whichNS(String title)
+	public NS whichNS(String title)
 	{
 		return nsl.whichNS(title);
 	}
+	
+	/**
+	 * Strip the namespace from a title.
+	 * @param title The title to strip the namespace from
+	 * @return The title without a namespace
+	 */
+	public String nss(String title)
+	{
+		return nsl.nss(title);
+	}
 
 	/**
-	 * Filters pages by NS. Only pages in <code>ns</code> are selected.
+	 * Filters pages by namespace. Only pages with a namespace in <code>ns</code> are selected.
 	 * 
 	 * @param pages Titles to filter
-	 * @param ns Pages in this/these namespace(s) to return. Use shorthand format (e.g. Namespace title without ':')
-	 * @return Pages in namespace(s) listed in <code>ns</code>
+	 * @param ns Pages in this/these namespace(s) will be returned.
+	 * @return Titles belonging to a NS in <code>ns</code>
 	 */
-	public ArrayList<String> filterByNS(ArrayList<String> pages, String... ns)
+	public ArrayList<String> filterByNS(ArrayList<String> pages, NS... ns)
 	{
 		ArrayList<String> l = new ArrayList<>();
-		List<String> nl = Arrays.asList(ns);
+		ArrayList<NS> nl = new ArrayList<>();
+		Collections.addAll(nl, ns);
 
 		for (String s : pages)
-			if (nl.contains(getNS(whichNS(s))))
+			if (nl.contains(whichNS(s)))
 				l.add(s);
 
 		return l;
 	}
-
+	
 	/**
-	 * Check if title in specified namespace. If not in specified namespace, convert it.
+	 * Check if a title in specified namespace and convert it if it is not.
 	 * 
 	 * @param title The title to check
-	 * @param ns The namespace, as a String (without ":"). Case-insensitive.
-	 * @return The same title if it is in the specified namespace, else the title will be converted to the namespace.
+	 * @param ns The namespace to convert the title to.
+	 * @return The same title if it is in <code>ns</code>, or the converted title.
 	 */
-	public String convertIfNotInNS(String title, String ns)
+	public String convertIfNotInNS(String title, NS ns)
 	{
-		return whichNS(title) == getNS(ns) ? title : String.format("%s:%s", ns, Namespace.nss(title));
+		String text = whichNS(title).equals(ns) ? title : String.format("%s:%s", nsl.toString(ns, false), nsl.nss(title));
+		return text;
 	}
 
 	/**
@@ -486,11 +488,11 @@ public class Wiki
 	 * Get all titles in a category.
 	 * 
 	 * @param title The category to query, including the "Category:" prefix.
-	 * @param ns Namespaces to include-only, passed in as prefixes, without the ":" (e.g. "File", "Category", "Main").
-	 *           Optional, leave blank to select all namespaces.
+	 * @param ns Namespace filter. Any title not in the specified namespace(s) will be ignored. Leave blank to select all
+	 *           namespaces.
 	 * @return The list of titles in the category.
 	 */
-	public ArrayList<String> getCategoryMembers(String title, String... ns)
+	public ArrayList<String> getCategoryMembers(String title, NS... ns)
 	{
 		return getCategoryMembers(title, -1, ns);
 	}
@@ -501,21 +503,22 @@ public class Wiki
 	 * 
 	 * @param title The category to query, including the "Category:" prefix.
 	 * @param cap The maximum number of elements to return. Optional param - set to 0 to disable.
-	 * @param ns Namespaces to include-only, passed in as prefixes, without the ":" (e.g. "File", "Category", "Main").
-	 *           Optional, leave blank to select all namespaces.
+	 * @param ns Namespace filter. Any title not in the specified namespace(s) will be ignored. Leave blank to select all
+	 *           namespaces.
 	 * @return The list of titles, as specified, in the category.
 	 */
-	public ArrayList<String> getCategoryMembers(String title, int cap, String... ns)
+	public ArrayList<String> getCategoryMembers(String title, int cap, NS... ns)
 	{
 		ColorLog.info(this, "Getting category members from " + title);
-		URLBuilder ub = makeUB("query", "list", "categorymembers", "cmtitle", FString.enc(convertIfNotInNS(title, "Category")));
+		URLBuilder ub = makeUB("query", "list", "categorymembers", "cmtitle",
+				FString.enc(convertIfNotInNS(title, NS.CATEGORY)));
 		if (ns.length > 0)
-			ub.setParams("cmnamespace", URLBuilder.chainProps(nsl.prefixToNumStrings(ns)));
+			ub.setParams("cmnamespace", nsl.createFilter(true, ns));
 
 		return cap > 0 ? QueryTools.limitedQueryForStrings(this, ub, "cmlimit", cap, "categorymembers", "title", null, null)
 				: QueryTools.queryForStrings(this, ub, "cmlimit", "categorymembers", "title", "cmtitle",
-						FString.toSAL(convertIfNotInNS(title, "Category")));
-	}
+						FString.toSAL(convertIfNotInNS(title, NS.CATEGORY)));
+	} // TODO: Why is cmtitle being set twice?
 
 	/**
 	 * Gets the categories a page is categorized in.
@@ -533,11 +536,10 @@ public class Wiki
 	 * Gets wiki links on a page.
 	 * 
 	 * @param title The title to query
-	 * @param ns Namespaces to include-only, passed in as prefixes, without the ":" (e.g. "File", "Category", "Main").
-	 *           Optional, leave blank to select all namespaces.
+	 * @param ns Namespaces to include-only. Optional, leave blank to select all namespaces.
 	 * @return The list of wiki links on the page.
 	 */
-	public ArrayList<String> getLinksOnPage(String title, String... ns)
+	public ArrayList<String> getLinksOnPage(String title, NS... ns)
 	{
 		ColorLog.info(this, "Getting wiki links on " + title);
 		return MQuery.getLinksOnPage(this, ns, FString.toSAL(title)).get(0).y;
@@ -548,11 +550,10 @@ public class Wiki
 	 * 
 	 * @param exists Fetch mode. Set true to get existing pages and false to get missing/non-existent pages.
 	 * @param title The title to query
-	 * @param ns Namespaces to include-only, passed in as prefixes, without the ":" (e.g. "File", "Category", "Main").
-	 *           Optional, leave blank to select all namespaces.
+	 * @param ns Namespaces to include-only. Optional, leave blank to select all namespaces.
 	 * @return The list of existing links on <code>title</code>
 	 */
-	public ArrayList<String> getLinksOnPage(boolean exists, String title, String... ns)
+	public ArrayList<String> getLinksOnPage(boolean exists, String title, NS... ns)
 	{
 		ArrayList<String> l = new ArrayList<>();
 		for (Tuple<String, Boolean> t : MQuery.exists(this, getLinksOnPage(title, ns)))
@@ -567,15 +568,15 @@ public class Wiki
 	 * @param user The user to get contribs for, without the "User:" prefix.
 	 * @param cap The maximum number of results to return.
 	 * @param olderFirst Set to true to enumerate from older → newer revisions
-	 * @param ns Namespace filter. Optional, leave blank to select all namespaces.
+	 * @param ns Restrict titles returned to the specified Namespace(s). Optional, leave blank to select all namespaces.
 	 * @return A list of contributions.
 	 */
-	public ArrayList<Contrib> getContribs(String user, int cap, boolean olderFirst, String... ns)
+	public ArrayList<Contrib> getContribs(String user, int cap, boolean olderFirst, NS... ns)
 	{
 		ColorLog.info(this, "Fetching contribs of " + user);
 		URLBuilder ub = makeUB("query", "list", "usercontribs");
 		if (ns.length > 0)
-			ub.setParams("ucnamespace", FString.enc(FString.fenceMaker("|", nsl.prefixToNumStrings(ns))));
+			ub.setParams("ucnamespace", nsl.createFilter(true, ns));
 		if (olderFirst)
 			ub.setParams("ucdir", "newer");
 
@@ -592,10 +593,10 @@ public class Wiki
 	 * over a million contributions. Watch your memory usage!
 	 * 
 	 * @param user The user to get contribs for, without the "User:" prefix.
-	 * @param ns Namespace filter. Optional, leave blank to select all namespaces.
+	 * @param ns Restrict titles returned to the specified Namespace(s). Optional, leave blank to select all namespaces.
 	 * @return A list of contributions.
 	 */
-	public ArrayList<Contrib> getContribs(String user, String... ns)
+	public ArrayList<Contrib> getContribs(String user, NS... ns)
 	{
 		return getContribs(user, -1, false, ns);
 	}
@@ -610,7 +611,7 @@ public class Wiki
 	{
 		ColorLog.info(this, "Fetching uploads for " + user);
 		return QueryTools.queryForStrings(this, makeUB("query", "list", "allimages", "aisort", "timestamp"), "ailimit",
-				"allimages", "title", "aiuser", FString.toSAL(Namespace.nss(user)));
+				"allimages", "title", "aiuser", FString.toSAL(nsl.nss(user)));
 	}
 
 	/**
@@ -756,7 +757,7 @@ public class Wiki
 		if (prefix != null)
 			ub.setParams("apprefix", FString.enc(prefix));
 		if (ns != null)
-			ub.setParams("apnamespace", "" + nsl.convert("User"));
+			ub.setParams("apnamespace", "" + NS.USER.v); // TODO: What is going on here?
 		if (redirectsonly)
 			ub.setParams("apfilterredir", "redirects");
 

@@ -195,7 +195,7 @@ public class WAction
 	 */
 	protected static boolean upload(Wiki wiki, Path p, String title, String text, String reason)
 	{
-		String uploadTo = wiki.convertIfNotInNS(title, "File");
+		String uploadTo = wiki.convertIfNotInNS(title, NS.FILE);
 		String filename = p.getFileName().toString();
 		String filekey = null;
 		URLBuilder ub = wiki.makeUB("upload");
@@ -205,7 +205,7 @@ public class WAction
 			long filesize = Files.size(p);
 			long chunks = filesize / chunksize + ((filesize % chunksize) > 0 ? 1 : 0);
 
-			HashMap<String, String> args = FString.makeParamMap("filename", Namespace.nss(uploadTo), "token", wiki.token,
+			HashMap<String, String> args = FString.makeParamMap("filename", wiki.nsl.nss(uploadTo), "token", wiki.token,
 					"ignorewarnings", "true", "stash", "1", "filesize", "" + filesize);
 
 			ColorLog.info(wiki, String.format("Uploading '%s' to '%s'", filename, title));
