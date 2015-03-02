@@ -150,7 +150,7 @@ public class MBot
 				if (!curr.doJob(wiki))
 					fails.add(curr);
 			}
-			ColorLog.fyi(me + "There's nothing left for me!");
+			ColorLog.fyi(me + ": There's nothing left for me!");
 		}
 	}
 

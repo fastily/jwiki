@@ -4,9 +4,10 @@
 * Recent Changes
 * Search
 
-* Internationalize namespaces. I hard-code instances of namespace prefixes in English - these should be dynamically generated via namespace IDs
-** Namespace handling just sucks in general.  I need to fix this...
-
 * MBot organization will benefit from lambdas and aggregate ops
 
 * Purge should take multiple params in WAction
+
+* I think ant build file is derped.
+
+* Need to fix my javadocs
