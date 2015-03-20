@@ -1,7 +1,9 @@
 package jwiki.core;
 
 import java.util.ArrayList;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 /**
  * A customizable, multi-threaded bot framework. Create a class overriding MBot.Task, and implement the
@@ -35,10 +37,24 @@ public class MBot
 	 */
 	protected <T extends Task> ArrayList<Task> submit(ArrayList<T> ml, int num)
 	{
-		ThreadManager m = new ThreadManager(ml, num);
-		m.start();
-
-		ArrayList<Task> fails = new ArrayList<Task>(m.fails);
+		AtomicInteger i = new AtomicInteger();
+		
+		ArrayList<Task> fails = new ArrayList<>();
+		int total = ml.size();
+		
+		try
+		{
+		//TODO: Can I print out a statement when a thread joins because there is no more work?
+		 new ForkJoinPool(num).submit(() -> fails.addAll(ml.parallelStream().filter(t -> {
+			ColorLog.log(String.format("[MBot]: Processing item %d of %d", i.incrementAndGet(), total), "INFO", ColorLog.GREEN);
+			return !t.doJob(wiki);
+			}).collect(Collectors.toCollection(ArrayList::new)))).get(); 
+		}
+		catch(Throwable e)
+		{
+			e.printStackTrace();
+		}
+		
 		if (fails.size() > 0)
 		{
 			ColorLog.warn(String.format("MBot failed to process (%d): ", fails.size()));
@@ -51,110 +67,6 @@ public class MBot
 		return fails;
 	}
 
-	/**
-	 * Manages and generates threads on behalf of MBot.
-	 * 
-	 * @author Fastily
-	 *
-	 */
-	private class ThreadManager
-	{
-		/**
-		 * The list tracking MActions left to process.
-		 */
-		private final ConcurrentLinkedQueue<Task> todo = new ConcurrentLinkedQueue<>();
-
-		/**
-		 * The list tracking MActions that failed.
-		 */
-		private final ConcurrentLinkedQueue<Task> fails = new ConcurrentLinkedQueue<>();
-
-		/**
-		 * Keep track of the number of completed items.
-		 */
-		private int completed = 0;
-				
-		/**
-		 * Keep track of the total number of items.
-		 */
-	    private final int total;
-		
-		/**
-		 * The maximum number of threads permitted to execute simultaneously
-		 */
-		private int maxthreads;
-
-		/**
-		 * Constructor, takes a list of items to process and the wiki object to work with.
-		 * 
-		 * @param wl The list of items to process.
-		 * @param maxthreads The maximum number of threads permitted to execute simultaneously
-		 */
-		private <T extends Task> ThreadManager(ArrayList<T> wl, int maxthreads)
-		{
-			todo.addAll(wl);
-			total = wl.size();
-			
-			this.maxthreads = maxthreads;
-		}
-
-		/**
-		 * Runs this ThreadManager. Creates the maximum number of threads requested (if necessary) and processes each
-		 * MAction.
-		 */
-		private void start()
-		{
-			ArrayList<Thread> threads = new ArrayList<>();
-			int tcnt = Math.min(todo.size(), maxthreads); // dynamically recalculated by JVM. Keep out of for loop.
-			for (int i = 0; i < tcnt; i++)
-			{
-				Thread t = new Thread(() -> doJob());
-				threads.add(t);
-				t.start();
-			}
-
-			for (Thread t : threads)
-				try
-				{
-					t.join();
-				}
-				catch (Throwable e)
-				{
-					e.printStackTrace();
-				}
-		}
-		
-		/**
-		 * Increments the number of completed items.
-		 * @param head The log message header.  This should be the thread's name.
-		 */
-		private synchronized void incCompleted(String head)
-		{
-			ColorLog.log(String.format("[%s]: Processing item %d of %d", head, ++completed, total), "INFO", ColorLog.GREEN);
-		}
-
-		/**
-		 * Helper function called by threads consuming elements of <code>todo</code>.
-		 */
-		private void doJob()
-		{
-			if (todo.peek() == null)
-				return;
-
-			String me = Thread.currentThread().getName();
-
-			Task curr;
-			while ((curr = todo.poll()) != null)
-			{
-				incCompleted(me);
-				if (!curr.doJob(wiki))
-					fails.add(curr);
-			}
-			ColorLog.fyi(me + ": There's nothing left for me!");
-		}
-	}
-
-	
 	/**
 	 * Represents an individual task.
 	 * 
