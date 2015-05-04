@@ -43,7 +43,7 @@ public class Wiki
 	protected final String domain;
 
 	/**
-	 * Our username & password: Tuple -&gt; (user, pass).
+	 * Our username &amp; password: Tuple -&gt; (user, pass).
 	 */
 	protected final Tuple<String, String> upx;
 
@@ -239,7 +239,7 @@ public class Wiki
 	}
 
 	/**
-	 * Creates a URLBuilder with a custom action & params. PRECONDITION: all <code>params</code> must be URLEncoded.
+	 * Creates a URLBuilder with a custom action &amp; params. PRECONDITION: all <code>params</code> must be URLEncoded.
 	 * 
 	 * @param action The custom action to use
 	 * @param params The params to use.

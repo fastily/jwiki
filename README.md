@@ -15,10 +15,11 @@ _NB_: This library is under active development so files/classes/functions may mo
 JSON support is provided by [JSON-java](https://github.com/douglascrockford/JSON-java).  This is bundled as a JAR archive at the top of the repository’s directory structure; use a newer version at your own discretion.
 
 ##Requirements
-* Minimum [JDK/JRE](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html) version: **8u25**
+* Minimum [JDK/JRE](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html) version: **8u40**
 * Officially supported for [MediaWiki](https://www.mediawiki.org/wiki/MediaWiki): **1.25+**
 
 ##Getting Started
+* [Quick Start Guide](https://github.com/fastily/jwiki/wiki/Quick-Start-Guide)
 * [Javadocs](http://fastily.github.io/jwiki/docs/jwiki/)
 * Main class: [Wiki.java](https://github.com/fastily/jwiki/blob/master/src/jwiki/core/Wiki.java)
 
@@ -26,7 +27,7 @@ JSON support is provided by [JSON-java](https://github.com/douglascrockford/JSON
 ```java
 import jwiki.core.Wiki;
 
-//Edit a page by replacing its text with text of your choosing.
+//Edit a Wikipedia page by replacing its text with text of your choosing.
 public class JwikiExample
 {
    public static void main(String[] args) throws Throwable
