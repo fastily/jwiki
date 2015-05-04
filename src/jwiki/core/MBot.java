@@ -125,6 +125,7 @@ public class MBot
 		 * Gets the title fields of the passed in MActions and returns them in a list.
 		 * 
 		 * @param actions The list to get titles from
+		 * @param <T> An object extending this class and implementing doJob()
 		 * @return The list of titles
 		 */
 		public static <T extends Task> ArrayList<String> toString(ArrayList<T> actions)
