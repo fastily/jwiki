@@ -70,7 +70,7 @@ public class WAction
 	{
 		ColorLog.info(wiki, "Editing " + title);
 		
-		int attempt = agressive ? 10 : 1;
+		int attempt = agressive ? 5 : 1;
 		for (int i = 0; i < attempt; i++)
 		{
 			if (agressive && i < 0)

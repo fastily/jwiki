@@ -1,64 +1,12 @@
-<?xml version="1.0"?>
-<project name="jwiki" default="main" basedir=".">
-
-	<property name="src.dir" location="src" />
-	<property name="build.dir" location="bin" />
-	<property name="dist.dir" location="../buildsjwiki" />
-	<property name="docs.dir" location="../jwikidocs" />
-
-	<!-- Deletes the existing build, docs and dist directory-->
-	<target name="clean">
-		<delete dir="${build.dir}" />
-		<delete dir="${docs.dir}" />
-	</target>
-
-	<!-- Creates the  build, docs and dist directory-->
-	<target name="makedir">
-		<mkdir dir="${build.dir}" />
-		<mkdir dir="${docs.dir}" />
-		<mkdir dir="${dist.dir}" />
-	</target>
-
-	<path id="build.classpath">
-		<fileset dir=".">
-			<include name="**/*.jar" />
-		</fileset>
-	</path>
-
-	<target name="compile" depends="clean, makedir">
-		<javac includeantruntime="false" srcdir="${src.dir}" destdir="${build.dir}" classpathref="build.classpath">
-			<exclude name="**/package-info.java" />
-		</javac>
-	</target>
-
-	<target name="jar" depends="compile">
-		<jar destfile="${dist.dir}\FLogin.jar" basedir="${build.dir}">
-			<zipgroupfileset dir="." includes="*.jar"/>
-
-			<manifest>
-				<attribute name="Main-Class" value="jwiki.util.FLogin" />
-			</manifest>
-		</jar>
-
-		<jar destfile="${dist.dir}\jwiki.jar" basedir="${build.dir}">
-			<zipgroupfileset dir="." includes="*.jar"/>
-			<fileset dir="${src.dir}">
-				<include name="**" />
-			</fileset>
-		</jar>
-	</target>
-
-	<target name="docs" depends="jar, compile">
-		<javadoc packagenames="src" sourcepath="${src.dir}" destdir="${docs.dir}" classpathref="build.classpath">
-			<link href="http://docs.oracle.com/javase/8/docs/api/" />
-			<link href="http://fastily.github.io/jwiki/docs/JSON-java/" />
-			<fileset dir="${src.dir}">
-				<include name="**" />
-			</fileset>
-		</javadoc>
-	</target>
-
-	<target name="main" depends="compile, jar, docs">
-		<description>Main target</description>
-	</target>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project default="createDist" name="Create Library Jar for Project libjwiki">
+    <target name="createDist">
+        <jar destfile="jwiki.jar" filesetmanifest="mergewithoutmain">
+        	<fileset file="LICENSE"/>
+        	<fileset file="README.md"/>
+            <fileset dir="src"/>
+            <fileset dir="bin"/>
+            <zipfileset excludes="META-INF/*.SF,README" src="lib/JSON-java.jar" />
+        </jar>
+    </target>
 </project>
