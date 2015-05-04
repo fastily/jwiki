@@ -258,6 +258,7 @@ public class Wiki
 	 * 
 	 * @param tasks The tasks to process
 	 * @param maxThreads The maximum number of threads to instantiate.
+	 * @param <T> An object implementing doJob() in MBot.Task
 	 * @return A list of tasks we couldn't execute.
 	 */
 	public <T extends MBot.Task> ArrayList<MBot.Task> submit(ArrayList<T> tasks, int maxThreads)
