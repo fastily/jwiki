@@ -1,8 +1,8 @@
 package jwiki.core;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.Map;
 
 import jwiki.util.FString;
@@ -105,7 +105,7 @@ public class QueryTools
 		if (limString != null)
 			ub.setParams(limString, "max");
 
-		LinkedList<String> atl = new LinkedList<>(titles);
+		ArrayDeque<String> atl = new ArrayDeque<>(titles);
 
 		while (!atl.isEmpty())
 		{
@@ -152,7 +152,7 @@ public class QueryTools
 	{
 		ArrayList<Reply> srl = new ArrayList<>();
 
-		LinkedList<String> l = new LinkedList<>(titles);
+		ArrayDeque<String> l = new ArrayDeque<>(titles);
 		while (!l.isEmpty())
 		{
 			ArrayList<String> t = new ArrayList<>();

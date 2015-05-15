@@ -45,7 +45,7 @@ public class Auth
 	{
 		ColorLog.info(wiki, "Fetching namespace list and csrf tokens");
 		Reply r = QueryTools.doSingleQuery(wiki, wiki.makeUB("query", "meta", URLBuilder.chainProps("siteinfo", "tokens"),
-				"siprop", "namespaces", "type", "csrf"));
+				"siprop", URLBuilder.chainProps("namespaces", "namespacealiases"), "type", "csrf"));
 		return (wiki.nsl = NS.NSManager.makeNSManager(r)) != null
 				&& (wiki.token = r.getStringR("csrftoken")) != null;
 	}

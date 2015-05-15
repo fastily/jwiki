@@ -127,7 +127,7 @@ public class NS
 	}
 	
 	/**
-	 * Determines if two namespaces are equal (i.e. the same namespace)
+	 * Determines if two namespaces are the same namespace
 	 */
 	public boolean equals(Object x)
 	{
@@ -178,6 +178,8 @@ public class NS
 		 */
 		protected static NSManager makeNSManager(Reply r)
 		{
+			//System.out.println(r.toString(2));
+			
 			NSManager m = new NSManager();
 			for (Reply x : r.bigJSONObjectGet("namespaces"))
 			{
@@ -190,6 +192,9 @@ public class NS
 
 			m.b.putAll(m.a.entrySet().stream().collect(Collectors.toMap(Map.Entry::getValue, Map.Entry::getKey)));
 
+			for(Reply ra : r.getJSONArrayListR("namespacealiases"))
+				m.a.put(ra.getString("*"), ra.getInt("id"));
+			
 			ArrayList<String> tlx = new ArrayList<>();
 			for (String s : m.a.keySet())
 				tlx.add(s.replace(" ", "(_| )"));
