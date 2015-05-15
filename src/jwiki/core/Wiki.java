@@ -519,7 +519,7 @@ public class Wiki
 		return cap > 0 ? QueryTools.limitedQueryForStrings(this, ub, "cmlimit", cap, "categorymembers", "title", null, null)
 				: QueryTools.queryForStrings(this, ub, "cmlimit", "categorymembers", "title", "cmtitle",
 						FString.toSAL(convertIfNotInNS(title, NS.CATEGORY)));
-	} // TODO: Why is cmtitle being set twice?
+	}
 
 	/**
 	 * Gets the categories a page is categorized in.
@@ -748,17 +748,17 @@ public class Wiki
 	 *           optional, use null or empty string to disable.
 	 * @param redirectsonly Set this to true to get redirects only.
 	 * @param cap The max number of titles to return. Specify -1 to get all pages.
-	 * @param ns The namespace identifier (e.g. "File").
+	 * @param ns The namespace to filter by.  Set null to disable
 	 * @return A list of titles on this Wiki
 	 */
-	public ArrayList<String> allPages(String prefix, boolean redirectsonly, int cap, String ns)
+	public ArrayList<String> allPages(String prefix, boolean redirectsonly, int cap, NS ns)
 	{
 		ColorLog.info(this, "Doing all pages fetch for " + prefix == null ? "all pages" : prefix);
 		URLBuilder ub = makeUB("query", "list", "allpages");
 		if (prefix != null)
 			ub.setParams("apprefix", FString.enc(prefix));
 		if (ns != null)
-			ub.setParams("apnamespace", "" + NS.USER.v); // TODO: What is going on here?
+			ub.setParams("apnamespace", "" + ns.v);
 		if (redirectsonly)
 			ub.setParams("apfilterredir", "redirects");
 
@@ -769,11 +769,11 @@ public class Wiki
 	/**
 	 * Does the same thing as Special:PrefixIndex.
 	 * 
-	 * @param namespace The namespace identifier, without the ':' (e.g. "File")
+	 * @param namespace The namespace to filter by (inclusive)
 	 * @param prefix Get all titles in the specified namespace, that start with this String.
 	 * @return The list of titles starting with the specified prefix
 	 */
-	public ArrayList<String> prefixIndex(String namespace, String prefix)
+	public ArrayList<String> prefixIndex(NS namespace, String prefix)
 	{
 		ColorLog.info(this, "Doing prefix index search for " + prefix);
 		return allPages(prefix, false, -1, namespace);

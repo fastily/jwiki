@@ -15,7 +15,7 @@ _NB_: This library is under active development so files/classes/functions may mo
 JSON support is provided by [JSON-java](https://github.com/douglascrockford/JSON-java).  This is bundled as a JAR archive at the top of the repository’s directory structure; use a newer version at your own discretion.
 
 ##Requirements
-* Minimum [JDK/JRE](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html) version: **8u40**
+* Minimum [JDK/JRE](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html) version: **8**
 * Officially supported for [MediaWiki](https://www.mediawiki.org/wiki/MediaWiki): **1.25+**
 
 ##Getting Started

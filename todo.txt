@@ -1,5 +1,6 @@
 * Commons [New] Image Auditor
-* RevDel & Image RevDel
+
+* RevDel & File RevDel
 * Log Fetching
 * Recent Changes
 * Search
@@ -8,10 +9,4 @@
 
 * Purge should take multiple params in WAction
 
-* I think ant build file is derped.
-
 * Need to fix my javadocs
-
-* There's a couple of todos in Wiki.java
-
-* Namespaces can have alisases!  e.g. Image -> File
