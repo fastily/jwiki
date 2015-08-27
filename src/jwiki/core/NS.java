@@ -178,8 +178,6 @@ public class NS
 		 */
 		protected static NSManager makeNSManager(Reply r)
 		{
-			//System.out.println(r.toString(2));
-			
 			NSManager m = new NSManager();
 			for (Reply x : r.bigJSONObjectGet("namespaces"))
 			{
