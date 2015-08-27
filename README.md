@@ -20,7 +20,7 @@ JSON support is provided by [JSON-java](https://github.com/douglascrockford/JSON
 
 ##Getting Started
 * [Quick Start Guide](https://github.com/fastily/jwiki/wiki/Quick-Start-Guide)
-* [Javadocs](http://fastily.github.io/jwiki/docs/jwiki/)
+* [Javadocs](https://fastily.github.io/jwiki/docs/jwiki/)
 * Main class: [Wiki.java](https://github.com/fastily/jwiki/blob/master/src/jwiki/core/Wiki.java)
 
 ####Sample Code
@@ -42,5 +42,5 @@ public class JwikiExample
 I designed jwiki with the following goals in mind:
 
 * **Simple** - _Anybody_ with a beginner's knowledge of Java shall be able to use this framework.  I avoid horrible things like complex custom objects and convoluted calls; this project isn't for showing off my Java skills - it's designed to save my users time and effort.
-* **Speed** - This framework shall emphasize performance.  Time is a precious resource so why spend it waiting for some dumb program to finish :)
+* **Speed** - This framework shall emphasize performance.  Time is precious so why spend it waiting for some dumb program to finish!
 * **Succinct** - Changes and queries shall be easy to perform.  I designed this framework so API calls can be constructed with one line of code consisting of simple objects and primitive types.

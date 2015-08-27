@@ -161,7 +161,7 @@ public class Wiki
 
 	/**
 	 * Takes a Namespace prefix and gets a NS representation of it. PRECONDITION: the prefix must be a valid namespace
-	 * prefix. WARNING: This method is CASE-SENSITIVE, so be sure to spell and capitalize the prefix <ins>exactly</ins>
+	 * prefix. WARNING: This method is CASE-SENSITIVE, so be sure to spell and capitalize the prefix <b>exactly</b>
 	 * as it would appear on-wiki.
 	 * 
 	 * @param prefix The prefix to use, without the ":".
