@@ -18,7 +18,7 @@ import jwiki.dwrap.ImageInfo;
  * @author Fastily
  *
  */
-public class WTask
+public final class WTask
 {
 
 	/**

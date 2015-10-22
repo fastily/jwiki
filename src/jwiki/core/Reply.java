@@ -17,7 +17,7 @@ import org.json.JSONObject;
  * @author Fastily
  *
  */
-public class Reply extends JSONObject
+public final class Reply extends JSONObject
 {
 
 	/**

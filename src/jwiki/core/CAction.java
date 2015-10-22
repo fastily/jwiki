@@ -13,7 +13,7 @@ import jwiki.util.FError;
  * @author Fastily
  * 
  */
-public class CAction
+public final class CAction
 {
 
 	/**

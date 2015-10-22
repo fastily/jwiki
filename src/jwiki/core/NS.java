@@ -16,7 +16,7 @@ import jwiki.util.FString;
  * @author Fastily
  *
  */
-public class NS
+public final class NS
 {
 	/**
 	 * Main namespace

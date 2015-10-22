@@ -14,7 +14,7 @@ import jwiki.util.FString;
  * @author Fastily
  * 
  */
-public class URLBuilder
+public final class URLBuilder
 {
 	/**
 	 * The base of the URL, constructed with the domain.

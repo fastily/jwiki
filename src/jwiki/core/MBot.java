@@ -11,10 +11,10 @@ import java.util.stream.Collectors;
  * 
  * @author Fastily
  */
-public class MBot
+public final class MBot
 {
 	/**
-	 * The resident wiki object
+	 * The internal wiki object
 	 */
 	private final Wiki wiki;
 
@@ -33,6 +33,7 @@ public class MBot
 	 * 
 	 * @param ml The Tasks to process
 	 * @param num The maximum number of threads to instantiate
+	 * @param <T> The user-implemented class (i.e. a task) extending Task
 	 * @return A list of Tasks we were unable to process.
 	 */
 	protected <T extends Task> ArrayList<Task> submit(ArrayList<T> ml, int num)

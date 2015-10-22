@@ -14,7 +14,7 @@ import jwiki.util.Tuple;
  * @author Fastily
  * @see Wiki
  */
-public class MQuery
+public final class MQuery
 {
 	/**
 	 * Constructors disallowed

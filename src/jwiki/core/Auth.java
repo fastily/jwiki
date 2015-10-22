@@ -9,7 +9,7 @@ import java.net.URI;
  * @author Fastily
  *
  */
-public class Auth
+public final class Auth
 {
 	/**
 	 * No constructors allowed; all static methods.

@@ -20,7 +20,7 @@ import java.util.zip.GZIPInputStream;
  * @author Fastily
  * 
  */
-public class Req
+public final class Req
 {
 	/**
 	 * Connection timeout for URLConnections

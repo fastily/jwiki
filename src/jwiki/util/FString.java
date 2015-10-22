@@ -16,7 +16,7 @@ import org.json.JSONArray;
  * @author Fastily
  * 
  */
-public class FString
+public final class FString
 {
 
 	/**

@@ -19,7 +19,7 @@ import jwiki.util.FString;
  * @author Fastily
  * 
  */
-public class WAction
+public final class WAction
 {
 	/**
 	 * The size of upload chunks. Default = 4Mb

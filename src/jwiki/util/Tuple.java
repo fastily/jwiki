@@ -35,12 +35,10 @@ public class Tuple<K, V>
 	
 	/**
 	 * Gets a String representation of this object. Nice for debugging.
-	 * 
-	 * @return A String representation of this object.
 	 */
 	public String toString()
 	{
-		return String.format("(%s, %s)", x.toString(), y.toString());
+		return String.format("(< %s, %s >", x, y);
 	}
 	
 	/**
@@ -49,6 +47,18 @@ public class Tuple<K, V>
 	public int hashCode()
 	{
 		return x.hashCode() ^ y.hashCode();
+	}
+	
+	/**
+	 * Determines if
+	 */
+	public boolean equals(Object o)
+	{
+		if(!(o instanceof Tuple))
+			return false;
+		
+		Tuple<?, ?> temp = (Tuple<?, ?>) o;
+		return x.equals(temp.x) && y.equals(temp.y);
 	}
 	
 }

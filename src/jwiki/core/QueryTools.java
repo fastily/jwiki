@@ -3,7 +3,7 @@ package jwiki.core;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
+import java.util.stream.Collectors;
 
 import jwiki.util.FString;
 import jwiki.util.Tuple;
@@ -20,7 +20,7 @@ import org.json.JSONObject;
  * @author Fastily
  *
  */
-public class QueryTools
+public final class QueryTools
 {
 	/**
 	 * The maximum list query size for users.
@@ -70,7 +70,7 @@ public class QueryTools
 	 * @param ub The URLBuilder to use.
 	 * @return The reply from the server or null if something went wrong.
 	 */
-	public static Reply doSingleQuery(Wiki wiki, URLBuilder ub)
+	protected static Reply doSingleQuery(Wiki wiki, URLBuilder ub)
 	{
 		try
 		{
@@ -96,7 +96,7 @@ public class QueryTools
 	 * @param titles The list of titles to send to the server. PRECONDITION: These should not be URL-encoded.
 	 * @return The replies from the server.
 	 */
-	public static ArrayList<Reply> doMultiQuery(Wiki wiki, URLBuilder ub, String limString, String tkey,
+	protected static ArrayList<Reply> doMultiQuery(Wiki wiki, URLBuilder ub, String limString, String tkey,
 			ArrayList<String> titles)
 	{
 		ArrayList<Reply> l = new ArrayList<>();
@@ -128,7 +128,7 @@ public class QueryTools
 	 * @param ub The URLBuilder to use
 	 * @return The replies from the server.
 	 */
-	public static ArrayList<Reply> doNoTitleMultiQuery(Wiki wiki, URLBuilder ub)
+	protected static ArrayList<Reply> doNoTitleMultiQuery(Wiki wiki, URLBuilder ub)
 	{
 		ArrayList<Reply> l = new ArrayList<>();
 		ub.setParams("continue", ""); // MW 1.21+
@@ -148,7 +148,7 @@ public class QueryTools
 	 * @param titles The titles to query.
 	 * @return The replies from the server.
 	 */
-	public static ArrayList<Reply> doGroupQuery(Wiki wiki, URLBuilder ub, String tkey, ArrayList<String> titles)
+	protected static ArrayList<Reply> doGroupQuery(Wiki wiki, URLBuilder ub, String tkey, ArrayList<String> titles)
 	{
 		ArrayList<Reply> srl = new ArrayList<>();
 
@@ -183,7 +183,7 @@ public class QueryTools
 	 * @param title The titles to query. Optional param - used by tkey. Also set this to null if you disabled tkey.
 	 * @return A list of ServerReplies we collected.
 	 */
-	public static ArrayList<Reply> doLimitedQuery(Wiki wiki, URLBuilder ub, String limString, int cap, String tkey,
+	protected static ArrayList<Reply> doLimitedQuery(Wiki wiki, URLBuilder ub, String limString, int cap, String tkey,
 			String title)
 	{
 		if (tkey != null)
@@ -217,14 +217,14 @@ public class QueryTools
 
 	/**
 	 * Identifies the <code>continue</code> JSONObject in a Reply and applies it to a URLBuilder. PRECONDITION: there
-	 * MUST be a <code>continue</code> obejct in <code>r</code>; this method does not explicitly test for MediaWiki errors or for
-	 * the presence of a <code>continue</code> object.a
+	 * MUST be a <code>continue</code> object in <code>r</code>; this method does not explicitly test for MediaWiki errors or for
+	 * the presence of a <code>continue</code> object.
 	 * 
 	 * @param ub The URLBuilder to apply the continue params to
 	 * @param r The Reply from the most recent, previous request to the server created by <code>ub</code>.
 	 * @return True if we encountered no errors.
 	 */
-	public static boolean applyContinue(URLBuilder ub, Reply r)
+	protected static boolean applyContinue(URLBuilder ub, Reply r)
 	{
 		try
 		{
@@ -299,7 +299,7 @@ public class QueryTools
 	 * @param title The key to look for
 	 * @param l The list to add or merge.
 	 */
-	private static <T> void mapListMerge(HashMap<String, ArrayList<T>> hl, String title, ArrayList<T> l)
+	private static <T1> void mapListMerge(HashMap<String, ArrayList<T1>> hl, String title, ArrayList<T1> l)
 	{
 		if (!hl.containsKey(title))
 			hl.put(title, l);
@@ -308,18 +308,16 @@ public class QueryTools
 	}
 
 	/**
-	 * Converts a HashMap into an ArrayList of Tuple <String, Generics List>.
+	 * Dumps contents of HashMap<String, ArrayList<T>> into an ArrayList of Tuple<String, ArrayList<T>>.
 	 * 
-	 * @param hl The HashMap to use
-	 * @return An ArrayList of Tuple <String, Generics List>.
+	 * @param hl The HashMap<String, ArrayList<T>> to use
+	 * @return An ArrayList of Tuple <String, ArrayList<T>>.
 	 */
-	private static <T> ArrayList<Tuple<String, ArrayList<T>>> mapToList(HashMap<String, ArrayList<T>> hl)
+	private static <T1> ArrayList<Tuple<String, ArrayList<T1>>> mapToList(HashMap<String, ArrayList<T1>> hl)
 	{
-		ArrayList<Tuple<String, ArrayList<T>>> l = new ArrayList<>();
-		for (Map.Entry<String, ArrayList<T>> e : hl.entrySet())
-			l.add(new Tuple<String, ArrayList<T>>(e.getKey(), e.getValue()));
-
-		return l;
+		return hl.entrySet().stream()
+				.map(x -> new Tuple<String, ArrayList<T1>>(x.getKey(), x.getValue()))
+				.collect(Collectors.toCollection(ArrayList::new));
 	}
 
 	/* //////////////////////////////////////////////////////////////////////////////// */
