@@ -8,7 +8,7 @@ import jwiki.core.ColorLog;
  * @author Fastily
  *
  */
-public class FError
+public final class FError
 {
 	/**
 	 * Hide from javadoc

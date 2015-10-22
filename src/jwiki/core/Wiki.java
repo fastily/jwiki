@@ -258,10 +258,10 @@ public class Wiki
 	 * 
 	 * @param tasks The tasks to process
 	 * @param maxThreads The maximum number of threads to instantiate.
-	 * @param <T> An object implementing doJob() in MBot.Task
+	 * @param <T1> An object implementing doJob() in MBot.Task
 	 * @return A list of tasks we couldn't execute.
 	 */
-	public <T extends MBot.Task> ArrayList<MBot.Task> submit(ArrayList<T> tasks, int maxThreads)
+	public <T1 extends MBot.Task> ArrayList<MBot.Task> submit(ArrayList<T1> tasks, int maxThreads)
 	{
 		return mbot.submit(tasks, maxThreads);
 	}
@@ -471,7 +471,7 @@ public class Wiki
 	{
 		return getRevisions(title, -1, false);
 	}
-
+	
 	/**
 	 * Gets the number of elements contained in a category.
 	 * 
@@ -583,7 +583,7 @@ public class Wiki
 
 		ArrayList<Contrib> l = new ArrayList<>();
 		for (Reply r : cap > -1 ? QueryTools.doLimitedQuery(this, ub, "uclimit", cap, "ucuser", user) : QueryTools
-				.doMultiQuery(this, ub, "uclimit", "cuser", FString.toSAL(user)))
+				.doMultiQuery(this, ub, "uclimit", "ucuser", FString.toSAL(user)))
 			for (Reply x : r.getJSONArrayListR("usercontribs"))
 				l.add(new Contrib(x));
 		return l;

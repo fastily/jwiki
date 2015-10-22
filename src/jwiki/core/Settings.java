@@ -6,7 +6,7 @@ package jwiki.core;
  * @author Fastily
  *
  */
-public class Settings
+public final class Settings
 {
 	/**
 	 * Indicates whether we are in debug mode or not.

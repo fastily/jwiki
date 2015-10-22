@@ -2,10 +2,11 @@
 <project default="createDist" name="Create Library Jar for Project libjwiki">
     <target name="createDist">
         <jar destfile="jwiki.jar" filesetmanifest="mergewithoutmain">
-        	<fileset file="LICENSE"/>
+        	<fileset file="LICENSE.md"/>
         	<fileset file="README.md"/>
-            <fileset dir="src"/>
-            <fileset dir="bin"/>
+        	<filesfet file="todo.md"/>
+            <fileset dir="src" excludes="**/test/*" />
+            <fileset dir="bin" excludes="**/test/*" />
             <zipfileset excludes="META-INF/*.SF,README" src="lib/JSON-java.jar" />
         </jar>
     </target>
