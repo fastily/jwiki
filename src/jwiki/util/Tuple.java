@@ -15,12 +15,12 @@ public class Tuple<K, V>
 	 * The x value of the tuple
 	 */
 	public final K x;
-	
+
 	/**
 	 * The y value of the tuple
 	 */
 	public final V y;
-	
+
 	/**
 	 * Creates a Tuple from the parameter values.
 	 * 
@@ -32,7 +32,7 @@ public class Tuple<K, V>
 		this.x = x;
 		this.y = y;
 	}
-	
+
 	/**
 	 * Gets a String representation of this object. Nice for debugging.
 	 */
@@ -40,25 +40,24 @@ public class Tuple<K, V>
 	{
 		return String.format("(< %s, %s >", x, y);
 	}
-	
+
 	/**
-	 * Gets a hashcode for this object.  Good for mapping constructs. 
+	 * Gets a hashcode for this object. Good for mapping constructs.
 	 */
 	public int hashCode()
 	{
 		return x.hashCode() ^ y.hashCode();
 	}
-	
+
 	/**
-	 * Determines if
+	 * Determines if two tuples are equal. Equal tuples have the same two elements in the same order.
 	 */
 	public boolean equals(Object o)
 	{
-		if(!(o instanceof Tuple))
+		if (!(o instanceof Tuple))
 			return false;
-		
+
 		Tuple<?, ?> temp = (Tuple<?, ?>) o;
 		return x.equals(temp.x) && y.equals(temp.y);
 	}
-	
 }

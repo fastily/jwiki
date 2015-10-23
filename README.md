@@ -2,7 +2,7 @@ JWIKI
 =========
 jwiki is a [MediaWiki](https://www.mediawiki.org/wiki/MediaWiki) API client-side library.  It is intended to be used by developers to build bots/tools and/or perform analytics on a Wiki.  jwiki is under active development so files, classes, or functions may move, change, or disappear without warning.
 
-If you'd like to use jwiki, I highly recommend you download a build from the builds tab, as that code is tested, stable, and configured to integrate, hassle-free, with most IDEs.  However, if you prefer to be on the bleeding edge, you may download and compile the latest source code.
+If you'd like to use jwiki, I *strongly* recommend that you download the latest [release](https://github.com/fastily/jwiki/releases), as that code is tested, stable, and configured (hassle-free) to integrate with most IDEs.  However, if you prefer to be on the bleeding edge, you may download and compile the latest source code.
 
 ##Features
 * Edit and delete pages, upload files (via the chunked upload protocol)
@@ -38,7 +38,7 @@ public class JwikiExample
 ```
 
 ##Project Objectives
-My objective is to create a simple, reliable, efficient, and low-overhead framework for anybody seeking to make use of the [MediaWiki API](https://www.mediawiki.org/wiki/API:Main_page).  I believe that the following design principles are of the utmost importance:
+My objective is to create an efficient, simple, reliable, low-overhead framework for anybody seeking to make use of the [MediaWiki API](https://www.mediawiki.org/wiki/API:Main_page).  Therefore, the following design principles are of the utmost importance for this project:
 
 * **Simple** - _Anybody_ (with even a beginner's knowledge of Java) shall be able to use this framework with ease.  I abstract complex objects and functions into the background so my users won't be bothered by them.
 * **Speed** - This framework emphasizes performance.  Time is precious so why spend it waiting for some dumb program to finish!

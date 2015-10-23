@@ -221,7 +221,8 @@ public class WikiGen
 	}
 
 	/**
-	 * Try to create a WikiGen object.  If you have not run WikiGen yet, then <code>wg</code> will be set to null.
+	 * Try to create a WikiGen object. If you have not run WikiGen yet, then <code>wg</code> will be set to null.
+	 * 
 	 * @return A default WikiGen object.
 	 */
 	private static WikiGen initWG()

@@ -4,9 +4,9 @@
         <jar destfile="jwiki.jar" filesetmanifest="mergewithoutmain">
         	<fileset file="LICENSE.md"/>
         	<fileset file="README.md"/>
-        	<filesfet file="todo.md"/>
-            <fileset dir="src" excludes="**/test/*" />
-            <fileset dir="bin" excludes="**/test/*" />
+        	<fileset file="todo.md"/>
+            <fileset dir="src" excludes="jwiki/test/" />
+            <fileset dir="bin" excludes="jwiki/test/" />
             <zipfileset excludes="META-INF/*.SF,README" src="lib/JSON-java.jar" />
         </jar>
     </target>
