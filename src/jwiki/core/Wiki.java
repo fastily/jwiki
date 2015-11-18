@@ -247,8 +247,7 @@ public class Wiki
 	 */
 	protected URLBuilder makeUB(String action, String... params)
 	{
-		URLBuilder ub = new URLBuilder(domain);
-		ub.setAction(action);
+		URLBuilder ub = new URLBuilder(domain, action);
 		ub.setParams(params);
 		return ub;
 	}

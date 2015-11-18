@@ -1,17 +1,16 @@
-JWIKI
-=========
-jwiki is a [MediaWiki](https://www.mediawiki.org/wiki/MediaWiki) API client-side library.  It is intended to be used by developers to build bots/tools and/or perform analytics on a Wiki.  jwiki is under active development so files, classes, or functions may move, change, or disappear without warning.
+#JWIKI
+jwiki is a Java client framework wrapping the [MediaWiki](https://www.mediawiki.org/wiki/MediaWiki) API.  It can be used by developers to create bots/tools, or perform analytics on any Wiki with API access.
 
-If you'd like to use jwiki, I *strongly* recommend that you download the latest [release](https://github.com/fastily/jwiki/releases), as that code is tested, stable, and configured (hassle-free) to integrate with most IDEs.  However, if you prefer to be on the bleeding edge, you may download and compile the latest source code.
+I strongly recommend that you download the latest [release](https://github.com/fastily/jwiki/releases), as that code is tested, stable, and pre-configured to integrate with most IDEs.  Of course, if you prefer the bleeding edge, feel free to build from the latest source code.
 
 ##Features
-* Edit and delete pages, upload files (via the chunked upload protocol)
+* Edit pages, delete pages, upload files (using chunked uploads)
 * Query special pages, get category members, get links on a page, get template transclusions
 * Supported MediaWiki extensions include [CentralAuth](https://www.mediawiki.org/wiki/Extension:CentralAuth) and [GlobalUsage](https://www.mediawiki.org/wiki/Extension:GlobalUsage).
-* A versatile, extensible multi-threaded bot framework to quickly perform changes or analytics.
+* A versatile, extensible, asynchronous bot framework to quickly perform changes or analytics.
 
 ##Dependencies
-JSON support is provided by [JSON-java](https://github.com/douglascrockford/JSON-java).  This is bundled as a JAR archive at the top of the repository’s directory structure; use a newer version at your own risk.
+JSON parsing provided by [JSON-java](https://github.com/douglascrockford/JSON-java).  It is bundled as a JAR in the lib/ folder; use a newer version at your own risk.
 
 ##Requirements
 * Minimum [JDK/JRE](https://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html) version: **8**
@@ -22,7 +21,7 @@ JSON support is provided by [JSON-java](https://github.com/douglascrockford/JSON
 * [Javadocs](https://fastily.github.io/jwiki/docs/jwiki/)
 * Main class: [Wiki.java](https://github.com/fastily/jwiki/blob/master/src/jwiki/core/Wiki.java)
 
-####Sample Code
+####Example Code
 ```java
 import jwiki.core.Wiki;
 
@@ -38,8 +37,8 @@ public class JwikiExample
 ```
 
 ##Project Objectives
-My objective is to create an efficient, simple, reliable, low-overhead framework for anybody seeking to make use of the [MediaWiki API](https://www.mediawiki.org/wiki/API:Main_page).  Therefore, the following design principles are of the utmost importance for this project:
+My goal is to create a simple, reliable, and low-overhead framework for anybody seeking to make use of the MediaWiki API.  I will be focusing on:
 
-* **Simple** - _Anybody_ (with even a beginner's knowledge of Java) shall be able to use this framework with ease.  I abstract complex objects and functions into the background so my users won't be bothered by them.
-* **Speed** - This framework emphasizes performance.  Time is precious so why spend it waiting for some dumb program to finish!
-* **Succinct** - Changes and queries shall be easy to perform.  I designed this framework so API calls can be constructed with one line of code consisting of simple objects and primitive types.
+* **Simplicity** - Complex objects and functions are abstracted into the background so that _anybody_ (regardless of Java experience) will be able to use this framework.
+* **Speed** - Network calls, local computation, and memory usage are optimized and kept to a minimum, so as to enhance performance and reduce overhead.
+* **Succinctness** - Most complex API actions can be performed in jwiki using one line of local code consisting of simple objects and primitive types.
