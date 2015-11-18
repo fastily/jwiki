@@ -54,7 +54,7 @@ public final class FString
 	}
 
 	/**
-	 * Encode the UTF-8 String into a format valid for URLs.
+	 * Encodes a UTF-8 String into a format valid for URLs.
 	 * 
 	 * @param s The String to encode
 	 * @return The encoded String

@@ -4,7 +4,7 @@ import java.net.HttpCookie;
 import java.net.URI;
 
 /**
- * Perform wiki authentication and initialization tasks.
+ * Perform wiki authentication and initialization tasks for a Wiki.
  * 
  * @author Fastily
  *
@@ -12,7 +12,7 @@ import java.net.URI;
 public final class Auth
 {
 	/**
-	 * No constructors allowed; all static methods.
+	 * No constructors allowed.
 	 */
 	private Auth()
 	{
@@ -20,10 +20,10 @@ public final class Auth
 	}
 
 	/**
-	 * Logs us in, and sets the cookies of the passed in Wiki object.
+	 * Attempts to perform login for a Wiki.  Sets cookies if successful.
 	 * 
 	 * @param wiki The wiki object to use.
-	 * @return True if we were successful.
+	 * @return True on success.
 	 */
 	private static boolean login(Wiki wiki)
 	{
@@ -36,10 +36,10 @@ public final class Auth
 	}
 
 	/**
-	 * Gets namespace list and edit token of a wiki.
+	 * Fetches namespace list and edit token for a wiki. Sets edit token and namespace handler if successful.
 	 * 
 	 * @param wiki The wiki object to use
-	 * @return True if we successful queried and saved the namespace list and edit token.
+	 * @return True on success.
 	 */
 	private static boolean doSetup(Wiki wiki)
 	{
@@ -53,10 +53,10 @@ public final class Auth
 	/**
 	 * Performs authentication and initialization.
 	 * 
-	 * @param wiki The wiki object to perform auth & init tasks on.
+	 * @param wiki The wiki object to use
 	 * @param newLogin Set to true if this is the first time we're logging in. Only necessary if we don't already have
 	 *           centralauth cookies. If your wiki is not using the CentralAuth extension, set this to true.
-	 * @return True if we were successful.
+	 * @return True on success.
 	 */
 	protected static boolean doAuth(Wiki wiki, boolean newLogin)
 	{
@@ -74,9 +74,9 @@ public final class Auth
 		try
 		{
 			String cn;
-			for (HttpCookie hc : wiki.cookiejar.getCookieStore().get(new URI(Settings.compro + wiki.domain)))
+			for (HttpCookie hc : wiki.cookiejar.getCookieStore().get(new URI(Settings.comPro + wiki.domain)))
 				if ((cn = hc.getName()).contains("centralauth"))
-					wiki.cookiejar.getCookieStore().add(new URI(Settings.compro + domain), new HttpCookie(cn, hc.getValue()));
+					wiki.cookiejar.getCookieStore().add(new URI(Settings.comPro + domain), new HttpCookie(cn, hc.getValue()));
 		}
 		catch (Throwable e)
 		{

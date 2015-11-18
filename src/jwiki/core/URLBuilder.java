@@ -22,11 +22,6 @@ public final class URLBuilder
 	private String base;
 
 	/**
-	 * The action to use. e.g. query, delete, edit.
-	 */
-	private String action;
-
-	/**
 	 * The parameter list to append to the URL.
 	 */
 	private HashMap<String, String> pl = new HashMap<>();
@@ -34,22 +29,12 @@ public final class URLBuilder
 	/**
 	 * Constructor, takes the domain name we'll be working with.
 	 * 
-	 * @param domain The domain name to use, in shorthand (e.g. 'commons.wikimedia.org')
+	 * @param domain The domain name to use, in shorthand (e.g. 'commons.wikimedia.org').
+	 * @param action Sets the action param to use in the final URL. (e.g. query, edit, delete)
 	 */
-	protected URLBuilder(String domain)
-	{
-		if (domain != null && !domain.isEmpty())
-			base = String.format(Settings.compro + "%s/w/api.php?format=json&action=", domain);
-	}
-
-	/**
-	 * Sets the action to use. (e.g. query, edit, delete)
-	 * 
-	 * @param action The action to use.
-	 */
-	protected void setAction(String action)
-	{
-		this.action = action;
+	protected URLBuilder(String domain, String action)
+	{	
+		base = Settings.comPro + domain + "/w/api.php?format=json&action=" + action;
 	}
 
 	/**
@@ -84,7 +69,7 @@ public final class URLBuilder
 				hold.add(e.getValue());
 			}
 
-			return new URL(base + action + chainParams(hold.toArray(new String[0])));
+			return new URL(base + chainParams(hold.toArray(new String[0])));
 		}
 		catch (Throwable e)
 		{
