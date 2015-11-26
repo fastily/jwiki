@@ -17,8 +17,7 @@ import jwiki.util.FString;
 import jwiki.util.Tuple;
 
 /**
- * Basic tests (non-admin) for jwiki's Wiki.java. As a caveat, this simply serves as a crude sanity check for me when I
- * modify the jwiki core, and is by no means comprehensive.
+ * Basic tests (non-admin) for jwiki's Wiki.java. As a caveat: this is by no means comprehensive.
  * 
  * @author Fastily
  *
@@ -36,8 +35,8 @@ public class BasicTests
 	@Test
 	public void testBasicNSHandling()
 	{
-		assertEquals(wiki.getNS("Main"), NS.MAIN);
-		assertEquals(wiki.whichNS("User:TestUser"), NS.USER);
+		assertEquals(NS.MAIN, wiki.getNS("Main"));
+		assertEquals(NS.USER, wiki.whichNS("User:TestUser"));
 		assertEquals("ABC.jpg", wiki.nss("File:ABC.jpg"));
 
 		assertEquals("File:ABC.jpg", wiki.convertIfNotInNS("ABC.jpg", NS.FILE));
@@ -54,7 +53,7 @@ public class BasicTests
 		ArrayList<String> expected = FString.toSAL("User:Fastily/Sandbox/Page/1", "User:Fastily/Sandbox/Page/2",
 				"User:Fastily/Sandbox/Page/3");
 
-		assertEquals(result.size(), 3);
+		assertEquals(3, result.size());
 		assertTrue(result.containsAll(expected));
 	}
 
@@ -68,7 +67,7 @@ public class BasicTests
 		ArrayList<String> expected = FString.toSAL("User:Fastily/Sandbox/Page/1", "User:Fastily/Sandbox/Page/2",
 				"User:Fastily/Sandbox/Page/3");
 
-		assertEquals(result.size(), 3);
+		assertEquals(3, result.size());
 		assertTrue(result.containsAll(expected));
 	}
 
@@ -81,7 +80,7 @@ public class BasicTests
 		ArrayList<String> result = wiki.allPages("Fastily/Sandbox/Redirect", true, -1, NS.USER);
 		ArrayList<String> expected = FString.toSAL("User:Fastily/Sandbox/Redirect1", "User:Fastily/Sandbox/Redirect2");
 
-		assertEquals(result.size(), 2);
+		assertEquals(2, result.size());
 		assertTrue(result.containsAll(expected));
 
 		assertFalse(result.contains("User:Fastily/Sandbox/Redirect3")); // Redirect3 isn't actually a redirect
@@ -108,7 +107,7 @@ public class BasicTests
 		ArrayList<String> result = wiki.fileUsage("File:FastilyTest.svg");
 		ArrayList<String> expected = FString.toSAL("User:Fastily/Sandbox/ImageLinks", "User:Fastily/Sandbox/Page");
 
-		assertEquals(result.size(), 2);
+		assertEquals(2, result.size());
 		assertTrue(result.containsAll(expected));
 	}
 
@@ -124,14 +123,14 @@ public class BasicTests
 		// test 1
 		ArrayList<String> result = wiki.filterByNS(l, NS.USER);
 
-		assertEquals(result.size(), 2);
+		assertEquals(2, result.size());
 		assertTrue(result.contains("User:Fastily"));
 		assertTrue(result.contains("User:Fastily/Sandbox"));
 
 		// test 2
 		result = wiki.filterByNS(l, NS.TEMPLATE);
 
-		assertEquals(result.size(), 1);
+		assertEquals(1, result.size());
 		assertTrue(result.contains("Template:Tester"));
 	}
 
@@ -144,7 +143,7 @@ public class BasicTests
 		ArrayList<String> result = wiki.getCategoriesOnPage("User:Fastily/Sandbox/Page/2");
 		ArrayList<String> expected = FString.toSAL("Category:Fastily Test", "Category:Fastily Test2");
 
-		assertEquals(result.size(), 2);
+		assertEquals(2, result.size());
 		assertTrue(result.containsAll(expected));
 	}
 
@@ -157,7 +156,7 @@ public class BasicTests
 		ArrayList<String> result = wiki.getCategoryMembers("Fastily Test2");
 		ArrayList<String> expected = FString.toSAL("User:Fastily/Sandbox/Page/2", "File:FastilyTest.png");
 
-		assertEquals(result.size(), 2);
+		assertEquals(2, result.size());
 		assertTrue(result.containsAll(expected));
 	}
 
@@ -169,7 +168,7 @@ public class BasicTests
 	{
 		ArrayList<String> result = wiki.getCategoryMembers("Fastily Test2", NS.FILE);
 
-		assertEquals(result.size(), 1);
+		assertEquals(1, result.size());
 		assertTrue(result.contains("File:FastilyTest.png"));
 	}
 
@@ -183,7 +182,7 @@ public class BasicTests
 		ArrayList<String> possible = FString.toSAL("User:Fastily/Sandbox/Page/1", "User:Fastily/Sandbox/Page/2",
 				"User:Fastily/Sandbox/Page/3");
 
-		assertEquals(result.size(), 2);
+		assertEquals(2, result.size());
 		assertTrue(possible.containsAll(result));
 	}
 
@@ -193,8 +192,8 @@ public class BasicTests
 	@Test
 	public void testGetCategorySize()
 	{
-		assertEquals(wiki.getCategorySize("Category:Fastily Test"), 4);
-		assertEquals(wiki.getCategorySize("Category:Fastily Test2"), 2);
+		assertEquals(4, wiki.getCategorySize("Category:Fastily Test"));
+		assertEquals(2, wiki.getCategorySize("Category:Fastily Test2"));
 	}
 
 	/**
@@ -206,15 +205,15 @@ public class BasicTests
 		// Test 1
 		ArrayList<Contrib> result = wiki.getContribs("FastilyClone", NS.FILE);
 
-		assertEquals(result.get(0).title, "File:FCTest2.svg"); // descending
-		assertEquals(result.get(1).title, "File:FCTest1.png");
+		assertEquals("File:FCTest2.svg", result.get(0).title); // descending
+		assertEquals("File:FCTest1.png", result.get(1).title);
 
-		assertEquals(result.get(0).timestamp, Instant.parse("2015-10-20T00:28:54Z"));
-		assertEquals(result.get(1).timestamp, Instant.parse("2015-10-20T00:28:32Z"));
+		assertEquals(Instant.parse("2015-10-20T00:28:54Z"), result.get(0).timestamp);
+		assertEquals(Instant.parse("2015-10-20T00:28:32Z"), result.get(1).timestamp);
 
 		// Test 2
 		result = wiki.getContribs("FastilyClone", 1, true, NS.FILE);
-		assertEquals(result.get(0).title, "File:FCTest1.png");
+		assertEquals("File:FCTest1.png", result.get(0).title);
 	}
 
 	/**
@@ -225,8 +224,8 @@ public class BasicTests
 	{
 		ArrayList<String> result = wiki.getDuplicatesOf("File:FastilyTest.svg", true);
 
-		assertEquals(result.size(), 1);
-		assertEquals(result.get(0), "FastilyTestCopy.svg");
+		assertEquals(1, result.size());
+		assertEquals("FastilyTestCopy.svg", result.get(0));
 	}
 
 	/**
@@ -237,23 +236,23 @@ public class BasicTests
 	{
 		// Test 1
 		ImageInfo result = wiki.getImageInfo("File:FastilyTestR.svg");
-		assertEquals(result.dimensions, new Tuple<>(512, 477));
-		assertEquals(result.redirectsTo, "File:FastilyTest.svg");
-		assertEquals(result.size, 876);
-		assertEquals(result.title, "File:FastilyTestR.svg");
+		assertEquals(new Tuple<>(512, 477), result.dimensions);
+		assertEquals("File:FastilyTest.svg", result.redirectsTo);
+		assertEquals(876, result.size);
+		assertEquals("File:FastilyTestR.svg", result.title);
 		assertNull(result.thumbdimensions);
 
 		// Test 2
 		result = wiki.getImageInfo("File:FastilyTest.svg");
-		assertEquals(result.dimensions, new Tuple<>(512, 477));
-		assertEquals(result.size, 876);
-		assertEquals(result.title, "File:FastilyTest.svg");
-		assertEquals(result.url, "https://upload.wikimedia.org/wikipedia/test/f/f7/FastilyTest.svg");
+		assertEquals(new Tuple<>(512, 477), result.dimensions);
+		assertEquals(876, result.size);
+		assertEquals("File:FastilyTest.svg", result.title);
+		assertEquals("https://upload.wikimedia.org/wikipedia/test/f/f7/FastilyTest.svg", result.url);
 		assertNull(result.thumbdimensions);
 
 		// Test 3
 		result = wiki.getImageInfo("File:FastilyTest.svg", 250, 250);
-		assertEquals(result.thumbdimensions, new Tuple<>(250, 233));
+		assertEquals(new Tuple<>(250, 233), result.thumbdimensions);
 	}
 
 	/**
@@ -354,4 +353,36 @@ public class BasicTests
 		assertEquals(2, result.size());
 		assertTrue(result.containsAll(expected));
 	}
+
+	/**
+	 * Tests global usage. This does nothing at the moment, because gu isn't testable using testwiki. Might be doable if
+	 * we get a test-commons
+	 */
+	@Test
+	public void testGlobalUsage()
+	{
+		// nothing for now
+	}
+
+	/**
+	 * Test for listing duplicate files. Basically does the same thing as the special page by the same name. This does
+	 * nothing because the results returned by the server are variable
+	 */
+	@Test
+	public void testListDuplicateFiles()
+	{
+		// nothing for now
+	}
+
+	/**
+	 * Tests user list group rights.
+	 */
+	@Test
+	public void testListGroupRights()
+	{
+		ArrayList<String> l = wiki.listGroupsRights("Fastily");
+		assertTrue(l.contains("sysop"));
+		assertTrue(l.contains("autoconfirmed"));
+	}
+
 }

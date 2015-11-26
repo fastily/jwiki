@@ -140,7 +140,7 @@ public class Wiki
 		ColorLog.fyi(this, String.format("Get Wiki for %s @ %s", whoami(), domain));
 		try
 		{
-			return isVerifiedFor(domain) ? wl.get(domain) : new Wiki(this, domain);
+			return wl.containsKey(domain) ? wl.get(domain) : new Wiki(this, domain);
 		}
 		catch (Throwable e)
 		{
@@ -224,18 +224,6 @@ public class Wiki
 	{
 		String text = whichNS(title).equals(ns) ? title : String.format("%s:%s", nsl.toString(ns, false), nsl.nss(title));
 		return text;
-	}
-
-	/**
-	 * Checks if we're verified for the specified domain.
-	 * 
-	 * @param domain Do we have login credentials for this domain?
-	 * 
-	 * @return True if we're verified for the specified domain.
-	 */
-	public boolean isVerifiedFor(String domain)
-	{
-		return wl.containsKey(domain);
 	}
 
 	/**
