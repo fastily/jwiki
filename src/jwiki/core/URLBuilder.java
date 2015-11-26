@@ -33,7 +33,7 @@ public final class URLBuilder
 	 * @param action Sets the action param to use in the final URL. (e.g. query, edit, delete)
 	 */
 	protected URLBuilder(String domain, String action)
-	{	
+	{
 		base = Settings.comPro + domain + "/w/api.php?format=json&action=" + action;
 	}
 
@@ -60,15 +60,15 @@ public final class URLBuilder
 	 */
 	protected URL makeURL()
 	{
+		ArrayList<String> hold = new ArrayList<>();
+		for (Map.Entry<String, String> e : pl.entrySet())
+		{
+			hold.add(e.getKey());
+			hold.add(e.getValue());
+		}
+		
 		try
 		{
-			ArrayList<String> hold = new ArrayList<>();
-			for (Map.Entry<String, String> e : pl.entrySet())
-			{
-				hold.add(e.getKey());
-				hold.add(e.getValue());
-			}
-
 			return new URL(base + chainParams(hold.toArray(new String[0])));
 		}
 		catch (Throwable e)

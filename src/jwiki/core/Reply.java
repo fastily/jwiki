@@ -3,7 +3,6 @@ package jwiki.core;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 import jwiki.util.FString;
 
@@ -33,10 +32,10 @@ public final class Reply extends JSONObject
 	/**
 	 * Result strings which should not be tagged as errors.
 	 */
-	private static final List<String> whitelist = Arrays.asList(new String[] { "NeedToken", "Success", "Continue" });
+	private static final ArrayList<String> whitelist = FString.toSAL("NeedToken", "Success", "Continue");
 
 	/**
-	 * Constructor, takes a JSONObject and creates a ServerReply from it.
+	 * Constructor, takes a JSONObject and creates a Reply from it.
 	 * 
 	 * @param jo The JSONObject to turn into a ServerReply.
 	 */
@@ -46,10 +45,10 @@ public final class Reply extends JSONObject
 	}
 
 	/**
-	 * Constructor, takes in an inputstream and reads out the bytes to a ServerReply. The inputstream is closed
+	 * Constructor, takes in an InputStream and reads out the bytes to a Reply. The InputStream is closed
 	 * automatically after reading is complete.
 	 * 
-	 * @param is The inputstream we got from the server.
+	 * @param is The InputStream we got from the server.
 	 */
 	protected Reply(InputStream is)
 	{
@@ -73,11 +72,11 @@ public final class Reply extends JSONObject
 	}
 
 	/**
-	 * Recursively search this ServerReply for a key, and return an Object for the first instance of it.
+	 * Recursively search this Reply for a key, and return an Object (if any) for the first instance of it.
 	 * 
 	 * @param jo The JSONObject to search.
 	 * @param key The key to look for.
-	 * @return Null if the key doesn't exist.
+	 * @return The first Object associated with the specified key, or null if we didn't find the key.
 	 */
 	private static Object getR(JSONObject jo, String key)
 	{
@@ -89,7 +88,6 @@ public final class Reply extends JSONObject
 			return null;
 
 		for (String s : x)
-		{
 			try
 			{
 				Object result = getR(jo.getJSONObject(s), key);
@@ -100,7 +98,7 @@ public final class Reply extends JSONObject
 			{
 				// nobody cares
 			}
-		}
+		
 		return null;
 	}
 
@@ -117,10 +115,10 @@ public final class Reply extends JSONObject
 	}
 
 	/**
-	 * Recursively search this ServerReply for a key, and return it's associated value as a string.
+	 * Recursively search this Reply for a String, and return a String (if any) for the first instance of it.
 	 * 
 	 * @param key The key to look for.
-	 * @return The requested value, or null if the key doesn't exist.
+	 * @return A String, or null if the key with a String doesn't exist.
 	 */
 	public String getStringR(String key)
 	{
@@ -129,10 +127,10 @@ public final class Reply extends JSONObject
 	}
 
 	/**
-	 * Recursively search this ServerReply for a key, and return it's associated value as a JSONObject.
+	 * Recursively search this Reply for a key, and return it's associated value (if any) as a JSONObject.
 	 * 
 	 * @param key The key to look for.
-	 * @return The requested value, or null if the key doesn't exist.
+	 * @return A JSONObject, or null if the key with a JSONObject doesn't exist.
 	 */
 	public Reply getJSONObjectR(String key)
 	{
@@ -220,7 +218,7 @@ public final class Reply extends JSONObject
 	 */
 	public ArrayList<Reply> bigJSONObjectGet(String key)
 	{
-		ArrayList<Reply> jl = new ArrayList<Reply>();
+		ArrayList<Reply> jl = new ArrayList<>();
 
 		JSONObject jo = getJSONObjectR(key);
 		if (jo == null)

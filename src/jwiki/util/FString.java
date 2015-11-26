@@ -94,6 +94,8 @@ public final class FString
 	 *           should) also specify the '%n' operator in order to add new lines.
 	 * @param planks The planks of the fence post problem. Posts divide planks.
 	 * @return The completed fencepost string.
+	 * 
+	 * @see #fenceMaker(String, ArrayList)
 	 */
 	public static String fenceMaker(String post, String... planks)
 	{
@@ -118,6 +120,8 @@ public final class FString
 	 *           should) also specify the '%n' operator in order to add new lines.
 	 * @param planks The planks of the fence post problem. Posts divide planks.
 	 * @return The completed fencepost string.
+	 * 
+	 * @see #fenceMaker(String, String...)
 	 */
 	public static String fenceMaker(String post, ArrayList<String> planks)
 	{
