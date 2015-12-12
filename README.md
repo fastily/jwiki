@@ -24,7 +24,7 @@ public class JwikiExample
    public static void main(String[] args) throws Throwable
    {
      Wiki wiki = new Wiki("Username", "Password", "en.wikipedia.org"); // login
-     wiki.edit("SomePage", "SomeText", "EditSummary"); // edit
+     wiki.edit("Wikipedia:Sandbox", "SomeText", "EditSummary"); // edit
    }
 }
 ```

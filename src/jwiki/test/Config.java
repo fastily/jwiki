@@ -1,0 +1,43 @@
+package jwiki.test;
+
+import jwiki.core.Wiki;
+
+/**
+ * Shared constants for tests
+ * 
+ * @author Fastily
+ *
+ */
+public class Config
+{
+	/* //////////////////////////////////////////////////////////////////////////////// */
+	/* /////////////////////////////// START CONFIG /////////////////////////////////// */
+	/* //////////////////////////////////////////////////////////////////////////////// */
+
+	/**
+	 * The domain, in shorthand, we'll be running tests on
+	 */
+	protected static final String domain = "test.wikipedia.org";
+
+	/**
+	 * The user we'll be running tests with
+	 */
+	protected static final String user = "FastilyClone";
+
+	/* //////////////////////////////////////////////////////////////////////////////// */
+	/* //////////////////////////////// END CONFIG /////////////////////////////////// */
+	/* //////////////////////////////////////////////////////////////////////////////// */
+
+	/**
+	 * The global wiki object used for tests
+	 */
+	protected static final Wiki wiki = WikiGen.wg.get(user, domain);
+
+	/**
+	 * No constructors allowed.
+	 */
+	private Config()
+	{
+
+	}
+}

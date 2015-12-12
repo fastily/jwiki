@@ -20,12 +20,12 @@ public final class Reply extends JSONObject
 {
 
 	/**
-	 * The result of the query/action, if applicable.
+	 * The result param of the query/action, if one was returned by the server. Otherwise, this is null.
 	 */
 	private String result;
 
 	/**
-	 * A specific error code that we received.
+	 * The error code returned by the server, if one was returned. Otherwise this is null.
 	 */
 	private String errcode = null;
 
@@ -35,9 +35,9 @@ public final class Reply extends JSONObject
 	private static final ArrayList<String> whitelist = FString.toSAL("NeedToken", "Success", "Continue");
 
 	/**
-	 * Constructor, takes a JSONObject and creates a Reply from it.
+	 * Constructor, takes a JSONObject and creates a Reply from it. NB: This does not perform error checking.
 	 * 
-	 * @param jo The JSONObject to turn into a ServerReply.
+	 * @param jo The JSONObject to wrap into a Reply.
 	 */
 	public Reply(JSONObject jo)
 	{
@@ -45,8 +45,8 @@ public final class Reply extends JSONObject
 	}
 
 	/**
-	 * Constructor, takes in an InputStream and reads out the bytes to a Reply. The InputStream is closed
-	 * automatically after reading is complete.
+	 * Constructor, takes in an InputStream and reads out the bytes to a Reply. The InputStream is closed automatically
+	 * after reading is complete.
 	 * 
 	 * @param is The InputStream we got from the server.
 	 */
@@ -98,7 +98,7 @@ public final class Reply extends JSONObject
 			{
 				// nobody cares
 			}
-		
+
 		return null;
 	}
 
@@ -139,10 +139,10 @@ public final class Reply extends JSONObject
 	}
 
 	/**
-	 * Recursively search this Reply for a key, and return it's associated value as a JSONArray.
+	 * Recursively search this Reply for a String, and return a String (if any) for the first instance of it.
 	 * 
 	 * @param key The key to look for.
-	 * @return The requested value, or null if the key doesn't exist.
+	 * @return A JSONArray, or nil if the key with a JSONArray doesn't exist.
 	 */
 	public JSONArray getJSONArrayR(String key)
 	{
@@ -179,9 +179,9 @@ public final class Reply extends JSONObject
 	}
 
 	/**
-	 * Gets flag indicating if we got an error.
+	 * Checks if an error was returned by the server in this Reply.
 	 * 
-	 * @return True if we had an error
+	 * @return True if there was an error.
 	 */
 	public boolean hasError()
 	{
@@ -200,10 +200,10 @@ public final class Reply extends JSONObject
 	}
 
 	/**
-	 * Checks to see if we have a result parameter matching our specified one.
+	 * Determines if this Reply's result code matches the specified code.
 	 * 
-	 * @param code The code to search for when looking for a result param.
-	 * @return True if the code matches the result param.
+	 * @param code The code to check against this Reply's result code.
+	 * @return True if the specified code matches this Reply's result code.
 	 */
 	public boolean resultIs(String code)
 	{
@@ -211,10 +211,11 @@ public final class Reply extends JSONObject
 	}
 
 	/**
-	 * Gets a list of JSONObjects contained in a single JSONObject.
+	 * Recursively finds a JSONObject with the specified key and extracts any JSONObjects contained within. PRECONDITION: The
+	 * specified JSONObject can *only* contain JSONObjects
 	 * 
-	 * @param key The key with which to get values for
-	 * @return A list of JSONObjects objects associated with the specified key.
+	 * @param key The key pointing to the top level JSONObject
+	 * @return A list of JSONObjects objects contained within the JSONObject pointed to by <code>key</code>.
 	 */
 	public ArrayList<Reply> bigJSONObjectGet(String key)
 	{

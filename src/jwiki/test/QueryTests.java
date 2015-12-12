@@ -9,26 +9,22 @@ import java.util.Arrays;
 import org.junit.Test;
 
 import jwiki.core.NS;
-import jwiki.core.Wiki;
 import jwiki.dwrap.Contrib;
 import jwiki.dwrap.ImageInfo;
 import jwiki.dwrap.Revision;
 import jwiki.util.FString;
 import jwiki.util.Tuple;
 
+import static jwiki.test.Config.*;
+
 /**
- * Basic tests (non-admin) for jwiki's Wiki.java. As a caveat: this is by no means comprehensive.
+ * Query tests (non-admin) for jwiki's Wiki.java. Caveat: this is by no means comprehensive.
  * 
  * @author Fastily
  *
  */
-public class BasicTests
+public class QueryTests
 {
-	/**
-	 * The main wiki we'll be using. This is instantiated in setUpBeforeClass().
-	 */
-	private static final Wiki wiki = WikiGen.wg.get("FastilyClone", "test.wikipedia.org");
-
 	/**
 	 * Tests for namespace handling
 	 */
@@ -385,4 +381,36 @@ public class BasicTests
 		assertTrue(l.contains("autoconfirmed"));
 	}
 
+	/**
+	 * Tests what links here
+	 */
+	@Test
+	public void testWhatLinksHere()
+	{
+		// test case where just getting *direct* links (no links to redirects considered)
+		ArrayList<String> l = wiki.whatLinksHere("User:Fastily/Sandbox/Link/1");
+
+		assertEquals(3, l.size());
+		assertTrue(l.contains("User:Fastily/Sandbox/Link"));
+		assertTrue(l.contains("User:Fastily/Sandbox/Link/2"));
+		assertTrue(l.contains("User:Fastily/Sandbox/Link/3"));
+
+		// test case where fetching redirects
+		l = wiki.whatLinksHere("User:Fastily/Sandbox/Link/1", true);
+
+		assertEquals(1, l.size());
+		assertTrue(l.contains("User:Fastily/Sandbox/Link/4"));
+	}
+	
+	/**
+	 * Tests what transcludes here
+	 */
+	@Test
+	public void whatTranscludesHere()
+	{
+		ArrayList<String> l = wiki.whatTranscludesHere("Template:FastilyTest");
+		
+		assertEquals(1, l.size());
+		assertTrue(l.contains("User:Fastily/Sandbox/T"));
+	}
 }
