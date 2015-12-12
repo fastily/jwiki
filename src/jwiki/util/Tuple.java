@@ -38,7 +38,7 @@ public class Tuple<K, V>
 	 */
 	public String toString()
 	{
-		return String.format("(< %s, %s >", x, y);
+		return String.format("< %s, %s >", x, y);
 	}
 
 	/**

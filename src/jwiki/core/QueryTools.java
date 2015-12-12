@@ -256,10 +256,7 @@ public final class QueryTools
 	 */
 	private static ArrayList<String> getStringsFromJSONObjectArray(Reply r, String arrayKey, String arrayElementKey)
 	{
-		ArrayList<String> l = new ArrayList<>();
-		for(Reply rx : r.getJSONArrayListR(arrayKey))
-			l.add(rx.getStringR(arrayElementKey));
-		return l;
+		return r.getJSONArrayListR(arrayKey).stream().map(rx -> rx.getStringR(arrayElementKey)).collect(Collectors.toCollection(ArrayList::new));
 	}
 
 	/**
@@ -284,7 +281,7 @@ public final class QueryTools
 		for (int i = 0; i < ja.length(); i++)
 		{
 			JSONObject jo = ja.getJSONObject(i);
-			l.add(new Tuple<String, String>(jo.getString(arrayElementKey1), jo.getString(arrayElementKey2)));
+			l.add(new Tuple<>(jo.getString(arrayElementKey1), jo.getString(arrayElementKey2)));
 		}
 
 		return l;

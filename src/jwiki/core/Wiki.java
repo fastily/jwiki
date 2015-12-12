@@ -227,11 +227,11 @@ public class Wiki
 	}
 
 	/**
-	 * Creates a URLBuilder with a custom action &amp; params. PRECONDITION: all <code>params</code> must be URLEncoded.
+	 * Creates a template URLBuilder with a custom action &amp; params. PRECONDITION: <code>params</code> must be URLEncoded.
 	 * 
-	 * @param action The custom action to use
+	 * @param action The action to use
 	 * @param params The params to use.
-	 * @return The requested URLBuilder.
+	 * @return The template URLBuilder.
 	 */
 	protected URLBuilder makeUB(String action, String... params)
 	{
