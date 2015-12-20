@@ -66,7 +66,7 @@ public final class URLBuilder
 			hold.add(e.getKey());
 			hold.add(e.getValue());
 		}
-		
+
 		try
 		{
 			return new URL(base + chainParams(hold.toArray(new String[0])));
@@ -107,5 +107,17 @@ public final class URLBuilder
 	protected static String chainProps(String... props)
 	{
 		return FString.enc(FString.fenceMaker("|", props));
+	}
+
+	/**
+	 * Chains and encodes URL parameter properties. Properties: e.g. "timestamp|user|comments|content". Auto applies URL
+	 * encoding.
+	 * 
+	 * @param props The properties to chain.
+	 * @return The chained set of properties, separated by pipes as necessary.
+	 */
+	protected static String chainProps(ArrayList<String> props)
+	{
+		return chainProps(props.toArray(new String[0]));
 	}
 }

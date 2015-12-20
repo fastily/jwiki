@@ -4,6 +4,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import jwiki.util.FL;
 import jwiki.util.FString;
 
 import org.json.JSONArray;
@@ -32,7 +33,7 @@ public final class Reply extends JSONObject
 	/**
 	 * Result strings which should not be tagged as errors.
 	 */
-	private static final ArrayList<String> whitelist = FString.toSAL("NeedToken", "Success", "Continue");
+	private static final ArrayList<String> whitelist = FL.toSAL("NeedToken", "Success", "Continue");
 
 	/**
 	 * Constructor, takes a JSONObject and creates a Reply from it. NB: This does not perform error checking.
@@ -156,15 +157,15 @@ public final class Reply extends JSONObject
 	 * @param key The key to search with.
 	 * @return The JSONObjects in an ArrayList, or an empty list if we couldn't find the specified object.
 	 */
-	public ArrayList<Reply> getJSONArrayListR(String key)
+	public ArrayList<Reply> getJAOfJOAsALR(String key)
 	{
 		ArrayList<Reply> l = new ArrayList<>();
 		JSONArray ja = getJSONArrayR(key);
 		if (ja == null)
 			return l;
-
-		for (int i = 0; i < ja.length(); i++)
-			l.add(new Reply(ja.getJSONObject(i)));
+		
+		for(Object o : ja)
+			l.add(new Reply((JSONObject) o));
 		return l;
 	}
 

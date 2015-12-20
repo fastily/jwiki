@@ -5,7 +5,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URLEncoder;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 
 import org.json.JSONArray;
@@ -160,16 +159,5 @@ public final class FString
 			l.add(ja.getString(i));
 
 		return l;
-	}
-
-	/**
-	 * Turns an array of Strings into an ArrayList of Strings.
-	 * 
-	 * @param strings The list of Strings to incorporate.
-	 * @return The array as an ArrayList
-	 */
-	public static ArrayList<String> toSAL(String... strings)
-	{
-		return new ArrayList<>(Arrays.asList(strings));
 	}
 }
