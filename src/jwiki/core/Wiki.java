@@ -11,6 +11,7 @@ import javax.security.auth.login.LoginException;
 import jwiki.dwrap.Contrib;
 import jwiki.dwrap.ImageInfo;
 import jwiki.dwrap.Revision;
+import jwiki.util.FL;
 import jwiki.util.FString;
 import jwiki.util.Tuple;
 
@@ -161,8 +162,8 @@ public class Wiki
 
 	/**
 	 * Takes a Namespace prefix and gets a NS representation of it. PRECONDITION: the prefix must be a valid namespace
-	 * prefix. WARNING: This method is CASE-SENSITIVE, so be sure to spell and capitalize the prefix <b>exactly</b>
-	 * as it would appear on-wiki.
+	 * prefix. WARNING: This method is CASE-SENSITIVE, so be sure to spell and capitalize the prefix <b>exactly</b> as it
+	 * would appear on-wiki.
 	 * 
 	 * @param prefix The prefix to use, without the ":".
 	 * @return An NS representation of the prefix.
@@ -182,9 +183,10 @@ public class Wiki
 	{
 		return nsl.whichNS(title);
 	}
-	
+
 	/**
 	 * Strip the namespace from a title.
+	 * 
 	 * @param title The title to strip the namespace from
 	 * @return The title without a namespace
 	 */
@@ -212,7 +214,7 @@ public class Wiki
 
 		return l;
 	}
-	
+
 	/**
 	 * Check if a title in specified namespace and convert it if it is not.
 	 * 
@@ -227,7 +229,8 @@ public class Wiki
 	}
 
 	/**
-	 * Creates a template URLBuilder with a custom action &amp; params. PRECONDITION: <code>params</code> must be URLEncoded.
+	 * Creates a template URLBuilder with a custom action &amp; params. PRECONDITION: <code>params</code> must be
+	 * URLEncoded.
 	 * 
 	 * @param action The action to use
 	 * @param params The params to use.
@@ -406,7 +409,7 @@ public class Wiki
 	public ArrayList<String> listGroupsRights(String user)
 	{
 		ColorLog.info(this, "Getting user rights for " + user);
-		return MQuery.listUserRights(this, FString.toSAL(user)).get(0).y;
+		return MQuery.listUserRights(this, FL.toSAL(user)).get(0).y;
 	}
 
 	/**
@@ -418,7 +421,7 @@ public class Wiki
 	public String getPageText(String title)
 	{
 		ColorLog.info(this, "Getting page text of " + title);
-		ArrayList<String> temp = MQuery.getPageText(this, FString.toSAL(title)).get(0).y;
+		ArrayList<String> temp = MQuery.getPageText(this, FL.toSAL(title)).get(0).y;
 		return temp.isEmpty() ? "" : temp.get(0);
 	}
 
@@ -438,13 +441,10 @@ public class Wiki
 		if (olderFirst)
 			ub.setParams("rvdir", "newer"); // MediaWiki is weird.
 
-		ArrayList<Revision> l = new ArrayList<>();
-		for (Reply r : cap > 0 ? QueryTools.doLimitedQuery(this, ub, "rvlimit", cap, "titles", title) : QueryTools
-				.doMultiQuery(this, ub, "rvlimit", "titles", FString.toSAL(title)))
-			for (Reply x : r.getJSONArrayListR("revisions"))
-				l.add(new Revision(r.getStringR("title"), x));
+		RSet rs = cap > 0 ? QueryTools.doLimitedQuery(this, ub, "rvlimit", cap, "titles", title)
+				: QueryTools.doMultiQuery(this, ub, "rvlimit", "titles", FL.toSAL(title));
 
-		return l;
+		return FL.toAL(rs.getJOofJAStream("revisions").map(x -> new Revision(title, x)));
 	}
 
 	/**
@@ -458,7 +458,7 @@ public class Wiki
 	{
 		return getRevisions(title, -1, false);
 	}
-	
+
 	/**
 	 * Gets the number of elements contained in a category.
 	 * 
@@ -469,7 +469,7 @@ public class Wiki
 	public int getCategorySize(String title)
 	{
 		ColorLog.info(this, "Getting category size of " + title);
-		return MQuery.getCategorySize(this, FString.toSAL(title)).get(0).y.intValue();
+		return MQuery.getCategorySize(this, FL.toSAL(title)).get(0).y.intValue();
 	}
 
 	/**
@@ -498,14 +498,20 @@ public class Wiki
 	public ArrayList<String> getCategoryMembers(String title, int cap, NS... ns)
 	{
 		ColorLog.info(this, "Getting category members from " + title);
-		URLBuilder ub = makeUB("query", "list", "categorymembers", "cmtitle",
-				FString.enc(convertIfNotInNS(title, NS.CATEGORY)));
+
+		String cTitle = convertIfNotInNS(title, NS.CATEGORY);
+
+		URLBuilder ub = makeUB("query", "list", "categorymembers", "cmtitle", FString.enc(cTitle));
 		if (ns.length > 0)
 			ub.setParams("cmnamespace", nsl.createFilter(true, ns));
 
-		return cap > 0 ? QueryTools.limitedQueryForStrings(this, ub, "cmlimit", cap, "categorymembers", "title", null, null)
-				: QueryTools.queryForStrings(this, ub, "cmlimit", "categorymembers", "title", "cmtitle",
-						FString.toSAL(convertIfNotInNS(title, NS.CATEGORY)));
+		RSet rs;
+		if (cap > 0)
+			rs = QueryTools.doLimitedQuery(this, ub, "cmlimit", cap, null, null);
+		else // TODO: This is *really* bad
+			rs = QueryTools.doMultiQuery(this, ub, "cmlimit", "cmtitle", FL.toSAL(cTitle));
+
+		return rs.stringFromJAOfJO("categorymembers", "title");
 	}
 
 	/**
@@ -517,7 +523,7 @@ public class Wiki
 	public ArrayList<String> getCategoriesOnPage(String title)
 	{
 		ColorLog.info(this, "Getting categories on " + title);
-		return MQuery.getCategoriesOnPage(this, FString.toSAL(title)).get(0).y;
+		return MQuery.getCategoriesOnPage(this, FL.toSAL(title)).get(0).y;
 	}
 
 	/**
@@ -530,7 +536,7 @@ public class Wiki
 	public ArrayList<String> getLinksOnPage(String title, NS... ns)
 	{
 		ColorLog.info(this, "Getting wiki links on " + title);
-		return MQuery.getLinksOnPage(this, ns, FString.toSAL(title)).get(0).y;
+		return MQuery.getLinksOnPage(this, ns, FL.toSAL(title)).get(0).y;
 	}
 
 	/**
@@ -568,12 +574,9 @@ public class Wiki
 		if (olderFirst)
 			ub.setParams("ucdir", "newer");
 
-		ArrayList<Contrib> l = new ArrayList<>();
-		for (Reply r : cap > -1 ? QueryTools.doLimitedQuery(this, ub, "uclimit", cap, "ucuser", user) : QueryTools
-				.doMultiQuery(this, ub, "uclimit", "ucuser", FString.toSAL(user)))
-			for (Reply x : r.getJSONArrayListR("usercontribs"))
-				l.add(new Contrib(x));
-		return l;
+		RSet rs = cap > -1 ? QueryTools.doLimitedQuery(this, ub, "uclimit", cap, "ucuser", user)
+				: QueryTools.doMultiQuery(this, ub, "uclimit", "ucuser", FL.toSAL(user));
+		return FL.toAL(rs.getJOofJAStream("usercontribs").map(x -> new Contrib(x)));
 	}
 
 	/**
@@ -598,8 +601,8 @@ public class Wiki
 	public ArrayList<String> getUserUploads(String user)
 	{
 		ColorLog.info(this, "Fetching uploads for " + user);
-		return QueryTools.queryForStrings(this, makeUB("query", "list", "allimages", "aisort", "timestamp"), "ailimit",
-				"allimages", "title", "aiuser", FString.toSAL(nsl.nss(user)));
+		return QueryTools.doMultiQuery(this, makeUB("query", "list", "allimages", "aisort", "timestamp"), "ailimit", "aiuser",
+				FL.toSAL(nsl.nss(user))).stringFromJAOfJO("allimages", "title");
 	}
 
 	/**
@@ -612,7 +615,7 @@ public class Wiki
 	public ArrayList<String> fileUsage(String title)
 	{
 		ColorLog.info(this, "Fetching local file usage of " + title);
-		return MQuery.fileUsage(this, FString.toSAL(title)).get(0).y;
+		return MQuery.fileUsage(this, FL.toSAL(title)).get(0).y;
 	}
 
 	/**
@@ -624,7 +627,7 @@ public class Wiki
 	public ArrayList<String> getImagesOnPage(String title)
 	{
 		ColorLog.info(this, "Getting files on " + title);
-		return MQuery.getImagesOnPage(this, FString.toSAL(title)).get(0).y;
+		return MQuery.getImagesOnPage(this, FL.toSAL(title)).get(0).y;
 	}
 
 	/**
@@ -636,7 +639,7 @@ public class Wiki
 	public boolean exists(String title)
 	{
 		ColorLog.info(this, "Checking to see if title exists: " + title);
-		return MQuery.exists(this, FString.toSAL(title)).get(0).y.booleanValue();
+		return MQuery.exists(this, FL.toSAL(title)).get(0).y;
 	}
 
 	/**
@@ -661,7 +664,7 @@ public class Wiki
 	public ImageInfo getImageInfo(String title, int height, int width)
 	{
 		ColorLog.info(this, "Getting image info for " + title);
-		return MQuery.getImageInfo(this, width, height, FString.toSAL(title)).get(0).y;
+		return MQuery.getImageInfo(this, width, height, FL.toSAL(title)).get(0).y;
 	}
 
 	/**
@@ -673,7 +676,7 @@ public class Wiki
 	public ArrayList<String> getTemplatesOnPage(String title)
 	{
 		ColorLog.info(this, "Getting templates transcluded on " + title);
-		return MQuery.getTemplatesOnPage(this, FString.toSAL(title)).get(0).y;
+		return MQuery.getTemplatesOnPage(this, FL.toSAL(title)).get(0).y;
 	}
 
 	/**
@@ -686,7 +689,7 @@ public class Wiki
 	public ArrayList<String> whatTranscludesHere(String title)
 	{
 		ColorLog.info(this, "Getting list of pages that transclude " + title);
-		return MQuery.transcludesIn(this, FString.toSAL(title)).get(0).y;
+		return MQuery.transcludesIn(this, FL.toSAL(title)).get(0).y;
 	}
 
 	/**
@@ -699,7 +702,7 @@ public class Wiki
 	public ArrayList<Tuple<String, String>> globalUsage(String title)
 	{
 		ColorLog.info(this, "Getting global usage for " + title);
-		return MQuery.globalUsage(this, FString.toSAL(title)).get(0).y;
+		return MQuery.globalUsage(this, FL.toSAL(title)).get(0).y;
 	}
 
 	/**
@@ -712,7 +715,7 @@ public class Wiki
 	public ArrayList<String> whatLinksHere(String title, boolean redirects)
 	{
 		ColorLog.info("Getting links to " + title);
-		return MQuery.linksHere(this, redirects, FString.toSAL(title)).get(0).y;
+		return MQuery.linksHere(this, redirects, FL.toSAL(title)).get(0).y;
 	}
 
 	/**
@@ -735,7 +738,7 @@ public class Wiki
 	 *           optional, use null or empty string to disable.
 	 * @param redirectsonly Set this to true to get redirects only.
 	 * @param cap The max number of titles to return. Specify -1 to get all pages.
-	 * @param ns The namespace to filter by.  Set null to disable
+	 * @param ns The namespace to filter by. Set null to disable
 	 * @return A list of titles on this Wiki
 	 */
 	public ArrayList<String> allPages(String prefix, boolean redirectsonly, int cap, NS ns)
@@ -749,8 +752,15 @@ public class Wiki
 		if (redirectsonly)
 			ub.setParams("apfilterredir", "redirects");
 
-		return cap > 0 ? QueryTools.limitedQueryForStrings(this, ub, "aplimit", cap, "allpages", "title", null, null)
-				: QueryTools.queryForStrings(this, ub, "aplimit", "allpages", "title", null, null);
+		ub.setParams("aplimit", "max"); // TODO: HACKY - makes else statement work
+
+		RSet rs;
+		if (cap > 0)
+			rs = QueryTools.doLimitedQuery(this, ub, "aplimit", cap, null, null);
+		else // TODO: VERY BAD FORM
+			rs = QueryTools.doNoTitleMultiQuery(this, ub);
+
+		return rs.stringFromJAOfJO("allpages", "title");
 	}
 
 	/**
@@ -776,7 +786,7 @@ public class Wiki
 	public ArrayList<String> getDuplicatesOf(String title, boolean localOnly)
 	{
 		ColorLog.info(this, "Getting duplicates of " + title);
-		return MQuery.getDuplicatesOf(this, localOnly, FString.toSAL(title)).get(0).y;
+		return MQuery.getDuplicatesOf(this, localOnly, FL.toSAL(title)).get(0).y;
 	}
 
 	/**

@@ -13,8 +13,8 @@ import org.json.JSONObject;
 
 /**
  * Contains base methods for making queries to the MediaWiki API. Use of this class is intended for anybody wishing to
- * implement their own custom API queries that I have not included in <code>Wiki.java</code>. This is not for the faint of
- * heart, so consider yourself warned :P
+ * implement their own custom API queries that I have not included in <code>Wiki.java</code>. This is not for the faint
+ * of heart, so consider yourself warned :P
  * 
  * @see Wiki
  * @author Fastily
@@ -25,7 +25,7 @@ public final class QueryTools
 	/**
 	 * The maximum list query size for users.
 	 */
-	private static final int maxQuerySize = 500;
+	private static final int maxQuerySize = 2;
 
 	/**
 	 * Constructors disallowed.
@@ -89,14 +89,14 @@ public final class QueryTools
 	 * 
 	 * @param wiki The wiki object to use
 	 * @param ub The URLBuilder to use
-	 * @param limString The limit string (e.g. ailimit). If this is set in <code>ub</code>, it <i>will</i> be overwritten.
-	 *           This is an optional param. Set to null to disable.
+	 * @param limString The limit string (e.g. ailimit). If this is set in <code>ub</code>, it <i>will</i> be
+	 *           overwritten. This is an optional param. Set to null to disable.
 	 * @param tkey The parameter to pass to the server which will be paired with <code>titles</code>. Note that
 	 *           <code>titles</code> in <code>ub</code> *will* be overwritten.
 	 * @param titles The list of titles to send to the server. PRECONDITION: These should not be URL-encoded.
 	 * @return The replies from the server.
 	 */
-	protected static ArrayList<Reply> doMultiQuery(Wiki wiki, URLBuilder ub, String limString, String tkey,
+	protected static RSet doMultiQuery(Wiki wiki, URLBuilder ub, String limString, String tkey,
 			ArrayList<String> titles)
 	{
 		ArrayList<Reply> l = new ArrayList<>();
@@ -112,11 +112,11 @@ public final class QueryTools
 			ArrayList<String> t = new ArrayList<>();
 			for (int i = 0; i < Settings.groupquerymax && atl.peek() != null; i++)
 				t.add(atl.poll());
-			ub.setParams(tkey, URLBuilder.chainProps(t.toArray(new String[0])));
+			ub.setParams(tkey, URLBuilder.chainProps(t));
 
 			doQuerySet(wiki, ub, l);
 		}
-		return l;
+		return new RSet(l);
 	}
 
 	/**
@@ -128,12 +128,12 @@ public final class QueryTools
 	 * @param ub The URLBuilder to use
 	 * @return The replies from the server.
 	 */
-	protected static ArrayList<Reply> doNoTitleMultiQuery(Wiki wiki, URLBuilder ub)
+	protected static RSet doNoTitleMultiQuery(Wiki wiki, URLBuilder ub)
 	{
 		ArrayList<Reply> l = new ArrayList<>();
 		ub.setParams("continue", ""); // MW 1.21+
 		doQuerySet(wiki, ub, l);
-		return l;
+		return new RSet(l);
 	}
 
 	/**
@@ -142,8 +142,8 @@ public final class QueryTools
 	 * 
 	 * @param wiki The wiki object to use
 	 * @param ub The URLBuilder to use. CAVEAT: anything assigned to the '<code>titles</code>' param <i>will</i> be
-	 *           overwritten with elements passed into this method's '<code>titles</code>'. In other words, don't set the '
-	 *           <code>titles</code>' param when creating <code>ub</code>
+	 *           overwritten with elements passed into this method's '<code>titles</code>'. In other words, don't set the
+	 *           ' <code>titles</code>' param when creating <code>ub</code>
 	 * @param tkey The parameter name for the list of titles to pass to the server.
 	 * @param titles The titles to query.
 	 * @return The replies from the server.
@@ -159,7 +159,7 @@ public final class QueryTools
 			for (int i = 0; i < Settings.groupquerymax && l.peek() != null; i++)
 				t.add(l.poll());
 
-			ub.setParams(tkey, URLBuilder.chainProps(t.toArray(new String[0])));
+			ub.setParams(tkey, URLBuilder.chainProps(t));
 
 			Reply r = doSingleQuery(wiki, ub);
 			if (r != null)
@@ -176,14 +176,15 @@ public final class QueryTools
 	 * 
 	 * @param wiki The wiki object to use
 	 * @param ub The URLBuilder to use
-	 * @param limString The limit string (e.g. ailimit). If this is set in <code>ub</code>, it <i>will</i> be overwritten.
+	 * @param limString The limit string (e.g. ailimit). If this is set in <code>ub</code>, it <i>will</i> be
+	 *           overwritten.
 	 * @param cap The maximum number of entries to return.
 	 * @param tkey The parameter name for the list of titles to pass to the server. Optional param - set to null to
 	 *           disable.
 	 * @param title The titles to query. Optional param - used by tkey. Also set this to null if you disabled tkey.
 	 * @return A list of ServerReplies we collected.
 	 */
-	protected static ArrayList<Reply> doLimitedQuery(Wiki wiki, URLBuilder ub, String limString, int cap, String tkey,
+	protected static RSet doLimitedQuery(Wiki wiki, URLBuilder ub, String limString, int cap, String tkey,
 			String title)
 	{
 		if (tkey != null)
@@ -212,13 +213,13 @@ public final class QueryTools
 				if (cap - done < maxQuerySize) // runs n times instead of n-1, but meh, still O(n)
 					fetch_num = cap - done;
 			}
-		return l;
+		return new RSet(l);
 	}
 
 	/**
 	 * Identifies the <code>continue</code> JSONObject in a Reply and applies it to a URLBuilder. PRECONDITION: there
-	 * MUST be a <code>continue</code> object in <code>r</code>; this method does not explicitly test for MediaWiki errors or for
-	 * the presence of a <code>continue</code> object.
+	 * MUST be a <code>continue</code> object in <code>r</code>; this method does not explicitly test for MediaWiki
+	 * errors or for the presence of a <code>continue</code> object.
 	 * 
 	 * @param ub The URLBuilder to apply the continue params to
 	 * @param r The Reply from the most recent, previous request to the server created by <code>ub</code>.
@@ -256,7 +257,8 @@ public final class QueryTools
 	 */
 	private static ArrayList<String> getStringsFromJSONObjectArray(Reply r, String arrayKey, String arrayElementKey)
 	{
-		return r.getJSONArrayListR(arrayKey).stream().map(rx -> rx.getStringR(arrayElementKey)).collect(Collectors.toCollection(ArrayList::new));
+		return r.getJAOfJOAsALR(arrayKey).stream().map(rx -> rx.getStringR(arrayElementKey))
+				.collect(Collectors.toCollection(ArrayList::new));
 	}
 
 	/**
@@ -288,9 +290,9 @@ public final class QueryTools
 	}
 
 	/**
-	 * Puts a list into a HashMap pointed to by <code>title</code>. If <code>title</code> is already present in <code>hl</code>,
-	 * merge <code>l</code> with value mapped to <code>title</code>. Does nothing if <code>title</code> is in <code>hl</code> and if
-	 * <code>l</code> is empty.
+	 * Puts a list into a HashMap pointed to by <code>title</code>. If <code>title</code> is already present in
+	 * <code>hl</code>, merge <code>l</code> with value mapped to <code>title</code>. Does nothing if <code>title</code>
+	 * is in <code>hl</code> and if <code>l</code> is empty.
 	 * 
 	 * @param hl The HashMap to perform changes to
 	 * @param title The key to look for
@@ -312,8 +314,7 @@ public final class QueryTools
 	 */
 	private static <T1> ArrayList<Tuple<String, ArrayList<T1>>> mapToList(HashMap<String, ArrayList<T1>> hl)
 	{
-		return hl.entrySet().stream()
-				.map(x -> new Tuple<String, ArrayList<T1>>(x.getKey(), x.getValue()))
+		return hl.entrySet().stream().map(x -> new Tuple<String, ArrayList<T1>>(x.getKey(), x.getValue()))
 				.collect(Collectors.toCollection(ArrayList::new));
 	}
 
@@ -335,14 +336,15 @@ public final class QueryTools
 	 * @param titlekey The key pointing the title this object is associated with - contained within each top level
 	 * @param tkey The parameter to pass to the server which will be paired with <code>titles</code>
 	 * @param titles The list of titles to send to the server. PRECONDITION: These should not be URL-encoded.
-	 * @return A list of results we retrieved from the data set, where each tuple is <code>(title, list_of_results)</code>.
+	 * @return A list of results we retrieved from the data set, where each tuple is
+	 *         <code>(title, list_of_results)</code>.
 	 */
 	protected static ArrayList<Tuple<String, ArrayList<String>>> multiQueryForStrings(Wiki wiki, URLBuilder ub,
 			String limString, String arrayKey, String arrayElementKey, String titlekey, String tkey, ArrayList<String> titles)
 	{
 		HashMap<String, ArrayList<String>> hl = new HashMap<>();
 
-		for (Reply r1 : doMultiQuery(wiki, ub, limString, tkey, titles))
+		for (Reply r1 : doMultiQuery(wiki, ub, limString, tkey, titles).getRL())
 			for (Reply r2 : r1.bigJSONObjectGet("pages"))
 				mapListMerge(hl, r2.getString(titlekey), getStringsFromJSONObjectArray(r2, arrayKey, arrayElementKey));
 
@@ -365,7 +367,8 @@ public final class QueryTools
 	 * @param titlekey The key pointing the title this object is associated with - contained within each top level
 	 * @param tkey The parameter to pass to the server which will be paired with <code>titles</code>
 	 * @param titles The list of titles to send to the server. PRECONDITION: These should not be URL-encoded.
-	 * @return A list of results we retrieved from the data set, where each tuple is <code>(title, list_of_results)</code>.
+	 * @return A list of results we retrieved from the data set, where each tuple is
+	 *         <code>(title, list_of_results)</code>.
 	 */
 	protected static ArrayList<Tuple<String, ArrayList<Tuple<String, String>>>> multiQueryForTuples(Wiki wiki, URLBuilder ub,
 			String limString, String arrayKey, String arrayElementKey1, String arrayElementKey2, String titlekey, String tkey,
@@ -373,7 +376,7 @@ public final class QueryTools
 	{
 		HashMap<String, ArrayList<Tuple<String, String>>> hl = new HashMap<>();
 
-		for (Reply r1 : doMultiQuery(wiki, ub, limString, tkey, titles))
+		for (Reply r1 : doMultiQuery(wiki, ub, limString, tkey, titles).getRL())
 			for (Reply r2 : r1.bigJSONObjectGet("pages"))
 				mapListMerge(hl, r2.getString(titlekey),
 						getTuplesFromJSONObjectArray(r2, arrayKey, arrayElementKey1, arrayElementKey2));
@@ -405,8 +408,8 @@ public final class QueryTools
 			for (int i = 0; i < ja.length(); i++)
 			{
 				JSONObject jo = ja.getJSONObject(i);
-				l.add(new Tuple<String, ArrayList<String>>(jo.getString(titlekey), FString.jsonArrayToString(jo
-						.getJSONArray(arrayKey))));
+				l.add(new Tuple<String, ArrayList<String>>(jo.getString(titlekey),
+						FString.jsonArrayToString(jo.getJSONArray(arrayKey))));
 			}
 		}
 		return l;
@@ -433,31 +436,7 @@ public final class QueryTools
 			String arrayKey, String arrayElementKey, String tkey, String title)
 	{
 		ArrayList<String> l = new ArrayList<>();
-		for (Reply r : doLimitedQuery(wiki, ub, limString, cap, tkey, title))
-			l.addAll(getStringsFromJSONObjectArray(r, arrayKey, arrayElementKey));
-		return l;
-	}
-
-	/**
-	 * Parses a reply from the server in which the hierarchy is pages -> id -> name, [{title : blargh},...]. To be used
-	 * with single item/title queries.
-	 * 
-	 * @param wiki The wiki object to use
-	 * @param ub The URLBuilder to use
-	 * @param limString The limit string to use with this query (e.g. ailimit). Note that this parameter <i>will</i> be
-	 *           overwritten in <code>ub</code>. This is an optional param - disable with null.
-	 * @param arrayKey The key pointing to the JSONArray we want to use
-	 * @param arrayElementKey The key pointing to the String in each JSONObject contained in the JSONArray pointed to by
-	 *           <code>arrayKey</code>
-	 * @param tkey The parameter to pass to the server which will be paired with <code>titles</code>
-	 * @param titles The list of titles to send to the server. PRECONDITION: These should not be URL-encoded.
-	 * @return A list of results we retrieved from the data set.
-	 */
-	protected static ArrayList<String> queryForStrings(Wiki wiki, URLBuilder ub, String limString, String arrayKey,
-			String arrayElementKey, String tkey, ArrayList<String> titles)
-	{
-		ArrayList<String> l = new ArrayList<>();
-		for (Reply r : tkey != null ? doMultiQuery(wiki, ub, limString, tkey, titles) : doNoTitleMultiQuery(wiki, ub))
+		for (Reply r : doLimitedQuery(wiki, ub, limString, cap, tkey, title).getRL())
 			l.addAll(getStringsFromJSONObjectArray(r, arrayKey, arrayElementKey));
 		return l;
 	}

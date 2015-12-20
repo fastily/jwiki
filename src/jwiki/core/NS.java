@@ -190,7 +190,7 @@ public final class NS
 
 			m.b.putAll(m.a.entrySet().stream().collect(Collectors.toMap(Map.Entry::getValue, Map.Entry::getKey)));
 
-			for(Reply ra : r.getJSONArrayListR("namespacealiases"))
+			for(Reply ra : r.getJAOfJOAsALR("namespacealiases"))
 				m.a.put(ra.getString("*"), ra.getInt("id"));
 			
 			ArrayList<String> tlx = new ArrayList<>();
