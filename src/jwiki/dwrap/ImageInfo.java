@@ -66,12 +66,12 @@ public class ImageInfo
 		{
 			Reply params = new Reply(ja.getJSONObject(0));
 			size = params.getIntR("size");
-			dimensions = new Tuple<>(new Integer(params.getIntR("width")), new Integer(params.getIntR("height")));
+			dimensions = new Tuple<>(params.getIntR("width"), params.getIntR("height"));
 			
 			if(params.has("thumburl"))
 			{
 				thumburl = params.getString("thumburl");
-				thumbdimensions = new Tuple<>(new Integer(params.getIntR("thumbwidth")), new Integer(params.getIntR("thumbheight")));
+				thumbdimensions = new Tuple<>(params.getIntR("thumbwidth"), params.getIntR("thumbheight"));
 			}
 			else
 			{

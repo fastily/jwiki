@@ -1,8 +1,16 @@
 package jwiki.core;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.stream.Stream;
+
+import org.json.JSONArray;
 
 import jwiki.dwrap.ImageInfo;
+import jwiki.util.FL;
+import jwiki.util.FString;
+import jwiki.util.JSONParse;
 import jwiki.util.Tuple;
 
 /**
@@ -33,8 +41,11 @@ public final class MQuery
 	 */
 	public static ArrayList<Tuple<String, ArrayList<String>>> listUserRights(Wiki wiki, ArrayList<String> users)
 	{
-		return QueryTools.groupQueryForLists(wiki, wiki.makeUB("query", "list", "users", "usprop", "groups"), "users", "name",
-				"groups", "ususers", users);
+		HashMap<String, String> pl = FString.paramMap("list", "users", "usprop", "groups");
+
+		RSet rs = new SQ(wiki, pl).multiTitleListQuery("ususers", users);
+		return FL.toAL(rs.getJOofJAStream("users")
+				.map(e -> new Tuple<>(e.getString("name"), JSONParse.jsonArrayToString(e.getJSONArray("groups")))));
 	}
 
 	/**
@@ -46,22 +57,25 @@ public final class MQuery
 	 * @param titles The titles to query
 	 * @return A list of ImageInfo, keyed by title.
 	 */
-	public static ArrayList<Tuple<String, ImageInfo>> getImageInfo(Wiki wiki, int width, int height, ArrayList<String> titles)
+	public static HashMap<String, ImageInfo> getImageInfo(Wiki wiki, int width, int height, ArrayList<String> titles)
 	{
-		URLBuilder ub = wiki.makeUB("query", "prop", "imageinfo", "iiprop",
+		HashMap<String, String> pl = FString.paramMap("prop", "imageinfo", "iiprop",
 				URLBuilder.chainProps("canonicaltitle", "url", "size"));
 
 		if (width > 0)
-			ub.setParams("iiurlwidth", "" + width);
+			pl.put("iiurlwidth", "" + width);
 		if (height > 0)
-			ub.setParams("iiurlheight", "" + height);
+			pl.put("iiurlheight", "" + height);
 
+		return new SQ(wiki, pl).multiTitleListQuery("titles", titles).getJOofJOStream("pages").collect(HashMap::new, (m,v) -> m.put(v.getString("title"), new ImageInfo(v)), HashMap::putAll);
+		
+		/*
 		ArrayList<Tuple<String, ImageInfo>> l = new ArrayList<>();
 		for (Reply r : QueryTools.doGroupQuery(wiki, ub, "titles", titles))
 			for (Reply x : r.bigJSONObjectGet("pages"))
 				l.add(new Tuple<>(x.getString("title"), new ImageInfo(x)));
 
-		return l;
+		return l;*/
 	}
 
 	/**
@@ -71,10 +85,10 @@ public final class MQuery
 	 * @param titles The titles to query.
 	 * @return A list of results keyed by title.
 	 */
-	public static ArrayList<Tuple<String, ArrayList<String>>> getCategoriesOnPage(Wiki wiki, ArrayList<String> titles)
+	public static HashMap<String, ArrayList<String>> getCategoriesOnPage(Wiki wiki, ArrayList<String> titles)
 	{
-		return QueryTools.multiQueryForStrings(wiki, wiki.makeUB("query", "prop", "categories"), "cllimit", "categories",
-				"title", "title", "titles", titles);
+		RSet rs = new SQ(wiki, "cllimit", FString.paramMap("prop", "categories")).multiTitleListQuery("titles", titles);
+		return JSONParse.groupJOListByStrAndJA(rs.getJOofJOStream("pages"), "title", "categories", "title");
 	}
 
 	/**
@@ -85,14 +99,11 @@ public final class MQuery
 	 * @return A list of results keyed by title. Value returned will be -1 if Category entered was empty <b>and</b>
 	 *         non-existent.
 	 */
-	public static ArrayList<Tuple<String, Integer>> getCategorySize(Wiki wiki, ArrayList<String> titles)
+	public static HashMap<String, Integer> getCategorySize(Wiki wiki, ArrayList<String> titles)
 	{
-		ArrayList<Tuple<String, Integer>> l = new ArrayList<>();
-		for (Reply r : QueryTools.doGroupQuery(wiki, wiki.makeUB("query", "prop", "categoryinfo"), "titles", titles))
-			for (Reply r1 : r.bigJSONObjectGet("pages"))
-				l.add(new Tuple<String, Integer>(r1.getString("title"), new Integer(r1.getIntR("size"))));
-
-		return l;
+		RSet rs = new SQ(wiki, FString.paramMap("prop", "categoryinfo")).multiTitleListQuery("titles", titles);
+		return rs.getJOofJOStream("pages").collect(HashMap::new, (m, v) -> m.put(v.getString("title"),
+				v.has("categoryinfo") ? v.getJSONObject("categoryinfo").getInt("size") : -1), HashMap::putAll);
 	}
 
 	/**
@@ -102,10 +113,15 @@ public final class MQuery
 	 * @param titles The titles to query
 	 * @return A list of results keyed by title.
 	 */
-	public static ArrayList<Tuple<String, ArrayList<String>>> getPageText(Wiki wiki, ArrayList<String> titles)
+	public static HashMap<String, String> getPageText(Wiki wiki, ArrayList<String> titles)
 	{
-		return QueryTools.multiQueryForStrings(wiki, wiki.makeUB("query", "prop", "revisions", "rvprop", "content"), null,
-				"revisions", "*", "title", "titles", titles);
+		RSet rs = new SQ(wiki, FString.paramMap("prop", "revisions", "rvprop", "content")).multiTitleListQuery("titles",
+				titles);
+		return rs.getJOofJOStream("pages")
+				.collect(HashMap::new,
+						(m, v) -> m.put(v.getString("title"),
+								v.has("revisions") ? v.getJSONArray("revisions").getJSONObject(0).getString("*") : ""),
+				HashMap::putAll);
 	}
 
 	/**
@@ -116,12 +132,14 @@ public final class MQuery
 	 * @param titles The titles to query.
 	 * @return A list of results keyed by title.
 	 */
-	public static ArrayList<Tuple<String, ArrayList<String>>> getLinksOnPage(Wiki wiki, NS[] ns, ArrayList<String> titles)
+	public static HashMap<String, ArrayList<String>> getLinksOnPage(Wiki wiki, NS[] ns, ArrayList<String> titles)
 	{
-		URLBuilder ub = wiki.makeUB("query", "prop", "links");
+		HashMap<String, String> pl = FString.paramMap("prop", "links");
 		if (ns != null && ns.length > 0)
-			ub.setParams("plnamespace", wiki.nsl.createFilter(true, ns));
-		return QueryTools.multiQueryForStrings(wiki, ub, "pllimit", "links", "title", "title", "titles", titles);
+			pl.put("plnamespace", wiki.nsl.createFilter(true, ns));
+
+		Stream<Reply> srl = new SQ(wiki, "pllimit", pl).multiTitleListQuery("titles", titles).getJOofJOStream("pages");
+		return JSONParse.groupJOListByStrAndJA(srl, "title", "links", "title");
 	}
 
 	/**
@@ -132,11 +150,12 @@ public final class MQuery
 	 * @param titles The titles to query
 	 * @return A list of results keyed by title.
 	 */
-	public static ArrayList<Tuple<String, ArrayList<String>>> linksHere(Wiki wiki, boolean redirects, ArrayList<String> titles)
+	public static HashMap<String, ArrayList<String>> linksHere(Wiki wiki, boolean redirects, ArrayList<String> titles)
 	{
-		return QueryTools.multiQueryForStrings(wiki,
-				wiki.makeUB("query", "prop", "linkshere", "lhprop", "title", "lhshow", redirects ? "redirect" : "!redirect"),
-				"lhlimit", "linkshere", "title", "title", "titles", titles);
+		RSet rs = new SQ(wiki, "lhlimit",
+				FString.paramMap("prop", "linkshere", "lhprop", "title", "lhshow", redirects ? "redirect" : "!redirect"))
+						.multiTitleListQuery("titles", titles);
+		return JSONParse.groupJOListByStrAndJA(rs.getJOofJOStream("pages"), "title", "linkshere", "title");
 	}
 
 	/**
@@ -146,42 +165,39 @@ public final class MQuery
 	 * @param titles The titles to query
 	 * @return A list of results keyed by title.
 	 */
-	public static ArrayList<Tuple<String, ArrayList<String>>> transcludesIn(Wiki wiki, ArrayList<String> titles)
+	public static HashMap<String, ArrayList<String>> transcludesIn(Wiki wiki, ArrayList<String> titles)
 	{
-		return QueryTools.multiQueryForStrings(wiki, wiki.makeUB("query", "prop", "transcludedin", "tiprop", "title"),
-				"tilimit", "transcludedin", "title", "title", "titles", titles);
+		RSet rs = new SQ(wiki, "tilimit", FString.paramMap("prop", "transcludedin", "tiprop", "title"))
+				.multiTitleListQuery("titles", titles);
+		return JSONParse.groupJOListByStrAndJA(rs.getJOofJOStream("pages"), "title", "transcludedin", "title");
 	}
 
 	/**
-	 * Gets a list of pages linking to a file.
+	 * Gets a list of pages linking (displaying/thumbnailing) a file.
 	 * 
-	 * @param wiki The wiki object to use
-	 * @param titles The titles to query. PRECONDITION: These must be valid file names prefixed with the "File:" prefix,
-	 *           or you will get strange results.
-	 * @return A list of results keyed by title.
+	 * @param wiki The wiki to use
+	 * @param titles The titles to query. PRECONDITION: These must be valid file names prefixed with the "File:" prefix.
+	 * @return A Map of results keyed by title.
 	 */
-	public static ArrayList<Tuple<String, ArrayList<String>>> fileUsage(Wiki wiki, ArrayList<String> titles)
+	public static HashMap<String, ArrayList<String>> fileUsage(Wiki wiki, ArrayList<String> titles)
 	{
-		return QueryTools.multiQueryForStrings(wiki, wiki.makeUB("query", "prop", "fileusage"), "fulimit", "fileusage",
-				"title", "title", "titles", titles);
+		RSet rs = new SQ(wiki, "fulimit", FString.paramMap("prop", "fileusage")).multiTitleListQuery("titles", titles);
+		return JSONParse.groupJOListByStrAndJA(rs.getJOofJOStream("pages"), "title", "fileusage", "title");
 	}
 
 	/**
-	 * Checks if a title exists.
+	 * Checks if list of titles exists.
 	 * 
 	 * @param wiki The wiki object to use
 	 * @param titles The titles to query
-	 * @return A list of results keyed by title. True = exists.
+	 * @return Results keyed by title. True -&gt; exists.
 	 */
-	public static ArrayList<Tuple<String, Boolean>> exists(Wiki wiki, ArrayList<String> titles)
+	public static HashMap<String, Boolean> exists(Wiki wiki, ArrayList<String> titles)
 	{
-		ArrayList<Tuple<String, Boolean>> l = new ArrayList<>();
-		for (Reply r : QueryTools.doGroupQuery(wiki, wiki.makeUB("query", "prop", "pageprops", "ppprop", "missing"), "titles",
-				titles))
-			for (Reply r1 : r.bigJSONObjectGet("pages"))
-				l.add(new Tuple<String, Boolean>(r1.getString("title"), new Boolean(!r1.has("missing"))));
-
-		return l;
+		RSet rs = new SQ(wiki, FString.paramMap("prop", "pageprops", "ppprop", "missing")).multiTitleListQuery("titles",
+				titles);
+		return rs.getJOofJOStream("pages").collect(HashMap::new, (m, v) -> m.put(v.getString("title"), !v.has("missing")),
+				HashMap::putAll);
 	}
 
 	/**
@@ -194,12 +210,7 @@ public final class MQuery
 	 */
 	public static ArrayList<String> exists(Wiki wiki, boolean exists, ArrayList<String> titles)
 	{
-		ArrayList<String> l = new ArrayList<>();
-		for (Tuple<String, Boolean> t : exists(wiki, titles))
-			if (t.y.booleanValue() == exists)
-				l.add(t.x);
-
-		return l;
+		return FL.toAL(exists(wiki, titles).entrySet().stream().filter(t -> t.getValue() == exists).map(Map.Entry::getKey));
 	}
 
 	/**
@@ -209,23 +220,23 @@ public final class MQuery
 	 * @param titles The titles to query
 	 * @return A list of results keyed by title.
 	 */
-	public static ArrayList<Tuple<String, ArrayList<String>>> getImagesOnPage(Wiki wiki, ArrayList<String> titles)
+	public static HashMap<String, ArrayList<String>> getImagesOnPage(Wiki wiki, ArrayList<String> titles)
 	{
-		return QueryTools.multiQueryForStrings(wiki, wiki.makeUB("query", "prop", "images"), "imlimit", "images", "title",
-				"title", "titles", titles);
+		RSet rs = new SQ(wiki, "imlimit", FString.paramMap("prop", "images")).multiTitleListQuery("titles", titles);
+		return JSONParse.groupJOListByStrAndJA(rs.getJOofJOStream("pages"), "title", "images", "title");
 	}
 
 	/**
-	 * Gets templates transcluded on a page.
+	 * Get templates transcluded on a page.
 	 * 
 	 * @param wiki The wiki object to use
 	 * @param titles The titles to query
 	 * @return A list of results keyed by title.
 	 */
-	public static ArrayList<Tuple<String, ArrayList<String>>> getTemplatesOnPage(Wiki wiki, ArrayList<String> titles)
+	public static HashMap<String, ArrayList<String>> getTemplatesOnPage(Wiki wiki, ArrayList<String> titles)
 	{
-		return QueryTools.multiQueryForStrings(wiki, wiki.makeUB("query", "prop", "templates"), "tllimit", "templates",
-				"title", "title", "titles", titles);
+		RSet rs = new SQ(wiki, "tllimit", FString.paramMap("prop", "templates")).multiTitleListQuery("titles", titles);
+		return JSONParse.groupJOListByStrAndJA(rs.getJOofJOStream("pages"), "title", "templates", "title");
 	}
 
 	/**
@@ -237,8 +248,16 @@ public final class MQuery
 	 */
 	public static ArrayList<Tuple<String, ArrayList<Tuple<String, String>>>> globalUsage(Wiki wiki, ArrayList<String> titles)
 	{
-		return QueryTools.multiQueryForTuples(wiki, wiki.makeUB("query", "prop", "globalusage"), "gulimit", "globalusage",
-				"title", "wiki", "title", "titles", titles);
+		RSet rs = new SQ(wiki, "gulimit", FString.paramMap("prop", "globalusage")).multiTitleListQuery("titles", titles);
+
+		HashMap<String, ArrayList<Tuple<String, String>>> hlx = new HashMap<>();
+		for (Reply r : rs.getJOofJO("pages"))
+		{
+			JSONArray ja = r.has("globalusage") ? r.getJSONArray("globalusage") : new JSONArray();
+			FL.mapListMerge(hlx, r.getString("title"), JSONParse.strTuplesFromJAofJO(ja, "title", "wiki"));
+		}
+
+		return FL.mapToList(hlx);
 	}
 
 	/**
@@ -249,14 +268,14 @@ public final class MQuery
 	 * @param titles The titles to query
 	 * @return A list of results keyed by title.
 	 */
-	public static ArrayList<Tuple<String, ArrayList<String>>> getDuplicatesOf(Wiki wiki, boolean localOnly,
-			ArrayList<String> titles)
+	public static HashMap<String, ArrayList<String>> getDuplicatesOf(Wiki wiki, boolean localOnly, ArrayList<String> titles)
 	{
-		URLBuilder ub = wiki.makeUB("query", "prop", "duplicatefiles");
+		HashMap<String, String> pl = FString.paramMap("prop", "duplicatefiles");
 		if (localOnly)
-			ub.setParams("dflocalonly", "");
+			pl.put("dflocalonly", "");
 
-		return QueryTools.multiQueryForStrings(wiki, ub, "dflimit", "duplicatefiles", "name", "title", "titles", titles);
+		Stream<Reply> srl = new SQ(wiki, "dflimit", pl).multiTitleListQuery("titles", titles).getJOofJOStream("pages");
+		return JSONParse.groupJOListByStrAndJA(srl, "title", "duplicatefiles", "name");
 	}
 
 	/**
@@ -269,7 +288,7 @@ public final class MQuery
 	 */
 	protected static ArrayList<String> querySpecialPage(Wiki wiki, int cap, String pname)
 	{
-		return QueryTools.limitedQueryForStrings(wiki, wiki.makeUB("query", "list", "querypage", "qppage", pname), "qplimit",
-				cap, "results", "title", null, null);
+		HashMap<String, String> pl = FString.paramMap("list", "querypage", "qppage", pname);
+		return new SQ(wiki, "qplimit", cap, pl).multiQuery().stringFromJAOfJO("results", "title");
 	}
 }

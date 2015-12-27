@@ -3,6 +3,8 @@ package jwiki.core;
 import java.net.HttpCookie;
 import java.net.URI;
 
+import jwiki.util.FString;
+
 /**
  * Perform wiki authentication and initialization tasks for a Wiki.
  * 
@@ -44,8 +46,12 @@ public final class Auth
 	private static boolean doSetup(Wiki wiki)
 	{
 		ColorLog.info(wiki, "Fetching namespace list and csrf tokens");
-		Reply r = QueryTools.doSingleQuery(wiki, wiki.makeUB("query", "meta", URLBuilder.chainProps("siteinfo", "tokens"),
-				"siprop", URLBuilder.chainProps("namespaces", "namespacealiases"), "type", "csrf"));
+		
+		Reply r = new SQ(wiki, FString.paramMap("meta", URLBuilder.chainProps("siteinfo", "tokens"),
+				"siprop", URLBuilder.chainProps("namespaces", "namespacealiases"), "type", "csrf")).query();
+		
+		//Reply r = QueryTools.doSingleQuery(wiki, wiki.makeUB("query", "meta", URLBuilder.chainProps("siteinfo", "tokens"),
+		//		"siprop", URLBuilder.chainProps("namespaces", "namespacealiases"), "type", "csrf"));
 		return (wiki.nsl = NS.NSManager.makeNSManager(r)) != null
 				&& (wiki.token = r.getStringR("csrftoken")) != null;
 	}

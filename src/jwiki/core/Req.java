@@ -108,7 +108,7 @@ public final class Req
 	private static URLConnection genericURLConnection(URL url, CookieManager cookiejar) throws IOException
 	{
 		URLConnection c = url.openConnection();
-		c.setRequestProperty("User-Agent", Settings.useragent); // required, or server will 403.
+		c.setRequestProperty("User-Agent", Settings.userAgent); // required, or server will 403.
 		c.setRequestProperty("Connection", "keep-alive");
 		c.setRequestProperty("Accept-Encoding", "gzip");
 

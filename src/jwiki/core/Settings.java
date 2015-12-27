@@ -16,13 +16,13 @@ public final class Settings
 	/**
 	 * The user agent we're using to make https requests.
 	 */
-	public static String useragent = String.format("libjwiki on %s (%s) using JRE %s", System.getProperty("os.name"),
+	public static String userAgent = String.format("libjwiki on %s (%s) using JRE %s", System.getProperty("os.name"),
 			System.getProperty("os.version"), System.getProperty("java.version"));
 
 	/**
 	 * The maximum allowable number of entries to request data for per group entry.
 	 */
-	protected static final int groupquerymax = 50;
+	protected static int groupQueryMax = 50;
 
 	/**
 	 * The communications protocol we'll be using. Default = https.

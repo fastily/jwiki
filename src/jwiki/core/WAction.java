@@ -62,14 +62,14 @@ public final class WAction
 	 * @param title The title to edit
 	 * @param text The new page text to set <code>title</code> to.
 	 * @param reason The edit summary to use
-	 * @param agressive If true, program will try 10 times 
+	 * @param agressive If true, program will try 10 times
 	 * 
 	 * @return True if the operation was successful.
 	 */
 	protected static boolean edit(Wiki wiki, String title, String text, String reason, boolean agressive)
 	{
 		ColorLog.info(wiki, "Editing " + title);
-		
+
 		int attempt = agressive ? 5 : 1;
 		for (int i = 0; i < attempt; i++)
 		{
@@ -79,8 +79,8 @@ public final class WAction
 			Reply r = doAction(wiki, wiki.makeUB("edit"), "title", title, "text", text, "summary", reason, "token", wiki.token);
 			if (r != null && r.resultIs("Success"))
 				return true;
-			
-			if(r.getErrorCode().equals("ratelimited"))
+
+			if (r.getErrorCode().equals("ratelimited"))
 				try
 				{
 					ColorLog.warn(wiki, "Rate Limited! Sleeping 30 sec");
@@ -88,7 +88,7 @@ public final class WAction
 				}
 				catch (InterruptedException e)
 				{
-					
+
 				}
 		}
 		return false;
@@ -126,8 +126,8 @@ public final class WAction
 	{
 		ColorLog.info(wiki, "Undoing top revision of " + title);
 		ArrayList<Revision> rl = wiki.getRevisions(title, 2, false);
-		return rl.size() < 2 ? FError.printErrAndRet("There are fewer than two revisions in " + title, false) : edit(wiki,
-				title, rl.get(1).text, reason, true);
+		return rl.size() < 2 ? FError.printErrAndRet("There are fewer than two revisions in " + title, false)
+				: edit(wiki, title, rl.get(1).text, reason, true);
 	}
 
 	/**
@@ -168,7 +168,7 @@ public final class WAction
 		return false;
 	}
 
-	// TODO: Purge module can actually take multiple titles
+	// TODO: Should be rewritten to accept multiple titles
 	/**
 	 * Purges the cache of a page.
 	 * 
@@ -179,8 +179,16 @@ public final class WAction
 	protected static boolean purge(Wiki wiki, String title)
 	{
 		ColorLog.fyi(wiki, "Purging " + title);
-		Reply r = QueryTools.doSingleQuery(wiki, wiki.makeUB("purge", "titles", FString.enc(title)));
-		return r != null && !r.hasError() && r.getJSONArray("purge").getJSONObject(0).has("purged");
+
+		try
+		{
+			Reply r = Req.get(wiki.makeUB("purge", "titles", FString.enc(title)).makeURL(), wiki.cookiejar);
+			return r != null && !r.hasError() && r.getJSONArray("purge").getJSONObject(0).has("purged");
+		}
+		catch (Throwable e)
+		{
+			return false;
+		}
 	}
 
 	/**
@@ -205,7 +213,7 @@ public final class WAction
 			long filesize = Files.size(p);
 			long chunks = filesize / chunksize + ((filesize % chunksize) > 0 ? 1 : 0);
 
-			HashMap<String, String> args = FString.makeParamMap("filename", wiki.nsl.nss(uploadTo), "token", wiki.token,
+			HashMap<String, String> args = FString.paramMap("filename", wiki.nsl.nss(uploadTo), "token", wiki.token,
 					"ignorewarnings", "true", "stash", "1", "filesize", "" + filesize);
 
 			ColorLog.info(wiki, String.format("Uploading '%s' to '%s'", filename, title));

@@ -5,6 +5,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Map;
 
 import javax.security.auth.login.LoginException;
 
@@ -421,8 +422,7 @@ public class Wiki
 	public String getPageText(String title)
 	{
 		ColorLog.info(this, "Getting page text of " + title);
-		ArrayList<String> temp = MQuery.getPageText(this, FL.toSAL(title)).get(0).y;
-		return temp.isEmpty() ? "" : temp.get(0);
+		return MQuery.getPageText(this, FL.toSAL(title)).get(title);
 	}
 
 	/**
@@ -436,14 +436,12 @@ public class Wiki
 	public ArrayList<Revision> getRevisions(String title, int cap, boolean olderFirst)
 	{
 		ColorLog.info(this, "Getting revisions from " + title);
-		URLBuilder ub = makeUB("query", "prop", "revisions", "rvprop",
-				URLBuilder.chainProps("timestamp", "user", "comment", "content"));
+		HashMap<String, String> pl = FString.paramMap("prop", "revisions", "rvprop",
+				URLBuilder.chainProps("timestamp", "user", "comment", "content"), "titles", title);
 		if (olderFirst)
-			ub.setParams("rvdir", "newer"); // MediaWiki is weird.
+			pl.put("rvdir", "newer"); // MediaWiki is weird.
 
-		RSet rs = cap > 0 ? QueryTools.doLimitedQuery(this, ub, "rvlimit", cap, "titles", title)
-				: QueryTools.doMultiQuery(this, ub, "rvlimit", "titles", FL.toSAL(title));
-
+		RSet rs = new SQ(this, "rvlimit", cap, pl).multiQuery();
 		return FL.toAL(rs.getJOofJAStream("revisions").map(x -> new Revision(title, x)));
 	}
 
@@ -469,7 +467,7 @@ public class Wiki
 	public int getCategorySize(String title)
 	{
 		ColorLog.info(this, "Getting category size of " + title);
-		return MQuery.getCategorySize(this, FL.toSAL(title)).get(0).y.intValue();
+		return MQuery.getCategorySize(this, FL.toSAL(title)).get(title);
 	}
 
 	/**
@@ -499,31 +497,24 @@ public class Wiki
 	{
 		ColorLog.info(this, "Getting category members from " + title);
 
-		String cTitle = convertIfNotInNS(title, NS.CATEGORY);
-
-		URLBuilder ub = makeUB("query", "list", "categorymembers", "cmtitle", FString.enc(cTitle));
+		HashMap<String, String> pl = FString.paramMap("list", "categorymembers", "cmtitle",
+				FString.enc(convertIfNotInNS(title, NS.CATEGORY)));
 		if (ns.length > 0)
-			ub.setParams("cmnamespace", nsl.createFilter(true, ns));
+			pl.put("cmnamespace", nsl.createFilter(true, ns));
 
-		RSet rs;
-		if (cap > 0)
-			rs = QueryTools.doLimitedQuery(this, ub, "cmlimit", cap, null, null);
-		else // TODO: This is *really* bad
-			rs = QueryTools.doMultiQuery(this, ub, "cmlimit", "cmtitle", FL.toSAL(cTitle));
-
-		return rs.stringFromJAOfJO("categorymembers", "title");
+		return new SQ(this, "cmlimit", cap, pl).multiQuery().stringFromJAOfJO("categorymembers", "title");
 	}
 
 	/**
-	 * Gets the categories a page is categorized in.
+	 * Get the categories of a page.
 	 * 
 	 * @param title The title to get categories of.
 	 * @return A list of categories, or the empty list if something went wrong.
 	 */
 	public ArrayList<String> getCategoriesOnPage(String title)
 	{
-		ColorLog.info(this, "Getting categories on " + title);
-		return MQuery.getCategoriesOnPage(this, FL.toSAL(title)).get(0).y;
+		ColorLog.info(this, "Getting categories of " + title);
+		return MQuery.getCategoriesOnPage(this, FL.toSAL(title)).get(title);
 	}
 
 	/**
@@ -536,7 +527,7 @@ public class Wiki
 	public ArrayList<String> getLinksOnPage(String title, NS... ns)
 	{
 		ColorLog.info(this, "Getting wiki links on " + title);
-		return MQuery.getLinksOnPage(this, ns, FL.toSAL(title)).get(0).y;
+		return MQuery.getLinksOnPage(this, ns, FL.toSAL(title)).get(title);
 	}
 
 	/**
@@ -549,11 +540,7 @@ public class Wiki
 	 */
 	public ArrayList<String> getLinksOnPage(boolean exists, String title, NS... ns)
 	{
-		ArrayList<String> l = new ArrayList<>();
-		for (Tuple<String, Boolean> t : MQuery.exists(this, getLinksOnPage(title, ns)))
-			if (t.y.booleanValue() == exists)
-				l.add(t.x);
-		return l;
+		return FL.toAL(MQuery.exists(this, getLinksOnPage(title, ns)).entrySet().stream().filter(t -> t.getValue() == exists).map(Map.Entry::getKey));
 	}
 
 	/**
@@ -568,15 +555,14 @@ public class Wiki
 	public ArrayList<Contrib> getContribs(String user, int cap, boolean olderFirst, NS... ns)
 	{
 		ColorLog.info(this, "Fetching contribs of " + user);
-		URLBuilder ub = makeUB("query", "list", "usercontribs");
+		HashMap<String, String> pl = FString.paramMap("list", "usercontribs", "ucuser", user);
 		if (ns.length > 0)
-			ub.setParams("ucnamespace", nsl.createFilter(true, ns));
+			pl.put("ucnamespace", nsl.createFilter(true, ns));
 		if (olderFirst)
-			ub.setParams("ucdir", "newer");
+			pl.put("ucdir", "newer");
 
-		RSet rs = cap > -1 ? QueryTools.doLimitedQuery(this, ub, "uclimit", cap, "ucuser", user)
-				: QueryTools.doMultiQuery(this, ub, "uclimit", "ucuser", FL.toSAL(user));
-		return FL.toAL(rs.getJOofJAStream("usercontribs").map(x -> new Contrib(x)));
+		RSet rs = new SQ(this, "uclimit", cap, pl).multiQuery();
+		return FL.toAL(rs.getJOofJAStream("usercontribs").map(Contrib::new));
 	}
 
 	/**
@@ -601,8 +587,8 @@ public class Wiki
 	public ArrayList<String> getUserUploads(String user)
 	{
 		ColorLog.info(this, "Fetching uploads for " + user);
-		return QueryTools.doMultiQuery(this, makeUB("query", "list", "allimages", "aisort", "timestamp"), "ailimit", "aiuser",
-				FL.toSAL(nsl.nss(user))).stringFromJAOfJO("allimages", "title");
+		HashMap<String, String> pl = FString.paramMap("list", "allimages", "aisort", "timestamp", "aiuser", nsl.nss(user));
+		return new SQ(this, "ailimit", pl).multiQuery().stringFromJAOfJO("allimages", "title");
 	}
 
 	/**
@@ -615,7 +601,7 @@ public class Wiki
 	public ArrayList<String> fileUsage(String title)
 	{
 		ColorLog.info(this, "Fetching local file usage of " + title);
-		return MQuery.fileUsage(this, FL.toSAL(title)).get(0).y;
+		return MQuery.fileUsage(this, FL.toSAL(title)).get(title);
 	}
 
 	/**
@@ -627,7 +613,7 @@ public class Wiki
 	public ArrayList<String> getImagesOnPage(String title)
 	{
 		ColorLog.info(this, "Getting files on " + title);
-		return MQuery.getImagesOnPage(this, FL.toSAL(title)).get(0).y;
+		return MQuery.getImagesOnPage(this, FL.toSAL(title)).get(title);
 	}
 
 	/**
@@ -639,7 +625,7 @@ public class Wiki
 	public boolean exists(String title)
 	{
 		ColorLog.info(this, "Checking to see if title exists: " + title);
-		return MQuery.exists(this, FL.toSAL(title)).get(0).y;
+		return MQuery.exists(this, FL.toSAL(title)).get(title);
 	}
 
 	/**
@@ -664,7 +650,7 @@ public class Wiki
 	public ImageInfo getImageInfo(String title, int height, int width)
 	{
 		ColorLog.info(this, "Getting image info for " + title);
-		return MQuery.getImageInfo(this, width, height, FL.toSAL(title)).get(0).y;
+		return MQuery.getImageInfo(this, width, height, FL.toSAL(title)).get(title);
 	}
 
 	/**
@@ -676,7 +662,7 @@ public class Wiki
 	public ArrayList<String> getTemplatesOnPage(String title)
 	{
 		ColorLog.info(this, "Getting templates transcluded on " + title);
-		return MQuery.getTemplatesOnPage(this, FL.toSAL(title)).get(0).y;
+		return MQuery.getTemplatesOnPage(this, FL.toSAL(title)).get(title);
 	}
 
 	/**
@@ -689,7 +675,7 @@ public class Wiki
 	public ArrayList<String> whatTranscludesHere(String title)
 	{
 		ColorLog.info(this, "Getting list of pages that transclude " + title);
-		return MQuery.transcludesIn(this, FL.toSAL(title)).get(0).y;
+		return MQuery.transcludesIn(this, FL.toSAL(title)).get(title);
 	}
 
 	/**
@@ -715,7 +701,7 @@ public class Wiki
 	public ArrayList<String> whatLinksHere(String title, boolean redirects)
 	{
 		ColorLog.info("Getting links to " + title);
-		return MQuery.linksHere(this, redirects, FL.toSAL(title)).get(0).y;
+		return MQuery.linksHere(this, redirects, FL.toSAL(title)).get(title);
 	}
 
 	/**
@@ -744,23 +730,15 @@ public class Wiki
 	public ArrayList<String> allPages(String prefix, boolean redirectsonly, int cap, NS ns)
 	{
 		ColorLog.info(this, "Doing all pages fetch for " + prefix == null ? "all pages" : prefix);
-		URLBuilder ub = makeUB("query", "list", "allpages");
+		HashMap<String, String> pl = FString.paramMap("list", "allpages");
 		if (prefix != null)
-			ub.setParams("apprefix", FString.enc(prefix));
+			pl.put("apprefix", FString.enc(prefix));
 		if (ns != null)
-			ub.setParams("apnamespace", "" + ns.v);
+			pl.put("apnamespace", "" + ns.v);
 		if (redirectsonly)
-			ub.setParams("apfilterredir", "redirects");
+			pl.put("apfilterredir", "redirects");
 
-		ub.setParams("aplimit", "max"); // TODO: HACKY - makes else statement work
-
-		RSet rs;
-		if (cap > 0)
-			rs = QueryTools.doLimitedQuery(this, ub, "aplimit", cap, null, null);
-		else // TODO: VERY BAD FORM
-			rs = QueryTools.doNoTitleMultiQuery(this, ub);
-
-		return rs.stringFromJAOfJO("allpages", "title");
+		return new SQ(this, "aplimit", cap, pl).multiQuery().stringFromJAOfJO("allpages", "title");
 	}
 
 	/**
@@ -786,7 +764,7 @@ public class Wiki
 	public ArrayList<String> getDuplicatesOf(String title, boolean localOnly)
 	{
 		ColorLog.info(this, "Getting duplicates of " + title);
-		return MQuery.getDuplicatesOf(this, localOnly, FL.toSAL(title)).get(0).y;
+		return MQuery.getDuplicatesOf(this, localOnly, FL.toSAL(title)).get(title);
 	}
 
 	/**
