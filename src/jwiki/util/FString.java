@@ -7,8 +7,6 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import org.json.JSONArray;
-
 /**
  * Miscellaneous String related routines I find myself using repeatedly.
  * 
@@ -134,7 +132,7 @@ public final class FString
 	 * @param sl The list of elements to turn into a HashMap.
 	 * @return The resulting HashMap, or null if you specified an odd number of elements.
 	 */
-	public static HashMap<String, String> makeParamMap(String... sl)
+	public static HashMap<String, String> paramMap(String... sl)
 	{
 		if (sl.length % 2 == 1)
 			return null;
@@ -142,22 +140,6 @@ public final class FString
 		HashMap<String, String> l = new HashMap<>();
 		for (int i = 0; i < sl.length; i += 2)
 			l.put(sl[i], sl[i + 1]);
-		return l;
-	}
-
-	/**
-	 * Converts a list of strings in a JSONArray to a list of Strings. PRECONDITION: <code>ja</code> *must* be a list of
-	 * Strings or you will get strange results.
-	 * 
-	 * @param ja The JSONArray to get Strings from
-	 * @return A list of Strings found in <code>ja</code>.
-	 */
-	public static ArrayList<String> jsonArrayToString(JSONArray ja)
-	{
-		ArrayList<String> l = new ArrayList<>();
-		for (int i = 0; i < ja.length(); i++)
-			l.add(ja.getString(i));
-
 		return l;
 	}
 }

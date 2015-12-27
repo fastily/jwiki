@@ -3,6 +3,7 @@ package jwiki.core;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import jwiki.util.FString;
@@ -38,8 +39,8 @@ public final class URLBuilder
 	}
 
 	/**
-	 * Sets the params of this object. Note that subsequent calls of this method will not overwrite keys-value pairs that
-	 * are not named in the passed in parameters.
+	 * Sets the parameter list of this object. Note that subsequent calls of this method will not overwrite keys-value
+	 * pairs that are not named in the passed in parameters.
 	 * 
 	 * @param params The params, in key-value order to set the object's state with. i.e there must be an even number of
 	 *           arguments or you'll get an error
@@ -51,6 +52,17 @@ public final class URLBuilder
 
 		for (int i = 0; i < params.length; i += 2)
 			pl.put(params[i], params[i + 1]);
+	}
+
+	/**
+	 * Set the parameter list of this object with the key-value pairs in the specified HashMap. Note that subsequent
+	 * calls of this method will not overwrite keys-value pairs that are not named.
+	 * 
+	 * @param params The key-value pairs to set the object's parameter list with.
+	 */
+	protected void setParams(HashMap<String, String> params)
+	{
+		pl.putAll(params);
 	}
 
 	/**
@@ -116,7 +128,7 @@ public final class URLBuilder
 	 * @param props The properties to chain.
 	 * @return The chained set of properties, separated by pipes as necessary.
 	 */
-	protected static String chainProps(ArrayList<String> props)
+	protected static String chainProps(List<String> props)
 	{
 		return chainProps(props.toArray(new String[0]));
 	}

@@ -18,19 +18,39 @@ public class RSet
 	private ArrayList<Reply> rl;
 
 	/**
-	 * Constructors disallowed
+	 * Constructor, creates an RSet with the specified ArrayList of Reply objects.
+	 * 
+	 * @param rl The ArrayList to create the RSet with.
 	 */
 	protected RSet(ArrayList<Reply> rl)
 	{
 		this.rl = rl;
 	}
 
-	//TODO: TEMPORARY TODO TRACKER
+	/**
+	 * Constructor, creates an empty RSet.
+	 */
+	protected RSet()
+	{
+		this(new ArrayList<>());
+	}
+
+	// TODO: TEMPORARY TODO TRACKER
 	protected ArrayList<Reply> getRL()
 	{
 		return rl;
 	}
-	
+
+	/**
+	 * Merges the specified RSet into this RSet.
+	 * 
+	 * @param rs The RSet to merge into this RSet.
+	 */
+	protected void merge(RSet rs)
+	{
+		rl.addAll(rs.rl);
+	}
+
 	/**
 	 * Selects an &lt;Integer, String&gt; from JSONObjects in a Reply. Example usage: <code>siteinfo</code> →
 	 * <code>namespace</code>.
@@ -42,13 +62,14 @@ public class RSet
 	 */
 	protected ArrayList<Tuple<Integer, String>> intStringFromJO(String base, String key1, String key2)
 	{
-		return FL.toAL(rl.stream().map(r -> r.bigJSONObjectGet(base)).flatMap(l -> l.stream())
+		return FL.toAL(rl.stream().map(r -> r.bigJSONObjectGet(base)).flatMap(ArrayList::stream)
 				.map(jo -> new Tuple<>(jo.getInt(key1), jo.getString(key2))));
 	}
 
 	/**
 	 * Selects, for a given key, a JSONArray of JSONObjects, and collects the JSONObjects. Example usage: Assist with
 	 * <code>Revision</code> and <code>Contrib</code>.
+	 * 
 	 * @param base The key pointing to the JSONArray to select.
 	 * @return A Stream of collected JSONObjects
 	 */
@@ -80,5 +101,27 @@ public class RSet
 	protected ArrayList<Reply> getJOofJA(String base)
 	{
 		return FL.toAL(getJOofJAStream(base));
+	}
+
+	/**
+	 * Retrieves JSONObjects within a JSONObject of JSONObjects in a Stream.
+	 * 
+	 * @param base The key pointing to the JSONObject to retrieve JSONObjects from.
+	 * @return A Stream with JSONObjects found in the JSONObject for <code>key</code>
+	 */
+	protected Stream<Reply> getJOofJOStream(String base)
+	{
+		return rl.stream().flatMap(r -> r.bigJSONObjectGet(base).stream());
+	}
+
+	/**
+	 * Retrieves JSONObjects within a JSONObject of JSONObjects in a Stream.
+	 * 
+	 * @param base The key pointing to the JSONObject to retrieve JSONObjects from.
+	 * @return An ArrayList with JSONObjects found in the JSONObject for <code>key</code>
+	 */
+	protected ArrayList<Reply> getJOofJO(String base)
+	{
+		return FL.toAL(getJOofJOStream(base));
 	}
 }

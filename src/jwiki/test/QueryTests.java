@@ -100,11 +100,18 @@ public class QueryTests
 	@Test
 	public void testFileUsage()
 	{
+		// Test 1
 		ArrayList<String> result = wiki.fileUsage("File:FastilyTest.svg");
 		ArrayList<String> expected = FL.toSAL("User:Fastily/Sandbox/ImageLinks", "User:Fastily/Sandbox/Page");
 
 		assertEquals(2, result.size());
 		assertTrue(result.containsAll(expected));
+		
+		// Test 2
+		result = wiki.fileUsage("File:Fastily NonExistent File.png");
+		//expected = new ArrayList<>();
+		
+		assertEquals(0, result.size());
 	}
 
 	/**
