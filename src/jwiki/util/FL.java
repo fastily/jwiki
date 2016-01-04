@@ -75,14 +75,33 @@ public class FL
 	{
 		return toAL(h.entrySet().stream().map(e -> new Tuple<>(e.getKey(), e.getValue())));
 	}
-	
+
 	/**
 	 * Takes an ArrayList of ArrayList of type <code>T1</code> and condenses them into one list.
+	 * 
 	 * @param l The ArrayList to squash
 	 * @return The squashed ArrayList.
 	 */
-	public static <T1> ArrayList<T1> flattenArrayLists(ArrayList<ArrayList<T1>> l)
+	public static <T1> ArrayList<T1> flattenAL(ArrayList<ArrayList<T1>> l)
 	{
 		return toAL(l.stream().flatMap(ArrayList::stream));
+	}
+
+	/**
+	 * Creates a HashMap with String keys and values. Pass in each pair and value (in that order) into <code>sl</code>.
+	 * This will be one pair entered into resulting HashMap.
+	 * 
+	 * @param sl The list of elements to turn into a HashMap.
+	 * @return The resulting HashMap, or null if you specified an odd number of elements.
+	 */
+	public static HashMap<String, String> pMap(String... sl)
+	{
+		if (sl.length % 2 == 1)
+			return null;
+	
+		HashMap<String, String> l = new HashMap<>();
+		for (int i = 0; i < sl.length; i += 2)
+			l.put(sl[i], sl[i + 1]);
+		return l;
 	}
 }

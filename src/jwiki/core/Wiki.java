@@ -239,9 +239,7 @@ public class Wiki
 	 */
 	protected URLBuilder makeUB(String action, String... params)
 	{
-		URLBuilder ub = new URLBuilder(domain, action);
-		ub.setParams(params);
-		return ub;
+		return new URLBuilder(domain, action, params.length > 0 ? FL.pMap(params) : null);
 	}
 
 	/**
@@ -436,8 +434,8 @@ public class Wiki
 	public ArrayList<Revision> getRevisions(String title, int cap, boolean olderFirst)
 	{
 		ColorLog.info(this, "Getting revisions from " + title);
-		HashMap<String, String> pl = FString.paramMap("prop", "revisions", "rvprop",
-				URLBuilder.chainProps("timestamp", "user", "comment", "content"), "titles", title);
+		HashMap<String, String> pl = FL.pMap("prop", "revisions", "rvprop",
+				FString.pipeFence("timestamp", "user", "comment", "content"), "titles", title);
 		if (olderFirst)
 			pl.put("rvdir", "newer"); // MediaWiki is weird.
 
@@ -497,10 +495,10 @@ public class Wiki
 	{
 		ColorLog.info(this, "Getting category members from " + title);
 
-		HashMap<String, String> pl = FString.paramMap("list", "categorymembers", "cmtitle",
-				FString.enc(convertIfNotInNS(title, NS.CATEGORY)));
+		HashMap<String, String> pl = FL.pMap("list", "categorymembers", "cmtitle",
+				convertIfNotInNS(title, NS.CATEGORY));
 		if (ns.length > 0)
-			pl.put("cmnamespace", nsl.createFilter(true, ns));
+			pl.put("cmnamespace", nsl.createFilter(ns));
 
 		return new SQ(this, "cmlimit", cap, pl).multiQuery().stringFromJAOfJO("categorymembers", "title");
 	}
@@ -540,7 +538,8 @@ public class Wiki
 	 */
 	public ArrayList<String> getLinksOnPage(boolean exists, String title, NS... ns)
 	{
-		return FL.toAL(MQuery.exists(this, getLinksOnPage(title, ns)).entrySet().stream().filter(t -> t.getValue() == exists).map(Map.Entry::getKey));
+		return FL.toAL(MQuery.exists(this, getLinksOnPage(title, ns)).entrySet().stream().filter(t -> t.getValue() == exists)
+				.map(Map.Entry::getKey));
 	}
 
 	/**
@@ -555,9 +554,9 @@ public class Wiki
 	public ArrayList<Contrib> getContribs(String user, int cap, boolean olderFirst, NS... ns)
 	{
 		ColorLog.info(this, "Fetching contribs of " + user);
-		HashMap<String, String> pl = FString.paramMap("list", "usercontribs", "ucuser", user);
+		HashMap<String, String> pl = FL.pMap("list", "usercontribs", "ucuser", user);
 		if (ns.length > 0)
-			pl.put("ucnamespace", nsl.createFilter(true, ns));
+			pl.put("ucnamespace", nsl.createFilter(ns));
 		if (olderFirst)
 			pl.put("ucdir", "newer");
 
@@ -587,7 +586,7 @@ public class Wiki
 	public ArrayList<String> getUserUploads(String user)
 	{
 		ColorLog.info(this, "Fetching uploads for " + user);
-		HashMap<String, String> pl = FString.paramMap("list", "allimages", "aisort", "timestamp", "aiuser", nsl.nss(user));
+		HashMap<String, String> pl = FL.pMap("list", "allimages", "aisort", "timestamp", "aiuser", nsl.nss(user));
 		return new SQ(this, "ailimit", pl).multiQuery().stringFromJAOfJO("allimages", "title");
 	}
 
@@ -730,9 +729,9 @@ public class Wiki
 	public ArrayList<String> allPages(String prefix, boolean redirectsonly, int cap, NS ns)
 	{
 		ColorLog.info(this, "Doing all pages fetch for " + prefix == null ? "all pages" : prefix);
-		HashMap<String, String> pl = FString.paramMap("list", "allpages");
+		HashMap<String, String> pl = FL.pMap("list", "allpages");
 		if (prefix != null)
-			pl.put("apprefix", FString.enc(prefix));
+			pl.put("apprefix", prefix);
 		if (ns != null)
 			pl.put("apnamespace", "" + ns.v);
 		if (redirectsonly)

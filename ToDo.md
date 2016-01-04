@@ -5,5 +5,7 @@
 * MIME & SHA1 for imageinfo
 
 ### Usability
-* Rewrite QueryTools because it is confusing to maintain
 * Purge should take multiple params in WAction
+* URLBuilder should automatically urlencode parameters.
+* Check password encoding for logins
+* Standardize urlencodes 

@@ -4,11 +4,13 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URLEncoder;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
- * Miscellaneous String related routines I find myself using repeatedly.
+ * Frequently used, static String functions.
  * 
  * @author Fastily
  * 
@@ -70,42 +72,38 @@ public final class FString
 	}
 
 	/**
-	 * URLEncodes multiple Strings at once.
+	 * URL encode each String value in a HashMap. Caveat: This mutates <code>hl</code>.
 	 * 
-	 * @param strings Strings to encode
-	 * @return A list of Strings, URLEncoded, in the same order they were passed in.
+	 * @param hl The HashMap to URL encode values for.
+	 * @return The same HashMap that was passed in for convenience.
 	 */
-	public static String[] massEnc(String... strings)
+	public static HashMap<String, String> encValues(HashMap<String, String> hl)
 	{
-		ArrayList<String> l = new ArrayList<>();
-		for (String s : strings)
-			l.add(enc(s));
+		for (String s : hl.keySet())
+			hl.put(s, enc(hl.get(s)));
 
-		return l.toArray(new String[0]);
+		return hl;
+	}
+	
+	
+	public static String pipeFence(String...planks)
+	{
+		return fenceMaker("|", Arrays.asList(planks));
 	}
 
 	/**
-	 * Concatenate Strings. Solution to the fencepost problem. Makes patterned Strings like "This|So|Much|Easier".
+	 * Generates a URL parameter String from a HashMap. For example, a HashMap with
+	 * <code>[(someKey:someValue), (foo:baz)]</code> will result in <code>&amp;someKey=someValue&amp;foo=baz</code>.
+	 * Caveat: This does not URL encode values.
 	 * 
-	 * @param post The String to go between planks. Optional param, use empty string/null to disable. You can (and
-	 *           should) also specify the '%n' operator in order to add new lines.
-	 * @param planks The planks of the fence post problem. Posts divide planks.
-	 * @return The completed fencepost string.
-	 * 
-	 * @see #fenceMaker(String, ArrayList)
+	 * @param hl The parameter list to generate a String for.
+	 * @return The URL parameter String.
 	 */
-	public static String fenceMaker(String post, String... planks)
+	public static String makeURLParamString(HashMap<String, String> hl)
 	{
-		if (planks.length == 0)
-			return "";
-		else if (planks.length == 1)
-			return planks[0];
-
-		String fmt = (post.isEmpty() || post == null ? "" : post) + "%s";
-
-		String x = planks[0];
-		for (int i = 1; i < planks.length; i++)
-			x += String.format(fmt, planks[i]);
+		String x = "";
+		for (Map.Entry<String, String> e : hl.entrySet())
+			x += String.format("&%s=%s", e.getKey(), e.getValue());
 
 		return x;
 	}
@@ -118,28 +116,20 @@ public final class FString
 	 * @param planks The planks of the fence post problem. Posts divide planks.
 	 * @return The completed fencepost string.
 	 * 
-	 * @see #fenceMaker(String, String...)
 	 */
-	public static String fenceMaker(String post, ArrayList<String> planks)
+	public static String fenceMaker(String post, List<String> planks)
 	{
-		return fenceMaker(post, planks.toArray(new String[0]));
-	}
+		if (planks.isEmpty())
+			return "";
+		else if (planks.size() == 1)
+			return planks.get(0);
 
-	/**
-	 * Creates a HashMap with String keys and values. Pass in each pair and value (in that order) into <code>sl</code>.
-	 * This will be one pair entered into resulting HashMap.
-	 * 
-	 * @param sl The list of elements to turn into a HashMap.
-	 * @return The resulting HashMap, or null if you specified an odd number of elements.
-	 */
-	public static HashMap<String, String> paramMap(String... sl)
-	{
-		if (sl.length % 2 == 1)
-			return null;
+		String fmt = (post.isEmpty() || post == null ? "" : post) + "%s";
 
-		HashMap<String, String> l = new HashMap<>();
-		for (int i = 0; i < sl.length; i += 2)
-			l.put(sl[i], sl[i + 1]);
-		return l;
+		String x = planks.get(0);
+		for (int i = 1; i < planks.size(); i++)
+			x += String.format(fmt, planks.get(i));
+
+		return x;
 	}
 }

@@ -1,4 +1,4 @@
-package jwiki.test;
+package jwiki.extras;
 
 import java.io.Console;
 import java.nio.file.Files;
@@ -82,7 +82,7 @@ public class WikiGen
 			JSONObject entry = jo.getJSONObject(s);
 			master.put(s, entry.getString("pass"));
 			if (entry.has("rank"))
-				pwl.put(new Integer(entry.getInt("rank")), s);
+				pwl.put(entry.getInt("rank"), s);
 		}
 	}
 
@@ -137,7 +137,7 @@ public class WikiGen
 			while (!l.isEmpty())
 			{
 				doUserRank(c, l, jo);
-				if (!userAnsweredYes(c, "Continue? (Y/N): "))
+				if (!userAnsweredYes(c, "Continue? (y/N): "))
 					break;
 			}
 		}
@@ -284,7 +284,7 @@ public class WikiGen
 	 */
 	public synchronized Wiki get(int rank)
 	{
-		String user = pwl.get(new Integer(rank));
+		String user = pwl.get(rank);
 		return user == null ? null : get(user);
 	}
 
@@ -297,7 +297,7 @@ public class WikiGen
 	 */
 	public synchronized Wiki get(int rank, String domain)
 	{
-		String user = pwl.get(new Integer(rank));
+		String user = pwl.get(rank);
 		return user == null ? null : get(user, domain);
 	}
 }
