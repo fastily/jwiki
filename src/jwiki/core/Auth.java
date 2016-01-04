@@ -3,6 +3,7 @@ package jwiki.core;
 import java.net.HttpCookie;
 import java.net.URI;
 
+import jwiki.util.FL;
 import jwiki.util.FString;
 
 /**
@@ -31,9 +32,8 @@ public final class Auth
 	{
 		ColorLog.info(String.format("Logging in as %s @ %s", wiki.upx.x, wiki.domain));
 
-		URLBuilder ub = wiki.makeUB("login");
-		Reply r = WAction.doAction(wiki, ub, "lgname", wiki.upx.x);
-		return r == null || r.hasError() || !r.resultIs("NeedToken") ? false : WAction.doAction(wiki, ub, "lgname",
+		Reply r = WAction.doAction(wiki, "login", "lgname", wiki.upx.x);
+		return r == null || r.hasError() || !r.resultIs("NeedToken") ? false : WAction.doAction(wiki, "login", "lgname",
 				wiki.upx.x, "lgpassword", wiki.upx.y, "lgtoken", r.getStringR("token")).resultIs("Success");
 	}
 
@@ -47,11 +47,8 @@ public final class Auth
 	{
 		ColorLog.info(wiki, "Fetching namespace list and csrf tokens");
 		
-		Reply r = new SQ(wiki, FString.paramMap("meta", URLBuilder.chainProps("siteinfo", "tokens"),
-				"siprop", URLBuilder.chainProps("namespaces", "namespacealiases"), "type", "csrf")).query();
-		
-		//Reply r = QueryTools.doSingleQuery(wiki, wiki.makeUB("query", "meta", URLBuilder.chainProps("siteinfo", "tokens"),
-		//		"siprop", URLBuilder.chainProps("namespaces", "namespacealiases"), "type", "csrf"));
+		Reply r = new SQ(wiki, FL.pMap("meta", FString.pipeFence("siteinfo", "tokens"),
+				"siprop", FString.pipeFence("namespaces", "namespacealiases"), "type", "csrf")).query();
 		return (wiki.nsl = NS.NSManager.makeNSManager(r)) != null
 				&& (wiki.token = r.getStringR("csrftoken")) != null;
 	}

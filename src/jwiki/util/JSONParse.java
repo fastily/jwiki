@@ -86,7 +86,7 @@ public class JSONParse
 		// Flatten - this ideally should be part of group
 		HashMap<String, ArrayList<String>> m = new HashMap<>();
 		for (Map.Entry<String, ArrayList<ArrayList<String>>> e : ht.entrySet())
-			m.put(e.getKey(), FL.flattenArrayLists(e.getValue()));
+			m.put(e.getKey(), FL.flattenAL(e.getValue()));
 
 		return m;
 	}

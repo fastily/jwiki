@@ -10,6 +10,7 @@ import java.util.HashMap;
 
 import jwiki.dwrap.Revision;
 import jwiki.util.FError;
+import jwiki.util.FL;
 import jwiki.util.FString;
 
 /**
@@ -42,11 +43,12 @@ public final class WAction
 	 * @param params The parameters to post, in order of param, value, param, value...
 	 * @return A reply from the server or null if something went wrong.
 	 */
-	protected static Reply doAction(Wiki wiki, URLBuilder ub, String... params)
+	protected static Reply doAction(Wiki wiki, String action, String... params)
 	{
 		try
 		{
-			return Req.post(ub.makeURL(), URLBuilder.chainParams(FString.massEnc(params)), wiki.cookiejar, Req.urlenc);
+			return Req.post(wiki.makeUB(action).makeURL(), FString.makeURLParamString(FString.encValues(FL.pMap(params))),
+					wiki.cookiejar, Req.urlenc);
 		}
 		catch (Throwable e)
 		{
@@ -76,7 +78,7 @@ public final class WAction
 			if (agressive && i < 0)
 				ColorLog.info(wiki, String.format("Editing '%s', trial: %d/%d", title, i, attempt));
 
-			Reply r = doAction(wiki, wiki.makeUB("edit"), "title", title, "text", text, "summary", reason, "token", wiki.token);
+			Reply r = doAction(wiki, "edit", "title", title, "text", text, "summary", reason, "token", wiki.token);
 			if (r != null && r.resultIs("Success"))
 				return true;
 
@@ -109,8 +111,8 @@ public final class WAction
 	protected static boolean addText(Wiki wiki, String title, String text, String reason, boolean append)
 	{
 		ColorLog.info(wiki, "Adding text to " + title);
-		Reply r = doAction(wiki, wiki.makeUB("edit"), "title", title, append ? "appendtext" : "prependtext", text, "summary",
-				reason, "token", wiki.token);
+		Reply r = doAction(wiki, "edit", "title", title, append ? "appendtext" : "prependtext", text, "summary", reason,
+				"token", wiki.token);
 		return r != null && r.resultIs("Success");
 	}
 
@@ -141,7 +143,7 @@ public final class WAction
 	protected static boolean delete(Wiki wiki, String title, String reason)
 	{
 		ColorLog.info(wiki, "Deleting " + title);
-		Reply r = doAction(wiki, wiki.makeUB("delete"), "title", title, "reason", reason, "token", wiki.token);
+		Reply r = doAction(wiki, "delete", "title", title, "reason", reason, "token", wiki.token);
 		return r != null && !r.hasErrorIfIgnore("missingtitle");
 	}
 
@@ -161,7 +163,7 @@ public final class WAction
 		{
 			if (agressive && i < 0)
 				ColorLog.info(wiki, String.format("Undeleting '%s' trial: %d/%d", title, i, attempt));
-			Reply r = doAction(wiki, wiki.makeUB("undelete"), "title", title, "reason", reason, "token", wiki.token);
+			Reply r = doAction(wiki, "undelete", "title", title, "reason", reason, "token", wiki.token);
 			if (r != null && !r.hasError())
 				return true;
 		}
@@ -182,7 +184,7 @@ public final class WAction
 
 		try
 		{
-			Reply r = Req.get(wiki.makeUB("purge", "titles", FString.enc(title)).makeURL(), wiki.cookiejar);
+			Reply r = Req.get(wiki.makeUB("purge", "titles", title).makeURL(), wiki.cookiejar);
 			return r != null && !r.hasError() && r.getJSONArray("purge").getJSONObject(0).has("purged");
 		}
 		catch (Throwable e)
@@ -213,8 +215,8 @@ public final class WAction
 			long filesize = Files.size(p);
 			long chunks = filesize / chunksize + ((filesize % chunksize) > 0 ? 1 : 0);
 
-			HashMap<String, String> args = FString.paramMap("filename", wiki.nsl.nss(uploadTo), "token", wiki.token,
-					"ignorewarnings", "true", "stash", "1", "filesize", "" + filesize);
+			HashMap<String, String> args = FL.pMap("filename", wiki.nsl.nss(uploadTo), "token", wiki.token, "ignorewarnings",
+					"true", "stash", "1", "filesize", "" + filesize);
 
 			ColorLog.info(wiki, String.format("Uploading '%s' to '%s'", filename, title));
 
@@ -269,8 +271,8 @@ public final class WAction
 	private static boolean unstash(Wiki wiki, String filekey, String title, String text, String reason)
 	{
 		ColorLog.info(wiki, String.format("Unstashing '%s' from temporary archive @ '%s'", title, filekey));
-		Reply r = doAction(wiki, wiki.makeUB("upload"), "filename", title, "text", text, "comment", reason, "token",
-				wiki.token, "filekey", filekey, "ignorewarnings", "true");
+		Reply r = doAction(wiki, "upload", "filename", title, "text", text, "comment", reason, "token", wiki.token, "filekey",
+				filekey, "ignorewarnings", "true");
 		return r != null && r.resultIs("Success");
 	}
 }

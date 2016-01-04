@@ -209,10 +209,9 @@ public final class NS
 		 * @param nsl The namespaces to select.
 		 * @return The raw filter string.
 		 */
-		protected String createFilter(boolean enc, NS... nsl)
+		protected String createFilter(NS... nsl)
 		{
-			String x = FString.fenceMaker("|", NS.toString(nsl)); 
-			return enc ? FString.enc(x) : x;
+			return FString.fenceMaker("|", NS.toString(nsl)); 
 		}
 
 		/**

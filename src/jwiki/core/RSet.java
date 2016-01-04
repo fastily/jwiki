@@ -35,12 +35,6 @@ public class RSet
 		this(new ArrayList<>());
 	}
 
-	// TODO: TEMPORARY TODO TRACKER
-	protected ArrayList<Reply> getRL()
-	{
-		return rl;
-	}
-
 	/**
 	 * Merges the specified RSet into this RSet.
 	 * 
@@ -62,7 +56,7 @@ public class RSet
 	 */
 	protected ArrayList<Tuple<Integer, String>> intStringFromJO(String base, String key1, String key2)
 	{
-		return FL.toAL(rl.stream().map(r -> r.bigJSONObjectGet(base)).flatMap(ArrayList::stream)
+		return FL.toAL(rl.stream().flatMap(r -> r.bigJSONObjectGet(base).stream())
 				.map(jo -> new Tuple<>(jo.getInt(key1), jo.getString(key2))));
 	}
 

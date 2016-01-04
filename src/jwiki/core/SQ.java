@@ -108,27 +108,14 @@ public class SQ
 	 */
 	private URLBuilder makeUB(String... params)
 	{
-		URLBuilder ub = wiki.makeUB("query");
+		URLBuilder ub = wiki.makeUB("query", params);
 		ub.setParams(pl);
-		ub.setParams(params);
+		//ub.setParams(params);
 
 		if (limString != null)
-			ub.setParams(limString, strMax);
+			ub.setParam(limString, strMax);
 
 		return ub;
-	}
-
-	/**
-	 * Sets query parameters for this SQ object. This method adds the key-value pairs if they do not already exist, or
-	 * overwrites any keys that already exist with new values.
-	 * 
-	 * @param pl The new key-value pairs to add/overwrite.
-	 * @return This object, to allow for chaining.
-	 */
-	protected SQ setParams(HashMap<String, String> pl)
-	{
-		this.pl.putAll(pl);
-		return this;
 	}
 
 	/**
@@ -140,7 +127,7 @@ public class SQ
 	 * @param titles The titles to query with
 	 * @return An RSet with the results.
 	 */
-	protected RSet multiTitleListQuery(String tkey, ArrayList<String> titles)
+	protected RSet multiTitleQuery(String tkey, ArrayList<String> titles)
 	{
 		RSet rs = new RSet();
 
@@ -149,10 +136,10 @@ public class SQ
 		{
 			if (size - start < groupQueryMax)
 				end = size;
-
-			// System.err.println("Start: " + start);
-			// System.err.println("END: " + end);
-			rs.merge(multiQuery(tkey, URLBuilder.chainProps(titles.subList(start, end))));
+			
+			rs.merge(multiQuery(tkey, FString.fenceMaker("|", titles.subList(start, end))));
+			
+			//rs.merge(multiQuery(tkey, URLBuilder.chainProps(titles.subList(start, end))));
 		}
 		return rs;
 	}
@@ -162,29 +149,29 @@ public class SQ
 	 * <a href="https://www.mediawiki.org/wiki/API:Lists">list</a>. Results will be limited or unlimited based on the
 	 * settings of this object.
 	 * 
+	 * @param params Additional parameters to apply to the query before it is sent.
 	 * @return An RSet with the replies from the Server.
 	 */
 	protected RSet multiQuery(String... params)
 	{
 		ArrayList<Reply> rl = new ArrayList<>();
-		URLBuilder ub = makeUB("continue", "");
-		ub.setParams(params);
+		URLBuilder ub = makeUB(params);
+		ub.setParam("continue", "");
 
 		if (maxResults <= 0)
 			while (doContQuery(ub, rl))
 				;
 		else
 		{
-			ub.setParams(limString, "" + maxResultLimit);
+			ub.setParam(limString, "" + maxResultLimit);
 			for (int remain = maxResults; remain > 0; remain -= maxResultLimit)
 			{
 				if (remain < maxResultLimit)
-					ub.setParams(limString, "" + remain);
+					ub.setParam(limString, "" + remain);
 
 				doContQuery(ub, rl);
 			}
 		}
-
 		return new RSet(rl);
 	}
 
@@ -228,32 +215,19 @@ public class SQ
 	private boolean doContQuery(URLBuilder ub, ArrayList<Reply> rl)
 	{
 		Reply r = doQuery(ub);
-		if (r == null)
+		if (r == null || r.hasError())
 			return false;
 
 		rl.add(r);
-		return !r.hasError() && applyCont(ub, r);
-	}
-
-	/**
-	 * Applies the continuation parameter found in a server Reply to a URLBuilder. Does nothing if no continuation
-	 * parameter was found.
-	 * 
-	 * @param ub The URLBuilder used when creating <code>r</code>.
-	 * @param r The Reply from the most recent, previous request to the server created by <code>ub</code>.
-	 * @return True if continuation parameters were found and successfully applied.
-	 */
-	private boolean applyCont(URLBuilder ub, Reply r)
-	{
-		if (r.has("continue"))
+		
+		if (r.has("continue")) // continuation queries
 		{
 			JSONObject cont = r.getJSONObject("continue");
 			for (String s : JSONObject.getNames(cont))
-				ub.setParams(s, FString.enc(cont.get(s).toString()));
+				ub.setParam(s, cont.get(s).toString());
 
 			return true;
-		}
-
+		}		
 		return false;
 	}
 }

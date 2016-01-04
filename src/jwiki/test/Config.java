@@ -1,9 +1,7 @@
 package jwiki.test;
 
-import jwiki.core.Wiki;
-
 /**
- * Shared constants for tests
+ * Configuration for tests
  * 
  * @author Fastily
  *
@@ -23,15 +21,15 @@ public class Config
 	 * The user we'll be running tests with
 	 */
 	protected static final String user = "FastilyClone";
+	
+	/**
+	 * The admin user we'll be running tests with.
+	 */
+	protected static final String adminUser = "Fastily";
 
 	/* //////////////////////////////////////////////////////////////////////////////// */
 	/* //////////////////////////////// END CONFIG /////////////////////////////////// */
 	/* //////////////////////////////////////////////////////////////////////////////// */
-
-	/**
-	 * The global wiki object used for tests
-	 */
-	protected static final Wiki wiki = WikiGen.wg.get(user, domain);
 
 	/**
 	 * No constructors allowed.
