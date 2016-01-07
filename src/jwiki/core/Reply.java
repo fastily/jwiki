@@ -28,7 +28,7 @@ public final class Reply extends JSONObject
 	/**
 	 * The error code returned by the server, if one was returned. Otherwise this is null.
 	 */
-	private String errcode = null;
+	private String errcode;
 
 	/**
 	 * Result strings which should not be tagged as errors.
@@ -60,12 +60,12 @@ public final class Reply extends JSONObject
 		if (has("error"))
 		{
 			errcode = getStringR("code");
-			System.err.println("ERROR: " + getJSONObjectR("error").toString());
+			System.err.println("ERROR: " + getJSONObjectR("error"));
 		}
 		else if (result != null && !whitelist.contains(result))
 		{
 			errcode = result;
-			System.err.println("ERROR: Result = " + this.toString());
+			System.err.println("ERROR: Result = " + this);
 		}
 
 		if (Settings.debug)

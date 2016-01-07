@@ -40,7 +40,7 @@ public final class WAction
 	 * 
 	 * @param wiki The wiki object to use
 	 * @param ub The URLBuilder to use
-	 * @param params The parameters to post, in order of param, value, param, value...
+	 * @param params The parameters to post, in order of <code>[ param1, value1, param2, value2 ] </code> 
 	 * @return A reply from the server or null if something went wrong.
 	 */
 	protected static Reply doAction(Wiki wiki, String action, String... params)

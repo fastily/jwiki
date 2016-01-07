@@ -110,7 +110,6 @@ public class SQ
 	{
 		URLBuilder ub = wiki.makeUB("query", params);
 		ub.setParams(pl);
-		//ub.setParams(params);
 
 		if (limString != null)
 			ub.setParam(limString, strMax);
@@ -138,8 +137,6 @@ public class SQ
 				end = size;
 			
 			rs.merge(multiQuery(tkey, FString.fenceMaker("|", titles.subList(start, end))));
-			
-			//rs.merge(multiQuery(tkey, URLBuilder.chainProps(titles.subList(start, end))));
 		}
 		return rs;
 	}

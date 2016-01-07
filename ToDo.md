@@ -6,6 +6,3 @@
 
 ### Usability
 * Purge should take multiple params in WAction
-* URLBuilder should automatically urlencode parameters.
-* Check password encoding for logins
-* Standardize urlencodes 

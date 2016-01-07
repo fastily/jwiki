@@ -19,7 +19,7 @@ public class FL
 	 */
 	private FL()
 	{
-
+		
 	}
 
 	/**
@@ -45,22 +45,23 @@ public class FL
 	}
 
 	/**
-	 * Puts or merges an ArrayList into a HashMap pointed to by <code>k</code>. If <code>k</code> is present in
+	 * Puts or merges a HashMap into a HashMap pointed to by <code>k</code>. If <code>k</code> is present in
 	 * <code>hl</code>, merge <code>l</code> with the list pointed to by <code>k</code>. If <code>k</code> is not present
 	 * in <code>hl</code>, then add <code>k</code> to <code>hl</code> with value <code>l</code>. Does nothing if
 	 * <code>k</code> is in <code>hl</code> and <code>l</code> is empty.
 	 * 
-	 * @param <T1> The type in the ArrayList to merge.
+	 * @param <T1> The first type in the HashMap to merge
+	 * @param <T2> The second type in the HashMap to merge
 	 * @param hl The HashMap to work with.
 	 * @param k The key to look for in <code>hl</code>.
 	 * @param l The list to put or merge if not found in <code>hl</code> with key <code>k</code>.
 	 */
-	public static <T1> void mapListMerge(HashMap<String, ArrayList<T1>> hl, String k, ArrayList<T1> l)
+	public static <T1, T2> void mapListMerge(HashMap<String, HashMap<T1, T2>> hl, String k, HashMap<T1, T2> l)
 	{
 		if (!hl.containsKey(k))
 			hl.put(k, l);
 		else if (!l.isEmpty())
-			hl.get(k).addAll(l);
+			hl.get(k).putAll(l);
 	}
 
 	/**

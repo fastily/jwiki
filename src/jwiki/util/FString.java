@@ -84,17 +84,11 @@ public final class FString
 
 		return hl;
 	}
-	
-	
-	public static String pipeFence(String...planks)
-	{
-		return fenceMaker("|", Arrays.asList(planks));
-	}
 
 	/**
 	 * Generates a URL parameter String from a HashMap. For example, a HashMap with
 	 * <code>[(someKey:someValue), (foo:baz)]</code> will result in <code>&amp;someKey=someValue&amp;foo=baz</code>.
-	 * Caveat: This does not URL encode values.
+	 * WARNING: This does not URL encode values.
 	 * 
 	 * @param hl The parameter list to generate a String for.
 	 * @return The URL parameter String.
@@ -108,6 +102,17 @@ public final class FString
 		return x;
 	}
 
+	/**
+	 * Make a fence with pipe characters as posts.
+	 * @param planks The planks to use, in order.
+	 * @return A String with the specified planks and pipe characters as posts
+	 */
+	public static String pipeFence(String...planks)
+	{
+		return fenceMaker("|", Arrays.asList(planks));
+	}
+	
+	
 	/**
 	 * Concatenate Strings. Solution to the fencepost problem. Makes patterned Strings like "This|So|Much|Easier".
 	 * 
