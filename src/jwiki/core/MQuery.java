@@ -10,7 +10,6 @@ import org.json.JSONArray;
 import jwiki.dwrap.ImageInfo;
 import jwiki.util.FL;
 import jwiki.util.FString;
-import jwiki.util.JSONParse;
 import jwiki.util.Tuple;
 
 /**
@@ -45,7 +44,7 @@ public final class MQuery
 
 		RSet rs = new SQ(wiki, pl).multiTitleQuery("ususers", users);
 		return FL.toAL(rs.getJOofJAStream("users")
-				.map(e -> new Tuple<>(e.getString("name"), JSONParse.jsonArrayToString(e.getJSONArray("groups")))));
+				.map(e -> new Tuple<>(e.getString("name"), RSet.jsonArrayToString(e.getJSONArray("groups")))));
 	}
 
 	/**
@@ -81,7 +80,7 @@ public final class MQuery
 	public static HashMap<String, ArrayList<String>> getCategoriesOnPage(Wiki wiki, ArrayList<String> titles)
 	{
 		RSet rs = new SQ(wiki, "cllimit", FL.pMap("prop", "categories")).multiTitleQuery("titles", titles);
-		return JSONParse.groupJOListByStrAndJA(rs.getJOofJOStream("pages"), "title", "categories", "title");
+		return RSet.groupJOListByStrAndJA(rs.getJOofJOStream("pages"), "title", "categories", "title");
 	}
 
 	/**
@@ -132,7 +131,7 @@ public final class MQuery
 			pl.put("plnamespace", wiki.nsl.createFilter(ns));
 
 		RSet rs = new SQ(wiki, "pllimit", pl).multiTitleQuery("titles", titles);
-		return JSONParse.groupJOListByStrAndJA(rs.getJOofJOStream("pages"), "title", "links", "title");
+		return RSet.groupJOListByStrAndJA(rs.getJOofJOStream("pages"), "title", "links", "title");
 	}
 
 	/**
@@ -148,7 +147,7 @@ public final class MQuery
 		RSet rs = new SQ(wiki, "lhlimit",
 				FL.pMap("prop", "linkshere", "lhprop", "title", "lhshow", redirects ? "redirect" : "!redirect"))
 						.multiTitleQuery("titles", titles);
-		return JSONParse.groupJOListByStrAndJA(rs.getJOofJOStream("pages"), "title", "linkshere", "title");
+		return RSet.groupJOListByStrAndJA(rs.getJOofJOStream("pages"), "title", "linkshere", "title");
 	}
 
 	/**
@@ -162,7 +161,7 @@ public final class MQuery
 	{
 		RSet rs = new SQ(wiki, "tilimit", FL.pMap("prop", "transcludedin", "tiprop", "title"))
 				.multiTitleQuery("titles", titles);
-		return JSONParse.groupJOListByStrAndJA(rs.getJOofJOStream("pages"), "title", "transcludedin", "title");
+		return RSet.groupJOListByStrAndJA(rs.getJOofJOStream("pages"), "title", "transcludedin", "title");
 	}
 
 	/**
@@ -175,7 +174,7 @@ public final class MQuery
 	public static HashMap<String, ArrayList<String>> fileUsage(Wiki wiki, ArrayList<String> titles)
 	{
 		RSet rs = new SQ(wiki, "fulimit", FL.pMap("prop", "fileusage")).multiTitleQuery("titles", titles);
-		return JSONParse.groupJOListByStrAndJA(rs.getJOofJOStream("pages"), "title", "fileusage", "title");
+		return RSet.groupJOListByStrAndJA(rs.getJOofJOStream("pages"), "title", "fileusage", "title");
 	}
 
 	/**
@@ -215,7 +214,7 @@ public final class MQuery
 	public static HashMap<String, ArrayList<String>> getImagesOnPage(Wiki wiki, ArrayList<String> titles)
 	{
 		RSet rs = new SQ(wiki, "imlimit", FL.pMap("prop", "images")).multiTitleQuery("titles", titles);
-		return JSONParse.groupJOListByStrAndJA(rs.getJOofJOStream("pages"), "title", "images", "title");
+		return RSet.groupJOListByStrAndJA(rs.getJOofJOStream("pages"), "title", "images", "title");
 	}
 
 	/**
@@ -228,7 +227,7 @@ public final class MQuery
 	public static HashMap<String, ArrayList<String>> getTemplatesOnPage(Wiki wiki, ArrayList<String> titles)
 	{
 		RSet rs = new SQ(wiki, "tllimit", FL.pMap("prop", "templates")).multiTitleQuery("titles", titles);
-		return JSONParse.groupJOListByStrAndJA(rs.getJOofJOStream("pages"), "title", "templates", "title");
+		return RSet.groupJOListByStrAndJA(rs.getJOofJOStream("pages"), "title", "templates", "title");
 	}
 
 	/**
@@ -238,18 +237,18 @@ public final class MQuery
 	 * @param titles The titles to query
 	 * @return A list of results keyed by title. The inner tuple is of the form (title, shorthand url notation).
 	 */
-	public static ArrayList<Tuple<String, ArrayList<Tuple<String, String>>>> globalUsage(Wiki wiki, ArrayList<String> titles)
+	public static HashMap<String, HashMap<String, String>> globalUsage(Wiki wiki, ArrayList<String> titles)
 	{
 		RSet rs = new SQ(wiki, "gulimit", FL.pMap("prop", "globalusage")).multiTitleQuery("titles", titles);
 
-		HashMap<String, ArrayList<Tuple<String, String>>> hlx = new HashMap<>();
+		HashMap<String, HashMap<String, String>> hlx = new HashMap<>();
 		for (Reply r : rs.getJOofJO("pages"))
 		{
 			JSONArray ja = r.has("globalusage") ? r.getJSONArray("globalusage") : new JSONArray();
-			FL.mapListMerge(hlx, r.getString("title"), JSONParse.strTuplesFromJAofJO(ja, "title", "wiki"));
+			FL.mapListMerge(hlx, r.getString("title"), RSet.strTuplesFromJAofJO(ja, "title", "wiki"));
 		}
 
-		return FL.mapToList(hlx);
+		return hlx;
 	}
 
 	/**
@@ -267,7 +266,7 @@ public final class MQuery
 			pl.put("dflocalonly", "");
 
 		Stream<Reply> srl = new SQ(wiki, "dflimit", pl).multiTitleQuery("titles", titles).getJOofJOStream("pages");
-		return JSONParse.groupJOListByStrAndJA(srl, "title", "duplicatefiles", "name");
+		return RSet.groupJOListByStrAndJA(srl, "title", "duplicatefiles", "name");
 	}
 
 	/**

@@ -495,8 +495,7 @@ public class Wiki
 	{
 		ColorLog.info(this, "Getting category members from " + title);
 
-		HashMap<String, String> pl = FL.pMap("list", "categorymembers", "cmtitle",
-				convertIfNotInNS(title, NS.CATEGORY));
+		HashMap<String, String> pl = FL.pMap("list", "categorymembers", "cmtitle", convertIfNotInNS(title, NS.CATEGORY));
 		if (ns.length > 0)
 			pl.put("cmnamespace", nsl.createFilter(ns));
 
@@ -678,16 +677,15 @@ public class Wiki
 	}
 
 	/**
-	 * Gets the global usage of a file.
+	 * Gets the global usage of a file.  PRECONDITION: GlobalUsage must be installed on the target Wiki.
 	 * 
-	 * @param title The title to query. Must start with "File:" prefix.
-	 * @return A list of tuples, (title of page, short form of wiki this page is from), denoting the global usage of this
-	 *         file. Returns empty list if something went wrong.
+	 * @param title The title to query. Must start with <code>File:</code> prefix.
+	 * @return A HashMap with the global usage of this file; each element is of the form <code>[ title : wiki ]</code>.
 	 */
-	public ArrayList<Tuple<String, String>> globalUsage(String title)
+	public HashMap<String, String> globalUsage(String title)
 	{
 		ColorLog.info(this, "Getting global usage for " + title);
-		return MQuery.globalUsage(this, FL.toSAL(title)).get(0).y;
+		return MQuery.globalUsage(this, FL.toSAL(title)).get(title);
 	}
 
 	/**
