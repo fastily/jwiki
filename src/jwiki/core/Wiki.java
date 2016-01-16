@@ -70,7 +70,7 @@ public class Wiki
 	 */
 	private Wiki(String user, String px, String domain, Wiki parent) throws LoginException
 	{
-		upx = new Tuple<>(user, px);
+		upx = new Tuple<>(FString.toCaps(user), px);
 		this.domain = domain;
 		mbot = new MBot(this);
 

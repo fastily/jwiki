@@ -5,8 +5,8 @@
         	<fileset file="LICENSE.md"/>
         	<fileset file="README.md"/>
         	<fileset file="todo.md"/>
-            <fileset dir="src" excludes="jwiki/test/" />
-            <fileset dir="bin" excludes="jwiki/test/" />
+            <fileset dir="src" excludes="jwiki/test/,jwiki/extras/" />
+            <fileset dir="bin" excludes="jwiki/test/,jwiki/extras/" />
             <zipfileset excludes="META-INF/*.SF,README" src="lib/JSON-java.jar" />
         </jar>
     </target>

@@ -33,10 +33,10 @@ public final class MBot
 	 * 
 	 * @param ml The Tasks to process
 	 * @param num The maximum number of threads to instantiate
-	 * @param <T> The user-implemented class (i.e. a task) extending Task
+	 * @param <T1> The user-implemented class (i.e. a task) extending Task
 	 * @return A list of Tasks we were unable to process.
 	 */
-	protected <T extends Task> ArrayList<Task> submit(ArrayList<T> ml, int num)
+	protected <T1 extends Task> ArrayList<Task> submit(ArrayList<T1> ml, int num)
 	{
 		AtomicInteger i = new AtomicInteger();
 		
@@ -126,13 +126,13 @@ public final class MBot
 		 * Gets the title fields of the passed in MActions and returns them in a list.
 		 * 
 		 * @param actions The list to get titles from
-		 * @param <T> An object extending this class and implementing doJob()
+		 * @param <T1> An object extending this class and implementing doJob()
 		 * @return The list of titles
 		 */
-		public static <T extends Task> ArrayList<String> toString(ArrayList<T> actions)
+		public static <T1 extends Task> ArrayList<String> toString(ArrayList<T1> actions)
 		{
 			ArrayList<String> l = new ArrayList<>();
-			for (T t : actions)
+			for (T1 t : actions)
 				l.add(t.title);
 			return l;
 		}

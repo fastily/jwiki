@@ -53,6 +53,18 @@ public final class FString
 	}
 
 	/**
+	 * Capitalizes the first character of a String.  PRECONDITION: <code>s</code> is not null.
+	 * 
+	 * @param s The String to capitalize
+	 * @return A copy of <code>s</code>, with the first character capitalized.
+	 */
+	public static String toCaps(String s)
+	{
+		return s.length() < 2 ? s.toUpperCase() : s.substring(0, 1).toUpperCase() + s.substring(1);
+	}
+	
+	
+	/**
 	 * Encodes a UTF-8 String into a format valid for URLs.
 	 * 
 	 * @param s The String to encode
@@ -111,7 +123,6 @@ public final class FString
 	{
 		return fenceMaker("|", Arrays.asList(planks));
 	}
-	
 	
 	/**
 	 * Concatenate Strings. Solution to the fencepost problem. Makes patterned Strings like "This|So|Much|Easier".

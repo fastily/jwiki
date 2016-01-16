@@ -1,5 +1,5 @@
 #JWIKI
-jwiki is a Java client framework wrapping the [MediaWiki](https://www.mediawiki.org/wiki/MediaWiki) API.  It can be used by developers to create bots/tools, or to perform analytics on any Wiki with API access.
+jwiki is a simple Java client framework wrapping the [MediaWiki](https://www.mediawiki.org/wiki/MediaWiki) API.  It can be used by developers to create bots/tools, or to perform analytics on any Wiki with API access.
 
 I strongly recommend that you download the latest [release](https://github.com/fastily/jwiki/releases), as that code is stable and pre-configured to integrate with most IDEs.  Of course, if you prefer the bleeding edge, feel free to build from the latest source code.
 
@@ -33,8 +33,8 @@ public class JwikiExample
 JSON parsing provided by [JSON-java](https://github.com/douglascrockford/JSON-java).  It is bundled as a JAR in the `lib/` folder; use a newer version at your own risk.
 
 ###Requirements
-* Minimum [JDK/JRE](https://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html) version: **8**
-* Compatible with [MediaWiki](https://www.mediawiki.org/wiki/MediaWiki): **1.25+**
+* [JDK/JRE](https://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html): **8+**
+* [MediaWiki](https://www.mediawiki.org/wiki/MediaWiki): **1.25+**
 
 
 ##Project Objectives
