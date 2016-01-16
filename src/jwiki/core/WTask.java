@@ -7,8 +7,11 @@ import java.io.OutputStream;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 
 import javax.imageio.ImageIO;
+
+import org.json.XML;
 
 import jwiki.dwrap.ImageInfo;
 
@@ -59,9 +62,9 @@ public final class WTask
 	 * Downloads and writes a media file to disk. Note that the file must be visible to you in order to download it.
 	 * 
 	 * @param title The title of the file to download <span style="text-decoration:underline">on the Wiki</span>
-	 * @param localpath The pathname to save this file to (e.g. "<code>/Users/Fastily/Example.jpg</code> "). Note that if a
-	 *           file with that name already exists at that pathname, it <span
-	 *           style="color:Red;font-weight:bold">will</span> be overwritten!
+	 * @param localpath The pathname to save this file to (e.g. "<code>/Users/Fastily/Example.jpg</code> "). Note that if
+	 *           a file with that name already exists at that pathname, it
+	 *           <span style="color:Red;font-weight:bold">will</span> be overwritten!
 	 * @param wiki The wiki object to use.
 	 * @return True if we were successful.
 	 */
@@ -74,9 +77,9 @@ public final class WTask
 	 * Downloads and writes a media file to disk. Note that the file must be visible to you in order to download it.
 	 * 
 	 * @param title The title of the file to download <span style="text-decoration:underline">on the Wiki</span>
-	 * @param localpath The pathname to save this file to (e.g. "<code>/Users/Fastily/Example.jpg</code> "). Note that if a
-	 *           file with that name already exists at that pathname, it <span
-	 *           style="color:Red;font-weight:bold">will</span> be overwritten!
+	 * @param localpath The pathname to save this file to (e.g. "<code>/Users/Fastily/Example.jpg</code> "). Note that if
+	 *           a file with that name already exists at that pathname, it
+	 *           <span style="color:Red;font-weight:bold">will</span> be overwritten!
 	 * @param height The height thumbnail to retrieve (optional param, specify -1 to disable)
 	 * @param width The width thumbnail to retrieve (optional param, specify -1 to disable)
 	 * @param wiki The wiki object to use.
@@ -135,5 +138,30 @@ public final class WTask
 			e.printStackTrace();
 			return null;
 		}
+	}
+
+	/**
+	 * Parses templates in a String into JSONObjects. This takes the output of
+	 * <code>action=expandtemplates&amp;prop=parsetree</code> and extracts the parse trees for each template found in
+	 * <code>text</code>. Note that any extraneous content (not a template) will be stripped.
+	 * 
+	 * @param wiki The wiki object to run the parse query on
+	 * @param text A String with a template(s) (e.g. <code>"{{Test|Blah|foo=meh|baz|3=69}}"</code>)
+	 * @return An ArrayList where each JSONObject represents a template found in the String.
+	 */
+	public static ArrayList<Reply> parseTemplate(Wiki wiki, String text)
+	{
+		try
+		{
+			return new Reply(XML.toJSONObject(
+					Req.get(wiki.makeUB("expandtemplates", "text", text, "prop", "parsetree").makeURL(), wiki.cookiejar)
+							.getStringR("parsetree"))).getJAOfJOAsALR("template");
+		}
+		catch (Throwable e)
+		{
+			e.printStackTrace();
+		}
+
+		return new ArrayList<>();
 	}
 }

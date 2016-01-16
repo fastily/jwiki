@@ -262,6 +262,7 @@ public class QueryTests
 		assertEquals("File:FastilyTest.svg", result.redirectsTo);
 		assertEquals(876, result.size);
 		assertEquals("File:FastilyTestR.svg", result.title);
+		assertEquals("275e96b2660f761cca02b8d2cb5425bcaab4dd98", result.sha1);
 		assertNull(result.thumbdimensions);
 
 		// Test 2
@@ -269,6 +270,7 @@ public class QueryTests
 		assertEquals(new Tuple<>(512, 477), result.dimensions);
 		assertEquals(876, result.size);
 		assertEquals("File:FastilyTest.svg", result.title);
+		assertEquals("275e96b2660f761cca02b8d2cb5425bcaab4dd98", result.sha1);
 		assertEquals("https://upload.wikimedia.org/wikipedia/test/f/f7/FastilyTest.svg", result.url);
 		assertNull(result.thumbdimensions);
 

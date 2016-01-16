@@ -34,6 +34,11 @@ public class ImageInfo
 	public final Tuple<Integer, Integer> thumbdimensions;
 
 	/**
+	 * The sha1 hash for this file
+	 */
+	public final String sha1;
+	
+	/**
 	 * A URL to the full size image.
 	 */
 	public final String url;
@@ -60,7 +65,7 @@ public class ImageInfo
 		{
 			size = 0;
 			dimensions = thumbdimensions = null;
-			url = thumburl = redirectsTo = title = null;
+			url = thumburl = redirectsTo = title = sha1 = null;
 		}
 		else
 		{
@@ -80,6 +85,8 @@ public class ImageInfo
 			}
 			
 			url = params.getString("url");
+			sha1 = params.getString("sha1");
+			
 			title = r.getString("title");
 			redirectsTo = title.equals(params.getString("canonicaltitle")) ? null : params.getString("canonicaltitle");
 		}

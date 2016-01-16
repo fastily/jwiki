@@ -59,7 +59,7 @@ public final class MQuery
 	public static HashMap<String, ImageInfo> getImageInfo(Wiki wiki, int width, int height, ArrayList<String> titles)
 	{
 		HashMap<String, String> pl = FL.pMap("prop", "imageinfo", "iiprop",
-				FString.pipeFence("canonicaltitle", "url", "size"));
+				FString.pipeFence("canonicaltitle", "url", "size", "sha1"));
 
 		if (width > 0)
 			pl.put("iiurlwidth", "" + width);
