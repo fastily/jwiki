@@ -116,7 +116,8 @@ public final class Reply extends JSONObject
 	}
 
 	/**
-	 * Recursively search this Reply for a String, and return a String (if any) for the first instance of it.
+	 * Recursively search this Reply for a String, and return a String (if any) for the first instance of it. If
+	 * primitive types (int, double, boolean) are encountered, these are returned as Strings.
 	 * 
 	 * @param key The key to look for.
 	 * @return A String, or null if the key with a String doesn't exist.
@@ -124,7 +125,17 @@ public final class Reply extends JSONObject
 	public String getStringR(String key)
 	{
 		Object result = getR(this, key);
-		return result instanceof String ? (String) result : null;
+
+		if (result instanceof String)
+			return (String) result;
+		else if (result instanceof Integer)
+			return ((Integer) result).toString();
+		else if (result instanceof Double)
+			return ((Double) result).toString();
+		else if (result instanceof Boolean)
+			return ((Boolean) result).toString();
+
+		return null;
 	}
 
 	/**
@@ -163,8 +174,8 @@ public final class Reply extends JSONObject
 		JSONArray ja = getJSONArrayR(key);
 		if (ja == null)
 			return l;
-		
-		for(Object o : ja)
+
+		for (Object o : ja)
 			l.add(new Reply((JSONObject) o));
 		return l;
 	}
@@ -212,8 +223,8 @@ public final class Reply extends JSONObject
 	}
 
 	/**
-	 * Recursively finds a JSONObject with the specified key and extracts any JSONObjects contained within. PRECONDITION: The
-	 * specified JSONObject can *only* contain JSONObjects
+	 * Recursively finds a JSONObject with the specified key and extracts any JSONObjects contained within. PRECONDITION:
+	 * The specified JSONObject can *only* contain JSONObjects
 	 * 
 	 * @param key The key pointing to the top level JSONObject
 	 * @return A list of JSONObjects objects contained within the JSONObject pointed to by <code>key</code>.

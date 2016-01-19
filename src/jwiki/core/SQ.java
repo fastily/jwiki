@@ -136,6 +136,9 @@ public class SQ
 			if (size - start < groupQueryMax)
 				end = size;
 			
+			if(Settings.verbose)
+				ColorLog.fyi(wiki, String.format("{multiTitleQuery()}: %d of %d", start, size));
+			
 			rs.merge(multiQuery(tkey, FString.fenceMaker("|", titles.subList(start, end))));
 		}
 		return rs;
@@ -216,6 +219,9 @@ public class SQ
 			return false;
 
 		rl.add(r);
+		
+		if(Settings.verbose)
+			ColorLog.fyi(wiki, String.format("{doContQuery()} looped %d times", rl.size()));
 		
 		if (r.has("continue")) // continuation queries
 		{

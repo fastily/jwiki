@@ -7,13 +7,14 @@ import java.io.OutputStream;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
+import java.util.HashMap;
 
 import javax.imageio.ImageIO;
 
 import org.json.XML;
 
 import jwiki.dwrap.ImageInfo;
+import jwiki.util.Tuple;
 
 /**
  * Class containing static methods which can perform miscellaneous tasks pertaining to MediaWiki.
@@ -143,25 +144,35 @@ public final class WTask
 	/**
 	 * Parses templates in a String into JSONObjects. This takes the output of
 	 * <code>action=expandtemplates&amp;prop=parsetree</code> and extracts the parse trees for each template found in
-	 * <code>text</code>. Note that any extraneous content (not a template) will be stripped.
+	 * <code>text</code>. PRECONDITION: <code>text</code> is a syntactically legal template.
 	 * 
 	 * @param wiki The wiki object to run the parse query on
-	 * @param text A String with a template(s) (e.g. <code>"{{Test|Blah|foo=meh|baz|3=69}}"</code>)
-	 * @return An ArrayList where each JSONObject represents a template found in the String.
+	 * @param text A String with a template(s) (e.g. <code>"{{Test|Blah|foo=meh|baz|3=132}}"</code>)
+	 * @return A Tuple where the key is the title of the template, and value is a HashMap with key-value parameters of
+	 *         the parsed template. Null on error.
 	 */
-	public static ArrayList<Reply> parseTemplate(Wiki wiki, String text)
+	public static Tuple<String, HashMap<String, String>> parseTemplate(Wiki wiki, String text)
 	{
 		try
 		{
-			return new Reply(XML.toJSONObject(
+			Reply r = new Reply(XML.toJSONObject(
 					Req.get(wiki.makeUB("expandtemplates", "text", text, "prop", "parsetree").makeURL(), wiki.cookiejar)
-							.getStringR("parsetree"))).getJAOfJOAsALR("template");
+							.getStringR("parsetree")));
+
+			HashMap<String, String> hl = new HashMap<>();
+
+			Reply k;
+			for (Reply jo : r.getJAOfJOAsALR("part"))
+				hl.put((k = jo.getJSONObjectR("name")) != null ? "" + k.getInt("index") : jo.getString("name"),
+						jo.getStringR("value"));
+
+			return new Tuple<>(r.getStringR("title"), hl);
 		}
 		catch (Throwable e)
 		{
 			e.printStackTrace();
 		}
 
-		return new ArrayList<>();
+		return null;
 	}
 }
