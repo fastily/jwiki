@@ -107,8 +107,7 @@ public final class MQuery
 	 */
 	public static HashMap<String, String> getPageText(Wiki wiki, ArrayList<String> titles)
 	{
-		RSet rs = new SQ(wiki, FL.pMap("prop", "revisions", "rvprop", "content")).multiTitleQuery("titles",
-				titles);
+		RSet rs = new SQ(wiki, FL.pMap("prop", "revisions", "rvprop", "content")).multiTitleQuery("titles", titles);
 		return rs.getJOofJOStream("pages")
 				.collect(HashMap::new,
 						(m, v) -> m.put(v.getString("title"),
@@ -159,8 +158,8 @@ public final class MQuery
 	 */
 	public static HashMap<String, ArrayList<String>> transcludesIn(Wiki wiki, ArrayList<String> titles)
 	{
-		RSet rs = new SQ(wiki, "tilimit", FL.pMap("prop", "transcludedin", "tiprop", "title"))
-				.multiTitleQuery("titles", titles);
+		RSet rs = new SQ(wiki, "tilimit", FL.pMap("prop", "transcludedin", "tiprop", "title")).multiTitleQuery("titles",
+				titles);
 		return RSet.groupJOListByStrAndJA(rs.getJOofJOStream("pages"), "title", "transcludedin", "title");
 	}
 
@@ -239,10 +238,9 @@ public final class MQuery
 	 */
 	public static HashMap<String, HashMap<String, String>> globalUsage(Wiki wiki, ArrayList<String> titles)
 	{
-		RSet rs = new SQ(wiki, "gulimit", FL.pMap("prop", "globalusage")).multiTitleQuery("titles", titles);
-
 		HashMap<String, HashMap<String, String>> hlx = new HashMap<>();
-		for (Reply r : rs.getJOofJO("pages"))
+		for (Reply r : new SQ(wiki, "gulimit", FL.pMap("prop", "globalusage")).multiTitleQuery("titles", titles)
+				.getJOofJO("pages"))
 		{
 			JSONArray ja = r.has("globalusage") ? r.getJSONArray("globalusage") : new JSONArray();
 			FL.mapListMerge(hlx, r.getString("title"), RSet.strTuplesFromJAofJO(ja, "title", "wiki"));
@@ -267,6 +265,33 @@ public final class MQuery
 
 		Stream<Reply> srl = new SQ(wiki, "dflimit", pl).multiTitleQuery("titles", titles).getJOofJOStream("pages");
 		return RSet.groupJOListByStrAndJA(srl, "title", "duplicatefiles", "name");
+	}
+
+	/**
+	 * Gets shared (non-local) duplicates of a file. PRECONDITION: The Wiki this query is run against has the
+	 * <a href="https://www.mediawiki.org/wiki/Extension:GlobalUsage">GlobalUsage</a> extension installed. Note that
+	 * results are returned *without* a namespace prefix.
+	 * 
+	 * @param wiki The wiki object to use
+	 * @param titles The titles to query
+	 * @return A list of results keyed by title.
+	 */
+	public static HashMap<String, ArrayList<String>> getSharedDuplicatesOf(Wiki wiki, ArrayList<String> titles)
+	{
+		HashMap<String, ArrayList<String>> hl = new HashMap<>();
+		for (Reply r : new SQ(wiki, "dflimit", FL.pMap("prop", "duplicatefiles")).multiTitleQuery("titles", titles)
+				.getJOofJO("pages"))
+		{
+			String title = r.getString("title");
+
+			if (!hl.containsKey(title))
+				hl.put(title, new ArrayList<>());
+			if (r.has("duplicatefiles"))
+				hl.get(title).addAll(FL.toAL(
+						r.getJAOfJOAsALR("duplicatefiles").stream().filter(e -> e.has("shared")).map(e -> e.getString("name"))));
+		}
+
+		return hl;
 	}
 
 	/**

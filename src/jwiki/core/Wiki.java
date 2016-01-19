@@ -677,7 +677,7 @@ public class Wiki
 	}
 
 	/**
-	 * Gets the global usage of a file.  PRECONDITION: GlobalUsage must be installed on the target Wiki.
+	 * Gets the global usage of a file. PRECONDITION: GlobalUsage must be installed on the target Wiki.
 	 * 
 	 * @param title The title to query. Must start with <code>File:</code> prefix.
 	 * @return A HashMap with the global usage of this file; each element is of the form <code>[ title : wiki ]</code>.
@@ -762,6 +762,20 @@ public class Wiki
 	{
 		ColorLog.info(this, "Getting duplicates of " + title);
 		return MQuery.getDuplicatesOf(this, localOnly, FL.toSAL(title)).get(title);
+	}
+
+	/**
+	 * Gets the shared (non-local) duplicates of a file. PRECONDITION: The Wiki this query is run against has the
+	 * <a href="https://www.mediawiki.org/wiki/Extension:GlobalUsage">GlobalUsage</a> extension installed. Note that
+	 * results are returned *without* a namespace prefix.
+	 * 
+	 * @param title The title of the file to query
+	 * @return An ArrayList containing shared duplicates of the file
+	 */
+	public ArrayList<String> getSharedDuplicatesOf(String title)
+	{
+		ColorLog.info(this, "Getting shared duplicates of " + title);
+		return MQuery.getSharedDuplicatesOf(this, FL.toSAL(title)).get(title);
 	}
 
 	/**
