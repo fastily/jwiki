@@ -44,6 +44,11 @@ public class ImageInfo
 	public final String url;
 
 	/**
+	 * The MIME string of the file.
+	 */
+	public final String mime;
+	
+	/**
 	 * A URL to a thumb nail (if you requested it, otherwise null)
 	 */
 	public final String thumburl;
@@ -65,7 +70,7 @@ public class ImageInfo
 		{
 			size = 0;
 			dimensions = thumbdimensions = null;
-			url = thumburl = redirectsTo = title = sha1 = null;
+			url = thumburl = redirectsTo = title = sha1 = mime = null;
 		}
 		else
 		{
@@ -86,6 +91,7 @@ public class ImageInfo
 			
 			url = params.getString("url");
 			sha1 = params.getString("sha1");
+			mime = params.getString("mime");
 			
 			title = r.getString("title");
 			redirectsTo = title.equals(params.getString("canonicaltitle")) ? null : params.getString("canonicaltitle");

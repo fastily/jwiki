@@ -1,4 +1,4 @@
-package jwiki.test;
+package jwiki.extras.test;
 
 import static org.junit.Assert.*;
 

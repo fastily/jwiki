@@ -1,4 +1,4 @@
-package jwiki.test;
+package jwiki.extras.test;
 
 /**
  * Configuration for tests

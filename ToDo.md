@@ -1,9 +1,11 @@
 ### New Features
 * RevDel/File RevDel
-* Log Fetching/Recent Changes
+* Recent Changes
+* Watchlist
 * Search
 * MIME for imageinfo
 
 ### Usability
 * Purge should take multiple params in WAction
 * Verify correct error values in QueryTests
+* SQ should use SQ.with()

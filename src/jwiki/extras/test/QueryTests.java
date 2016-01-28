@@ -1,4 +1,4 @@
-package jwiki.test;
+package jwiki.extras.test;
 
 import static org.junit.Assert.*;
 
@@ -263,14 +263,16 @@ public class QueryTests
 		assertEquals(876, result.size);
 		assertEquals("File:FastilyTestR.svg", result.title);
 		assertEquals("275e96b2660f761cca02b8d2cb5425bcaab4dd98", result.sha1);
+		assertEquals("image/svg+xml", result.mime);
 		assertNull(result.thumbdimensions);
-
+		
 		// Test 2
 		result = wiki.getImageInfo("File:FastilyTest.svg");
 		assertEquals(new Tuple<>(512, 477), result.dimensions);
 		assertEquals(876, result.size);
 		assertEquals("File:FastilyTest.svg", result.title);
 		assertEquals("275e96b2660f761cca02b8d2cb5425bcaab4dd98", result.sha1);
+		assertEquals("image/svg+xml", result.mime);
 		assertEquals("https://upload.wikimedia.org/wikipedia/test/f/f7/FastilyTest.svg", result.url);
 		assertNull(result.thumbdimensions);
 
@@ -398,6 +400,15 @@ public class QueryTests
 		// nothing for now
 	}
 
+	/**
+	 * Test log fetching.  Test is empty for now because I don't have a good way to test in an evironment which stays static.
+	 */
+	@Test
+	public void testGetLogs()
+	{
+		//nothing for now
+	}
+	
 	/**
 	 * Tests user list group rights.
 	 */

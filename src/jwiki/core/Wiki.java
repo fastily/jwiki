@@ -11,6 +11,7 @@ import javax.security.auth.login.LoginException;
 
 import jwiki.dwrap.Contrib;
 import jwiki.dwrap.ImageInfo;
+import jwiki.dwrap.LogEntry;
 import jwiki.dwrap.Revision;
 import jwiki.util.FL;
 import jwiki.util.FString;
@@ -434,8 +435,8 @@ public class Wiki
 	public ArrayList<Revision> getRevisions(String title, int cap, boolean olderFirst)
 	{
 		ColorLog.info(this, "Getting revisions from " + title);
-		HashMap<String, String> pl = FL.pMap("prop", "revisions", "rvprop",
-				FString.pipeFence("timestamp", "user", "comment", "content"), "titles", title);
+		HashMap<String, String> pl = FL.pMap("prop", "revisions", "rvprop", FString.pipeFence("timestamp", "user", "comment", "content"),
+				"titles", title);
 		if (olderFirst)
 			pl.put("rvdir", "newer"); // MediaWiki is weird.
 
@@ -453,6 +454,35 @@ public class Wiki
 	public ArrayList<Revision> getRevisions(String title)
 	{
 		return getRevisions(title, -1, false);
+	}
+
+	/**
+	 * Get log events. Specify at least one of the params or else an error will be thrown; wholesale fetching of
+	 * logs is disabled because it is a potentially destructive action.
+	 * 
+	 * @param title The title to fetch logs for. Optional - set null to disable.
+	 * @param user The performing user to filter log entries by. Optional - set null to disable
+	 * @param type The type of log to get (e.g. delete, upload, patrol).  Optional - set null to disable
+	 * @param cap Limits the number of entries returned from this log.  Optional - set -1 to disable
+	 * @return The log entries.
+	 */
+	public ArrayList<LogEntry> getLogs(String title, String user, String type, int cap)
+	{
+		ColorLog.info(this, String.format("Fetching log entries -> title: %s, user: %s, type: %s", title, user, type));
+
+		HashMap<String, String> pl = FL.pMap("list", "logevents");
+
+		if (title != null)
+			pl.put("letitle", title);
+		if (user != null)
+			pl.put("leuser", nss(user));
+		if (type != null)
+			pl.put("letype", type);
+
+		if (title == null && user == null && cap < 0)
+			throw new UnsupportedOperationException("Not doing this.  Fetching *entire* logs is a potentially destrutive action.");
+
+		return FL.toAL(new SQ(this, "lelimit", cap, pl).multiQuery().getJOofJAStream("logevents").map(x -> new LogEntry(x)));
 	}
 
 	/**
