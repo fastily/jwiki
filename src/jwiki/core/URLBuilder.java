@@ -34,17 +34,17 @@ public final class URLBuilder
 	protected URLBuilder(String domain, String action, HashMap<String, String> pl)
 	{
 		base = Settings.comPro + domain + "/w/api.php?format=json&action=" + action;
-		
-		if(pl != null)
+
+		if (pl != null)
 			setParams(pl);
 	}
 
 	/**
-	 * Sets the parameter list of this object. Note that subsequent calls of this method will not overwrite keys-value
-	 * pairs that are not named in the passed in parameters.
+	 * Sets a parameter pair in this URLBuilder. CAVEAT: This method automatically URL-encodes Strings, so don't pass in
+	 * URLEncoded Strings!
 	 * 
-	 * @param params The params, in key-value order to set the object's state with. i.e there must be an even number of
-	 *           arguments or you'll get an error
+	 * @param p1 The key
+	 * @param p2 The value
 	 */
 	protected void setParam(String p1, String p2)
 	{
@@ -59,7 +59,7 @@ public final class URLBuilder
 	 */
 	protected void setParams(HashMap<String, String> params)
 	{
-		for(Map.Entry<String, String> e : params.entrySet())
+		for (Map.Entry<String, String> e : params.entrySet())
 			setParam(e.getKey(), e.getValue());
 	}
 
