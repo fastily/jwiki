@@ -457,13 +457,13 @@ public class Wiki
 	}
 
 	/**
-	 * Get log events. Specify at least one of the params or else an error will be thrown; wholesale fetching of
-	 * logs is disabled because it is a potentially destructive action.
+	 * Get log events. Specify at least one of the params or else an error will be thrown; wholesale fetching of logs is
+	 * disabled because it is a potentially destructive action.
 	 * 
 	 * @param title The title to fetch logs for. Optional - set null to disable.
 	 * @param user The performing user to filter log entries by. Optional - set null to disable
-	 * @param type The type of log to get (e.g. delete, upload, patrol).  Optional - set null to disable
-	 * @param cap Limits the number of entries returned from this log.  Optional - set -1 to disable
+	 * @param type The type of log to get (e.g. delete, upload, patrol). Optional - set null to disable
+	 * @param cap Limits the number of entries returned from this log. Optional - set -1 to disable
 	 * @return The log entries.
 	 */
 	public ArrayList<LogEntry> getLogs(String title, String user, String type, int cap)
@@ -818,5 +818,17 @@ public class Wiki
 	{
 		ColorLog.info(this, "Getting duplicated files on the wiki");
 		return MQuery.querySpecialPage(this, cap, "ListDuplicatedFiles");
+	}
+
+	/**
+	 * Attempts to resolve title redirects on a Wiki.
+	 * 
+	 * @param title The title to attempt resolution at.
+	 * @return The resolved title, or the original title if it was not a redirect.
+	 */
+	public String resolveRedirect(String title)
+	{
+		ColorLog.info(this, "Resolving redirect for " + title);
+		return MQuery.resolveRedirects(this, FL.toSAL(title)).get(title);
 	}
 }

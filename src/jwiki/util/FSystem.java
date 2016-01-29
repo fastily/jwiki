@@ -31,11 +31,6 @@ public final class FSystem
 	public static final boolean isWindows = System.getProperty("os.name").contains("Windows");
 	
 	/**
-	 * The default script header based on OS.
-	 */
-	public static final String scriptHeader = isWindows ? "@echo off" : "#!/bin/bash\n" + lsep;
-	
-	/**
 	 * Hiding constructor from javadoc
 	 */
 	private FSystem()

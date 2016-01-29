@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<project default="createDist" name="Creates a non-executing jar for jwiki">
+<project default="createDist" name="Creates a non-executing library jar for jwiki">
     <target name="createDist">
         <jar destfile="jwiki.jar" filesetmanifest="mergewithoutmain">
         	<fileset file="LICENSE.md"/>

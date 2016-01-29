@@ -26,6 +26,9 @@ public class FL
 	 * Collects the elements of a Stream into an ArrayList.
 	 * 
 	 * @param s The target Stream
+	 * 
+	 * @param <T1> The ArrayList will be created containing this type. 
+	 * 
 	 * @return An ArrayList containing the elements of the <code>s</code>
 	 */
 	public static <T1> ArrayList<T1> toAL(Stream<T1> s)
@@ -80,6 +83,7 @@ public class FL
 	/**
 	 * Takes an ArrayList of ArrayList of type <code>T1</code> and condenses them into one list.
 	 * 
+	 * @param <T1> The type contained in the inner ArrayLists
 	 * @param l The ArrayList to squash
 	 * @return The squashed ArrayList.
 	 */

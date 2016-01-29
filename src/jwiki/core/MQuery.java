@@ -248,6 +248,27 @@ public final class MQuery
 
 		return hlx;
 	}
+	
+	/**
+	 * Resolves title redirects on a Wiki.
+	 * @param wiki The Wiki to run the query against
+	 * @param titles The titles to attempt resoloving.
+	 * @return A HashMap where each key is the original title, and the value is the resolved title.
+	 */
+	public static HashMap<String, String> resolveRedirects(Wiki wiki, ArrayList<String> titles)
+	{
+		HashMap<String, String> hl = new HashMap<>();
+		RSet rs = new SQ(wiki, null, FL.pMap("redirects", "")).multiTitleQuery("titles", titles);
+		
+		for(Reply r : rs.getJOofJA("redirects")) //add titles which are redirects with resolved title
+			hl.put(r.getStringR("from"), r.getStringR("to"));
+		
+		for(String s : titles) // add titles that are not redirects
+			if(!hl.containsKey(s))
+				hl.put(s, s);
+		
+		return hl;
+	}
 
 	/**
 	 * Gets duplicates of a file. Note that results are returned *without* a namespace prefix.
