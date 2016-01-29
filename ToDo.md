@@ -3,7 +3,6 @@
 * Recent Changes
 * Watchlist
 * Search
-* MIME for imageinfo
 
 ### Usability
 * Purge should take multiple params in WAction
