@@ -53,6 +53,11 @@ public class SQ
 	private String strMax = "max";
 
 	/**
+	 * The <code>action</code> param to use for this SQ.
+	 */
+	protected String action = "query";
+	
+	/**
 	 * Constructor, sets a limit String and the overall maximum number of results returned in a [continuation] query.
 	 * 
 	 * @param wiki The Wiki object to use
@@ -108,7 +113,7 @@ public class SQ
 	 */
 	private URLBuilder makeUB(String... params)
 	{
-		URLBuilder ub = wiki.makeUB("query", params);
+		URLBuilder ub = wiki.makeUB(action, params);
 		ub.setParams(pl);
 
 		if (limString != null)

@@ -56,11 +56,6 @@ public class Wiki
 	protected CookieManager cookiejar = new CookieManager();
 
 	/**
-	 * Our MBot for mass actions.
-	 */
-	private final MBot mbot;
-
-	/**
 	 * Constructor, sets username, password, and domain. The user password combo must be valid or program will exit
 	 * 
 	 * @param user The username to use
@@ -73,7 +68,6 @@ public class Wiki
 	{
 		upx = new Tuple<>(FString.toCaps(user), px);
 		this.domain = domain;
-		mbot = new MBot(this);
 
 		boolean isNew = parent != null;
 		if (isNew)
@@ -243,19 +237,6 @@ public class Wiki
 		return new URLBuilder(domain, action, params.length > 0 ? FL.pMap(params) : null);
 	}
 
-	/**
-	 * Submit a task to be processed using concurrency.
-	 * 
-	 * @param tasks The tasks to process
-	 * @param maxThreads The maximum number of threads to instantiate.
-	 * @param <T1> An object implementing doJob() in MBot.Task
-	 * @return A list of tasks we couldn't execute.
-	 */
-	public <T1 extends MBot.Task> ArrayList<MBot.Task> submit(ArrayList<T1> tasks, int maxThreads)
-	{
-		return mbot.submit(tasks, maxThreads);
-	}
-
 	/* //////////////////////////////////////////////////////////////////////////////// */
 	/* /////////////////////////////////// ACTIONS //////////////////////////////////// */
 	/* //////////////////////////////////////////////////////////////////////////////// */
@@ -353,7 +334,8 @@ public class Wiki
 	 */
 	public boolean purge(String title)
 	{
-		return WAction.purge(this, title);
+		ColorLog.info("Purging cache of " + title);
+		return WAction.purge(this, FL.toSAL(title)).get(title);
 	}
 
 	/**
