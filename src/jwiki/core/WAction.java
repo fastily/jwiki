@@ -40,15 +40,15 @@ public final class WAction
 	 * 
 	 * @param wiki The wiki object to use
 	 * @param ub The URLBuilder to use
-	 * @param params The parameters to post, in order of <code>[ param1, value1, param2, value2 ] </code> 
+	 * @param params The parameters to post, in order of <code>[ param1, value1, param2, value2 ] </code>
 	 * @return A reply from the server or null if something went wrong.
 	 */
 	protected static Reply doAction(Wiki wiki, String action, String... params)
 	{
 		try
 		{
-			return Req.post(wiki.makeUB(action).makeURL(), FString.makeURLParamString(FString.encValues(FL.pMap(params))),
-					wiki.cookiejar, Req.urlenc);
+			return Req.post(wiki.makeUB(action).makeURL(), FString.makeURLParamString(FString.encValues(FL.pMap(params))), wiki.cookiejar,
+					Req.urlenc);
 		}
 		catch (Throwable e)
 		{
@@ -111,8 +111,8 @@ public final class WAction
 	protected static boolean addText(Wiki wiki, String title, String text, String reason, boolean append)
 	{
 		ColorLog.info(wiki, "Adding text to " + title);
-		Reply r = doAction(wiki, "edit", "title", title, append ? "appendtext" : "prependtext", text, "summary", reason,
-				"token", wiki.token);
+		Reply r = doAction(wiki, "edit", "title", title, append ? "appendtext" : "prependtext", text, "summary", reason, "token",
+				wiki.token);
 		return r != null && r.resultIs("Success");
 	}
 
@@ -170,27 +170,23 @@ public final class WAction
 		return false;
 	}
 
-	// TODO: Should be rewritten to accept multiple titles
 	/**
-	 * Purges the cache of a page.
+	 * Purges page caches.
 	 * 
-	 * @param wiki The wiki object to use
-	 * @param title The title to purge.
-	 * @return True if we were successful.
+	 * @param wiki The Wiki object to run the action against.
+	 * @param titles The titles to purge
+	 * @return A HashMap where each key is the title and each value indicates whether the title was successfully purged.
 	 */
-	protected static boolean purge(Wiki wiki, String title)
+	protected static HashMap<String, Boolean> purge(Wiki wiki, ArrayList<String> titles)
 	{
-		ColorLog.fyi(wiki, "Purging " + title);
+		SQ sq = new SQ(wiki, null, FL.pMap());
+		sq.action = "purge";
 
-		try
-		{
-			Reply r = Req.get(wiki.makeUB("purge", "titles", title).makeURL(), wiki.cookiejar);
-			return r != null && !r.hasError() && r.getJSONArray("purge").getJSONObject(0).has("purged");
-		}
-		catch (Throwable e)
-		{
-			return false;
-		}
+		HashMap<String, Boolean> l = new HashMap<>();
+		for (Reply r : sq.multiTitleQuery("titles", titles).getJOofJA("purge"))
+			l.put(r.getString("title"), r.has("purged"));
+
+		return l;
 	}
 
 	/**
@@ -215,15 +211,14 @@ public final class WAction
 			long filesize = Files.size(p);
 			long chunks = filesize / chunksize + ((filesize % chunksize) > 0 ? 1 : 0);
 
-			HashMap<String, String> args = FL.pMap("filename", wiki.nsl.nss(uploadTo), "token", wiki.token, "ignorewarnings",
-					"true", "stash", "1", "filesize", "" + filesize);
+			HashMap<String, String> args = FL.pMap("filename", wiki.nsl.nss(uploadTo), "token", wiki.token, "ignorewarnings", "true",
+					"stash", "1", "filesize", "" + filesize);
 
 			ColorLog.info(wiki, String.format("Uploading '%s' to '%s'", filename, title));
 
 			for (long i = 0, offset = fc.position(), failcount = 0; i < chunks;)
 			{
-				ColorLog.log(wiki, String.format("(%s): Uploading chunk %d of %d", filename, i + 1, chunks), "INFO",
-						ColorLog.PURPLE);
+				ColorLog.log(wiki, String.format("(%s): Uploading chunk %d of %d", filename, i + 1, chunks), "INFO", ColorLog.PURPLE);
 
 				args.put("offset", "" + offset);
 				if (filekey != null)
@@ -271,8 +266,8 @@ public final class WAction
 	private static boolean unstash(Wiki wiki, String filekey, String title, String text, String reason)
 	{
 		ColorLog.info(wiki, String.format("Unstashing '%s' from temporary archive @ '%s'", title, filekey));
-		Reply r = doAction(wiki, "upload", "filename", title, "text", text, "comment", reason, "token", wiki.token, "filekey",
-				filekey, "ignorewarnings", "true");
+		Reply r = doAction(wiki, "upload", "filename", title, "text", text, "comment", reason, "token", wiki.token, "filekey", filekey,
+				"ignorewarnings", "true");
 		return r != null && r.resultIs("Success");
 	}
 }
