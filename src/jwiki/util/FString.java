@@ -74,7 +74,7 @@ public final class FString
 	{
 		try
 		{
-			return URLEncoder.encode(s, "UTF-8");
+			return URLEncoder.encode(s, "UTF-8");//.replace("+", "%20");
 		}
 		catch (Throwable e)
 		{

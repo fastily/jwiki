@@ -12,7 +12,7 @@ import java.util.stream.Stream;
  * @author Fastily
  *
  */
-public class FL
+public final class FL
 {
 	/**
 	 * Constructors disallowed

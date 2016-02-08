@@ -391,7 +391,7 @@ public class Wiki
 	public ArrayList<String> listGroupsRights(String user)
 	{
 		ColorLog.info(this, "Getting user rights for " + user);
-		return MQuery.listUserRights(this, FL.toSAL(user)).get(0).y;
+		return MQuery.listUserRights(this, FL.toSAL(user)).get(user);
 	}
 
 	/**

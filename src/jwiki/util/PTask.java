@@ -12,7 +12,7 @@ import jwiki.core.ColorLog;
  * @author Fastily
  *
  */
-public class PTask
+public final class PTask
 {
 	/**
 	 * Tracks the number of Tasks completed
