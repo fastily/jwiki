@@ -132,7 +132,7 @@ public class RSet
 	 * @param ja The JSONArray to get Strings from
 	 * @return A list of Strings found in <code>ja</code>.
 	 */
-	protected static ArrayList<String> jsonArrayToString(JSONArray ja)
+	protected static ArrayList<String> jaToString(JSONArray ja)
 	{
 		ArrayList<String> l = new ArrayList<>();
 		for (Object o : ja)

@@ -98,7 +98,7 @@ public class WikiGen
 		if (c == null)
 			FError.errAndExit("You need to be running in CLI mode");
 
-		c.printf("Welcome to FLogin!%nThis utility will encrypt & store your usernames/passwords%n(c) 2015 Fastily%n%n");
+		c.printf("Welcome to FLogin!%nThis utility will encrypt & store your usernames/passwords%n(c) 2016 Fastily%n%n");
 
 		// let user enter user & pw combos
 		HashMap<String, String> ul = new HashMap<>();

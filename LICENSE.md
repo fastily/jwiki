@@ -6,7 +6,7 @@ Unless otherwise stated, the individual files of jwiki are licensed under the te
 
 *tl;dr*: You may use and modify jwiki however you like, provided that you credit the author(s).
 
-© 2015, Fastily
+© 2016, Fastily
 
 ### Disclaimer
 The software is provided "as-is" without warranty of any kind, express or implied, including but not limited to the warranties of merchantability, fitness for a particular purpose and non-infringement.  In no event shall the author(s) or copyright holder(s) be liable for any claim, damages or other liability, whether in action of contract, tort or otherwise, arising from, out of or in connection with the software or the use or other dealings in the software.
