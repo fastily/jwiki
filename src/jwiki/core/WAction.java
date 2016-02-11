@@ -40,15 +40,15 @@ public final class WAction
 	 * 
 	 * @param wiki The wiki object to use
 	 * @param ub The URLBuilder to use
-	 * @param params The parameters to post, in order of <code>[ param1, value1, param2, value2 ] </code>
+	 * @param params The parameters to post, in order of <code>[ param1, value1, param2, value2 ] </code>.
 	 * @return A reply from the server or null if something went wrong.
 	 */
-	protected static Reply doAction(Wiki wiki, String action, String... params)
+	protected static Reply doAction(Wiki wiki, String action, HashMap<String, String> params)
 	{
 		try
 		{
-			return Req.post(wiki.makeUB(action).makeURL(), FString.makeURLParamString(FString.encValues(FL.pMap(params))), wiki.cookiejar,
-					Req.urlenc);
+			return Req.post(wiki.makeUB(action).makeURL(), FString.makeURLParamString(FString.encValues(new HashMap<>(params))),
+					wiki.cookiejar, Req.urlenc);
 		}
 		catch (Throwable e)
 		{
@@ -72,13 +72,17 @@ public final class WAction
 	{
 		ColorLog.info(wiki, "Editing " + title);
 
+		HashMap<String, String> pl = FL.pMap("title", title, "text", text, "summary", reason, "token", wiki.token);
+		if (wiki.isBot)
+			pl.put("bot", "");
+
 		int attempt = agressive ? 5 : 1;
 		for (int i = 0; i < attempt; i++)
 		{
 			if (agressive && i < 0)
 				ColorLog.info(wiki, String.format("Editing '%s', trial: %d/%d", title, i, attempt));
 
-			Reply r = doAction(wiki, "edit", "title", title, "text", text, "summary", reason, "token", wiki.token);
+			Reply r = doAction(wiki, "edit", pl);
 			if (r != null && r.resultIs("Success"))
 				return true;
 
@@ -111,8 +115,13 @@ public final class WAction
 	protected static boolean addText(Wiki wiki, String title, String text, String reason, boolean append)
 	{
 		ColorLog.info(wiki, "Adding text to " + title);
-		Reply r = doAction(wiki, "edit", "title", title, append ? "appendtext" : "prependtext", text, "summary", reason, "token",
+
+		HashMap<String, String> pl = FL.pMap("title", title, append ? "appendtext" : "prependtext", text, "summary", reason, "token",
 				wiki.token);
+		if (wiki.isBot)
+			pl.put("bot", "");
+
+		Reply r = doAction(wiki, "edit", pl);
 		return r != null && r.resultIs("Success");
 	}
 
@@ -143,7 +152,7 @@ public final class WAction
 	protected static boolean delete(Wiki wiki, String title, String reason)
 	{
 		ColorLog.info(wiki, "Deleting " + title);
-		Reply r = doAction(wiki, "delete", "title", title, "reason", reason, "token", wiki.token);
+		Reply r = doAction(wiki, "delete", FL.pMap("title", title, "reason", reason, "token", wiki.token));
 		return r != null && !r.hasErrorIfIgnore("missingtitle");
 	}
 
@@ -163,7 +172,7 @@ public final class WAction
 		{
 			if (agressive && i < 0)
 				ColorLog.info(wiki, String.format("Undeleting '%s' trial: %d/%d", title, i, attempt));
-			Reply r = doAction(wiki, "undelete", "title", title, "reason", reason, "token", wiki.token);
+			Reply r = doAction(wiki, "undelete", FL.pMap("title", title, "reason", reason, "token", wiki.token));
 			if (r != null && !r.hasError())
 				return true;
 		}
@@ -266,8 +275,8 @@ public final class WAction
 	private static boolean unstash(Wiki wiki, String filekey, String title, String text, String reason)
 	{
 		ColorLog.info(wiki, String.format("Unstashing '%s' from temporary archive @ '%s'", title, filekey));
-		Reply r = doAction(wiki, "upload", "filename", title, "text", text, "comment", reason, "token", wiki.token, "filekey", filekey,
-				"ignorewarnings", "true");
+		Reply r = doAction(wiki, "upload", FL.pMap("filename", title, "text", text, "comment", reason, "token", wiki.token, "filekey",
+				filekey, "ignorewarnings", "true"));
 		return r != null && r.resultIs("Success");
 	}
 }

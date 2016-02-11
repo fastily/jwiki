@@ -54,6 +54,11 @@ public class Wiki
 	 * Our cookiejar
 	 */
 	protected CookieManager cookiejar = new CookieManager();
+	
+	/**
+	 * Flag indicating whether the logged in user is a bot.
+	 */
+	protected boolean isBot = false;
 
 	/**
 	 * Constructor, sets username, password, and domain. The user password combo must be valid or program will exit
