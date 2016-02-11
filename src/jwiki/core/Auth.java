@@ -23,7 +23,7 @@ public final class Auth
 	}
 
 	/**
-	 * Attempts to perform login for a Wiki.  Sets cookies if successful.
+	 * Attempts to perform login for a Wiki. Sets cookies if successful.
 	 * 
 	 * @param wiki The wiki object to use.
 	 * @return True on success.
@@ -32,25 +32,35 @@ public final class Auth
 	{
 		ColorLog.info(String.format("Logging in as %s @ %s", wiki.upx.x, wiki.domain));
 
-		Reply r = WAction.doAction(wiki, "login", "lgname", wiki.upx.x);
-		return r == null || r.hasError() || !r.resultIs("NeedToken") ? false : WAction.doAction(wiki, "login", "lgname",
-				wiki.upx.x, "lgpassword", wiki.upx.y, "lgtoken", r.getStringR("token")).resultIs("Success");
+		Reply r = WAction.doAction(wiki, "login", FL.pMap("lgname", wiki.upx.x));
+		return r == null || r.hasError() || !r.resultIs("NeedToken") ? false
+				: WAction.doAction(wiki, "login", FL.pMap("lgname", wiki.upx.x, "lgpassword", wiki.upx.y, "lgtoken", r.getStringR("token")))
+						.resultIs("Success");
 	}
 
 	/**
-	 * Fetches namespace list and edit token for a wiki. Sets edit token and namespace handler if successful.
+	 * Sets the Namespace list, csrf tokens, and user groups for a Wiki. 
 	 * 
-	 * @param wiki The wiki object to use
+	 * @param wiki The Wiki object to use.
 	 * @return True on success.
 	 */
 	private static boolean doSetup(Wiki wiki)
 	{
 		ColorLog.info(wiki, "Fetching namespace list and csrf tokens");
+
+		Reply r = new SQ(wiki, FL.pMap("meta", FString.pipeFence("siteinfo", "tokens"), "siprop",
+				FString.pipeFence("namespaces", "namespacealiases"), "type", "csrf", "list", "users", "usprop", "groups", "ususers", wiki.upx.x)).query();
+		try
+		{
+			if(RSet.jaToString(r.getJAOfJOAsALR("users").get(0).getJSONArray("groups")).contains("bot"))
+				wiki.isBot = true;
+		}
+		catch(Throwable e)
+		{
+			
+		}
 		
-		Reply r = new SQ(wiki, FL.pMap("meta", FString.pipeFence("siteinfo", "tokens"),
-				"siprop", FString.pipeFence("namespaces", "namespacealiases"), "type", "csrf")).query();
-		return (wiki.nsl = NS.NSManager.makeNSManager(r)) != null
-				&& (wiki.token = r.getStringR("csrftoken")) != null;
+		return (wiki.nsl = NS.NSManager.makeNSManager(r)) != null && (wiki.token = r.getStringR("csrftoken")) != null;
 	}
 
 	/**
