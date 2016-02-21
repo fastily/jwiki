@@ -25,11 +25,6 @@ public final class Settings
 			System.getProperty("os.version"), System.getProperty("java.version"));
 
 	/**
-	 * The maximum allowable number of entries to request data for per group entry.
-	 */
-	protected static int groupQueryMax = 50;
-
-	/**
 	 * The communications protocol we'll be using. Default = https.
 	 */
 	protected static final String comPro = "https://";

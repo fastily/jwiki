@@ -6,8 +6,8 @@ import java.util.HashMap;
 import org.json.JSONObject;
 
 import jwiki.util.FString;
+import jwiki.util.GroupQueue;
 
-import static jwiki.core.Settings.*;
 
 /**
  * A template server query object that can be used to make a variety of queries. It is advisable to create a new
@@ -23,6 +23,11 @@ public class SQ
 	 * value is needed but where the client does not know the max.
 	 */
 	private static final int maxResultLimit = 500;
+
+	/**
+	 * The group query (multiple titles query) maximum
+	 */
+	private static final int groupQueryMax = 50;
 
 	/**
 	 * The Wiki object to use
@@ -51,7 +56,7 @@ public class SQ
 	 * from <code>maxResults</code>.
 	 */
 	private String strMax = "max";
-
+	
 	/**
 	 * The <code>action</code> param to use for this SQ.
 	 */
@@ -134,18 +139,11 @@ public class SQ
 	protected RSet multiTitleQuery(String tkey, ArrayList<String> titles)
 	{
 		RSet rs = new RSet();
-
-		int size = titles.size();
-		for (int start = 0, end = groupQueryMax; start < size; start += groupQueryMax, end += groupQueryMax)
-		{
-			if (size - start < groupQueryMax)
-				end = size;
-			
-			if(Settings.verbose)
-				ColorLog.fyi(wiki, String.format("{multiTitleQuery()}: %d of %d", start, size));
-			
-			rs.merge(multiQuery(tkey, FString.fenceMaker("|", titles.subList(start, end))));
-		}
+		GroupQueue<String> gq = new GroupQueue<>(titles, groupQueryMax);
+		
+		while(gq.has())
+			rs.merge(multiQuery(tkey, FString.fenceMaker("|", gq.poll())));
+		
 		return rs;
 	}
 

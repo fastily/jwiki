@@ -1,6 +1,7 @@
 package jwiki.core;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -11,6 +12,7 @@ import org.json.JSONArray;
 import jwiki.dwrap.ImageInfo;
 import jwiki.util.FL;
 import jwiki.util.FString;
+import jwiki.util.MapList;
 
 /**
  * Perform multi-title queries. Use of these methods is intended for <i>advanced</i> users who wish to make queries to
@@ -46,26 +48,33 @@ public final class MQuery
 	}
 
 	/**
-	 * Gets imageinfo for files.
+	 * Gets ImageInfo objects for each revision of a File.
 	 * 
-	 * @param wiki The wiki objec to use
+	 * @param wiki The Wiki object to use
 	 * @param width Generate a thumbnail of the file with this width. Optional param, set to -1 to disable
 	 * @param height Generate a thumbnail of the file with this height. Optional param, set to -1 to disable
 	 * @param titles The titles to query
-	 * @return A list of ImageInfo, keyed by title.
+	 * @return A map with titles keyed to respective lists of ImageInfo.
 	 */
-	public static HashMap<String, ImageInfo> getImageInfo(Wiki wiki, int width, int height, ArrayList<String> titles)
+	public static HashMap<String, ArrayList<ImageInfo>> getImageInfo(Wiki wiki, int width, int height, ArrayList<String> titles)
 	{
 		HashMap<String, String> pl = FL.pMap("prop", "imageinfo", "iiprop",
-				FString.pipeFence("canonicaltitle", "url", "size", "sha1", "mime"));
+				FString.pipeFence("canonicaltitle", "url", "size", "sha1", "mime", "user", "timestamp", "comment"));
 
 		if (width > 0)
 			pl.put("iiurlwidth", "" + width);
 		if (height > 0)
 			pl.put("iiurlheight", "" + height);
 
-		return new SQ(wiki, pl).multiTitleQuery("titles", titles).getJOofJOStream("pages").collect(HashMap::new,
-				(m, v) -> m.put(v.getString("title"), new ImageInfo(v)), HashMap::putAll);
+		String t;
+		MapList<String, ImageInfo> ml = new MapList<>();
+		for(Reply r : new SQ(wiki, "iilimit", pl).multiTitleQuery("titles", titles).getJOofJO("pages"))
+			ml.put(t = r.getStringR("title"), ImageInfo.makeImageInfos(t, r.getJAOfJOAsALR("imageinfo")));
+		
+		for(Map.Entry<String, ArrayList<ImageInfo>> e : ml.l.entrySet())
+			Collections.sort(e.getValue());
+		
+		return ml.l;
 	}
 
 	/**

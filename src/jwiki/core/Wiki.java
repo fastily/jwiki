@@ -109,7 +109,7 @@ public class Wiki
 	 */
 	public Wiki(String user, String px) throws LoginException
 	{
-		this(user, px, "commons.wikimedia.org");
+		this(user, px, "en.wikipedia.org");
 	}
 
 	/**
@@ -644,25 +644,25 @@ public class Wiki
 	}
 
 	/**
-	 * Get some information about a file on Wiki. Does not fill the thumbnail param of ImageInfo.
+	 * Gets information about a File's revisions. Does not fill the thumbnail param of ImageInfo.
 	 * 
-	 * @param title The title of the file to use (must be in the file namespace and exist, else return Null)
-	 * @return An ImageInfo object, or null if something went wrong.
+	 * @param title The title of the file to use (must be in the file namespace and exist, else return null)
+	 * @return A list of ImageInfo objects, one for each revision.  The order is newer -> older.
 	 */
-	public ImageInfo getImageInfo(String title)
+	public ArrayList<ImageInfo> getImageInfo(String title)
 	{
 		return getImageInfo(title, -1, -1);
 	}
 
 	/**
-	 * Get some information about a file on Wiki.
+	 * Gets information about a File's revisions.
 	 * 
-	 * @param title The title of the file to use (must be in the file namespace and exist, else return Null)
+	 * @param title The title of the file to use (must be in the file namespace and exist, else return null)
 	 * @param height The height to scale the image to. Disable scalers by passing in a number &ge; 0.
 	 * @param width The width to scale the image to. Disable scalers by passing in a number &ge; 0.
-	 * @return An ImageInfo object, or null if something went wrong.
+	 * @return A list of ImageInfo objects, one for each revision.  The order is newer -> older.
 	 */
-	public ImageInfo getImageInfo(String title, int height, int width)
+	public ArrayList<ImageInfo> getImageInfo(String title, int height, int width)
 	{
 		ColorLog.info(this, "Getting image info for " + title);
 		return MQuery.getImageInfo(this, width, height, FL.toSAL(title)).get(title);
@@ -743,7 +743,7 @@ public class Wiki
 	 */
 	public ArrayList<String> allPages(String prefix, boolean redirectsonly, int cap, NS ns)
 	{
-		ColorLog.info(this, "Doing all pages fetch for " + prefix == null ? "all pages" : prefix);
+		ColorLog.info(this, "Doing all pages fetch for " + (prefix == null ? "all pages" : prefix));
 		HashMap<String, String> pl = FL.pMap("list", "allpages");
 		if (prefix != null)
 			pl.put("apprefix", prefix);
