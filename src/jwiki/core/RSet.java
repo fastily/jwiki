@@ -170,7 +170,7 @@ public class RSet
 		// Group
 		HashMap<String, ArrayList<ArrayList<String>>> ht = srl
 				.collect(Collectors.groupingBy(jo -> jo.getString(title), HashMap::new, Collectors.mapping(
-						jo -> RSet.extractStrFromJAOfJO(jo.getJAOfJOAsALR(arrKey), strKey), Collectors.toCollection(ArrayList::new))));
+						jo -> extractStrFromJAOfJO(jo.getJAOfJOAsALR(arrKey), strKey), Collectors.toCollection(ArrayList::new))));
 	
 		// Flatten - this ideally should be part of group
 		HashMap<String, ArrayList<String>> m = new HashMap<>();

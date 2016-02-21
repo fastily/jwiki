@@ -1,8 +1,10 @@
 package jwiki.dwrap;
 
-import org.json.JSONArray;
+import java.time.Instant;
+import java.util.ArrayList;
 
 import jwiki.core.Reply;
+import jwiki.util.FL;
 import jwiki.util.Tuple;
 
 /**
@@ -11,13 +13,8 @@ import jwiki.util.Tuple;
  * @author Fastily
  * 
  */
-public class ImageInfo
+public class ImageInfo extends DataEntry implements Comparable<ImageInfo>
 {
-	/**
-	 * The file associated with this ImageInfo
-	 */
-	public final String title;
-	
 	/**
 	 * The image size (in bytes)
 	 */
@@ -37,7 +34,7 @@ public class ImageInfo
 	 * The sha1 hash for this file
 	 */
 	public final String sha1;
-	
+
 	/**
 	 * A URL to the full size image.
 	 */
@@ -47,7 +44,7 @@ public class ImageInfo
 	 * The MIME string of the file.
 	 */
 	public final String mime;
-	
+
 	/**
 	 * A URL to a thumb nail (if you requested it, otherwise null)
 	 */
@@ -61,40 +58,53 @@ public class ImageInfo
 	/**
 	 * Constructor, takes a JSONObject containing image info returned by the server.
 	 * 
+	 * @param title The page this ImageInfo is to be created for.
 	 * @param r The Reply to use.
 	 */
-	public ImageInfo(Reply r)
+	public ImageInfo(String title, Reply r)
 	{
-		JSONArray ja = r.getJSONArrayR("imageinfo");
-		if (ja == null)
+		super(r.getStringR("user"), title, r.getStringR("comment"), Instant.parse(r.getStringR("timestamp")));
+		size = r.getIntR("size");
+		dimensions = new Tuple<>(r.getIntR("width"), r.getIntR("height"));
+
+		if (r.has("thumburl"))
 		{
-			size = 0;
-			dimensions = thumbdimensions = null;
-			url = thumburl = redirectsTo = title = sha1 = mime = null;
+			thumburl = r.getStringR("thumburl");
+			thumbdimensions = new Tuple<>(r.getIntR("thumbwidth"), r.getIntR("thumbheight"));
 		}
 		else
 		{
-			Reply params = new Reply(ja.getJSONObject(0));
-			size = params.getIntR("size");
-			dimensions = new Tuple<>(params.getIntR("width"), params.getIntR("height"));
-			
-			if(params.has("thumburl"))
-			{
-				thumburl = params.getString("thumburl");
-				thumbdimensions = new Tuple<>(params.getIntR("thumbwidth"), params.getIntR("thumbheight"));
-			}
-			else
-			{
-				thumburl = null;
-				thumbdimensions = null;
-			}
-			
-			url = params.getString("url");
-			sha1 = params.getString("sha1");
-			mime = params.getString("mime");
-			
-			title = r.getString("title");
-			redirectsTo = title.equals(params.getString("canonicaltitle")) ? null : params.getString("canonicaltitle");
+			thumburl = null;
+			thumbdimensions = null;
 		}
+
+		url = r.getStringR("url");
+		sha1 = r.getStringR("sha1");
+		mime = r.getStringR("mime");
+
+		redirectsTo = title.equals(r.getStringR("canonicaltitle")) ? null : r.getStringR("canonicaltitle");
+	}
+
+	/**
+	 * Generates ImageInfo objects from an ArrayList of JSONObjects.
+	 * 
+	 * @param title The page these ImageInfo objects are to be created for.
+	 * @param ja The list of JSONObjects to convert to ImageInfo.
+	 * @return A list of ImageInfo.
+	 */
+	public static ArrayList<ImageInfo> makeImageInfos(String title, ArrayList<Reply> ja)
+	{
+		if (ja == null || ja.isEmpty())
+			return new ArrayList<>();
+
+		return FL.toAL(ja.stream().map(jo -> new ImageInfo(title, jo)));
+	}
+
+	/**
+	 * Compares the timestamps of two ImageInfo objects. Orders items newer -> older.
+	 */
+	public int compareTo(ImageInfo o)
+	{
+		return o.timestamp.compareTo(timestamp);
 	}
 }

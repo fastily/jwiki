@@ -47,7 +47,7 @@ public final class WTask
 	{
 		ColorLog.fyi(wiki, "Downloading " + title);
 
-		ImageInfo x = wiki.getImageInfo(title, height, width);
+		ImageInfo x = wiki.getImageInfo(title, height, width).get(0);
 		String url;
 		if (x.thumburl != null)
 			url = x.thumburl;
