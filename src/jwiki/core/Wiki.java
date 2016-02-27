@@ -2,6 +2,7 @@ package jwiki.core;
 
 import java.net.CookieManager;
 import java.nio.file.Path;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -12,6 +13,7 @@ import javax.security.auth.login.LoginException;
 import jwiki.dwrap.Contrib;
 import jwiki.dwrap.ImageInfo;
 import jwiki.dwrap.LogEntry;
+import jwiki.dwrap.RCEntry;
 import jwiki.dwrap.Revision;
 import jwiki.util.FL;
 import jwiki.util.FString;
@@ -54,7 +56,7 @@ public class Wiki
 	 * Our cookiejar
 	 */
 	protected CookieManager cookiejar = new CookieManager();
-	
+
 	/**
 	 * Flag indicating whether the logged in user is a bot.
 	 */
@@ -101,7 +103,7 @@ public class Wiki
 	}
 
 	/**
-	 * Constructor, auto initializes first domain to Wikimedia Commons.
+	 * Constructor, auto initializes first domain to the English Wikipedia.
 	 * 
 	 * @param user The username to use
 	 * @param px The password to use
@@ -594,6 +596,41 @@ public class Wiki
 	}
 
 	/**
+	 * Gets a specified number of Recent Changes in between two timestamps. Note: you *must* use <code>start</code> and
+	 * <code>end</code> together or not at all, otherwise the parameters will be ignored.
+	 * 
+	 * @param num The maximum number of entries to get
+	 * @param start The instant to start enumerating from. Optinal param - set null to disable.
+	 * @param end The instant to stop enumerating at. Optional param - set null to disable.
+	 * @return A list Recent Changes where return order is newer -> Older
+	 */
+	public ArrayList<RCEntry> getRecentChanges(int num, Instant start, Instant end)
+	{
+		ColorLog.info(this, "Fetching recent changes");
+		HashMap<String, String> pl = FL.pMap("list", "recentchanges", "rcprop",
+				FString.pipeFence("title", "timestamp", "user", "comment"), "rctype", FString.pipeFence("edit", "new", "log"));
+
+		if (start != null && end != null && start.isBefore(end))
+		{
+			pl.put("rcstart", end.toString()); // MediaWiki has start <-> end mixed up
+			pl.put("rcend", start.toString());
+		}
+
+		return FL.toAL(new SQ(this, "rclimit", num, pl).multiQuery().getJOofJAStream("recentchanges").map(RCEntry::new));
+	}
+
+	/**
+	 * Gets a specified number of the newest RecentChanges.
+	 * 
+	 * @param num The maximum number of entries to get
+	 * @return A list Recent Changes where return order is newer -> Older
+	 */
+	public ArrayList<RCEntry> getRecentChanges(int num)
+	{
+		return getRecentChanges(num, null, null);
+	}
+
+	/**
 	 * Get a user's uploads.
 	 * 
 	 * @param user The username, without the "User:" prefix. PRECONDITION: <code>user</code> must be a valid username.
@@ -647,7 +684,7 @@ public class Wiki
 	 * Gets information about a File's revisions. Does not fill the thumbnail param of ImageInfo.
 	 * 
 	 * @param title The title of the file to use (must be in the file namespace and exist, else return null)
-	 * @return A list of ImageInfo objects, one for each revision.  The order is newer -> older.
+	 * @return A list of ImageInfo objects, one for each revision. The order is newer -> older.
 	 */
 	public ArrayList<ImageInfo> getImageInfo(String title)
 	{
@@ -660,7 +697,7 @@ public class Wiki
 	 * @param title The title of the file to use (must be in the file namespace and exist, else return null)
 	 * @param height The height to scale the image to. Disable scalers by passing in a number &ge; 0.
 	 * @param width The width to scale the image to. Disable scalers by passing in a number &ge; 0.
-	 * @return A list of ImageInfo objects, one for each revision.  The order is newer -> older.
+	 * @return A list of ImageInfo objects, one for each revision. The order is newer -> older.
 	 */
 	public ArrayList<ImageInfo> getImageInfo(String title, int height, int width)
 	{
