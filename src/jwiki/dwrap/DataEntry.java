@@ -45,4 +45,12 @@ public abstract class DataEntry
 		this.summary = summary;
 		this.timestamp = timestamp;
 	}
+	
+	/**
+	 * Gets a String representation of this DataEntry.  Useful for debugging.
+	 */
+	public String toString()
+	{
+		return String.format("[ user : %s, title : %s, summary : %s, timestamp : %s ]", user, title, summary, timestamp);
+	}
 }

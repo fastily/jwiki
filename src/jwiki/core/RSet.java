@@ -2,7 +2,7 @@ package jwiki.core;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -62,8 +62,8 @@ public class RSet
 	 */
 	protected ArrayList<Tuple<Integer, String>> intStringFromJO(String base, String key1, String key2)
 	{
-		return FL.toAL(rl.stream().flatMap(r -> r.bigJSONObjectGet(base).stream())
-				.map(jo -> new Tuple<>(jo.getInt(key1), jo.getString(key2))));
+		return FL.toAL(
+				rl.stream().flatMap(r -> r.bigJSONObjectGet(base).stream()).map(jo -> new Tuple<>(jo.getInt(key1), jo.getString(key2))));
 	}
 
 	/**
@@ -151,7 +151,7 @@ public class RSet
 	{
 		return FL.toAL(rl.stream().map(r -> r.getString(k)));
 	}
-	
+
 	/**
 	 * Groups a list of JSONObjects by a String key-value pair and collects the JSONArrays (of JSONObject) associated
 	 * with that pair. Specifically, extract the <code>title</code> key and flatten any associated JSONArrays keyed with
@@ -167,17 +167,11 @@ public class RSet
 	protected static HashMap<String, ArrayList<String>> groupJOListByStrAndJA(Stream<Reply> srl, String title, String arrKey,
 			String strKey)
 	{
-		// Group
-		HashMap<String, ArrayList<ArrayList<String>>> ht = srl
-				.collect(Collectors.groupingBy(jo -> jo.getString(title), HashMap::new, Collectors.mapping(
-						jo -> extractStrFromJAOfJO(jo.getJAOfJOAsALR(arrKey), strKey), Collectors.toCollection(ArrayList::new))));
-	
-		// Flatten - this ideally should be part of group
-		HashMap<String, ArrayList<String>> m = new HashMap<>();
-		for (Map.Entry<String, ArrayList<ArrayList<String>>> e : ht.entrySet())
-			m.put(e.getKey(), FL.flattenAL(e.getValue()));
-	
-		return m;
+		return srl.collect(Collectors.groupingBy(jo -> jo.getString(title), HashMap::new, Collectors.mapping(
+				jo -> extractStrFromJAOfJO(jo.getJAOfJOAsALR(arrKey), strKey), Collector.of(ArrayList::new, ArrayList::addAll, (x, y) -> {
+					x.addAll(y);
+					return x;
+				}))));
 	}
 
 	/**

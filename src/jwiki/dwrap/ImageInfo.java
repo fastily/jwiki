@@ -13,7 +13,7 @@ import jwiki.util.Tuple;
  * @author Fastily
  * 
  */
-public class ImageInfo extends DataEntry implements Comparable<ImageInfo>
+public final class ImageInfo extends DataEntry implements Comparable<ImageInfo>
 {
 	/**
 	 * The image size (in bytes)
