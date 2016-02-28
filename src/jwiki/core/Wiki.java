@@ -606,7 +606,7 @@ public class Wiki
 	 */
 	public ArrayList<RCEntry> getRecentChanges(int num, Instant start, Instant end)
 	{
-		ColorLog.info(this, "Fetching recent changes");
+		ColorLog.info(this, "Querying recent changes");
 		HashMap<String, String> pl = FL.pMap("list", "recentchanges", "rcprop",
 				FString.pipeFence("title", "timestamp", "user", "comment"), "rctype", FString.pipeFence("edit", "new", "log"));
 
@@ -854,5 +854,18 @@ public class Wiki
 	{
 		ColorLog.info(this, "Resolving redirect for " + title);
 		return MQuery.resolveRedirects(this, FL.toSAL(title)).get(title);
+	}
+
+	/**
+	 * Gets a list of file extensions for the types of files which can be uploaded to this Wiki. WARNING: this method is
+	 * not cached so save the result.
+	 * 
+	 * @return A list of file extensions for files which can be uploaded to this Wiki.
+	 */
+	public ArrayList<String> getAllowedFileExts()
+	{
+		ColorLog.info(this, "Fetching a list of permissible file extensions");
+		return FL.toAL(new SQ(this, FL.pMap("meta", "siteinfo", "siprop", "fileextensions")).query().getJAOfJOAsALR("fileextensions")
+				.stream().map(r -> r.getStringR("ext")));
 	}
 }
