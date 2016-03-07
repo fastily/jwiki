@@ -48,7 +48,7 @@ public final class Auth
 	{
 		ColorLog.info(wiki, "Fetching namespace list and csrf tokens");
 
-		Reply r = new SQ(wiki, FL.pMap("meta", FString.pipeFence("siteinfo", "tokens"), "siprop",
+		Reply r = SQ.with(wiki, FL.pMap("meta", FString.pipeFence("siteinfo", "tokens"), "siprop",
 				FString.pipeFence("namespaces", "namespacealiases"), "type", "csrf", "list", "users", "usprop", "groups", "ususers", wiki.upx.x)).query();
 		try
 		{

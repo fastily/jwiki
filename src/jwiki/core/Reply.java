@@ -237,10 +237,8 @@ public final class Reply extends JSONObject
 		if (jo == null)
 			return jl; // jl is empty
 
-		String[] keys = JSONObject.getNames(jo);
-		if (keys != null)
-			for (String s : keys)
-				jl.add(new Reply(jo.getJSONObject(s)));
+		for (String s : jo.keySet())
+			jl.add(new Reply(jo.getJSONObject(s)));
 
 		return jl;
 	}

@@ -61,10 +61,32 @@ public class SQ
 	 * The <code>action</code> param to use for this SQ.
 	 */
 	protected String action = "query";
+
+	/**
+	 * Constructor, use for basic queries.
+	 * 
+	 * @param wiki The wiki object to use.
+	 * @param pl The default parameters (excluding <code>action</code>) to initialize URLBuilders with.
+	 */
+	private SQ(Wiki wiki, HashMap<String, String> pl)
+	{
+		this.wiki = wiki;
+		this.pl = pl;
+	}
 	
 	/**
-	 * Constructor, sets a limit String and the overall maximum number of results returned in a [continuation] query.
-	 * 
+	 * Creates a basic server query.
+	 * @param wiki The Wiki object to use
+	 * @param pl The default parameters (excluding <code>action</code>) to initialize URLBuilders with.
+	 * @return A basic server query.
+	 */
+	protected static SQ with(Wiki wiki, HashMap<String, String> pl)
+	{
+		return new SQ(wiki, pl);
+	}
+	
+	/**
+	 * Creates a server query with a specific limit String and the overall maximum number of results to be returned in a [continuation] query.
 	 * @param wiki The Wiki object to use
 	 * @param limString The limit String. Optional, set null to disable. Highly recommended that this is set, or else
 	 *           MediaWiki may limit the number of returned results to 10, which adversely affects performance for
@@ -73,40 +95,31 @@ public class SQ
 	 *           Optional, set to a number less than zero to disable. Parameter is ignored if <code>limString</code> is
 	 *           null.
 	 * @param pl The default parameters (excluding <code>action</code>) to initialize URLBuilders with.
+	 * @return The specified server query
 	 */
-	protected SQ(Wiki wiki, String limString, int maxResults, HashMap<String, String> pl)
+	protected static SQ with(Wiki wiki, String limString, int maxResults, HashMap<String, String> pl)
 	{
-		this(wiki, pl);
-		this.limString = limString;
+		SQ sq = with(wiki, pl);
+		sq.limString = limString;
 
 		if (maxResults > 0)
-			strMax = "" + (this.maxResults = maxResults);
+			sq.strMax = "" + (sq.maxResults = maxResults);
+		
+		return sq;
 	}
-
+	
 	/**
-	 * Constructor, sets a limit String.
-	 * 
-	 * @param wiki The wiki object to use.
+	 * Creates a server query with a limit String.
+	 * @param wiki The Wiki object to use.
 	 * @param limString The limit String. Optional, set null to disable. Highly recommended that this is set, or else
 	 *           MediaWiki may limit the number of returned results to 10, which adversely affects performance for
 	 *           queries with many results.
 	 * @param pl The default parameters (excluding <code>action</code>) to initialize URLBuilders with.
+	 * @return A server query with a set limit String.
 	 */
-	protected SQ(Wiki wiki, String limString, HashMap<String, String> pl)
+	protected static SQ with(Wiki wiki, String limString, HashMap<String, String> pl)
 	{
-		this(wiki, limString, -1, pl);
-	}
-
-	/**
-	 * Constructor, use for basic queries.
-	 * 
-	 * @param wiki The wiki object to use.
-	 * @param pl The default parameters (excluding <code>action</code>) to initialize URLBuilders with.
-	 */
-	protected SQ(Wiki wiki, HashMap<String, String> pl)
-	{
-		this.wiki = wiki;
-		this.pl = pl;
+		return with(wiki, limString, -1, pl);
 	}
 
 	/**
@@ -223,13 +236,10 @@ public class SQ
 
 		rl.add(r);
 		
-		if(Settings.verbose)
-			ColorLog.fyi(wiki, String.format("{doContQuery()} looped %d times", rl.size()));
-		
 		if (r.has("continue")) // continuation queries
 		{
 			JSONObject cont = r.getJSONObject("continue");
-			for (String s : JSONObject.getNames(cont))
+			for (String s : cont.keySet())
 				ub.setParam(s, cont.get(s).toString());
 
 			return true;
