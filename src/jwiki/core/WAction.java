@@ -188,7 +188,7 @@ public final class WAction
 	 */
 	protected static HashMap<String, Boolean> purge(Wiki wiki, ArrayList<String> titles)
 	{
-		SQ sq = new SQ(wiki, null, FL.pMap());
+		SQ sq = SQ.with(wiki, null, FL.pMap());
 		sq.action = "purge";
 
 		HashMap<String, Boolean> l = new HashMap<>();

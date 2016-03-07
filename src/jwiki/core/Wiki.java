@@ -302,11 +302,7 @@ public class Wiki
 	 */
 	public boolean replaceText(String title, String regex, String replacement, String reason)
 	{
-		String s = getPageText(title);
-		if (s == null)
-			return false;
-
-		String rx = s.replaceAll(regex, replacement);
+		String s = getPageText(title), rx = s.replaceAll(regex, replacement);
 		return rx.equals(s) ? true : edit(title, rx, reason);
 	}
 
@@ -429,7 +425,7 @@ public class Wiki
 		if (olderFirst)
 			pl.put("rvdir", "newer"); // MediaWiki is weird.
 
-		RSet rs = new SQ(this, "rvlimit", cap, pl).multiQuery();
+		RSet rs = SQ.with(this, "rvlimit", cap, pl).multiQuery();
 		return FL.toAL(rs.getJOofJAStream("revisions").map(x -> new Revision(title, x)));
 	}
 
@@ -471,7 +467,7 @@ public class Wiki
 		if (title == null && user == null && cap < 0)
 			throw new UnsupportedOperationException("Not doing this.  Fetching *entire* logs is a potentially destrutive action.");
 
-		return FL.toAL(new SQ(this, "lelimit", cap, pl).multiQuery().getJOofJAStream("logevents").map(x -> new LogEntry(x)));
+		return FL.toAL(SQ.with(this, "lelimit", cap, pl).multiQuery().getJOofJAStream("logevents").map(x -> new LogEntry(x)));
 	}
 
 	/**
@@ -518,7 +514,7 @@ public class Wiki
 		if (ns.length > 0)
 			pl.put("cmnamespace", nsl.createFilter(ns));
 
-		return new SQ(this, "cmlimit", cap, pl).multiQuery().stringFromJAOfJO("categorymembers", "title");
+		return SQ.with(this, "cmlimit", cap, pl).multiQuery().stringFromJAOfJO("categorymembers", "title");
 	}
 
 	/**
@@ -578,7 +574,7 @@ public class Wiki
 		if (olderFirst)
 			pl.put("ucdir", "newer");
 
-		RSet rs = new SQ(this, "uclimit", cap, pl).multiQuery();
+		RSet rs = SQ.with(this, "uclimit", cap, pl).multiQuery();
 		return FL.toAL(rs.getJOofJAStream("usercontribs").map(Contrib::new));
 	}
 
@@ -616,7 +612,7 @@ public class Wiki
 			pl.put("rcend", start.toString());
 		}
 
-		return FL.toAL(new SQ(this, "rclimit", num, pl).multiQuery().getJOofJAStream("recentchanges").map(RCEntry::new));
+		return FL.toAL(SQ.with(this, "rclimit", num, pl).multiQuery().getJOofJAStream("recentchanges").map(RCEntry::new));
 	}
 
 	/**
@@ -640,7 +636,7 @@ public class Wiki
 	{
 		ColorLog.info(this, "Fetching uploads for " + user);
 		HashMap<String, String> pl = FL.pMap("list", "allimages", "aisort", "timestamp", "aiuser", nsl.nss(user));
-		return new SQ(this, "ailimit", pl).multiQuery().stringFromJAOfJO("allimages", "title");
+		return SQ.with(this, "ailimit", pl).multiQuery().stringFromJAOfJO("allimages", "title");
 	}
 
 	/**
@@ -789,7 +785,7 @@ public class Wiki
 		if (redirectsonly)
 			pl.put("apfilterredir", "redirects");
 
-		return new SQ(this, "aplimit", cap, pl).multiQuery().stringFromJAOfJO("allpages", "title");
+		return SQ.with(this, "aplimit", cap, pl).multiQuery().stringFromJAOfJO("allpages", "title");
 	}
 
 	/**
@@ -865,7 +861,7 @@ public class Wiki
 	public ArrayList<String> getAllowedFileExts()
 	{
 		ColorLog.info(this, "Fetching a list of permissible file extensions");
-		return FL.toAL(new SQ(this, FL.pMap("meta", "siteinfo", "siprop", "fileextensions")).query().getJAOfJOAsALR("fileextensions")
+		return FL.toAL(SQ.with(this, FL.pMap("meta", "siteinfo", "siprop", "fileextensions")).query().getJAOfJOAsALR("fileextensions")
 				.stream().map(r -> r.getStringR("ext")));
 	}
 }

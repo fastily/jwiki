@@ -1,7 +1,7 @@
 package jwiki.core;
 
 /**
- * Contains a number of constants useful to the package.
+ * Constants for jwiki.
  * 
  * @author Fastily
  *
@@ -9,23 +9,18 @@ package jwiki.core;
 public final class Settings
 {
 	/**
-	 * Indicates whether jwiki should log events to terminal for debugging.
+	 * Flag determining whether jwiki should print debug information to console.
 	 */
 	public static boolean debug = false;
 
 	/**
-	 * Indicates whether jwiki should produce more verbose logging statements.
-	 */
-	public static boolean verbose = false;
-
-	/**
-	 * The user agent we're using to make https requests.
+	 * The value to set in the <code>user-agent</code> header of https requests.
 	 */
 	public static String userAgent = String.format("jwiki on %s %s with JVM %s", System.getProperty("os.name"),
 			System.getProperty("os.version"), System.getProperty("java.version"));
 
 	/**
-	 * The communications protocol we'll be using. Default = https.
+	 * The primary network communication protocol. Default: https.
 	 */
 	protected static final String comPro = "https://";
 
