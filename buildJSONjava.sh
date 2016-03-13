@@ -5,13 +5,13 @@
 #: PRECONDITIONS: 
 #:		1) Git and the JDK are installed
 #: 
-#: Tested on OS X 10.11.2
+#: Tested on OS X 10.11.3
 #: Author: Fastily
 
 cd `dirname "$0"`
 
 ## Download JSON-java and compile
-git clone "https://github.com/douglascrockford/JSON-java.git"
+git clone "https://github.com/stleary/JSON-java.git"
 cd JSON-java
 
 printf "Compiling JSON-java...\n"
