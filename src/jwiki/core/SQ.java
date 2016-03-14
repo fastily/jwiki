@@ -151,11 +151,12 @@ public class SQ
 	 */
 	protected RSet multiTitleQuery(String tkey, ArrayList<String> titles)
 	{
+		//ArrayList<Reply> rl = new ArrayList<>();
 		RSet rs = new RSet();
 		GroupQueue<String> gq = new GroupQueue<>(titles, groupQueryMax);
 		
 		while(gq.has())
-			rs.merge(multiQuery(tkey, FString.fenceMaker("|", gq.poll())));
+			rs.merge(multiQuery(tkey, FString.pipeFence(gq.poll())));
 		
 		return rs;
 	}

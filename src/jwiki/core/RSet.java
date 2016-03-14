@@ -10,6 +10,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import jwiki.util.FL;
+import jwiki.util.JSONP;
 import jwiki.util.Tuple;
 
 /**
@@ -63,7 +64,7 @@ public class RSet
 	protected ArrayList<Tuple<Integer, String>> intStringFromJO(String base, String key1, String key2)
 	{
 		return FL.toAL(
-				rl.stream().flatMap(r -> r.bigJSONObjectGet(base).stream()).map(jo -> new Tuple<>(jo.getInt(key1), jo.getString(key2))));
+				rl.stream().flatMap(r -> r.getJOofJO(base).stream()).map(jo -> new Tuple<>(jo.getInt(key1), jo.getString(key2))));
 	}
 
 	/**
@@ -75,20 +76,7 @@ public class RSet
 	 */
 	protected Stream<Reply> getJOofJAStream(String base)
 	{
-		return rl.stream().flatMap(r -> r.getJAOfJOAsALR(base).stream());
-	}
-
-	/**
-	 * Selects, for a given key, a String value from each JSONObject in a JSONAray. Example usage:
-	 * <code>categorymembers</code>.
-	 * 
-	 * @param base The key pointing to the JSONArray in each Reply of the RSet.
-	 * @param title The title to select in each JSONObject.
-	 * @return The list of selected strings.
-	 */
-	protected ArrayList<String> stringFromJAOfJO(String base, String title)
-	{
-		return FL.toAL(getJOofJAStream(base).map(jo -> jo.getString(title)));
+		return rl.stream().flatMap(r -> r.getJAOfJO(base).stream());
 	}
 
 	/**
@@ -111,7 +99,7 @@ public class RSet
 	 */
 	protected Stream<Reply> getJOofJOStream(String base)
 	{
-		return rl.stream().flatMap(r -> r.bigJSONObjectGet(base).stream());
+		return rl.stream().flatMap(r -> r.getJOofJO(base).stream());
 	}
 
 	/**
@@ -126,30 +114,16 @@ public class RSet
 	}
 
 	/**
-	 * Converts a list of strings in a JSONArray to a list of Strings. PRECONDITION: <code>ja</code> *must* be a list of
-	 * Strings or you will get strange results.
+	 * Selects, for a given key, a String value from each JSONObject in a JSONAray. Example usage:
+	 * <code>categorymembers</code>.
 	 * 
-	 * @param ja The JSONArray to get Strings from
-	 * @return A list of Strings found in <code>ja</code>.
+	 * @param base The key pointing to the JSONArray in each Reply of the RSet.
+	 * @param title The title to select in each JSONObject.
+	 * @return The list of selected strings.
 	 */
-	protected static ArrayList<String> jaToString(JSONArray ja)
+	protected ArrayList<String> strFromJAOfJO(String base, String title)
 	{
-		ArrayList<String> l = new ArrayList<>();
-		for (Object o : ja)
-			l.add((String) o);
-		return l;
-	}
-
-	/**
-	 * Extract Strings from a JSONArray of JSONObjects for a given key.
-	 * 
-	 * @param rl The Reply objects to parse
-	 * @param k The key to return a String for in each visited JSONObject
-	 * @return The list of Strings.
-	 */
-	protected static ArrayList<String> extractStrFromJAOfJO(ArrayList<Reply> rl, String k)
-	{
-		return FL.toAL(rl.stream().map(r -> r.getString(k)));
+		return JSONP.strFromJOs(getJOofJA(base), title);
 	}
 
 	/**
@@ -168,7 +142,7 @@ public class RSet
 			String strKey)
 	{
 		return srl.collect(Collectors.groupingBy(jo -> jo.getString(title), HashMap::new, Collectors.mapping(
-				jo -> extractStrFromJAOfJO(jo.getJAOfJOAsALR(arrKey), strKey), Collector.of(ArrayList::new, ArrayList::addAll, (x, y) -> {
+				jo -> JSONP.strFromJOs(jo.getJAOfJO(arrKey), strKey), Collector.of(ArrayList::new, ArrayList::addAll, (x, y) -> {
 					x.addAll(y);
 					return x;
 				}))));

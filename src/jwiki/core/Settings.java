@@ -1,7 +1,7 @@
 package jwiki.core;
 
 /**
- * Constants for jwiki.
+ * Constants and global Settings for jwiki.
  * 
  * @author Fastily
  *
@@ -9,7 +9,7 @@ package jwiki.core;
 public final class Settings
 {
 	/**
-	 * Flag determining whether jwiki should print debug information to console.
+	 * Flag indicating whether jwiki should print debug information to console.
 	 */
 	public static boolean debug = false;
 
@@ -20,7 +20,7 @@ public final class Settings
 			System.getProperty("os.version"), System.getProperty("java.version"));
 
 	/**
-	 * The primary network communication protocol. Default: https.
+	 * The primary network communication protocol. Default = https.
 	 */
 	protected static final String comPro = "https://";
 

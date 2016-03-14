@@ -162,7 +162,7 @@ public final class WTask
 			HashMap<String, String> hl = new HashMap<>();
 
 			Reply k;
-			for (Reply jo : r.getJAOfJOAsALR("part"))
+			for (Reply jo : r.getJAOfJO("part"))
 				hl.put((k = jo.getJSONObjectR("name")) != null ? "" + k.getInt("index") : jo.getString("name"),
 						jo.getStringR("value"));
 
