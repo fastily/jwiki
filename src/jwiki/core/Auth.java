@@ -5,6 +5,7 @@ import java.net.URI;
 
 import jwiki.util.FL;
 import jwiki.util.FString;
+import jwiki.util.JSONP;
 
 /**
  * Perform wiki authentication and initialization tasks for a Wiki.
@@ -52,7 +53,7 @@ public final class Auth
 				FString.pipeFence("namespaces", "namespacealiases"), "type", "csrf", "list", "users", "usprop", "groups", "ususers", wiki.upx.x)).query();
 		try
 		{
-			if(RSet.jaToString(r.getJAOfJOAsALR("users").get(0).getJSONArray("groups")).contains("bot"))
+			if(JSONP.strsFromJA(r.getJAOfJO("users").get(0).getJSONArray("groups")).contains("bot"))
 				wiki.isBot = true;
 		}
 		catch(Throwable e)

@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 /**
  * Static Collections and Stream utilities.
@@ -108,5 +109,15 @@ public final class FL
 		for (int i = 0; i < sl.length; i += 2)
 			l.put(sl[i], sl[i + 1]);
 		return l;
+	}
+	
+	/**
+	 * Creates a Stream from an Iterable.
+	 * @param i The Iterable to make into a Stream
+	 * @return The Stream
+	 */
+	public static <T> Stream<T> streamFrom(Iterable<T> i)
+	{
+		return StreamSupport.stream(i.spliterator(), false);
 	}
 }

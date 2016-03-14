@@ -14,8 +14,9 @@ import jwiki.util.FL;
 import jwiki.util.FString;
 
 /**
- * Performs an action on a wiki. Will never throw an exception. Most methods return some sort of value indicating
- * whether we were successful or not in performing the requested action.
+ * Performs an action on a wiki. Use of these functions is for advanced users who need more functionality than what is
+ * available in the Wiki class. Most methods return some sort of value indicating whether we were successful or not in
+ * performing the requested action.
  * 
  * @author Fastily
  * 
@@ -68,7 +69,7 @@ public final class WAction
 	 * 
 	 * @return True if the operation was successful.
 	 */
-	protected static boolean edit(Wiki wiki, String title, String text, String reason, boolean agressive)
+	public static boolean edit(Wiki wiki, String title, String text, String reason, boolean agressive)
 	{
 		ColorLog.info(wiki, "Editing " + title);
 
@@ -165,7 +166,7 @@ public final class WAction
 	 * @param agressive Set to true to attempt undelete maximum of 10 times in event of failure.
 	 * @return True if we were successful.
 	 */
-	protected static boolean undelete(Wiki wiki, String title, String reason, boolean agressive)
+	public static boolean undelete(Wiki wiki, String title, String reason, boolean agressive)
 	{
 		int attempt = agressive ? 10 : 1;
 		for (int i = 0; i < attempt; i++)
@@ -186,7 +187,7 @@ public final class WAction
 	 * @param titles The titles to purge
 	 * @return A HashMap where each key is the title and each value indicates whether the title was successfully purged.
 	 */
-	protected static HashMap<String, Boolean> purge(Wiki wiki, ArrayList<String> titles)
+	public static HashMap<String, Boolean> purge(Wiki wiki, ArrayList<String> titles)
 	{
 		SQ sq = SQ.with(wiki, null, FL.pMap());
 		sq.action = "purge";

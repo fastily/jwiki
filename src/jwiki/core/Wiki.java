@@ -73,7 +73,7 @@ public class Wiki
 	 */
 	private Wiki(String user, String px, String domain, Wiki parent) throws LoginException
 	{
-		upx = new Tuple<>(FString.toCaps(user), px);
+		upx = new Tuple<>(FString.capitalize(user), px);
 		this.domain = domain;
 
 		boolean isNew = parent != null;
@@ -100,18 +100,6 @@ public class Wiki
 	private Wiki(Wiki curr, String domain) throws LoginException
 	{
 		this(curr.upx.x, curr.upx.y, domain, curr);
-	}
-
-	/**
-	 * Constructor, auto initializes first domain to the English Wikipedia.
-	 * 
-	 * @param user The username to use
-	 * @param px The password to use
-	 * @throws LoginException If we failed to login
-	 */
-	public Wiki(String user, String px) throws LoginException
-	{
-		this(user, px, "en.wikipedia.org");
 	}
 
 	/**
@@ -514,7 +502,7 @@ public class Wiki
 		if (ns.length > 0)
 			pl.put("cmnamespace", nsl.createFilter(ns));
 
-		return SQ.with(this, "cmlimit", cap, pl).multiQuery().stringFromJAOfJO("categorymembers", "title");
+		return SQ.with(this, "cmlimit", cap, pl).multiQuery().strFromJAOfJO("categorymembers", "title");
 	}
 
 	/**
@@ -636,7 +624,7 @@ public class Wiki
 	{
 		ColorLog.info(this, "Fetching uploads for " + user);
 		HashMap<String, String> pl = FL.pMap("list", "allimages", "aisort", "timestamp", "aiuser", nsl.nss(user));
-		return SQ.with(this, "ailimit", pl).multiQuery().stringFromJAOfJO("allimages", "title");
+		return SQ.with(this, "ailimit", pl).multiQuery().strFromJAOfJO("allimages", "title");
 	}
 
 	/**
@@ -785,7 +773,7 @@ public class Wiki
 		if (redirectsonly)
 			pl.put("apfilterredir", "redirects");
 
-		return SQ.with(this, "aplimit", cap, pl).multiQuery().stringFromJAOfJO("allpages", "title");
+		return SQ.with(this, "aplimit", cap, pl).multiQuery().strFromJAOfJO("allpages", "title");
 	}
 
 	/**
@@ -861,7 +849,7 @@ public class Wiki
 	public ArrayList<String> getAllowedFileExts()
 	{
 		ColorLog.info(this, "Fetching a list of permissible file extensions");
-		return FL.toAL(SQ.with(this, FL.pMap("meta", "siteinfo", "siprop", "fileextensions")).query().getJAOfJOAsALR("fileextensions")
+		return FL.toAL(SQ.with(this, FL.pMap("meta", "siteinfo", "siprop", "fileextensions")).query().getJAOfJO("fileextensions")
 				.stream().map(r -> r.getStringR("ext")));
 	}
 }

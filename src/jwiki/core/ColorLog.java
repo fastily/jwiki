@@ -3,8 +3,6 @@ package jwiki.core;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-import jwiki.util.FSystem;
-
 /**
  * Colors a String and logs it to console. Your terminal must support ASCII escapes for this to work, otherwise the text
  * will not be colored.
@@ -53,7 +51,7 @@ public enum ColorLog
 	 * A font color, white, which can be applied to a String if your terminal supports it.
 	 */
 	WHITE(37);
-
+	
 	/**
 	 * The date formatter prefixing output.
 	 */
@@ -62,7 +60,7 @@ public enum ColorLog
 	/**
 	 * Indicates whether we are using a terminal that supports color.
 	 */
-	private static final boolean noColor = FSystem.isWindows || System.getProperty("os.version").startsWith("10.6");
+	private static final boolean noColor = System.getProperty("os.name").contains("Windows") || System.getProperty("os.version").startsWith("10.6");
 
 	/**
 	 * The value of the enum

@@ -19,7 +19,6 @@ import org.json.JSONObject;
  */
 public final class Reply extends JSONObject
 {
-
 	/**
 	 * The result param of the query/action, if one was returned by the server. Otherwise, this is null.
 	 */
@@ -42,7 +41,7 @@ public final class Reply extends JSONObject
 	 */
 	public Reply(JSONObject jo)
 	{
-		super(jo.toString());
+		super(jo, jo.keySet().toArray(new String[0]));
 	}
 
 	/**
@@ -84,11 +83,7 @@ public final class Reply extends JSONObject
 		if (jo.has(key))
 			return jo.get(key);
 
-		String[] x = JSONObject.getNames(jo);
-		if (x == null)
-			return null;
-
-		for (String s : x)
+		for (String s : jo.keySet())
 			try
 			{
 				Object result = getR(jo.getJSONObject(s), key);
@@ -112,7 +107,7 @@ public final class Reply extends JSONObject
 	public int getIntR(String key)
 	{
 		Object result = getR(this, key);
-		return result instanceof Integer ? ((Integer) result).intValue() : -1;
+		return result instanceof Integer ? (Integer) result : -1;
 	}
 
 	/**
@@ -125,17 +120,7 @@ public final class Reply extends JSONObject
 	public String getStringR(String key)
 	{
 		Object result = getR(this, key);
-
-		if (result instanceof String)
-			return (String) result;
-		else if (result instanceof Integer)
-			return ((Integer) result).toString();
-		else if (result instanceof Double)
-			return ((Double) result).toString();
-		else if (result instanceof Boolean)
-			return ((Boolean) result).toString();
-
-		return null;
+		return result == null ? null : result.toString();
 	}
 
 	/**
@@ -154,30 +139,12 @@ public final class Reply extends JSONObject
 	 * Recursively search this Reply for a String, and return a String (if any) for the first instance of it.
 	 * 
 	 * @param key The key to look for.
-	 * @return A JSONArray, or nil if the key with a JSONArray doesn't exist.
+	 * @return A JSONArray, or null if the key with a JSONArray doesn't exist.
 	 */
 	public JSONArray getJSONArrayR(String key)
 	{
 		Object result = getR(this, key);
 		return result instanceof JSONArray ? (JSONArray) result : null;
-	}
-
-	/**
-	 * Recursively search this Reply for a a JSONArray and return the contained JSONObjects in an ArrayList.
-	 * 
-	 * @param key The key to search with.
-	 * @return The JSONObjects in an ArrayList, or an empty list if we couldn't find the specified object.
-	 */
-	public ArrayList<Reply> getJAOfJOAsALR(String key)
-	{
-		ArrayList<Reply> l = new ArrayList<>();
-		JSONArray ja = getJSONArrayR(key);
-		if (ja == null)
-			return l;
-
-		for (Object o : ja)
-			l.add(new Reply((JSONObject) o));
-		return l;
 	}
 
 	/**
@@ -223,23 +190,27 @@ public final class Reply extends JSONObject
 	}
 
 	/**
+	 * Recursively search this Reply for a JSONArray and return any contained JSONObjects in an ArrayList.
+	 * 
+	 * @param key The key to search with.
+	 * @return The JSONObjects in an ArrayList, or an empty list if we couldn't find the specified object.
+	 */
+	public ArrayList<Reply> getJAOfJO(String key)
+	{
+		JSONArray ja = getJSONArrayR(key);
+		return ja == null ? new ArrayList<>() : FL.toAL(FL.streamFrom(ja).filter(o -> o instanceof JSONObject).map(o -> new Reply((JSONObject) o)));
+	}
+
+	/**
 	 * Recursively finds a JSONObject with the specified key and extracts any JSONObjects contained within. PRECONDITION:
 	 * The specified JSONObject can *only* contain JSONObjects
 	 * 
 	 * @param key The key pointing to the top level JSONObject
 	 * @return A list of JSONObjects objects contained within the JSONObject pointed to by <code>key</code>.
 	 */
-	public ArrayList<Reply> bigJSONObjectGet(String key)
+	public ArrayList<Reply> getJOofJO(String key)
 	{
-		ArrayList<Reply> jl = new ArrayList<>();
-
 		JSONObject jo = getJSONObjectR(key);
-		if (jo == null)
-			return jl; // jl is empty
-
-		for (String s : jo.keySet())
-			jl.add(new Reply(jo.getJSONObject(s)));
-
-		return jl;
+		return jo == null ? new ArrayList<>() : FL.toAL(jo.keySet().stream().map(k -> new Reply(jo.getJSONObject(k))));
 	}
 }

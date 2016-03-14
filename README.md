@@ -7,7 +7,6 @@ I strongly recommend that you download the latest [release](https://github.com/f
 * Edit pages, delete pages, upload files (using chunked uploads)
 * Query special pages, get category members, get links on a page, get template transclusions
 * Supported MediaWiki extensions include [CentralAuth](https://www.mediawiki.org/wiki/Extension:CentralAuth) and [GlobalUsage](https://www.mediawiki.org/wiki/Extension:GlobalUsage).
-* A versatile, extensible, asynchronous bot framework to quickly perform changes or analytics.
 
 ##Getting Started
 * [Quick Start Guide](https://github.com/fastily/jwiki/wiki/Quick-Start-Guide)
@@ -30,7 +29,7 @@ public class JwikiExample
 ```
 
 ###Dependencies
-JSON parsing provided by [JSON-java](https://github.com/douglascrockford/JSON-java).  It is bundled as a JAR in the `lib/` folder; use a newer version at your own risk.
+JSON parsing provided by [JSON-java](https://github.com/stleary/JSON-java).  It is bundled as a JAR in the `lib/` folder; use a newer version at your own risk.
 
 ###Requirements
 * [JDK/JRE](https://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html): **8+**

@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URLEncoder;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -58,7 +57,7 @@ public final class FString
 	 * @param s The String to capitalize
 	 * @return A copy of <code>s</code>, with the first character capitalized.
 	 */
-	public static String toCaps(String s)
+	public static String capitalize(String s)
 	{
 		return s.length() < 2 ? s.toUpperCase() : s.substring(0, 1).toUpperCase() + s.substring(1);
 	}
@@ -121,31 +120,16 @@ public final class FString
 	 */
 	public static String pipeFence(String...planks)
 	{
-		return fenceMaker("|", Arrays.asList(planks));
+		return String.join("|", planks);
 	}
 	
 	/**
-	 * Concatenate Strings. Solution to the fencepost problem. Makes patterned Strings like "This|So|Much|Easier".
-	 * 
-	 * @param post The String to go between planks. Optional param, use empty string/null to disable. You can (and
-	 *           should) also specify the '%n' operator in order to add new lines.
-	 * @param planks The planks of the fence post problem. Posts divide planks.
-	 * @return The completed fencepost string.
-	 * 
+	 * Makes a fence with pipe characters as posts
+	 * @param planks The planks to use, in order.
+	 * @return A String with the specified planks and pipe characters as postsß
 	 */
-	public static String fenceMaker(String post, List<String> planks)
+	public static String pipeFence(List<String> planks)
 	{
-		if (planks.isEmpty())
-			return "";
-		else if (planks.size() == 1)
-			return planks.get(0);
-
-		String fmt = (post.isEmpty() || post == null ? "" : post) + "%s";
-
-		String x = planks.get(0);
-		for (int i = 1; i < planks.size(); i++)
-			x += String.format(fmt, planks.get(i));
-
-		return x;
+		return pipeFence(planks.toArray(new String[0]));
 	}
 }

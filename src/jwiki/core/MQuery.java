@@ -12,6 +12,7 @@ import org.json.JSONArray;
 import jwiki.dwrap.ImageInfo;
 import jwiki.util.FL;
 import jwiki.util.FString;
+import jwiki.util.JSONP;
 import jwiki.util.MapList;
 
 /**
@@ -44,7 +45,7 @@ public final class MQuery
 	{
 		return new HashMap<>(
 				SQ.with(wiki, FL.pMap("list", "users", "usprop", "groups")).multiTitleQuery("ususers", users).getJOofJAStream("users")
-						.collect(Collectors.toMap(e -> e.getString("name"), e -> RSet.jaToString(e.getJSONArray("groups")))));
+						.collect(Collectors.toMap(e -> e.getString("name"), e ->JSONP.strsFromJA(e.getJSONArray("groups")))));
 	}
 
 	/**
@@ -69,7 +70,7 @@ public final class MQuery
 		String t;
 		MapList<String, ImageInfo> ml = new MapList<>();
 		for(Reply r : SQ.with(wiki, "iilimit", pl).multiTitleQuery("titles", titles).getJOofJO("pages"))
-			ml.put(t = r.getStringR("title"), ImageInfo.makeImageInfos(t, r.getJAOfJOAsALR("imageinfo")));
+			ml.put(t = r.getStringR("title"), ImageInfo.makeImageInfos(t, r.getJAOfJO("imageinfo")));
 		
 		for(Map.Entry<String, ArrayList<ImageInfo>> e : ml.l.entrySet())
 			Collections.sort(e.getValue());
@@ -311,7 +312,7 @@ public final class MQuery
 				hl.put(title, new ArrayList<>());
 			if (r.has("duplicatefiles"))
 				hl.get(title).addAll(
-						FL.toAL(r.getJAOfJOAsALR("duplicatefiles").stream().filter(e -> e.has("shared")).map(e -> e.getString("name"))));
+						FL.toAL(r.getJAOfJO("duplicatefiles").stream().filter(e -> e.has("shared")).map(e -> e.getString("name"))));
 		}
 
 		return hl;
@@ -327,7 +328,7 @@ public final class MQuery
 	 */
 	protected static ArrayList<String> querySpecialPage(Wiki wiki, int cap, String pname)
 	{
-		return SQ.with(wiki, "qplimit", cap, FL.pMap("list", "querypage", "qppage", pname)).multiQuery().stringFromJAOfJO("results",
+		return SQ.with(wiki, "qplimit", cap, FL.pMap("list", "querypage", "qppage", pname)).multiQuery().strFromJAOfJO("results",
 				"title");
 	}
 }

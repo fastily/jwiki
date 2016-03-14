@@ -115,7 +115,7 @@ public final class NS
 	/**
 	 * Grabs the integer value of NS objects and returns them in a list of Strings.
 	 * @param nsl The NS objects
-	 * @return The list with integer conterparts for each namespace. 
+	 * @return The list with integer counterparts for each namespace. 
 	 */
 	private static ArrayList<String> toString(NS... nsl)
 	{
@@ -179,25 +179,25 @@ public final class NS
 		protected static NSManager makeNSManager(Reply r)
 		{
 			NSManager m = new NSManager();
-			for (Reply x : r.bigJSONObjectGet("namespaces"))
+			for (Reply x : r.getJOofJO("namespaces"))
 			{
 				String name = x.getString("*");
 				if (name.isEmpty())
 					name = "Main";
 
-				m.a.put(name, new Integer(x.getInt("id")));
+				m.a.put(name, x.getInt("id"));
 			}
 
 			m.b.putAll(m.a.entrySet().stream().collect(Collectors.toMap(Map.Entry::getValue, Map.Entry::getKey)));
 
-			for(Reply ra : r.getJAOfJOAsALR("namespacealiases"))
+			for(Reply ra : r.getJAOfJO("namespacealiases"))
 				m.a.put(ra.getString("*"), ra.getInt("id"));
 			
 			ArrayList<String> tlx = new ArrayList<>();
 			for (String s : m.a.keySet())
 				tlx.add(s.replace(" ", "(_| )"));
 
-			m.nssRegex = String.format("(?i)^(%s):", FString.fenceMaker("|", tlx));
+			m.nssRegex = String.format("(?i)^(%s):", FString.pipeFence(tlx));
 			m.p = Pattern.compile(m.nssRegex);
 
 			return m;
@@ -211,7 +211,7 @@ public final class NS
 		 */
 		protected String createFilter(NS... nsl)
 		{
-			return FString.fenceMaker("|", NS.toString(nsl)); 
+			return FString.pipeFence(NS.toString(nsl)); 
 		}
 
 		/**
