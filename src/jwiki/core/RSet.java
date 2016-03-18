@@ -22,6 +22,9 @@ import jwiki.util.Tuple;
  */
 public class RSet
 {
+	/**
+	 * The backing ArrayList
+	 */
 	private ArrayList<Reply> rl;
 
 	/**

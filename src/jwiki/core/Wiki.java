@@ -403,9 +403,11 @@ public class Wiki
 	 * @param title The title to query
 	 * @param cap The maximum number of results to return. Optional param: set to any number zero or less to disable.
 	 * @param olderFirst Set to true to enumerate from older → newer revisions
+	 * @param start The instant to start enumerating from.  Start date must occur before end date.  Optional param - set null to disable.
+	 * @param end The instant to stop enumerating at. Optional param - set null to disable.
 	 * @return A list of page revisions
 	 */
-	public ArrayList<Revision> getRevisions(String title, int cap, boolean olderFirst)
+	public ArrayList<Revision> getRevisions(String title, int cap, boolean olderFirst, Instant start, Instant end)
 	{
 		ColorLog.info(this, "Getting revisions from " + title);
 		HashMap<String, String> pl = FL.pMap("prop", "revisions", "rvprop", FString.pipeFence("timestamp", "user", "comment", "content"),
@@ -413,6 +415,12 @@ public class Wiki
 		if (olderFirst)
 			pl.put("rvdir", "newer"); // MediaWiki is weird.
 
+		if (start != null && end != null && start.isBefore(end))
+		{
+			pl.put("rvstart", end.toString()); // MediaWiki has start <-> end mixed up
+			pl.put("rvend", start.toString());
+		}
+		
 		RSet rs = SQ.with(this, "rvlimit", cap, pl).multiQuery();
 		return FL.toAL(rs.getJOofJAStream("revisions").map(x -> new Revision(title, x)));
 	}
@@ -426,7 +434,7 @@ public class Wiki
 	 */
 	public ArrayList<Revision> getRevisions(String title)
 	{
-		return getRevisions(title, -1, false);
+		return getRevisions(title, -1, false, null, null);
 	}
 
 	/**
@@ -584,7 +592,7 @@ public class Wiki
 	 * <code>end</code> together or not at all, otherwise the parameters will be ignored.
 	 * 
 	 * @param num The maximum number of entries to get
-	 * @param start The instant to start enumerating from. Optinal param - set null to disable.
+	 * @param start The instant to start enumerating from. Start date must occur before end date. Optinal param - set null to disable.
 	 * @param end The instant to stop enumerating at. Optional param - set null to disable.
 	 * @return A list Recent Changes where return order is newer -> Older
 	 */
