@@ -137,7 +137,7 @@ public final class WAction
 	protected static boolean undo(Wiki wiki, String title, String reason)
 	{
 		ColorLog.info(wiki, "Undoing top revision of " + title);
-		ArrayList<Revision> rl = wiki.getRevisions(title, 2, false);
+		ArrayList<Revision> rl = wiki.getRevisions(title, 2, false, null, null);
 		return rl.size() < 2 ? FError.printErrAndRet("There are fewer than two revisions in " + title, false)
 				: edit(wiki, title, rl.get(1).text, reason, true);
 	}
