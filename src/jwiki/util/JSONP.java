@@ -27,11 +27,24 @@ public class JSONP
 	 * 
 	 * @param rl The Reply objects to parse
 	 * @param k The key to return a String for in each visited JSONObject
-	 * @return A list of values.
+	 * @return A list of Strings.
 	 */
 	public static ArrayList<String> strFromJOs(ArrayList<Reply> rl, String k)
 	{
 		return FL.toAL(rl.stream().map(r -> r.getString(k)));
+	}
+
+	/**
+	 * Extract a 2-String Tuple from JSONObjects for given keys.
+	 * 
+	 * @param rl The Reply objects to parse
+	 * @param key The key to find a String for in each visited JSONObject
+	 * @param valueKey The value key to find a String for in each visited JSONObject
+	 * @return A list of Tuples
+	 */
+	public static ArrayList<Tuple<String, String>> strPairsFromJOs(ArrayList<Reply> rl, String key, String valueKey)
+	{
+		return FL.toAL(rl.stream().map(r -> new Tuple<>(r.getString(key), r.getString(valueKey))));
 	}
 
 	/**
