@@ -6,9 +6,6 @@ import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
-
 import jwiki.util.FL;
 import jwiki.util.JSONP;
 import jwiki.util.Tuple;
@@ -53,21 +50,6 @@ public class RSet
 	protected void merge(RSet rs)
 	{
 		rl.addAll(rs.rl);
-	}
-
-	/**
-	 * Selects an &lt;Integer, String&gt; from JSONObjects in a Reply. Example usage: <code>siteinfo</code> →
-	 * <code>namespace</code>.
-	 * 
-	 * @param base The key pointing to the JSONObject that contains JSONObjects in each Reply of the RSet.
-	 * @param key1 The key in each selected JSONObject whose value is the Integer
-	 * @param key2 The key in each selected JSONObject whose value is the String
-	 * @return A list of &lt;Integer, String&gt; found in the list of JSONObjects
-	 */
-	protected ArrayList<Tuple<Integer, String>> intStringFromJO(String base, String key1, String key2)
-	{
-		return FL.toAL(
-				rl.stream().flatMap(r -> r.getJOofJO(base).stream()).map(jo -> new Tuple<>(jo.getInt(key1), jo.getString(key2))));
 	}
 
 	/**
@@ -130,45 +112,50 @@ public class RSet
 	}
 
 	/**
-	 * Groups a list of JSONObjects by a String key-value pair and collects the JSONArrays (of JSONObject) associated
-	 * with that pair. Specifically, extract the <code>title</code> key and flatten any associated JSONArrays keyed with
-	 * <code>arrKey</code>. Then, for each JSONObject in each JSONArray, extract a String keyed to <code>strKey</code>.
-	 * This is useful for parsing multi-title queries that return results in a JSONArray.
+	 * Groups JSONObjects by a shared title key, and collects a specific String from each JSONObject in the specified
+	 * JSONArray contained in each JSONObject from <code>srl</code>. Specifically, extract the <code>title</code> key and
+	 * flatten any associated JSONArrays keyed with <code>arrKey</code>. Then, for each JSONObject in each JSONArray,
+	 * extract a String keyed to <code>strKey</code>. This is useful for parsing multi-title queries that return results
+	 * in a JSONArray.
 	 * 
 	 * @param srl The Reply Stream to use
 	 * @param title The top-level key to group JSONArrays by
 	 * @param arrKey The key of each JSONArray to select
 	 * @param strKey The String key in each JSONObject in the JSONArray.
-	 * @return A Map of &lt;String, ArrayList-String&gt;
+	 * @return A HashMap of [ String : ArrayList&lt;String&gt; ]
 	 */
 	protected static HashMap<String, ArrayList<String>> groupJOListByStrAndJA(Stream<Reply> srl, String title, String arrKey,
 			String strKey)
 	{
-		return srl.collect(Collectors.groupingBy(jo -> jo.getString(title), HashMap::new, Collectors.mapping(
-				jo -> JSONP.strFromJOs(jo.getJAOfJO(arrKey), strKey), Collector.of(ArrayList::new, ArrayList::addAll, (x, y) -> {
+		return srl.collect(Collectors.groupingBy(jo -> jo.getString(title), HashMap::new, Collectors
+				.mapping(jo -> JSONP.strFromJOs(jo.getJAOfJO(arrKey), strKey), Collector.of(ArrayList::new, ArrayList::addAll, (x, y) -> {
 					x.addAll(y);
 					return x;
 				}))));
 	}
 
 	/**
-	 * Extracts two String values from each JSONObject in a JSONArray. PRECONDITION: Each JSONObject has a minimum of two
-	 * key-value pairs which are Strings.
+	 * Groups JSONObjects by a shared title key, and collects a specific Tuple of (String, String) from each JSONObject in the specified
+	 * JSONArray contained in each JSONObject from <code>srl</code>. Specifically, extract the <code>title</code> key and
+	 * flatten any associated JSONArrays keyed with <code>arrKey</code>. Then, for each JSONObject in each JSONArray,
+	 * extract a String keyed to <code>strKey</code> and value keyed to <code>strVal</code> into a Tuple. This is useful for parsing multi-title queries that return results
+	 * in a JSONArray.
 	 * 
-	 * @param ja The JSONArray of JSONObjects where each JSONObject has at least two keys.
-	 * @param k1 The key naming the first value to fetch.
-	 * @param k2 The key naming the second value to fetch.
-	 * @return An ArrayList of the extracted pairs.
+	 * @param srl The Stream of Reply objects to use
+	 * @param title The top-level key to group JSONArrays by
+	 * @param arrKey The key of each JSONArray to select
+	 * @param strKey The key String (for the resulting Tuple) to get in each JSONObject in the JSONArray.
+	 * @param strVal The value String (for the resulting Tuple) to get in each JSONObject in the JSONArray.
+	 * @return The specified HashMap
 	 */
-	protected static HashMap<String, String> strTuplesFromJAofJO(JSONArray ja, String k1, String k2)
+	protected static HashMap<String, ArrayList<Tuple<String, String>>> groupJOListByStrAndJAPair(Stream<Reply> srl, String title,
+			String arrKey, String strKey, String strVal)
 	{
-		HashMap<String, String> l = new HashMap<>();
-		for (Object o : ja)
-		{
-			JSONObject jo = (JSONObject) o;
-			l.put(jo.getString(k1), jo.getString(k2));
-		}
-
-		return l;
+		return srl.collect(Collectors.groupingBy(jo -> jo.getString(title), HashMap::new,
+				Collectors.mapping(jo -> JSONP.strPairsFromJOs(jo.getJAOfJO(arrKey), strKey, strVal),
+						Collector.of(ArrayList::new, ArrayList::addAll, (x, y) -> {
+							x.addAll(y);
+							return x;
+						}))));
 	}
 }

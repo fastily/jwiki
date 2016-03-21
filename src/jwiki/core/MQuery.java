@@ -7,13 +7,12 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.json.JSONArray;
-
 import jwiki.dwrap.ImageInfo;
 import jwiki.util.FL;
 import jwiki.util.FString;
 import jwiki.util.JSONP;
 import jwiki.util.MapList;
+import jwiki.util.Tuple;
 
 /**
  * Perform multi-title queries. Use of these methods is intended for <i>advanced</i> users who wish to make queries to
@@ -240,16 +239,10 @@ public final class MQuery
 	 * @param titles The titles to query
 	 * @return A list of results keyed by title. The inner tuple is of the form (title, shorthand url notation).
 	 */
-	public static HashMap<String, HashMap<String, String>> globalUsage(Wiki wiki, ArrayList<String> titles)
+	public static HashMap<String, ArrayList<Tuple<String, String>>> globalUsage(Wiki wiki, ArrayList<String> titles)
 	{
-		HashMap<String, HashMap<String, String>> hlx = new HashMap<>();
-		for (Reply r : SQ.with(wiki, "gulimit", FL.pMap("prop", "globalusage")).multiTitleQuery("titles", titles).getJOofJO("pages"))
-		{
-			JSONArray ja = r.has("globalusage") ? r.getJSONArray("globalusage") : new JSONArray();
-			FL.mapListMerge(hlx, r.getString("title"), RSet.strTuplesFromJAofJO(ja, "title", "wiki"));
-		}
-
-		return hlx;
+		Stream<Reply> srl = SQ.with(wiki, "gulimit", FL.pMap("prop", "globalusage")).multiTitleQuery("titles", titles).getJOofJOStream("pages");
+		return RSet.groupJOListByStrAndJAPair(srl, "title", "globalusage", "title", "wiki");
 	}
 
 	/**

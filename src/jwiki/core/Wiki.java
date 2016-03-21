@@ -426,18 +426,6 @@ public class Wiki
 	}
 
 	/**
-	 * Gets all the revisions of a page. Caveat: Pages such as the admin's notice board have ~10<sup>6</sup> revisions.
-	 * Watch your memory usage. Revisions are returned in order of newer → older revisions
-	 * 
-	 * @param title The title to query.
-	 * @return A list of page revisions
-	 */
-	public ArrayList<Revision> getRevisions(String title)
-	{
-		return getRevisions(title, -1, false, null, null);
-	}
-
-	/**
 	 * Get log events. Specify at least one of the params or else an error will be thrown; wholesale fetching of logs is
 	 * disabled because it is a potentially destructive action.
 	 * 
@@ -728,7 +716,7 @@ public class Wiki
 	 * @param title The title to query. Must start with <code>File:</code> prefix.
 	 * @return A HashMap with the global usage of this file; each element is of the form <code>[ title : wiki ]</code>.
 	 */
-	public HashMap<String, String> globalUsage(String title)
+	public ArrayList<Tuple<String, String>> globalUsage(String title)
 	{
 		ColorLog.info(this, "Getting global usage for " + title);
 		return MQuery.globalUsage(this, FL.toSAL(title)).get(title);
