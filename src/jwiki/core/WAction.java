@@ -193,7 +193,7 @@ public final class WAction
 		sq.action = "purge";
 
 		HashMap<String, Boolean> l = new HashMap<>();
-		for (Reply r : sq.multiTitleQuery("titles", titles).getJOofJA("purge"))
+		for (Reply r : sq.multiTitleQuery("titles", titles).getJAofJO("purge"))
 			l.put(r.getString("title"), r.has("purged"));
 
 		return l;

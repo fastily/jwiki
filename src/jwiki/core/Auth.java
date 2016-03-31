@@ -50,7 +50,7 @@ public final class Auth
 		ColorLog.info(wiki, "Fetching namespace list and csrf tokens");
 
 		Reply r = SQ.with(wiki, FL.pMap("meta", FString.pipeFence("siteinfo", "tokens"), "siprop",
-				FString.pipeFence("namespaces", "namespacealiases"), "type", "csrf", "list", "users", "usprop", "groups", "ususers", wiki.upx.x)).query();
+				FString.pipeFence("namespaces", "namespacealiases"), "type", "csrf", "list", "users", "usprop", "groups", "ususers", wiki.upx.x)).singleQuery();
 		try
 		{
 			if(JSONP.strsFromJA(r.getJAOfJO("users").get(0).getJSONArray("groups")).contains("bot"))

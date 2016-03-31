@@ -422,7 +422,7 @@ public class Wiki
 		}
 		
 		RSet rs = SQ.with(this, "rvlimit", cap, pl).multiQuery();
-		return FL.toAL(rs.getJOofJAStream("revisions").map(x -> new Revision(title, x)));
+		return rs.getJAofJOas("revisions", x -> new Revision(title, x));
 	}
 
 	/**
@@ -451,7 +451,7 @@ public class Wiki
 		if (title == null && user == null && cap < 0)
 			throw new UnsupportedOperationException("Not doing this.  Fetching *entire* logs is a potentially destrutive action.");
 
-		return FL.toAL(SQ.with(this, "lelimit", cap, pl).multiQuery().getJOofJAStream("logevents").map(x -> new LogEntry(x)));
+		return SQ.with(this, "lelimit", cap, pl).multiQuery().getJAofJOas("logevents", LogEntry::new);
 	}
 
 	/**
@@ -498,7 +498,7 @@ public class Wiki
 		if (ns.length > 0)
 			pl.put("cmnamespace", nsl.createFilter(ns));
 
-		return SQ.with(this, "cmlimit", cap, pl).multiQuery().strFromJAOfJO("categorymembers", "title");
+		return SQ.with(this, "cmlimit", cap, pl).multiQuery().getJAOfJOasStr("categorymembers", "title");
 	}
 
 	/**
@@ -558,8 +558,7 @@ public class Wiki
 		if (olderFirst)
 			pl.put("ucdir", "newer");
 
-		RSet rs = SQ.with(this, "uclimit", cap, pl).multiQuery();
-		return FL.toAL(rs.getJOofJAStream("usercontribs").map(Contrib::new));
+		return SQ.with(this, "uclimit", cap, pl).multiQuery().getJAofJOas("usercontribs", Contrib::new);
 	}
 
 	/**
@@ -596,7 +595,7 @@ public class Wiki
 			pl.put("rcend", start.toString());
 		}
 
-		return FL.toAL(SQ.with(this, "rclimit", num, pl).multiQuery().getJOofJAStream("recentchanges").map(RCEntry::new));
+		return SQ.with(this, "rclimit", num, pl).multiQuery().getJAofJOas("recentchanges", RCEntry::new);
 	}
 
 	/**
@@ -619,8 +618,7 @@ public class Wiki
 	public ArrayList<String> getUserUploads(String user)
 	{
 		ColorLog.info(this, "Fetching uploads for " + user);
-		HashMap<String, String> pl = FL.pMap("list", "allimages", "aisort", "timestamp", "aiuser", nsl.nss(user));
-		return SQ.with(this, "ailimit", pl).multiQuery().strFromJAOfJO("allimages", "title");
+		return SQ.with(this, "ailimit", FL.pMap("list", "allimages", "aisort", "timestamp", "aiuser", nsl.nss(user))).multiQuery().getJAOfJOasStr("allimages", "title");
 	}
 
 	/**
@@ -769,7 +767,7 @@ public class Wiki
 		if (redirectsonly)
 			pl.put("apfilterredir", "redirects");
 
-		return SQ.with(this, "aplimit", cap, pl).multiQuery().strFromJAOfJO("allpages", "title");
+		return SQ.with(this, "aplimit", cap, pl).multiQuery().getJAOfJOasStr("allpages", "title");
 	}
 
 	/**
@@ -845,7 +843,7 @@ public class Wiki
 	public ArrayList<String> getAllowedFileExts()
 	{
 		ColorLog.info(this, "Fetching a list of permissible file extensions");
-		return FL.toAL(SQ.with(this, FL.pMap("meta", "siteinfo", "siprop", "fileextensions")).query().getJAOfJO("fileextensions")
+		return FL.toAL(SQ.with(this, FL.pMap("meta", "siteinfo", "siprop", "fileextensions")).singleQuery().getJAOfJO("fileextensions")
 				.stream().map(r -> r.getStringR("ext")));
 	}
 }
