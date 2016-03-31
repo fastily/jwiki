@@ -29,7 +29,7 @@ public class JSONP
 	 * @param k The key to return a String for in each visited JSONObject
 	 * @return A list of Strings.
 	 */
-	public static ArrayList<String> strFromJOs(ArrayList<Reply> rl, String k)
+	public static ArrayList<String> strsFromJOs(ArrayList<Reply> rl, String k)
 	{
 		return FL.toAL(rl.stream().map(r -> r.getString(k)));
 	}

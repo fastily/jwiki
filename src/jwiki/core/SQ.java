@@ -16,7 +16,7 @@ import jwiki.util.GroupQueue;
  * @author Fastily
  *
  */
-public class SQ
+public final class SQ
 {
 	/**
 	 * The low maximum limit for maximum number of list items returned for queries that return lists. Use this if a max
@@ -151,14 +151,13 @@ public class SQ
 	 */
 	protected RSet multiTitleQuery(String tkey, ArrayList<String> titles)
 	{
-		//ArrayList<Reply> rl = new ArrayList<>();
-		RSet rs = new RSet();
+		ArrayList<Reply> replies = new ArrayList<>();
 		GroupQueue<String> gq = new GroupQueue<>(titles, groupQueryMax);
 		
 		while(gq.has())
-			rs.merge(multiQuery(tkey, FString.pipeFence(gq.poll())));
+			replies.addAll(multiQuery(tkey, FString.pipeFence(gq.poll())).rl);
 		
-		return rs;
+		return new RSet(replies);
 	}
 
 	/**
@@ -197,7 +196,7 @@ public class SQ
 	 * 
 	 * @return The Reply from the server.
 	 */
-	protected Reply query()
+	protected Reply singleQuery()
 	{
 		return doQuery(makeUB());
 	}
@@ -244,7 +243,7 @@ public class SQ
 				ub.setParam(s, cont.get(s).toString());
 
 			return true;
-		}		
+		}
 		return false;
 	}
 }
