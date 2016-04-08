@@ -42,3 +42,6 @@ My goal is to create a simple, reliable, and low-overhead framework for anybody 
 * **Simplicity** - Complex objects and functions are abstracted into the background so that _anybody_, regardless of Java experience, will be able to use jwiki.
 * **Speed** - Network calls, local computation, and memory usage are optimized and kept at a minimum, so as to enhance performance and reduce overhead.
 * **Succinctness** - Most complex API actions can be performed in jwiki using one line of local code consisting of simple objects and primitive types.
+
+##See Also
+* [jwiki-extras](https://github.com/fastily/jwiki-extras) - Extensions and additional modules for jwiki

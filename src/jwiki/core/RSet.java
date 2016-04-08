@@ -82,10 +82,10 @@ public final class RSet
 	 * @param valueMapper The value mapping function to apply to each JSONObject to extract a value for the Map
 	 * @return A Map derived from the JSONArray of JSONObjects.
 	 */
-	protected <T1> HashMap<String, T1> getJAofJOasMapWith(String base, Function<? super Reply, String> keyMapper,
-			Function<? super Reply, ? extends T1> valueMapper)
+	protected <T1> HashMap<String, T1> getJAofJOasMapWith(String base, Function<Reply, String> keyMapper,
+			Function<Reply, T1> valueMapper)
 	{
-		return new HashMap<>(getJAofJOStream(base).collect(Collectors.toMap(keyMapper, valueMapper)));
+		return FL.toHM(getJAofJOStream(base), keyMapper, valueMapper);
 	}
 
 	/**
@@ -131,10 +131,10 @@ public final class RSet
 	 * @param valueMapper The value mapping function to apply to each JSONObject to extract a value for the Map
 	 * @return A Map derived from the JSONObject of JSONObjects.
 	 */
-	protected <T1> HashMap<String, T1> getJOofJOasMapWith(String base, Function<? super Reply, String> keyMapper,
-			Function<? super Reply, ? extends T1> valueMapper)
+	protected <T1> HashMap<String, T1> getJOofJOasMapWith(String base, Function<Reply, String> keyMapper,
+			Function<Reply, T1> valueMapper)
 	{
-		return normalize(new HashMap<>(getJOofJOStream(base).collect(Collectors.toMap(keyMapper, valueMapper))));
+		return normalize(FL.toHM(getJOofJOStream(base), keyMapper, valueMapper));
 	}
 
 	/**

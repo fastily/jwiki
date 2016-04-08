@@ -20,8 +20,8 @@ import jwiki.util.FString;
 import jwiki.util.Tuple;
 
 /**
- * Main class of libjwiki. Most developers will only need this class. This class implements all queries/actions which
- * libjwiki can perform on a wiki. All methods are backed by static calls and are thread-safe.
+ * Main class of jwiki. Most developers will only need this class. This class implements all queries/actions which
+ * jwiki can perform on a wiki. All methods are backed by static calls and are thread-safe.
  * 
  * @author Fastily
  */
@@ -120,7 +120,7 @@ public class Wiki
 	/* //////////////////////////////////////////////////////////////////////////////// */
 
 	/**
-	 * Gets a Wiki object for this domain. This method is cached, to save bandwidth. We will create a new wiki as
+	 * Gets a Wiki object for this domain. This method is cached. A new Wiki will be created as
 	 * necessary. PRECONDITION: The <a href="https://www.mediawiki.org/wiki/Extension:CentralAuth">CentralAuth</a>
 	 * extension MUST be installed on your MediaWiki cluster for this to work.
 	 * 
@@ -403,7 +403,8 @@ public class Wiki
 	 * @param title The title to query
 	 * @param cap The maximum number of results to return. Optional param: set to any number zero or less to disable.
 	 * @param olderFirst Set to true to enumerate from older → newer revisions
-	 * @param start The instant to start enumerating from.  Start date must occur before end date.  Optional param - set null to disable.
+	 * @param start The instant to start enumerating from. Start date must occur before end date. Optional param - set
+	 *           null to disable.
 	 * @param end The instant to stop enumerating at. Optional param - set null to disable.
 	 * @return A list of page revisions
 	 */
@@ -420,7 +421,7 @@ public class Wiki
 			pl.put("rvstart", end.toString()); // MediaWiki has start <-> end mixed up
 			pl.put("rvend", start.toString());
 		}
-		
+
 		RSet rs = SQ.with(this, "rvlimit", cap, pl).multiQuery();
 		return rs.getJAofJOas("revisions", x -> new Revision(title, x));
 	}
@@ -579,9 +580,10 @@ public class Wiki
 	 * <code>end</code> together or not at all, otherwise the parameters will be ignored.
 	 * 
 	 * @param num The maximum number of entries to get
-	 * @param start The instant to start enumerating from. Start date must occur before end date. Optinal param - set null to disable.
+	 * @param start The instant to start enumerating from. Start date must occur before end date. Optinal param - set
+	 *           null to disable.
 	 * @param end The instant to stop enumerating at. Optional param - set null to disable.
-	 * @return A list Recent Changes where return order is newer -> Older
+	 * @return A list Recent Changes where return order is newer -&gt; Older
 	 */
 	public ArrayList<RCEntry> getRecentChanges(int num, Instant start, Instant end)
 	{
@@ -602,7 +604,7 @@ public class Wiki
 	 * Gets a specified number of the newest RecentChanges.
 	 * 
 	 * @param num The maximum number of entries to get
-	 * @return A list Recent Changes where return order is newer -> Older
+	 * @return A list Recent Changes where return order is newer -&gt; Older
 	 */
 	public ArrayList<RCEntry> getRecentChanges(int num)
 	{
@@ -618,7 +620,8 @@ public class Wiki
 	public ArrayList<String> getUserUploads(String user)
 	{
 		ColorLog.info(this, "Fetching uploads for " + user);
-		return SQ.with(this, "ailimit", FL.pMap("list", "allimages", "aisort", "timestamp", "aiuser", nsl.nss(user))).multiQuery().getJAOfJOasStr("allimages", "title");
+		return SQ.with(this, "ailimit", FL.pMap("list", "allimages", "aisort", "timestamp", "aiuser", nsl.nss(user))).multiQuery()
+				.getJAOfJOasStr("allimages", "title");
 	}
 
 	/**
@@ -662,7 +665,7 @@ public class Wiki
 	 * Gets information about a File's revisions. Does not fill the thumbnail param of ImageInfo.
 	 * 
 	 * @param title The title of the file to use (must be in the file namespace and exist, else return null)
-	 * @return A list of ImageInfo objects, one for each revision. The order is newer -> older.
+	 * @return A list of ImageInfo objects, one for each revision. The order is newer -&gt; older.
 	 */
 	public ArrayList<ImageInfo> getImageInfo(String title)
 	{
@@ -675,7 +678,7 @@ public class Wiki
 	 * @param title The title of the file to use (must be in the file namespace and exist, else return null)
 	 * @param height The height to scale the image to. Disable scalers by passing in a number &ge; 0.
 	 * @param width The width to scale the image to. Disable scalers by passing in a number &ge; 0.
-	 * @return A list of ImageInfo objects, one for each revision. The order is newer -> older.
+	 * @return A list of ImageInfo objects, one for each revision. The order is newer -&gt; older.
 	 */
 	public ArrayList<ImageInfo> getImageInfo(String title, int height, int width)
 	{
