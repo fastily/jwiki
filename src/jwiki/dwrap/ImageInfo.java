@@ -101,7 +101,7 @@ public final class ImageInfo extends DataEntry implements Comparable<ImageInfo>
 	}
 
 	/**
-	 * Compares the timestamps of two ImageInfo objects. Orders items newer -> older.
+	 * Compares the timestamps of two ImageInfo objects. Orders items newer -&gt; older.
 	 */
 	public int compareTo(ImageInfo o)
 	{

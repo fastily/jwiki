@@ -40,7 +40,8 @@ public final class MQuery
 	 */
 	public static HashMap<String, ArrayList<String>> listUserRights(Wiki wiki, ArrayList<String> users)
 	{
-		return SQ.with(wiki, FL.pMap("list", "users", "usprop", "groups")).multiTitleQuery("ususers", users).getJAofJOasMapWith("users", e -> e.getString("name"), e ->JSONP.strsFromJA(e.getJSONArray("groups")));
+		return SQ.with(wiki, FL.pMap("list", "users", "usprop", "groups")).multiTitleQuery("ususers", users).getJAofJOasMapWith("users",
+				e -> e.getString("name"), e -> JSONP.strsFromJA(e.getJSONArray("groups")));
 	}
 
 	/**
@@ -64,12 +65,13 @@ public final class MQuery
 
 		String t;
 		MapList<String, ImageInfo> ml = new MapList<>();
-		for(Reply r : SQ.with(wiki, "iilimit", pl).multiTitleQuery("titles", titles).getJOofJO("pages"))
+		for (Reply r : SQ.with(wiki, "iilimit", pl).multiTitleQuery("titles", titles).getJOofJO("pages"))
 			ml.put(t = r.getStringR("title"), ImageInfo.makeImageInfos(t, r.getJAOfJO("imageinfo")));
-		
-		for(Map.Entry<String, ArrayList<ImageInfo>> e : ml.l.entrySet()) // dirty hack because MediaWiki ImageInfo is terrible
+
+		for (Map.Entry<String, ArrayList<ImageInfo>> e : ml.l.entrySet()) // dirty hack because MediaWiki ImageInfo is
+																								// terrible
 			Collections.sort(e.getValue());
-		
+
 		return ml.l;
 	}
 
@@ -82,7 +84,8 @@ public final class MQuery
 	 */
 	public static HashMap<String, ArrayList<String>> getCategoriesOnPage(Wiki wiki, ArrayList<String> titles)
 	{
-		return SQ.with(wiki, "cllimit", FL.pMap("prop", "categories")).multiTitleQuery("titles", titles).groupJOListByStrAndJA("pages", "title", "categories", "title");
+		return SQ.with(wiki, "cllimit", FL.pMap("prop", "categories")).multiTitleQuery("titles", titles).groupJOListByStrAndJA("pages",
+				"title", "categories", "title");
 	}
 
 	/**
@@ -95,7 +98,8 @@ public final class MQuery
 	 */
 	public static HashMap<String, Integer> getCategorySize(Wiki wiki, ArrayList<String> titles)
 	{
-		return SQ.with(wiki, FL.pMap("prop", "categoryinfo")).multiTitleQuery("titles", titles).getJOofJOasMapWith("pages", r -> r.getString("title"), r -> r.has("categoryinfo") ? r.getJSONObject("categoryinfo").getInt("size") : -1);
+		return SQ.with(wiki, FL.pMap("prop", "categoryinfo")).multiTitleQuery("titles", titles).getJOofJOasMapWith("pages",
+				r -> r.getString("title"), r -> r.has("categoryinfo") ? r.getJSONObject("categoryinfo").getInt("size") : -1);
 	}
 
 	/**
@@ -107,7 +111,9 @@ public final class MQuery
 	 */
 	public static HashMap<String, String> getPageText(Wiki wiki, ArrayList<String> titles)
 	{
-		return SQ.with(wiki, FL.pMap("prop", "revisions", "rvprop", "content")).multiTitleQuery("titles", titles).getJOofJOasMapWith("pages", r -> r.getString("title"), r -> r.has("revisions") ? r.getJSONArray("revisions").getJSONObject(0).getString("*") : "");
+		return SQ.with(wiki, FL.pMap("prop", "revisions", "rvprop", "content")).multiTitleQuery("titles", titles).getJOofJOasMapWith(
+				"pages", r -> r.getString("title"),
+				r -> r.has("revisions") ? r.getJSONArray("revisions").getJSONObject(0).getString("*") : "");
 	}
 
 	/**
@@ -136,10 +142,9 @@ public final class MQuery
 	 * @return A list of results keyed by title.
 	 */
 	public static HashMap<String, ArrayList<String>> linksHere(Wiki wiki, boolean redirects, ArrayList<String> titles)
-	{	
-		return SQ.with(wiki, "lhlimit",
-				FL.pMap("prop", "linkshere", "lhprop", "title", "lhshow", redirects ? "redirect" : "!redirect")).multiTitleQuery("titles",
-						titles).groupJOListByStrAndJA("pages", "title", "linkshere", "title");
+	{
+		return SQ.with(wiki, "lhlimit", FL.pMap("prop", "linkshere", "lhprop", "title", "lhshow", redirects ? "redirect" : "!redirect"))
+				.multiTitleQuery("titles", titles).groupJOListByStrAndJA("pages", "title", "linkshere", "title");
 	}
 
 	/**
@@ -164,7 +169,8 @@ public final class MQuery
 	 */
 	public static HashMap<String, ArrayList<String>> fileUsage(Wiki wiki, ArrayList<String> titles)
 	{
-		return SQ.with(wiki, "fulimit", FL.pMap("prop", "fileusage")).multiTitleQuery("titles", titles).groupJOListByStrAndJA("pages", "title", "fileusage", "title");
+		return SQ.with(wiki, "fulimit", FL.pMap("prop", "fileusage")).multiTitleQuery("titles", titles).groupJOListByStrAndJA("pages",
+				"title", "fileusage", "title");
 	}
 
 	/**
@@ -176,7 +182,8 @@ public final class MQuery
 	 */
 	public static HashMap<String, Boolean> exists(Wiki wiki, ArrayList<String> titles)
 	{
-		return SQ.with(wiki, FL.pMap("prop", "pageprops", "ppprop", "missing")).multiTitleQuery("titles", titles).getJOofJOasMapWith("pages", r -> r.getString("title"), r -> !r.has("missing"));
+		return SQ.with(wiki, FL.pMap("prop", "pageprops", "ppprop", "missing")).multiTitleQuery("titles", titles)
+				.getJOofJOasMapWith("pages", r -> r.getString("title"), r -> !r.has("missing"));
 	}
 
 	/**
@@ -201,7 +208,8 @@ public final class MQuery
 	 */
 	public static HashMap<String, ArrayList<String>> getImagesOnPage(Wiki wiki, ArrayList<String> titles)
 	{
-		return SQ.with(wiki, "imlimit", FL.pMap("prop", "images")).multiTitleQuery("titles", titles).groupJOListByStrAndJA("pages", "title", "images", "title");
+		return SQ.with(wiki, "imlimit", FL.pMap("prop", "images")).multiTitleQuery("titles", titles).groupJOListByStrAndJA("pages",
+				"title", "images", "title");
 	}
 
 	/**
@@ -213,7 +221,8 @@ public final class MQuery
 	 */
 	public static HashMap<String, ArrayList<String>> getTemplatesOnPage(Wiki wiki, ArrayList<String> titles)
 	{
-		return SQ.with(wiki, "tllimit", FL.pMap("prop", "templates")).multiTitleQuery("titles", titles).groupJOListByStrAndJA("pages", "title", "templates", "title");
+		return SQ.with(wiki, "tllimit", FL.pMap("prop", "templates")).multiTitleQuery("titles", titles).groupJOListByStrAndJA("pages",
+				"title", "templates", "title");
 	}
 
 	/**
@@ -225,7 +234,8 @@ public final class MQuery
 	 */
 	public static HashMap<String, ArrayList<Tuple<String, String>>> globalUsage(Wiki wiki, ArrayList<String> titles)
 	{
-		return SQ.with(wiki, "gulimit", FL.pMap("prop", "globalusage")).multiTitleQuery("titles", titles).groupJOListByStrAndJAPair("pages", "title", "globalusage", "title", "wiki");
+		return SQ.with(wiki, "gulimit", FL.pMap("prop", "globalusage")).multiTitleQuery("titles", titles)
+				.groupJOListByStrAndJAPair("pages", "title", "globalusage", "title", "wiki");
 	}
 
 	/**
@@ -264,7 +274,8 @@ public final class MQuery
 		if (localOnly)
 			pl.put("dflocalonly", "");
 
-		return SQ.with(wiki, "dflimit", pl).multiTitleQuery("titles", titles).groupJOListByStrAndJA("pages", "title", "duplicatefiles", "name");
+		return SQ.with(wiki, "dflimit", pl).multiTitleQuery("titles", titles).groupJOListByStrAndJA("pages", "title", "duplicatefiles",
+				"name");
 	}
 
 	/**
@@ -286,8 +297,8 @@ public final class MQuery
 			if (!hl.containsKey(title))
 				hl.put(title, new ArrayList<>());
 			if (r.has("duplicatefiles"))
-				hl.get(title).addAll(
-						FL.toAL(r.getJAOfJO("duplicatefiles").stream().filter(e -> e.has("shared")).map(e -> e.getString("name"))));
+				hl.get(title)
+						.addAll(FL.toAL(r.getJAOfJO("duplicatefiles").stream().filter(e -> e.has("shared")).map(e -> wiki.convertIfNotInNS(e.getString("name").replace("_", " "), NS.FILE))));
 		}
 
 		return hl;

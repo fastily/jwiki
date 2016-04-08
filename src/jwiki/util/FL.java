@@ -3,6 +3,7 @@ package jwiki.util;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -20,7 +21,7 @@ public final class FL
 	 */
 	private FL()
 	{
-		
+
 	}
 
 	/**
@@ -28,13 +29,30 @@ public final class FL
 	 * 
 	 * @param s The target Stream
 	 * 
-	 * @param <T1> The ArrayList will be created containing this type. 
+	 * @param <T1> The ArrayList will be created containing this type.
 	 * 
 	 * @return An ArrayList containing the elements of the <code>s</code>
 	 */
 	public static <T1> ArrayList<T1> toAL(Stream<T1> s)
 	{
 		return s.collect(Collectors.toCollection(ArrayList::new));
+	}
+
+	/**
+	 * Creates a Map from a Stream.
+	 * 
+	 * @param s The Stream to reduce into a Map.
+	 * @param keyMapper The function mapping each element of <code>s</code> to a key in the resulting Map.
+	 * @param valueMapper The function mapping each element of <code>s</code> to a value in the resulting Map.
+	 * 
+	 * @param <K> The type of the key in the resulting HashMap.
+	 * @param <V> The type of the value in the resulting HashMap.
+	 * @param <T1> The type of Object in the Stream.
+	 * @return A Map, as specified.
+	 */
+	public static <K, V, T1> HashMap<K, V> toHM(Stream<T1> s, Function<T1, K> keyMapper, Function<T1, V> valueMapper)
+	{
+		return new HashMap<>(s.collect(Collectors.toMap(keyMapper, valueMapper)));
 	}
 
 	/**
@@ -84,16 +102,19 @@ public final class FL
 	{
 		if (sl.length % 2 == 1)
 			return null;
-	
+
 		HashMap<String, String> l = new HashMap<>();
 		for (int i = 0; i < sl.length; i += 2)
 			l.put(sl[i], sl[i + 1]);
 		return l;
 	}
-	
+
 	/**
 	 * Creates a Stream from an Iterable.
+	 * 
 	 * @param i The Iterable to make into a Stream
+	 * 
+	 * @param <T> <code>i</code>'s type
 	 * @return The Stream
 	 */
 	public static <T> Stream<T> streamFrom(Iterable<T> i)

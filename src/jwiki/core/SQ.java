@@ -8,7 +8,6 @@ import org.json.JSONObject;
 import jwiki.util.FString;
 import jwiki.util.GroupQueue;
 
-
 /**
  * A template server query object that can be used to make a variety of queries. It is advisable to create a new
  * <code>SQ</code> object for each query.
@@ -56,7 +55,7 @@ public final class SQ
 	 * from <code>maxResults</code>.
 	 */
 	private String strMax = "max";
-	
+
 	/**
 	 * The <code>action</code> param to use for this SQ.
 	 */
@@ -73,9 +72,10 @@ public final class SQ
 		this.wiki = wiki;
 		this.pl = pl;
 	}
-	
+
 	/**
 	 * Creates a basic server query.
+	 * 
 	 * @param wiki The Wiki object to use
 	 * @param pl The default parameters (excluding <code>action</code>) to initialize URLBuilders with.
 	 * @return A basic server query.
@@ -84,9 +84,11 @@ public final class SQ
 	{
 		return new SQ(wiki, pl);
 	}
-	
+
 	/**
-	 * Creates a server query with a specific limit String and the overall maximum number of results to be returned in a [continuation] query.
+	 * Creates a server query with a specific limit String and the overall maximum number of results to be returned in a
+	 * [continuation] query.
+	 * 
 	 * @param wiki The Wiki object to use
 	 * @param limString The limit String. Optional, set null to disable. Highly recommended that this is set, or else
 	 *           MediaWiki may limit the number of returned results to 10, which adversely affects performance for
@@ -104,12 +106,13 @@ public final class SQ
 
 		if (maxResults > 0)
 			sq.strMax = "" + (sq.maxResults = maxResults);
-		
+
 		return sq;
 	}
-	
+
 	/**
 	 * Creates a server query with a limit String.
+	 * 
 	 * @param wiki The Wiki object to use.
 	 * @param limString The limit String. Optional, set null to disable. Highly recommended that this is set, or else
 	 *           MediaWiki may limit the number of returned results to 10, which adversely affects performance for
@@ -153,10 +156,10 @@ public final class SQ
 	{
 		ArrayList<Reply> replies = new ArrayList<>();
 		GroupQueue<String> gq = new GroupQueue<>(titles, groupQueryMax);
-		
-		while(gq.has())
+
+		while (gq.has())
 			replies.addAll(multiQuery(tkey, FString.pipeFence(gq.poll())).rl);
-		
+
 		return new RSet(replies);
 	}
 
@@ -235,7 +238,7 @@ public final class SQ
 			return false;
 
 		rl.add(r);
-		
+
 		if (r.has("continue")) // continuation queries
 		{
 			JSONObject cont = r.getJSONObject("continue");
