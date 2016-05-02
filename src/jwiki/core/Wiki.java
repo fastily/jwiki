@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
 
 import javax.security.auth.login.LoginException;
 
@@ -161,7 +162,10 @@ public class Wiki
 	 */
 	public NS getNS(String prefix)
 	{
-		return nsl.get(prefix);
+		if (prefix.isEmpty() || prefix.toLowerCase().equals("main"))
+			return NS.MAIN;
+
+		return nsl.nsM.containsKey(prefix) ? new NS((int) nsl.nsM.get(prefix)) : null;
 	}
 
 	/**
@@ -172,7 +176,8 @@ public class Wiki
 	 */
 	public NS whichNS(String title)
 	{
-		return nsl.whichNS(title);
+		Matcher m = nsl.p.matcher(title);
+		return !m.find() ? NS.MAIN : new NS((int) nsl.nsM.get(title.substring(m.start(), m.end()-1)));
 	}
 
 	/**
@@ -183,7 +188,7 @@ public class Wiki
 	 */
 	public String nss(String title)
 	{
-		return nsl.nss(title);
+		return title.replaceAll(nsl.nssRegex, "");
 	}
 
 	/**
@@ -215,8 +220,7 @@ public class Wiki
 	 */
 	public String convertIfNotInNS(String title, NS ns)
 	{
-		String text = whichNS(title).equals(ns) ? title : String.format("%s:%s", nsl.toString(ns, false), nsl.nss(title));
-		return text;
+		return whichNS(title).equals(ns) ? title : String.format("%s:%s", nsl.nsM.get(ns.v), nss(title));
 	}
 
 	/**
@@ -620,7 +624,7 @@ public class Wiki
 	public ArrayList<String> getUserUploads(String user)
 	{
 		ColorLog.info(this, "Fetching uploads for " + user);
-		return SQ.with(this, "ailimit", FL.pMap("list", "allimages", "aisort", "timestamp", "aiuser", nsl.nss(user))).multiQuery()
+		return SQ.with(this, "ailimit", FL.pMap("list", "allimages", "aisort", "timestamp", "aiuser", nss(user))).multiQuery()
 				.getJAOfJOasStr("allimages", "title");
 	}
 

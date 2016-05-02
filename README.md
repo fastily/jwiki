@@ -44,4 +44,4 @@ My goal is to create a simple, reliable, and low-overhead framework for anybody 
 * **Succinctness** - Most complex API actions can be performed in jwiki using one line of local code consisting of simple objects and primitive types.
 
 ##See Also
-* [jwiki-extras](https://github.com/fastily/jwiki-extras) - Extensions and additional modules for jwiki
+* [jwiki-extras](https://github.com/fastily/jwiki-extras) - Experimental extensions for jwiki

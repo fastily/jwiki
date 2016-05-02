@@ -7,3 +7,6 @@
 ### Usability
 * Verify correct error values in QueryTests
 * MediaWiki is [changing](https://phabricator.wikimedia.org/T121527) the way multi-wiki login works in 1.28
+* JSON fmt 2
+* whatTranscludesHere() should allow for filtering by namespace
+* NS handling could use some refactoring

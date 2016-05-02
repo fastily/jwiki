@@ -221,7 +221,7 @@ public final class WAction
 			long filesize = Files.size(p);
 			long chunks = filesize / chunksize + ((filesize % chunksize) > 0 ? 1 : 0);
 
-			HashMap<String, String> args = FL.pMap("filename", wiki.nsl.nss(uploadTo), "token", wiki.token, "ignorewarnings", "true",
+			HashMap<String, String> args = FL.pMap("filename", wiki.nss(uploadTo), "token", wiki.token, "ignorewarnings", "true",
 					"stash", "1", "filesize", "" + filesize);
 
 			ColorLog.info(wiki, String.format("Uploading '%s' to '%s'", filename, title));

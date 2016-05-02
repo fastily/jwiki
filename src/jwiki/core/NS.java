@@ -1,13 +1,12 @@
 package jwiki.core;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
+import jwiki.util.FL;
 import jwiki.util.FString;
 
 /**
@@ -105,25 +104,19 @@ public final class NS
 	/**
 	 * Constructor
 	 * 
-	 * @param v The namesapce value to initialize the NS with.
+	 * @param v The namespace value to initialize the NS with.
 	 */
-	private NS(int v)
+	protected NS(int v)
 	{
 		this.v = v;
 	}
-
+	
 	/**
-	 * Grabs the integer value of NS objects and returns them in a list of Strings.
-	 * @param nsl The NS objects
-	 * @return The list with integer counterparts for each namespace. 
+	 * Gets a hash code for this object.  This is simply the namespace number.
 	 */
-	private static ArrayList<String> toString(NS... nsl)
+	public int hashCode()
 	{
-		HashSet<String> l = new HashSet<>();
-		for (NS n : nsl)
-			l.add("" + n.v);
-
-		return new ArrayList<>(l);
+		return v;
 	}
 	
 	/**
@@ -134,7 +127,6 @@ public final class NS
 		return x instanceof NS && v == ((NS)x).v;
 	}
 	
-	
 	/**
 	 * A namespace manager object. One for each Wiki object.
 	 * 
@@ -143,64 +135,52 @@ public final class NS
 	protected static class NSManager
 	{
 		/**
-		 * String to integer mapping of namespaces.  This is the inverse of <code>b</code>.
+		 * The Map of all valid namespace-number pairs.
 		 */
-		private HashMap<String, Integer> a = new HashMap<>();
-
+		protected final HashMap<Object, Object> nsM = new HashMap<>();
+		
 		/**
-		 * Integer to String mapping of namespaces.  This is the inverse of <code>a</code>.
+		 * The List of valid namespaces as Strings.
 		 */
-		private HashMap<Integer, String> b = new HashMap<>();
+		protected final ArrayList<String> nsL = new ArrayList<>();
 		
 		/**
 		 * Regex used to strip the namespace from a title.
 		 */
-		private String nssRegex;
+		protected final String nssRegex;
 
 		/**
 		 * Pattern version of <code>nssRegex</code>
 		 */
-		private Pattern p;
+		protected final Pattern p;
 		
 		/**
-		 * Constructor
+		 * Constructor, takes a Reply with Namespace data.
 		 */
-		private NSManager()
+		protected NSManager(Reply r)
 		{
-
-		}
-
-		/**
-		 * Generate namespace manager for a wiki.
-		 * 
-		 * @param r The reply from the server.
-		 * @return The NSManager.
-		 */
-		protected static NSManager makeNSManager(Reply r)
-		{
-			NSManager m = new NSManager();
 			for (Reply x : r.getJOofJO("namespaces"))
 			{
 				String name = x.getString("*");
 				if (name.isEmpty())
 					name = "Main";
-
-				m.a.put(name, x.getInt("id"));
+				
+				int id = x.getInt("id");
+				nsM.put(name, id);
+				nsM.put(id, name);
+				
+				nsL.add(name);
 			}
 
-			m.b.putAll(m.a.entrySet().stream().collect(Collectors.toMap(Map.Entry::getValue, Map.Entry::getKey)));
-
 			for(Reply ra : r.getJAOfJO("namespacealiases"))
-				m.a.put(ra.getString("*"), ra.getInt("id"));
+			{
+				String name = ra.getString("*");
+				nsM.put(name, ra.getInt("id"));
+				nsL.add(name);
+			}
 			
-			ArrayList<String> tlx = new ArrayList<>();
-			for (String s : m.a.keySet())
-				tlx.add(s.replace(" ", "(_| )"));
-
-			m.nssRegex = String.format("(?i)^(%s):", FString.pipeFence(tlx));
-			m.p = Pattern.compile(m.nssRegex);
-
-			return m;
+			nssRegex = String.format("(?i)^(%s):", FString.pipeFence(FL.toAL(nsL.stream().map(s -> s.replace(" ", "(_| )")))));
+			p = Pattern.compile(nssRegex);
 		}
 
 		/**
@@ -210,55 +190,8 @@ public final class NS
 		 * @return The raw filter string.
 		 */
 		protected String createFilter(NS... nsl)
-		{
-			return FString.pipeFence(NS.toString(nsl)); 
-		}
-
-		/**
-		 * Gets a namespace object for the specified namespace. PRECONDITION: This method is CASE-SENSITIVE, so be sure
-		 * your spelling and capitalization are correct.  Be sure that the wiki you're in supports this
-		 * 
-		 * @param s The namespace (exact spelling and capitalization), without the suffix ":"
-		 * @return A NS object for the namespace or null if no namespace is associated with <code>s</code>
-		 */
-		protected NS get(String s)
-		{
-			if (s.isEmpty() || s.equals("Main"))
-				return MAIN;
-
-			return a.containsKey(s) ? new NS(a.get(s)) : null;
-		}
-		
-		/**
-		 * Strips any namespace prefix from <code>s</code>, if possible.
-		 * @param s The title to strip the namespace prefix from
-		 * @return <code>s</code>, without a namespace prefix.
-		 */
-		protected String nss(String s)
-		{
-			return s.replaceAll(nssRegex, "");
-		}
-		
-		/**
-		 * Gets the namespace this title belongs to
-		 * @param s The title to check
-		 * @return A NS for this title.
-		 */
-		protected NS whichNS(String s)
-		{
-			Matcher m = p.matcher(s);
-			return !m.find() ? MAIN : new NS(a.get(s.substring(m.start(), m.end()-1)).intValue());
-		}
-		
-		/**
-		 * Get the String prefix associated with a namespace.
-		 * @param n The namespace to get a String prefix for.
-		 * @param addColon Set to true to add a colon at the end of the String.
-		 * @return The namespace in String form as specified, or null if we couldn't find the namespace.
-		 */
-		protected String toString(NS n, boolean addColon)
-		{
-			return b.containsKey(n.v) ? b.get(n.v) + (addColon ? ":" : "") : null;
+		{	
+			return FString.pipeFence(FL.toAL(new HashSet<>(Arrays.asList(nsl)).stream().map(e -> "" + e.v)));
 		}
 	}
 }
