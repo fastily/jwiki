@@ -35,12 +35,13 @@ public final class Auth
 
 		Reply r = WAction.doAction(wiki, "login", FL.pMap("lgname", wiki.upx.x));
 		return r == null || r.hasError() || !r.resultIs("NeedToken") ? false
-				: WAction.doAction(wiki, "login", FL.pMap("lgname", wiki.upx.x, "lgpassword", wiki.upx.y, "lgtoken", r.getStringR("token")))
+				: WAction
+						.doAction(wiki, "login", FL.pMap("lgname", wiki.upx.x, "lgpassword", wiki.upx.y, "lgtoken", r.getStringR("token")))
 						.resultIs("Success");
 	}
 
 	/**
-	 * Sets the Namespace list, csrf tokens, and user groups for a Wiki. 
+	 * Sets the Namespace list, csrf tokens, and user groups for a Wiki.
 	 * 
 	 * @param wiki The Wiki object to use.
 	 * @return True on success.
@@ -49,19 +50,24 @@ public final class Auth
 	{
 		ColorLog.info(wiki, "Fetching namespace list and csrf tokens");
 
-		Reply r = SQ.with(wiki, FL.pMap("meta", FString.pipeFence("siteinfo", "tokens"), "siprop",
-				FString.pipeFence("namespaces", "namespacealiases"), "type", "csrf", "list", "users", "usprop", "groups", "ususers", wiki.upx.x)).singleQuery();
+		Reply r = SQ
+				.with(wiki,
+						FL.pMap("meta", FString.pipeFence("siteinfo", "tokens"), "siprop",
+								FString.pipeFence("namespaces", "namespacealiases"), "type", "csrf", "list", "users", "usprop", "groups",
+								"ususers", wiki.upx.x))
+				.singleQuery();
 		try
 		{
-			if(JSONP.strsFromJA(r.getJAOfJO("users").get(0).getJSONArray("groups")).contains("bot"))
+			if (JSONP.strsFromJA(r.getJAOfJO("users").get(0).getJSONArray("groups")).contains("bot"))
 				wiki.isBot = true;
 		}
-		catch(Throwable e)
+		catch (Throwable e)
 		{
-			
+
 		}
-		
-		return (wiki.nsl = NS.NSManager.makeNSManager(r)) != null && (wiki.token = r.getStringR("csrftoken")) != null;
+
+		wiki.nsl = new NS.NSManager(r);
+		return (wiki.token = r.getStringR("csrftoken")) != null;
 	}
 
 	/**
