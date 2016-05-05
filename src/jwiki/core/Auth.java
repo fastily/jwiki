@@ -58,7 +58,7 @@ public final class Auth
 				.singleQuery();
 		try
 		{
-			if (JSONP.strsFromJA(r.getJAOfJO("users").get(0).getJSONArray("groups")).contains("bot"))
+			if (JSONP.strsFromJA(r.getJAofJO("users").get(0).getJSONArray("groups")).contains("bot"))
 				wiki.isBot = true;
 		}
 		catch (Throwable e)

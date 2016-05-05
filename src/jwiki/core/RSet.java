@@ -44,7 +44,7 @@ public final class RSet
 	 */
 	private Stream<Reply> getJAofJOStream(String base)
 	{
-		return rl.stream().flatMap(r -> r.getJAOfJO(base).stream());
+		return rl.stream().flatMap(r -> r.getJAofJO(base).stream());
 	}
 
 	/**
@@ -153,7 +153,7 @@ public final class RSet
 	protected HashMap<String, ArrayList<String>> groupJOListByStrAndJA(String base, String title, String arrKey, String strKey)
 	{
 		return normalize(getJOofJOStream(base).collect(Collectors.groupingBy(jo -> jo.getString(title), HashMap::new, Collectors
-				.mapping(jo -> JSONP.strsFromJOs(jo.getJAOfJO(arrKey), strKey), Collector.of(ArrayList::new, ArrayList::addAll, (x, y) -> {
+				.mapping(jo -> JSONP.strsFromJOs(jo.getJAofJO(arrKey), strKey), Collector.of(ArrayList::new, ArrayList::addAll, (x, y) -> {
 					x.addAll(y);
 					return x;
 				})))));
@@ -177,7 +177,7 @@ public final class RSet
 			String strKey, String strVal)
 	{
 		return normalize(getJOofJOStream(base).collect(Collectors.groupingBy(jo -> jo.getString(title), HashMap::new,
-				Collectors.mapping(jo -> JSONP.strPairsFromJOs(jo.getJAOfJO(arrKey), strKey, strVal),
+				Collectors.mapping(jo -> JSONP.strPairsFromJOs(jo.getJAofJO(arrKey), strKey, strVal),
 						Collector.of(ArrayList::new, ArrayList::addAll, (x, y) -> {
 							x.addAll(y);
 							return x;

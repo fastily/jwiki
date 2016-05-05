@@ -4,8 +4,8 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URLEncoder;
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -128,7 +128,7 @@ public final class FString
 	 * @param planks The planks to use, in order.
 	 * @return A String with the specified planks and pipe characters as postsß
 	 */
-	public static String pipeFence(List<String> planks)
+	public static String pipeFence(Collection<String> planks)
 	{
 		return pipeFence(planks.toArray(new String[0]));
 	}

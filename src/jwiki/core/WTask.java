@@ -7,10 +7,13 @@ import java.io.OutputStream;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import javax.imageio.ImageIO;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.json.XML;
 
 import jwiki.dwrap.ImageInfo;
@@ -155,18 +158,28 @@ public final class WTask
 	{
 		try
 		{
-			Reply r = new Reply(XML.toJSONObject(
-					Req.get(wiki.makeUB("expandtemplates", "text", text, "prop", "parsetree").makeURL(), wiki.cookiejar)
-							.getStringR("parsetree")));
+			Reply r = new Reply(
+					XML.toJSONObject(Req.get(wiki.makeUB("expandtemplates", "text", text, "prop", "parsetree").makeURL(), wiki.cookiejar)
+							.getStringR("parsetree"))).getJSONObjectR("template");
 
 			HashMap<String, String> hl = new HashMap<>();
 
-			Reply k;
-			for (Reply jo : r.getJAOfJO("part"))
-				hl.put((k = jo.getJSONObjectR("name")) != null ? "" + k.getInt("index") : jo.getString("name"),
-						jo.getStringR("value"));
+			if (r.has("part"))
+			{
+				ArrayList<Reply> pl = new ArrayList<>();
 
-			return new Tuple<>(r.getStringR("title"), hl);
+				Object rawpl = r.get("part");
+				if (rawpl instanceof JSONArray)
+					pl.addAll(r.getJAofJO("part"));
+				else if (rawpl instanceof JSONObject)
+					pl.add(new Reply((JSONObject) rawpl));
+
+				Reply k;
+				for (Reply p : pl)
+					hl.put((k = p.getJSONObjectR("name")) != null ? "" + k.getInt("index") : p.getStringR("name"), p.getStringR("value"));
+			}
+
+			return new Tuple<>(r.getString("title"), hl);
 		}
 		catch (Throwable e)
 		{

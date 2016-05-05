@@ -1,10 +1,9 @@
 package jwiki.core;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 import jwiki.util.FL;
 import jwiki.util.FString;
@@ -172,7 +171,7 @@ public final class NS
 				nsL.add(name);
 			}
 
-			for(Reply ra : r.getJAOfJO("namespacealiases"))
+			for(Reply ra : r.getJAofJO("namespacealiases"))
 			{
 				String name = ra.getString("*");
 				nsM.put(name, ra.getInt("id"));
@@ -191,7 +190,7 @@ public final class NS
 		 */
 		protected String createFilter(NS... nsl)
 		{	
-			return FString.pipeFence(FL.toAL(new HashSet<>(Arrays.asList(nsl)).stream().map(e -> "" + e.v)));
+			return FString.pipeFence(FL.toSet(Stream.of(nsl).map(e -> "" + e.v)));
 		}
 	}
 }
