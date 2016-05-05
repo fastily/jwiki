@@ -78,7 +78,7 @@ public final class Reply extends JSONObject
 	 * @param key The key to look for.
 	 * @return The first Object associated with the specified key, or null if we didn't find the key.
 	 */
-	private static Object getR(JSONObject jo, String key)
+	public static Object getR(JSONObject jo, String key)
 	{
 		if (jo.has(key))
 			return jo.get(key);
@@ -195,7 +195,7 @@ public final class Reply extends JSONObject
 	 * @param key The key to search with.
 	 * @return The JSONObjects in an ArrayList, or an empty list if we couldn't find the specified object.
 	 */
-	public ArrayList<Reply> getJAOfJO(String key)
+	public ArrayList<Reply> getJAofJO(String key)
 	{
 		JSONArray ja = getJSONArrayR(key);
 		return ja == null ? new ArrayList<>() : FL.toAL(FL.streamFrom(ja).filter(o -> o instanceof JSONObject).map(o -> new Reply((JSONObject) o)));

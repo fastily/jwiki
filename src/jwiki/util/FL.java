@@ -3,6 +3,7 @@ package jwiki.util;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -29,13 +30,27 @@ public final class FL
 	 * 
 	 * @param s The target Stream
 	 * 
-	 * @param <T1> The ArrayList will be created containing this type.
+	 * @param <T1> The resulting ArrayList will be created containing this type.
 	 * 
 	 * @return An ArrayList containing the elements of the <code>s</code>
 	 */
 	public static <T1> ArrayList<T1> toAL(Stream<T1> s)
 	{
 		return s.collect(Collectors.toCollection(ArrayList::new));
+	}
+	
+	/**
+	 * Collects the elements of a Stream into a HashSet.
+	 * 
+	 * @param s The target Stream
+	 * 
+	 * @param <T1> The resulting HashSet will be created containing this type.
+	 * 
+	 * @return A HashSet containing the elements of the <code>s</code>
+	 */
+	public static <T1> HashSet<T1> toSet(Stream<T1> s)
+	{
+		return s.collect(Collectors.toCollection(HashSet::new));
 	}
 
 	/**

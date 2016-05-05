@@ -528,7 +528,7 @@ public class Wiki
 	public ArrayList<String> getLinksOnPage(String title, NS... ns)
 	{
 		ColorLog.info(this, "Getting wiki links on " + title);
-		return MQuery.getLinksOnPage(this, ns, FL.toSAL(title)).get(title);
+		return MQuery.getLinksOnPage(this, FL.toSAL(title), ns).get(title);
 	}
 
 	/**
@@ -707,12 +707,13 @@ public class Wiki
 	 * 
 	 * @param title The title to query. You *must* include the namespace prefix (e.g. "Template:") or you will get
 	 *           strange results.
+	 * @param ns Only return results from this/these namespace(s).  Optional param: leave blank to disable.
 	 * @return The pages transcluding <code>title</code>.
 	 */
-	public ArrayList<String> whatTranscludesHere(String title)
+	public ArrayList<String> whatTranscludesHere(String title, NS...ns)
 	{
 		ColorLog.info(this, "Getting list of pages that transclude " + title);
-		return MQuery.transcludesIn(this, FL.toSAL(title)).get(title);
+		return MQuery.transcludesIn(this, FL.toSAL(title), ns).get(title);
 	}
 
 	/**
@@ -850,7 +851,7 @@ public class Wiki
 	public ArrayList<String> getAllowedFileExts()
 	{
 		ColorLog.info(this, "Fetching a list of permissible file extensions");
-		return FL.toAL(SQ.with(this, FL.pMap("meta", "siteinfo", "siprop", "fileextensions")).singleQuery().getJAOfJO("fileextensions")
+		return FL.toAL(SQ.with(this, FL.pMap("meta", "siteinfo", "siprop", "fileextensions")).singleQuery().getJAofJO("fileextensions")
 				.stream().map(r -> r.getStringR("ext")));
 	}
 }

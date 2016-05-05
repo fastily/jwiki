@@ -66,7 +66,7 @@ public final class MQuery
 		String t;
 		MapList<String, ImageInfo> ml = new MapList<>();
 		for (Reply r : SQ.with(wiki, "iilimit", pl).multiTitleQuery("titles", titles).getJOofJO("pages"))
-			ml.put(t = r.getStringR("title"), ImageInfo.makeImageInfos(t, r.getJAOfJO("imageinfo")));
+			ml.put(t = r.getStringR("title"), ImageInfo.makeImageInfos(t, r.getJAofJO("imageinfo")));
 
 		for (Map.Entry<String, ArrayList<ImageInfo>> e : ml.l.entrySet()) // dirty hack because MediaWiki ImageInfo is
 																								// terrible
@@ -120,11 +120,11 @@ public final class MQuery
 	 * Get wiki links on a page.
 	 * 
 	 * @param wiki The wiki object to use
-	 * @param ns Namespaces to include-only. Optional, set to null to disable.
 	 * @param titles The titles to query.
+	 * @param ns Namespaces to include-only. Optional param: leave blank to disable.
 	 * @return A list of results keyed by title.
 	 */
-	public static HashMap<String, ArrayList<String>> getLinksOnPage(Wiki wiki, NS[] ns, ArrayList<String> titles)
+	public static HashMap<String, ArrayList<String>> getLinksOnPage(Wiki wiki, ArrayList<String> titles, NS...ns)
 	{
 		HashMap<String, String> pl = FL.pMap("prop", "links");
 		if (ns != null && ns.length > 0)
@@ -152,11 +152,16 @@ public final class MQuery
 	 * 
 	 * @param wiki The wiki object to use
 	 * @param titles The titles to query
+	 * @param ns Only return results from this/these namespace(s).  Optional param: leave blank to disable.
 	 * @return A list of results keyed by title.
 	 */
-	public static HashMap<String, ArrayList<String>> transcludesIn(Wiki wiki, ArrayList<String> titles)
+	public static HashMap<String, ArrayList<String>> transcludesIn(Wiki wiki, ArrayList<String> titles, NS...ns)
 	{
-		return SQ.with(wiki, "tilimit", FL.pMap("prop", "transcludedin", "tiprop", "title")).multiTitleQuery("titles", titles)
+		HashMap<String, String> m = FL.pMap("prop", "transcludedin", "tiprop", "title");
+		if(ns.length > 0)
+			m.put("tinamespace", wiki.nsl.createFilter(ns));
+		
+		return SQ.with(wiki, "tilimit", m).multiTitleQuery("titles", titles)
 				.groupJOListByStrAndJA("pages", "title", "transcludedin", "title");
 	}
 
@@ -298,7 +303,7 @@ public final class MQuery
 				hl.put(title, new ArrayList<>());
 			if (r.has("duplicatefiles"))
 				hl.get(title)
-						.addAll(FL.toAL(r.getJAOfJO("duplicatefiles").stream().filter(e -> e.has("shared")).map(e -> wiki.convertIfNotInNS(e.getString("name").replace("_", " "), NS.FILE))));
+						.addAll(FL.toAL(r.getJAofJO("duplicatefiles").stream().filter(e -> e.has("shared")).map(e -> wiki.convertIfNotInNS(e.getString("name").replace("_", " "), NS.FILE))));
 		}
 
 		return hl;
