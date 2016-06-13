@@ -7,17 +7,10 @@ import java.io.OutputStream;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.HashMap;
 
 import javax.imageio.ImageIO;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
-import org.json.XML;
-
 import jwiki.dwrap.ImageInfo;
-import jwiki.util.Tuple;
 
 /**
  * Class containing static methods which can perform miscellaneous tasks pertaining to MediaWiki.
@@ -142,50 +135,5 @@ public final class WTask
 			e.printStackTrace();
 			return null;
 		}
-	}
-
-	/**
-	 * Parses templates in a String into JSONObjects. This takes the output of
-	 * <code>action=expandtemplates&amp;prop=parsetree</code> and extracts the parse trees for each template found in
-	 * <code>text</code>. PRECONDITION: <code>text</code> is a syntactically legal template.
-	 * 
-	 * @param wiki The wiki object to run the parse query on
-	 * @param text A String with a template(s) (e.g. <code>"{{Test|Blah|foo=meh|baz|3=132}}"</code>)
-	 * @return A Tuple where the key is the title of the template, and value is a HashMap with key-value parameters of
-	 *         the parsed template. Null on error.
-	 */
-	public static Tuple<String, HashMap<String, String>> parseTemplate(Wiki wiki, String text)
-	{
-		try
-		{
-			Reply r = new Reply(
-					XML.toJSONObject(Req.get(wiki.makeUB("expandtemplates", "text", text, "prop", "parsetree").makeURL(), wiki.cookiejar)
-							.getStringR("parsetree"))).getJSONObjectR("template");
-
-			HashMap<String, String> hl = new HashMap<>();
-
-			if (r.has("part"))
-			{
-				ArrayList<Reply> pl = new ArrayList<>();
-
-				Object rawpl = r.get("part");
-				if (rawpl instanceof JSONArray)
-					pl.addAll(r.getJAofJO("part"));
-				else if (rawpl instanceof JSONObject)
-					pl.add(new Reply((JSONObject) rawpl));
-
-				Reply k;
-				for (Reply p : pl)
-					hl.put((k = p.getJSONObjectR("name")) != null ? "" + k.getInt("index") : p.getStringR("name"), p.getStringR("value"));
-			}
-
-			return new Tuple<>(r.getString("title"), hl);
-		}
-		catch (Throwable e)
-		{
-			e.printStackTrace();
-		}
-
-		return null;
 	}
 }
