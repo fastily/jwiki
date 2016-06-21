@@ -33,6 +33,9 @@ public class TPlate
 	 */
 	private TPlate(Reply r)
 	{
+		if(Settings.debug)
+			System.out.println(r.toString(2));
+		
 		title = r.getString("title");
 
 		if (r.has("part"))
