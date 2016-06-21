@@ -14,6 +14,7 @@ import javax.security.auth.login.LoginException;
 import jwiki.dwrap.Contrib;
 import jwiki.dwrap.ImageInfo;
 import jwiki.dwrap.LogEntry;
+import jwiki.dwrap.ProtectedTitleEntry;
 import jwiki.dwrap.RCEntry;
 import jwiki.dwrap.Revision;
 import jwiki.util.FL;
@@ -21,8 +22,8 @@ import jwiki.util.FString;
 import jwiki.util.Tuple;
 
 /**
- * Main class of jwiki. Most developers will only need this class. This class implements all queries/actions which
- * jwiki can perform on a wiki. All methods are backed by static calls and are thread-safe.
+ * Main class of jwiki. Most developers will only need this class. This class implements all queries/actions which jwiki
+ * can perform on a wiki. All methods are backed by static calls and are thread-safe.
  * 
  * @author Fastily
  */
@@ -121,9 +122,9 @@ public class Wiki
 	/* //////////////////////////////////////////////////////////////////////////////// */
 
 	/**
-	 * Gets a Wiki object for this domain. This method is cached. A new Wiki will be created as
-	 * necessary. PRECONDITION: The <a href="https://www.mediawiki.org/wiki/Extension:CentralAuth">CentralAuth</a>
-	 * extension MUST be installed on your MediaWiki cluster for this to work.
+	 * Gets a Wiki object for this domain. This method is cached. A new Wiki will be created as necessary. PRECONDITION:
+	 * The <a href="https://www.mediawiki.org/wiki/Extension:CentralAuth">CentralAuth</a> extension MUST be installed on
+	 * your MediaWiki cluster for this to work.
 	 * 
 	 * @param domain The domain to use
 	 * @return The wiki, or null if something went wrong.
@@ -177,7 +178,7 @@ public class Wiki
 	public NS whichNS(String title)
 	{
 		Matcher m = nsl.p.matcher(title);
-		return !m.find() ? NS.MAIN : new NS((int) nsl.nsM.get(title.substring(m.start(), m.end()-1)));
+		return !m.find() ? NS.MAIN : new NS((int) nsl.nsM.get(title.substring(m.start(), m.end() - 1)));
 	}
 
 	/**
@@ -460,6 +461,29 @@ public class Wiki
 	}
 
 	/**
+	 * Fetches protected titles on the Wiki.
+	 * 
+	 * @param limit The maximum number of returned entries.  Set -1 to disable.
+	 * @param olderFirst Set to true to get older entries first.
+	 * @param ns Namespace filter, limits returned titles to these namespaces. Optional param - leave blank to disable.
+	 * @return An ArrayList of protected titles.
+	 */
+	public ArrayList<ProtectedTitleEntry> getProtectedTitles(int limit, boolean olderFirst, NS... ns)
+	{
+		ColorLog.info(this, "Fetching a list of protected titles");
+
+		HashMap<String, String> pl = FL.pMap("list", "protectedtitles", "ptprop",
+				FString.pipeFence("timestamp", "level", "user", "comment"));
+
+		if (ns.length > 0)
+			pl.put("ptnamespace", nsl.createFilter(ns));
+		if (olderFirst)
+			pl.put("ptdir", "newer"); // MediaWiki is weird.
+
+		return SQ.with(this, "ptlimit", limit, pl).multiQuery().getJAofJOas("protectedtitles", ProtectedTitleEntry::new);
+	}
+
+	/**
 	 * Gets the number of elements contained in a category.
 	 * 
 	 * @param title The title to query. PRECONDITION: Title *must* begin with the "Category:" prefix
@@ -707,10 +731,10 @@ public class Wiki
 	 * 
 	 * @param title The title to query. You *must* include the namespace prefix (e.g. "Template:") or you will get
 	 *           strange results.
-	 * @param ns Only return results from this/these namespace(s).  Optional param: leave blank to disable.
+	 * @param ns Only return results from this/these namespace(s). Optional param: leave blank to disable.
 	 * @return The pages transcluding <code>title</code>.
 	 */
-	public ArrayList<String> whatTranscludesHere(String title, NS...ns)
+	public ArrayList<String> whatTranscludesHere(String title, NS... ns)
 	{
 		ColorLog.info(this, "Getting list of pages that transclude " + title);
 		return MQuery.transcludesIn(this, FL.toSAL(title), ns).get(title);

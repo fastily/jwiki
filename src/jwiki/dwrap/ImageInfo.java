@@ -1,5 +1,6 @@
 package jwiki.dwrap;
 
+import java.net.URL;
 import java.time.Instant;
 import java.util.ArrayList;
 
@@ -38,7 +39,7 @@ public final class ImageInfo extends DataEntry implements Comparable<ImageInfo>
 	/**
 	 * A URL to the full size image.
 	 */
-	public final String url;
+	public final URL url;
 
 	/**
 	 * The MIME string of the file.
@@ -46,9 +47,9 @@ public final class ImageInfo extends DataEntry implements Comparable<ImageInfo>
 	public final String mime;
 
 	/**
-	 * A URL to a thumb nail (if you requested it, otherwise null)
+	 * A URL to a thumbnail (if you requested it, otherwise null)
 	 */
-	public final String thumburl;
+	public final URL thumburl;
 
 	/**
 	 * The title the selected file redirects to, if applicable.
@@ -61,7 +62,7 @@ public final class ImageInfo extends DataEntry implements Comparable<ImageInfo>
 	 * @param title The page this ImageInfo is to be created for.
 	 * @param r The Reply to use.
 	 */
-	public ImageInfo(String title, Reply r)
+	private ImageInfo(String title, Reply r)
 	{
 		super(r.getStringR("user"), title, r.getStringR("comment"), Instant.parse(r.getStringR("timestamp")));
 		size = r.getIntR("size");
@@ -69,7 +70,7 @@ public final class ImageInfo extends DataEntry implements Comparable<ImageInfo>
 
 		if (r.has("thumburl"))
 		{
-			thumburl = r.getStringR("thumburl");
+			thumburl = genURL(r.getStringR("thumburl"));
 			thumbdimensions = new Tuple<>(r.getIntR("thumbwidth"), r.getIntR("thumbheight"));
 		}
 		else
@@ -78,7 +79,7 @@ public final class ImageInfo extends DataEntry implements Comparable<ImageInfo>
 			thumbdimensions = null;
 		}
 
-		url = r.getStringR("url");
+		url = genURL(r.getStringR("url"));
 		sha1 = r.getStringR("sha1");
 		mime = r.getStringR("mime");
 
@@ -106,5 +107,24 @@ public final class ImageInfo extends DataEntry implements Comparable<ImageInfo>
 	public int compareTo(ImageInfo o)
 	{
 		return o.timestamp.compareTo(timestamp);
+	}
+
+	/**
+	 * Creates a URL from a String.
+	 * 
+	 * @param u The String to turn into a URL
+	 * @return The URL, or null if something went wrong.
+	 */
+	private static URL genURL(String u)
+	{
+		try
+		{
+			return new URL(u);
+		}
+		catch (Throwable e)
+		{
+			e.printStackTrace();
+			return null;
+		}
 	}
 }
