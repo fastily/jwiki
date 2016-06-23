@@ -82,6 +82,16 @@ public final class FL
 	}
 
 	/**
+	 * Creates a HashSet from an Array of Strings.
+	 * @param strings The Array of Strings to add to the HashSet.
+	 * @return A HashSet of the specified Strings.
+	 */
+	public static HashSet<String> toSHS(String... strings)
+	{
+		return new HashSet<>(Arrays.asList(strings));	
+	}
+	
+	/**
 	 * Extracts each key-value pair from a HashMap and return the pairs as an ArrayList of Tuple objects.
 	 * 
 	 * @param <T1> The key type of the HashMap

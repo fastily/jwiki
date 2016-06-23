@@ -80,6 +80,7 @@ public final class ImageInfo extends DataEntry implements Comparable<ImageInfo>
 		}
 
 		url = genURL(r.getStringR("url"));
+
 		sha1 = r.getStringR("sha1");
 		mime = r.getStringR("mime");
 
@@ -119,7 +120,7 @@ public final class ImageInfo extends DataEntry implements Comparable<ImageInfo>
 	{
 		try
 		{
-			return new URL(u);
+			return u == null ? null : new URL(u);
 		}
 		catch (Throwable e)
 		{
