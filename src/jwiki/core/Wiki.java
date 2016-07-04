@@ -461,7 +461,7 @@ public class Wiki
 	}
 
 	/**
-	 * Fetches protected titles on the Wiki.
+	 * Fetches protected titles (create-protected) on the Wiki.
 	 * 
 	 * @param limit The maximum number of returned entries.  Set -1 to disable.
 	 * @param olderFirst Set to true to get older entries first.
@@ -781,14 +781,14 @@ public class Wiki
 	/**
 	 * Get a list of all pages from the Wiki.
 	 * 
-	 * @param prefix Get files starting with this String. DO NOT include a namespace prefix (e.g. "File:"). Param is
-	 *           optional, use null or empty string to disable.
-	 * @param redirectsonly Set this to true to get redirects only.
+	 * @param prefix Get files starting with this String. DO NOT include a namespace prefix (e.g. "File:"). Optional param - set null to disable
+	 * @param redirectsOnly Set True to get redirects only.
+	 * @param protectedOnly Set True to get protected pages only.
 	 * @param cap The max number of titles to return. Specify -1 to get all pages.
-	 * @param ns The namespace to filter by. Set null to disable
+	 * @param ns The namespace to filter by. Optional param - set null to disable
 	 * @return A list of titles on this Wiki
 	 */
-	public ArrayList<String> allPages(String prefix, boolean redirectsonly, int cap, NS ns)
+	public ArrayList<String> allPages(String prefix, boolean redirectsOnly, boolean protectedOnly, int cap, NS ns)
 	{
 		ColorLog.info(this, "Doing all pages fetch for " + (prefix == null ? "all pages" : prefix));
 		HashMap<String, String> pl = FL.pMap("list", "allpages");
@@ -796,8 +796,10 @@ public class Wiki
 			pl.put("apprefix", prefix);
 		if (ns != null)
 			pl.put("apnamespace", "" + ns.v);
-		if (redirectsonly)
+		if (redirectsOnly)
 			pl.put("apfilterredir", "redirects");
+		if(protectedOnly)
+			pl.put("apprtype", FString.pipeFence("edit", "move", "upload"));
 
 		return SQ.with(this, "aplimit", cap, pl).multiQuery().getJAOfJOasStr("allpages", "title");
 	}
@@ -812,7 +814,7 @@ public class Wiki
 	public ArrayList<String> prefixIndex(NS namespace, String prefix)
 	{
 		ColorLog.info(this, "Doing prefix index search for " + prefix);
-		return allPages(prefix, false, -1, namespace);
+		return allPages(prefix, false, false, -1, namespace);
 	}
 
 	/**
