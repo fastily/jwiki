@@ -221,8 +221,8 @@ public final class WAction
 			long filesize = Files.size(p);
 			long chunks = filesize / chunksize + ((filesize % chunksize) > 0 ? 1 : 0);
 
-			HashMap<String, String> args = FL.pMap("filename", wiki.nss(uploadTo), "token", wiki.token, "ignorewarnings", "true",
-					"stash", "1", "filesize", "" + filesize);
+			HashMap<String, String> args = FL.pMap("filename", wiki.nss(uploadTo), "token", wiki.token, "ignorewarnings", "true", "stash",
+					"1", "filesize", "" + filesize);
 
 			ColorLog.info(wiki, String.format("Uploading '%s' to '%s'", filename, title));
 
@@ -276,8 +276,19 @@ public final class WAction
 	private static boolean unstash(Wiki wiki, String filekey, String title, String text, String reason)
 	{
 		ColorLog.info(wiki, String.format("Unstashing '%s' from temporary archive @ '%s'", title, filekey));
-		Reply r = doAction(wiki, "upload", FL.pMap("filename", title, "text", text, "comment", reason, "token", wiki.token, "filekey",
-				filekey, "ignorewarnings", "true"));
-		return r != null && r.resultIs("Success");
+
+		boolean status = false;
+		for(int i = 0; i < 2; i++) // address edit filter, try 3x before giving up
+		{
+			Reply r = doAction(wiki, "upload", FL.pMap("filename", title, "text", text, "comment", reason, "token", wiki.token, "filekey",
+					filekey, "ignorewarnings", "true"));
+			
+			if(r != null && r.resultIs("Success"))
+			{
+				status = true;
+				break;
+			}
+		}
+		return status;
 	}
 }
