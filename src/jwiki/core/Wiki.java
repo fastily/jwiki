@@ -19,6 +19,7 @@ import jwiki.dwrap.RCEntry;
 import jwiki.dwrap.Revision;
 import jwiki.util.FL;
 import jwiki.util.FString;
+import jwiki.util.Triple;
 import jwiki.util.Tuple;
 
 /**
@@ -463,7 +464,7 @@ public class Wiki
 	/**
 	 * Fetches protected titles (create-protected) on the Wiki.
 	 * 
-	 * @param limit The maximum number of returned entries.  Set -1 to disable.
+	 * @param limit The maximum number of returned entries. Set -1 to disable.
 	 * @param olderFirst Set to true to get older entries first.
 	 * @param ns Namespace filter, limits returned titles to these namespaces. Optional param - leave blank to disable.
 	 * @return An ArrayList of protected titles.
@@ -666,6 +667,23 @@ public class Wiki
 	}
 
 	/**
+	 * Gets the section headers on a page
+	 * 
+	 * @param title The title to get section headers for
+	 * @return An ArrayList with section header data. Format is ( Integer, String, Integer ) : ( Header Level, Header
+	 *         Title, Header offset ).
+	 */
+	public ArrayList<Triple<Integer, String, Integer>> getSectionHeaders(String title)
+	{
+		ColorLog.info(this, "Fetching section headers for " + title);
+
+		SQ sq = SQ.with(this, FL.pMap("prop", "sections", "page", title));
+		sq.action = "parse";
+		return FL.toAL(sq.singleQuery().getJAofJO("sections").stream()
+				.map(e -> new Triple<>(Integer.parseInt(e.getString("level")), e.getString("line"), e.getInt("byteoffset"))));
+	}
+
+	/**
 	 * Gets titles of images linked on a page.
 	 * 
 	 * @param title The title to query
@@ -781,7 +799,8 @@ public class Wiki
 	/**
 	 * Get a list of all pages from the Wiki.
 	 * 
-	 * @param prefix Get files starting with this String. DO NOT include a namespace prefix (e.g. "File:"). Optional param - set null to disable
+	 * @param prefix Get files starting with this String. DO NOT include a namespace prefix (e.g. "File:"). Optional
+	 *           param - set null to disable
 	 * @param redirectsOnly Set True to get redirects only.
 	 * @param protectedOnly Set True to get protected pages only.
 	 * @param cap The max number of titles to return. Specify -1 to get all pages.
@@ -798,7 +817,7 @@ public class Wiki
 			pl.put("apnamespace", "" + ns.v);
 		if (redirectsOnly)
 			pl.put("apfilterredir", "redirects");
-		if(protectedOnly)
+		if (protectedOnly)
 			pl.put("apprtype", FString.pipeFence("edit", "move", "upload"));
 
 		return SQ.with(this, "aplimit", cap, pl).multiQuery().getJAOfJOasStr("allpages", "title");
