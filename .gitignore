@@ -1,4 +1,5 @@
-/bin
+bin/
+build/
 
 # OS Generated files
 .DS_Store
@@ -10,7 +11,10 @@ Icon?
 ehthumbs.db
 Thumbs.db
 
-#Trash from Eclipse
+# Trash from Eclipse
 .project
 .classpath
 .settings
+
+# Gradle
+.gradle/
