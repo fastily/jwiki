@@ -1,12 +1,10 @@
 #JWIKI
-jwiki is a simple Java client framework wrapping the [MediaWiki](https://www.mediawiki.org/wiki/MediaWiki) API.  It can be used by developers to create bots/tools, or to perform analytics on any Wiki with API access.
-
-I strongly recommend that you download the latest [release](https://github.com/fastily/jwiki/releases), as that code is stable and pre-configured to integrate with most IDEs.  Of course, if you prefer the bleeding edge, feel free to build from the latest source code.
+jwiki is a simple Java client library wrapping the [MediaWiki](https://www.mediawiki.org/wiki/MediaWiki) Web [API](https://www.mediawiki.org/wiki/API:Main_page).  It can be used by developers to create bots and tools, or to perform analytics on just about any Wiki.
 
 ##Features
-* Edit pages, delete pages, upload files (using chunked uploads)
-* Query special pages, get category members, get links on a page, get template transclusions
-* Supported MediaWiki extensions include [CentralAuth](https://www.mediawiki.org/wiki/Extension:CentralAuth) and [GlobalUsage](https://www.mediawiki.org/wiki/Extension:GlobalUsage).
+* Perform actions, such as edit, delete, and upload (using chunked uploads).
+* Perform queries, such as getting category members, getting links on a page, and getting template transclusions.
+* Support for popular MediaWiki extensions, including [CentralAuth](https://www.mediawiki.org/wiki/Extension:CentralAuth) and [GlobalUsage](https://www.mediawiki.org/wiki/Extension:GlobalUsage).
 
 ##Getting Started
 * [Quick Start Guide](https://github.com/fastily/jwiki/wiki/Quick-Start-Guide)
@@ -29,15 +27,17 @@ public class JwikiExample
 ```
 
 ###Dependencies
-JSON parsing provided by [JSON-java](https://github.com/stleary/JSON-java).  It is bundled as a JAR in the `lib/` folder; use a newer version at your own risk.
+* [JSON-java](https://github.com/stleary/JSON-java)
 
 ###Requirements
-* [JDK/JRE](https://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html): **8+**
+* [JDK](https://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html): **8+**
 * [MediaWiki](https://www.mediawiki.org/wiki/MediaWiki): **1.25+**
 
+###License
+jwiki is dual licensed under the [cc-by-sa-4.0](https://creativecommons.org/licenses/by-sa/4.0/) and the [GPLv3](https://www.gnu.org/licenses/gpl-3.0.en.html).  You may select the license of your choice.
 
 ##Project Objectives
-My goal is to create a simple, reliable, and low-overhead framework for anybody seeking to make use of the MediaWiki API.  I will be focusing on:
+jwiki is intended to be a simple, reliable, and low-overhead framework for anybody seeking to make use of the MediaWiki API.  Emphasis is placed on:
 
 * **Simplicity** - Complex objects and functions are abstracted into the background so that _anybody_, regardless of Java experience, will be able to use jwiki.
 * **Speed** - Network calls, local computation, and memory usage are optimized and kept at a minimum, so as to enhance performance and reduce overhead.
