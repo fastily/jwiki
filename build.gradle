@@ -5,7 +5,7 @@ apply plugin: 'maven'
 
 version="1.2.1"
 description="jwiki build script"
-//group="jwiki"
+group="fastily"
 
 sourceSets {
     main {
@@ -38,6 +38,17 @@ task writeNewPom << {
 }
 
 build.finalizedBy(writeNewPom)
+
+
+task myJavadocs(type: Javadoc) {
+  source = sourceSets.main.allJava
+  
+  options
+  {
+    links "https://fastily.github.io/jwiki/docs/JSON-java/"
+    links "https://docs.oracle.com/javase/8/docs/api/"
+  }
+}
 
 // In this section you declare where to find the dependencies of your project
 repositories {
