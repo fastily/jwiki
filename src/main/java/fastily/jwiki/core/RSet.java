@@ -63,6 +63,8 @@ public final class RSet
 	 * Selects, for a given key, a JSONArray of JSONObjects, collects the JSONObjects, and maps each JSONObject based on
 	 * a mapping function.
 	 * 
+	 * @param <T1> The type of Object contained in the ArrayList returned.
+	 * 
 	 * @param base The key pointing to the JSONArray to select.
 	 * @param mapper The mapping function to apply to each JSONObject found in the JSONArray pointed to by
 	 *           <code>base</code>
@@ -76,6 +78,8 @@ public final class RSet
 	/**
 	 * Takes a JSONArray of JSONObjects and maps two values in each JSONObhject to a Map. This is NOT subject to
 	 * auto-normalization.
+	 * 
+	 * @param The type of Object associated with each key in the HashMap returned.
 	 * 
 	 * @param base The key pointing to the root JSONArray of JSONObjects
 	 * @param keyMapper The key mapping function to apply to each JSONObject to extract a value for the Map

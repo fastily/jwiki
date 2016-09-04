@@ -13,7 +13,7 @@ jwiki is a simple Java client library wrapping the [MediaWiki](https://www.media
 
 ###Example Code
 ```java
-import jwiki.core.Wiki;
+import fastily.jwiki.core.Wiki;
 
 //Edit a Wikipedia page by replacing its text with text of your choosing.
 public class JwikiExample

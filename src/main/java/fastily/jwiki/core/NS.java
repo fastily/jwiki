@@ -155,6 +155,7 @@ public final class NS
 		
 		/**
 		 * Constructor, takes a Reply with Namespace data.
+		 * @param r A Reply object with a <code>namespaces</code> JSONObject.
 		 */
 		protected NSManager(Reply r)
 		{

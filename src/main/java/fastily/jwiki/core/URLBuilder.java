@@ -27,9 +27,9 @@ public final class URLBuilder
 
 	/**
 	 * Constructor, takes the domain name we'll be working with.
-	 * 
 	 * @param domain The domain name to use, in shorthand (e.g. 'commons.wikimedia.org').
 	 * @param action Sets the action param to use in the final URL. (e.g. query, edit, delete)
+	 * @param pl The parameter list to apply to this URLBuilder.  These should NOT be URL-encoded.
 	 */
 	protected URLBuilder(String domain, String action, HashMap<String, String> pl)
 	{

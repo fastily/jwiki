@@ -38,9 +38,8 @@ public final class WAction
 
 	/**
 	 * Performs an action on wiki requiring a simple POST request.
-	 * 
 	 * @param wiki The wiki object to use
-	 * @param ub The URLBuilder to use
+	 * @param action The type of action to perform
 	 * @param params The parameters to post, in order of <code>[ param1, value1, param2, value2 ] </code>.
 	 * @return A reply from the server or null if something went wrong.
 	 */
