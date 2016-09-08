@@ -10,6 +10,7 @@ jwiki is a simple Java client library wrapping the [MediaWiki](https://www.media
 * [Quick Start Guide](https://github.com/fastily/jwiki/wiki/Quick-Start-Guide)
 * [Javadocs](https://fastily.github.io/jwiki/docs/jwiki/)
 * Main class: [Wiki.java](https://github.com/fastily/jwiki/blob/master/src/jwiki/core/Wiki.java)
+* [Maven/Gradle settings](https://bintray.com/fastily/maven/jwiki)
 
 ###Example Code
 ```java

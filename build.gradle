@@ -1,6 +1,7 @@
 apply plugin: 'java'
 apply plugin: 'eclipse'
 apply plugin: 'maven'
+apply plugin: 'maven-publish'
 
 version="1.2.1"
 description="jwiki build script"
@@ -34,7 +35,6 @@ task writeNewPom << {
         }
     }.writeTo("$buildDir/pom.xml")
 }
-
 build.finalizedBy(writeNewPom)
 
 
@@ -45,7 +45,6 @@ task genJavadoc(type: Javadoc) {
   {
     links "https://fastily.github.io/jwiki/docs/JSON-java/"
     links "https://docs.oracle.com/javase/8/docs/api/"
-    //setOutputLevel JavadocOutputLevel.VERBOSE
 
     setMemberLevel JavadocMemberLevel.PUBLIC
     setAuthor true
@@ -54,13 +53,10 @@ task genJavadoc(type: Javadoc) {
   classpath = configurations.compile
 }
 
-// In this section you declare where to find the dependencies of your project
 repositories {
-    //jcenter()
     mavenCentral()
 }
 
-// In this section you declare the dependencies for your production and test code
 dependencies {
     // The production code uses the SLF4J logging API at compile time
     compile 'org.slf4j:slf4j-api:1.7.21'
