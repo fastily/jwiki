@@ -145,6 +145,28 @@ public class Wiki
 	}
 
 	/**
+	 * Performs a basic GET action on this wiki. Use this to implement custom or non-standard API calls.
+	 * 
+	 * @param action The action to perform
+	 * @param params Each parameter and its corresponding value. For example, the parameters,
+	 *           <code>&amp;foo=bar&amp;baz=blah</code>, should be passed in as
+	 *           {<code>"foo", "bar", "baz", "blah"</code>}. URL-encoding will be applied automatically.
+	 * @return A Reply object generated with JSON from the server, or null on error.
+	 */
+	public Reply basicGET(String action, String... params)
+	{
+		try
+		{
+			return Req.get(makeUB(action, params).makeURL(), cookiejar);
+		}
+		catch (Throwable e)
+		{
+			e.printStackTrace();
+			return null;
+		}
+	}
+
+	/**
 	 * Gets the user we're logged in as.
 	 * 
 	 * @return The user we're logged in as.

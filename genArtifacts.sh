@@ -7,7 +7,7 @@
 #: Tested on OS X 10.11.6
 #: Author: Fastily
 
-version="1.2.1"
+version="1.2.2"
 name="jwiki"
 outputDir="build/artifacts"
 
