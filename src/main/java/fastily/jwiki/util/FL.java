@@ -82,6 +82,17 @@ public final class FL
 	}
 
 	/**
+	 * Takes an Object and puts it in an ArrayList.
+	 * @param <T> The type of <code>o</code>.
+	 * @param o The Object to put in the ArrayList
+	 * @return An ArrayList containing <code>o</code>
+	 */
+	public static <T> ArrayList<T> singleObjAL(T o)
+	{
+		return new ArrayList<>(Arrays.asList(o));
+	}
+	
+	/**
 	 * Creates a HashSet from an Array of Strings.
 	 * @param strings The Array of Strings to add to the HashSet.
 	 * @return A HashSet of the specified Strings.

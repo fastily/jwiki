@@ -1,6 +1,8 @@
 #jwiki
 jwiki is a simple Java client library wrapping the [MediaWiki](https://www.mediawiki.org/wiki/MediaWiki) Web [API](https://www.mediawiki.org/wiki/API:Main_page).  It can be used by developers to create bots and tools, or to perform analytics on just about any Wiki.
 
+[![Build Status](https://travis-ci.org/fastily/jwiki.svg?branch=master)](https://travis-ci.org/fastily/jwiki)
+
 ##Features
 * Perform actions, such as edit, delete, and upload (using chunked uploads).
 * Perform queries, such as getting category members, getting links on a page, and getting template transclusions.
