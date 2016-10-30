@@ -33,8 +33,9 @@ public class JwikiExample
 * [JSON-java](https://github.com/stleary/JSON-java)
 
 ###Requirements
-* [JDK](https://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html): **8+**
-* [MediaWiki](https://www.mediawiki.org/wiki/MediaWiki): **1.25+**
+* [JDK](https://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html): **1.8.0_40+**
+* [MediaWiki](https://www.mediawiki.org/wiki/MediaWiki): **1.27+**
+  * Use release 1.2.1 for older versions 
 
 ###License
 jwiki is dual licensed under the [cc-by-sa-4.0](https://creativecommons.org/licenses/by-sa/4.0/) and the [GPLv3](https://www.gnu.org/licenses/gpl-3.0.en.html).  You may select the license of your choice.

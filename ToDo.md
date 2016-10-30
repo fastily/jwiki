@@ -3,8 +3,9 @@
 * Watch list
 * Search
 * Account Creation?
+* Login
 
 ### Usability
 * Verify correct error values in QueryTests
-* NS handling could use some refactoring
+  * Code Coverage ?
 * TPlate does not properly handle templates params with more than one string/template/nowiki/comment.

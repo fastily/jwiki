@@ -33,11 +33,9 @@ public final class Auth
 	{
 		ColorLog.info(String.format("Logging in as %s @ %s", wiki.upx.x, wiki.domain));
 
-		Reply r = WAction.doAction(wiki, "login", FL.pMap("lgname", wiki.upx.x));
-		return r == null || r.hasError() || !r.resultIs("NeedToken") ? false
-				: WAction
-						.doAction(wiki, "login", FL.pMap("lgname", wiki.upx.x, "lgpassword", wiki.upx.y, "lgtoken", r.getStringR("token")))
-						.resultIs("Success");
+		String lgToken = SQ.with(wiki, FL.pMap("meta", "tokens", "type", "login")).singleQuery().getStringR("logintoken");
+		return lgToken != null && WAction
+				.doAction(wiki, "login", FL.pMap("lgname", wiki.upx.x, "lgpassword", wiki.upx.y, "lgtoken", lgToken)).resultIs("Success");
 	}
 
 	/**
@@ -50,16 +48,13 @@ public final class Auth
 	{
 		ColorLog.info(wiki, "Fetching namespace list and csrf tokens");
 
-		Reply r = SQ
-				.with(wiki,
-						FL.pMap("meta", FString.pipeFence("siteinfo", "tokens"), "siprop",
-								FString.pipeFence("namespaces", "namespacealiases"), "type", "csrf", "list", "users", "usprop", "groups",
-								"ususers", wiki.upx.x))
+		Reply r = SQ.with(wiki,
+				FL.pMap("meta", FString.pipeFence("siteinfo", "tokens"), "siprop", FString.pipeFence("namespaces", "namespacealiases"),
+						"type", "csrf", "list", "users", "usprop", "groups", "ususers", wiki.upx.x))
 				.singleQuery();
 		try
 		{
-			if (JSONP.strsFromJA(r.getJAofJO("users").get(0).getJSONArray("groups")).contains("bot"))
-				wiki.isBot = true;
+			wiki.isBot = JSONP.strsFromJA(r.getJAofJO("users").get(0).getJSONArray("groups")).contains("bot");
 		}
 		catch (Throwable e)
 		{
