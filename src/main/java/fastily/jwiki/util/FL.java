@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -80,17 +81,6 @@ public final class FL
 	{
 		return new ArrayList<>(Arrays.asList(strings));
 	}
-
-	/**
-	 * Takes an Object and puts it in an ArrayList.
-	 * @param <T> The type of <code>o</code>.
-	 * @param o The Object to put in the ArrayList
-	 * @return An ArrayList containing <code>o</code>
-	 */
-	public static <T> ArrayList<T> singleObjAL(T o)
-	{
-		return new ArrayList<>(Arrays.asList(o));
-	}
 	
 	/**
 	 * Creates a HashSet from an Array of Strings.
@@ -103,14 +93,14 @@ public final class FL
 	}
 	
 	/**
-	 * Extracts each key-value pair from a HashMap and return the pairs as an ArrayList of Tuple objects.
+	 * Extracts each key-value pair from a Map and return the pairs as an ArrayList of Tuple objects.
 	 * 
-	 * @param <T1> The key type of the HashMap
-	 * @param <T2> The value type of the HashMap
-	 * @param h The HashMap to work with
+	 * @param <T1> The key type of the Map
+	 * @param <T2> The value type of the Map
+	 * @param h The Map to work with
 	 * @return An ArrayList of Tuples extracted from <code>h</code>.
 	 */
-	public static <T1, T2> ArrayList<Tuple<T1, T2>> mapToList(HashMap<T1, T2> h)
+	public static <T1, T2> ArrayList<Tuple<T1, T2>> mapToList(Map<T1, T2> h)
 	{
 		return toAL(h.entrySet().stream().map(e -> new Tuple<>(e.getKey(), e.getValue())));
 	}

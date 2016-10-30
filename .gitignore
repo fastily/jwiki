@@ -18,3 +18,5 @@ Thumbs.db
 
 # Gradle
 .gradle/
+/bin/
+/bin/
