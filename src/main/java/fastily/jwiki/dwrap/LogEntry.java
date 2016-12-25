@@ -2,7 +2,9 @@ package fastily.jwiki.dwrap;
 
 import java.time.Instant;
 
-import fastily.jwiki.core.Reply;
+import com.google.gson.JsonObject;
+
+import fastily.jwiki.util.GSONP;
 
 /**
  * Represents a MediaWiki Log entry
@@ -27,10 +29,10 @@ public class LogEntry extends DataEntry
 	 * 
 	 * @param r The reply from the server, representing a LogEntry.
 	 */
-	public LogEntry(Reply r)
+	public LogEntry(JsonObject r)
 	{
-		super(r.getString("user"), r.getString("title"), r.getString("comment"), Instant.parse(r.getString("timestamp")));
-		type = r.getString("type");
-		action = r.getString("action");
+		super(GSONP.gString(r, "user"), GSONP.gString(r, "title"), GSONP.gString(r, "comment"), Instant.parse(GSONP.gString(r, "timestamp")));
+		type = GSONP.gString(r, "type");
+		action = GSONP.gString(r, "action");
 	}
 }

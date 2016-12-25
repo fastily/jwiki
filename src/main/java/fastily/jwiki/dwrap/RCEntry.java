@@ -2,7 +2,9 @@ package fastily.jwiki.dwrap;
 
 import java.time.Instant;
 
-import fastily.jwiki.core.Reply;
+import com.google.gson.JsonObject;
+
+import fastily.jwiki.util.GSONP;
 
 /**
  * Represents a Recent Changes entry.
@@ -22,9 +24,9 @@ public class RCEntry extends DataEntry
 	 * 
 	 * @param r The Reply object containing Recent
 	 */
-	public RCEntry(Reply r)
+	public RCEntry(JsonObject r)
 	{
-		super(r.getStringR("user"), r.getStringR("title"), r.getStringR("comment"), Instant.parse(r.getStringR("timestamp")));
-		type = r.getStringR("type");
+		super(GSONP.gString(r, "user"), GSONP.gString(r, "title"), GSONP.gString(r, "comment"), Instant.parse(GSONP.gString(r, "timestamp")));
+		type = GSONP.gString(r, "type");
 	}
 }

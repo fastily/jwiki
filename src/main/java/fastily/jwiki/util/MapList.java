@@ -28,6 +28,16 @@ public class MapList<K, V>
 	}
 
 	/**
+	 * Creates a new empty ArrayList for {@code k} in this MapList if it did not exist already.  Does nothing otherwise.
+	 * @param k The key to create a new entry for, if applicable.
+	 */
+	public void touch(K k)
+	{
+		if(!l.containsKey(k))
+			l.put(k, new ArrayList<>());
+	}
+	
+	/**
 	 * Adds a key-value pair to this MapList.
 	 * 
 	 * @param k The key to add
@@ -35,14 +45,8 @@ public class MapList<K, V>
 	 */
 	public void put(K k, V v)
 	{
-		if (l.containsKey(k))
-			l.get(k).add(v);
-		else
-		{
-			ArrayList<V> temp = new ArrayList<>();
-			temp.add(v);
-			l.put(k, temp);
-		}
+		touch(k);
+		l.get(k).add(v);
 	}
 
 	/**
@@ -53,9 +57,17 @@ public class MapList<K, V>
 	 */
 	public void put(K k, ArrayList<V> vl)
 	{
-		if (l.containsKey(k))
-			l.get(k).addAll(vl);
-		else
-			l.put(k, vl);
+		touch(k);
+		l.get(k).addAll(vl);
+	}
+
+	/**
+	 * Merges the elements of {@code m} into this MapList.
+	 * 
+	 * @param m The MapList to merge into this MapList.
+	 */
+	public void merge(MapList<K, V> m)
+	{
+		m.l.forEach(this::put);
 	}
 }

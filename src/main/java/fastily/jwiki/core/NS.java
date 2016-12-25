@@ -5,8 +5,10 @@ import java.util.HashMap;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
+import com.google.gson.JsonObject;
+
 import fastily.jwiki.util.FL;
-import fastily.jwiki.util.FString;
+import fastily.jwiki.util.GSONP;
 
 /**
  * Contains default namespaces and methods to get non-standard namespaces.
@@ -157,29 +159,29 @@ public final class NS
 		 * Constructor, takes a Reply with Namespace data.
 		 * @param r A Reply object with a <code>namespaces</code> JSONObject.
 		 */
-		protected NSManager(Reply r)
+		protected NSManager(JsonObject r)
 		{
-			for (Reply x : r.getJOofJO("namespaces"))
+			for (JsonObject x : GSONP.getJOofJO(r.getAsJsonObject("namespaces")))
 			{
-				String name = x.getString("*");
+				String name = x.get("*").getAsString();
 				if (name.isEmpty())
 					name = "Main";
 				
-				int id = x.getInt("id");
+				int id = x.get("id").getAsInt();
 				nsM.put(name, id);
 				nsM.put(id, name);
 				
 				nsL.add(name);
 			}
 
-			for(Reply ra : r.getJAofJO("namespacealiases"))
+			for(JsonObject x : GSONP.getJAofJO(r.getAsJsonArray("namespacealiases")))
 			{
-				String name = ra.getString("*");
-				nsM.put(name, ra.getInt("id"));
+				String name = x.get("*").getAsString();
+				nsM.put(name, x.get("id").getAsInt());
 				nsL.add(name);
 			}
 			
-			nssRegex = String.format("(?i)^(%s):", FString.pipeFence(FL.toAL(nsL.stream().map(s -> s.replace(" ", "(_| )")))));
+			nssRegex = String.format("(?i)^(%s):", FL.pipeFence(FL.toAL(nsL.stream().map(s -> s.replace(" ", "(_| )")))));
 			p = Pattern.compile(nssRegex);
 		}
 
@@ -191,7 +193,7 @@ public final class NS
 		 */
 		protected String createFilter(NS... nsl)
 		{	
-			return FString.pipeFence(FL.toSet(Stream.of(nsl).map(e -> "" + e.v)));
+			return FL.pipeFence(FL.toSet(Stream.of(nsl).map(e -> "" + e.v)));
 		}
 	}
 }

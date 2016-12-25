@@ -110,7 +110,7 @@ public enum ColorLog
 	 */
 	protected static void log(Wiki wiki, String s, String l, ColorLog c)
 	{
-		log(String.format("[%s @ %s]: %s", wiki.upx.x, wiki.domain, s), l, c);
+		log(String.format("[%s @ %s]: %s", wiki.whoami(), wiki.conf.domain, s), l, c);
 	}
 
 	/**

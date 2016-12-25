@@ -2,7 +2,9 @@ package fastily.jwiki.dwrap;
 
 import java.time.Instant;
 
-import fastily.jwiki.core.Reply;
+import com.google.gson.JsonObject;
+
+import fastily.jwiki.util.GSONP;
 
 /**
  * Represents an entry obtained from the <code>protectedtitles</code> API module.
@@ -22,11 +24,11 @@ public final class ProtectedTitleEntry extends DataEntry
 	 * 
 	 * @param r A Reply Object to parse into a ProtectedTitleEntry.
 	 */
-	public ProtectedTitleEntry(Reply r)
+	public ProtectedTitleEntry(JsonObject r)
 	{
-		super(r.getString("user"), r.getString("title"), r.getString("comment"), Instant.parse(r.getString("timestamp")));
+		super(GSONP.gString(r, "user"), GSONP.gString(r, "title"), GSONP.gString(r, "comment"), Instant.parse(GSONP.gString(r, "timestamp")));
 
-		switch (r.getString("level"))
+		switch (GSONP.gString(r, "level"))
 		{
 			case "sysop":
 				level = Level.SYSOP;

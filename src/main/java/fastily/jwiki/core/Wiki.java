@@ -17,10 +17,12 @@ import fastily.jwiki.dwrap.LogEntry;
 import fastily.jwiki.dwrap.ProtectedTitleEntry;
 import fastily.jwiki.dwrap.RCEntry;
 import fastily.jwiki.dwrap.Revision;
+import fastily.jwiki.util.FError;
 import fastily.jwiki.util.FL;
-import fastily.jwiki.util.FString;
+import fastily.jwiki.util.GSONP;
 import fastily.jwiki.util.Triple;
 import fastily.jwiki.util.Tuple;
+import okhttp3.Response;
 
 /**
  * Main class of jwiki. Most developers will only need this class. This class implements all queries/actions which jwiki
@@ -46,16 +48,6 @@ public class Wiki
 	protected NS.NSManager nsl;
 
 	/**
-	 * Our domain
-	 */
-	protected final String domain;
-
-	/**
-	 * Our username &amp; password: Tuple -&gt; (user, pass).
-	 */
-	protected final Tuple<String, String> upx;
-
-	/**
 	 * Our cookiejar
 	 */
 	protected CookieManager cookiejar = new CookieManager();
@@ -63,7 +55,17 @@ public class Wiki
 	/**
 	 * Flag indicating whether the logged in user is a bot.
 	 */
-	protected boolean isBot = false;
+	protected boolean isBot = false; // TODO: CHECK FOR BOT FLAG
+
+	/**
+	 * Configurations and settings for this Wiki.
+	 */
+	protected final Conf conf;
+
+	/**
+	 * Used to make calls to and from the API.
+	 */
+	protected final ApiClient apiclient;
 
 	/**
 	 * Constructor, sets username, password, and domain. The user password combo must be valid or program will exit
@@ -76,33 +78,29 @@ public class Wiki
 	 */
 	private Wiki(String user, String px, String domain, Wiki parent) throws LoginException
 	{
-		upx = new Tuple<>(FString.capitalize(user), px);
-		this.domain = domain;
+		conf = new Conf(domain);
 
-		boolean isNew = parent != null;
-		if (isNew)
+		if (parent != null) // CentralAuth login
 		{
 			wl = parent.wl;
-			cookiejar = parent.cookiejar;
-			Auth.copyCentralAuthCookies(parent, domain);
+			apiclient = new ApiClient(parent, this);
+
+			conf.upx = parent.conf.upx;
+			conf.token = getTokens().get("csrftoken");
+		}
+		else
+		{
+			apiclient = new ApiClient(this);
+
+			if (user != null && px != null && !login(user, px))
+				throw new LoginException(String.format("Failed to log-in as %s @ %s", conf.upx.x, domain));
 		}
 
-		if (!Auth.doAuth(this, !isNew))
-			throw new LoginException(String.format("Failed to log-in as %s @ %s", upx.x, domain));
+		ColorLog.info(this, "Fetching Namespace List");
+		nsl = new NS.NSManager(new WQuery(this, WQuery.NAMESPACES).next().getAsJsonObject("query"));
 
-		wl.put(domain, this);
-	}
-
-	/**
-	 * Internal constructor, use it to spawn a new wiki at a different domain associated with this object.
-	 * 
-	 * @param curr The parent wiki object spawning this child wiki object.
-	 * @param domain The new domain of the child.
-	 * @throws LoginException If we failed to login.
-	 */
-	private Wiki(Wiki curr, String domain) throws LoginException
-	{
-		this(curr.upx.x, curr.upx.y, domain, curr);
+		if (conf.upx != null)
+			wl.put(conf.domain, this);
 	}
 
 	/**
@@ -116,6 +114,63 @@ public class Wiki
 	public Wiki(String user, String px, String domain) throws LoginException
 	{
 		this(user, px, domain, null);
+	}
+
+	// TODO: make this not throw login exception
+	/**
+	 * Constructor, creates an anonymous Wiki which is not logged in.
+	 * 
+	 * @param domain The domain to use
+	 * @throws LoginException
+	 */
+	public Wiki(String domain) throws LoginException
+	{
+		this(null, null, domain);
+	}
+
+	/**
+	 * Performs a login with the specified username and password. Does nothing if this Wiki is already logged in as a
+	 * user.
+	 * 
+	 * @param user The username to use
+	 * @param password The password to use
+	 * @return True if the user is now logged in.
+	 */
+	public boolean login(String user, String password)
+	{
+		if (conf.upx != null) // do not login more than once
+			return true;
+
+		ColorLog.info(this, "Try login for " + user);
+		try
+		{
+			if (Action.postAction(this, "login", false,
+					FL.pMap("lgname", user, "lgpassword", password, "lgtoken", getTokens().get("logintoken"))))
+			{
+				conf.upx = new Tuple<>(user.length() < 2 ? user.toUpperCase() : user.substring(0, 1).toUpperCase() + user.substring(1), password);
+				conf.token = getTokens().get("csrftoken");
+				wl.put(conf.domain, this);
+
+				ColorLog.info(this, "Logged in as " + user);
+				return true;
+			}
+		}
+		catch (Throwable e)
+		{
+			e.printStackTrace();
+		}
+
+		return false;
+	}
+
+	/**
+	 * Fetches login and csrf tokens.
+	 * 
+	 * @return A HashMap with a key for {@code csrftoken} &amp; {@code logintoken}
+	 */
+	protected HashMap<String, String> getTokens()
+	{
+		return conf.gson.fromJson(GSONP.getNestedJO(new WQuery(this, WQuery.TOKENS).next(), FL.toSAL("query", "tokens")), GSONP.strMapT);
 	}
 
 	/* //////////////////////////////////////////////////////////////////////////////// */
@@ -132,10 +187,13 @@ public class Wiki
 	 */
 	public synchronized Wiki getWiki(String domain)
 	{
+		if (conf.upx == null)
+			return null;
+
 		ColorLog.fyi(this, String.format("Get Wiki for %s @ %s", whoami(), domain));
 		try
 		{
-			return wl.containsKey(domain) ? wl.get(domain) : new Wiki(this, domain);
+			return wl.containsKey(domain) ? wl.get(domain) : new Wiki(conf.upx.x, conf.upx.y, domain, this);
 		}
 		catch (Throwable e)
 		{
@@ -153,11 +211,15 @@ public class Wiki
 	 *           {<code>"foo", "bar", "baz", "blah"</code>}. URL-encoding will be applied automatically.
 	 * @return A Reply object generated with JSON from the server, or null on error.
 	 */
-	public Reply basicGET(String action, String... params)
+	public Response basicGET(String action, String... params)
 	{
+		HashMap<String, String> pl = FL.pMap(params);
+		pl.put("action", action);
+		pl.put("format", "json");
+
 		try
 		{
-			return Req.get(makeUB(action, params).makeURL(), cookiejar);
+			return apiclient.basicGET(pl);
 		}
 		catch (Throwable e)
 		{
@@ -167,13 +229,13 @@ public class Wiki
 	}
 
 	/**
-	 * Gets the user we're logged in as.
+	 * Gets this Wiki's logged in user.
 	 * 
-	 * @return The user we're logged in as.
+	 * @return The user who is logged in, or null if not logged in.
 	 */
 	public String whoami()
 	{
-		return upx.x;
+		return conf.upx == null ? null : conf.upx.x;
 	}
 
 	/**
@@ -247,19 +309,6 @@ public class Wiki
 		return whichNS(title).equals(ns) ? title : String.format("%s:%s", nsl.nsM.get(ns.v), nss(title));
 	}
 
-	/**
-	 * Creates a template URLBuilder with a custom action &amp; params. PRECONDITION: <code>params</code> must be
-	 * URLEncoded.
-	 * 
-	 * @param action The action to use
-	 * @param params The params to use.
-	 * @return The template URLBuilder.
-	 */
-	protected URLBuilder makeUB(String action, String... params)
-	{
-		return new URLBuilder(domain, action, params.length > 0 ? FL.pMap(params) : null);
-	}
-
 	/* //////////////////////////////////////////////////////////////////////////////// */
 	/* /////////////////////////////////// ACTIONS //////////////////////////////////// */
 	/* //////////////////////////////////////////////////////////////////////////////// */
@@ -275,7 +324,7 @@ public class Wiki
 	 */
 	public boolean edit(String title, String text, String reason)
 	{
-		return WAction.edit(this, title, text, reason, true);
+		return Action.edit(this, title, text, reason);
 	}
 
 	/**
@@ -289,7 +338,7 @@ public class Wiki
 	 */
 	public boolean addText(String title, String add, String reason, boolean top)
 	{
-		return WAction.addText(this, title, add, reason, !top);
+		return Action.addText(this, title, add, reason, !top);
 	}
 
 	/**
@@ -331,7 +380,10 @@ public class Wiki
 	 */
 	public boolean undo(String title, String reason)
 	{
-		return WAction.undo(this, title, reason);
+		ColorLog.info(this, "Undoing top revision of " + title);
+		ArrayList<Revision> rl = getRevisions(title, 2, false, null, null);
+		return rl.size() < 2 ? FError.printErrAndRet("There are fewer than two revisions in " + title, false)
+				: edit(title, rl.get(1).text, reason);
 	}
 
 	/**
@@ -346,18 +398,6 @@ public class Wiki
 	}
 
 	/**
-	 * Purge a page.
-	 * 
-	 * @param title The title to purge
-	 * @return True if we were successful.
-	 */
-	public boolean purge(String title)
-	{
-		ColorLog.info("Purging cache of " + title);
-		return WAction.purge(this, FL.toSAL(title)).get(title);
-	}
-
-	/**
 	 * Deletes a page. You must have admin rights or this won't work.
 	 * 
 	 * @param title Title to delete
@@ -366,7 +406,7 @@ public class Wiki
 	 */
 	public boolean delete(String title, String reason)
 	{
-		return WAction.delete(this, title, reason);
+		return Action.delete(this, title, reason);
 	}
 
 	/**
@@ -379,8 +419,7 @@ public class Wiki
 	 */
 	public boolean undelete(String title, String reason)
 	{
-		ColorLog.info(this, "Restoring " + title);
-		return WAction.undelete(this, title, reason, false);
+		return Action.undelete(this, title, reason);
 	}
 
 	/**
@@ -394,7 +433,7 @@ public class Wiki
 	 */
 	public boolean upload(Path p, String title, String text, String reason)
 	{
-		return WAction.upload(this, p, title, text, reason);
+		return Action.upload(this, title, text, reason, p);
 	}
 
 	/* //////////////////////////////////////////////////////////////////////////////// */
@@ -439,19 +478,22 @@ public class Wiki
 	public ArrayList<Revision> getRevisions(String title, int cap, boolean olderFirst, Instant start, Instant end)
 	{
 		ColorLog.info(this, "Getting revisions from " + title);
-		HashMap<String, String> pl = FL.pMap("prop", "revisions", "rvprop", FString.pipeFence("timestamp", "user", "comment", "content"),
-				"titles", title);
+		
+		WQuery wq = new WQuery(this, cap, WQuery.REVISIONS).set("titles", title);
 		if (olderFirst)
-			pl.put("rvdir", "newer"); // MediaWiki is weird.
+			wq.set("rvdir", "newer"); // MediaWiki is weird.
 
 		if (start != null && end != null && start.isBefore(end))
 		{
-			pl.put("rvstart", end.toString()); // MediaWiki has start <-> end mixed up
-			pl.put("rvend", start.toString());
+			wq.set("rvstart", end.toString()); // MediaWiki has start <-> end mixed up
+			wq.set("rvend", start.toString());
 		}
-
-		RSet rs = SQ.with(this, "rvlimit", cap, pl).multiQuery();
-		return rs.getJAofJOas("revisions", x -> new Revision(title, x));
+		
+		ArrayList<Revision> l = new ArrayList<>();
+		while(wq.has())
+			l.addAll(FL.toAL(GSONP.getJAofJO(GSONP.getJOofJO(GSONP.getNestedJO(wq.next(), MQuery.propPTJ)).get(0).getAsJsonArray("revisions")).stream().map(Revision::new)));
+		
+		return l;
 	}
 
 	/**
@@ -468,19 +510,19 @@ public class Wiki
 	{
 		ColorLog.info(this, String.format("Fetching log entries -> title: %s, user: %s, type: %s", title, user, type));
 
-		HashMap<String, String> pl = FL.pMap("list", "logevents");
-
+		WQuery wq = new WQuery(this, cap, WQuery.LOGEVENTS);
 		if (title != null)
-			pl.put("letitle", title);
+			wq.set("letitle", title);
 		if (user != null)
-			pl.put("leuser", nss(user));
+			wq.set("leuser", nss(user));
 		if (type != null)
-			pl.put("letype", type);
-
-		if (title == null && user == null && cap < 0)
-			throw new UnsupportedOperationException("Not doing this.  Fetching *entire* logs is a potentially destrutive action.");
-
-		return SQ.with(this, "lelimit", cap, pl).multiQuery().getJAofJOas("logevents", LogEntry::new);
+			wq.set("letype", type);
+		
+		ArrayList<LogEntry> l = new ArrayList<>();
+		while(wq.has())
+			l.addAll(FL.toAL(GSONP.getJAofJO(GSONP.getNestedJA(wq.next(), FL.toSAL("query", "logevents"))).stream().map(LogEntry::new)));
+		
+		return l;
 	}
 
 	/**
@@ -495,15 +537,17 @@ public class Wiki
 	{
 		ColorLog.info(this, "Fetching a list of protected titles");
 
-		HashMap<String, String> pl = FL.pMap("list", "protectedtitles", "ptprop",
-				FString.pipeFence("timestamp", "level", "user", "comment"));
-
+		WQuery wq = new WQuery(this, limit, WQuery.PROTECTEDTITLES);
 		if (ns.length > 0)
-			pl.put("ptnamespace", nsl.createFilter(ns));
+			wq.set("ptnamespace", nsl.createFilter(ns));
 		if (olderFirst)
-			pl.put("ptdir", "newer"); // MediaWiki is weird.
-
-		return SQ.with(this, "ptlimit", limit, pl).multiQuery().getJAofJOas("protectedtitles", ProtectedTitleEntry::new);
+			wq.set("ptdir", "newer"); // MediaWiki is weird.
+		
+		ArrayList<ProtectedTitleEntry> l = new ArrayList<>();
+		while(wq.has())
+			l.addAll(FL.toAL(GSONP.getJAofJO(GSONP.getNestedJA(wq.next(), FL.toSAL("query", "protectedtitles"))).stream().map(ProtectedTitleEntry::new)));
+		
+		return l;
 	}
 
 	/**
@@ -533,24 +577,34 @@ public class Wiki
 	}
 
 	/**
-	 * Get a limited number of titles in a category. This could be seen as an optimizing routine - the method does not
-	 * fetch any more items than requested from the server.
+	 * Get a limited number of titles in a category.
 	 * 
 	 * @param title The category to query, including the "Category:" prefix.
 	 * @param cap The maximum number of elements to return. Optional param - set to 0 to disable.
 	 * @param ns Namespace filter. Any title not in the specified namespace(s) will be ignored. Leave blank to select all
-	 *           namespaces.
+	 *           namespaces. CAVEAT: skipped items are counted against {@code cap}.
 	 * @return The list of titles, as specified, in the category.
 	 */
 	public ArrayList<String> getCategoryMembers(String title, int cap, NS... ns)
 	{
 		ColorLog.info(this, "Getting category members from " + title);
 
+		WQuery wq = new WQuery(this, cap, WQuery.CATEGORYMEMBERS).set("cmtitle", convertIfNotInNS(title, NS.CATEGORY));
+		if (ns.length > 0)
+			wq.set("cmnamespace", nsl.createFilter(ns));
+		
+		ArrayList<String> l = new ArrayList<>();
+		while(wq.has())
+			l.addAll(GSONP.getStrsFromJAofJO(GSONP.getNestedJA(wq.next(), FL.toSAL("query", "categorymembers")), "title"));
+		
+		return l;
+		
+		/*
 		HashMap<String, String> pl = FL.pMap("list", "categorymembers", "cmtitle", convertIfNotInNS(title, NS.CATEGORY));
 		if (ns.length > 0)
 			pl.put("cmnamespace", nsl.createFilter(ns));
 
-		return SQ.with(this, "cmlimit", cap, pl).multiQuery().getJAOfJOasStr("categorymembers", "title");
+		return SQ.with(this, "cmlimit", cap, pl).multiQuery().getJAOfJOasStr("categorymembers", "title");*/
 	}
 
 	/**
@@ -596,7 +650,7 @@ public class Wiki
 	 * Gets the contributions of a user.
 	 * 
 	 * @param user The user to get contribs for, without the "User:" prefix.
-	 * @param cap The maximum number of results to return.
+	 * @param cap The maximum number of results to return.  Optional, disable with -1 (<b>caveat</b>: this will get *all* of a user's contributions)
 	 * @param olderFirst Set to true to enumerate from older → newer revisions
 	 * @param ns Restrict titles returned to the specified Namespace(s). Optional, leave blank to select all namespaces.
 	 * @return A list of contributions.
@@ -604,62 +658,42 @@ public class Wiki
 	public ArrayList<Contrib> getContribs(String user, int cap, boolean olderFirst, NS... ns)
 	{
 		ColorLog.info(this, "Fetching contribs of " + user);
-		HashMap<String, String> pl = FL.pMap("list", "usercontribs", "ucuser", user);
+		
+		WQuery wq = new WQuery(this, cap, WQuery.USERCONTRIBS).set("ucuser", user);
 		if (ns.length > 0)
-			pl.put("ucnamespace", nsl.createFilter(ns));
+			wq.set("ucnamespace", nsl.createFilter(ns));
 		if (olderFirst)
-			pl.put("ucdir", "newer");
-
-		return SQ.with(this, "uclimit", cap, pl).multiQuery().getJAofJOas("usercontribs", Contrib::new);
-	}
-
-	/**
-	 * Gets all contributions of a user. Revisions are returned in order of newer → older revisions. Some users have well
-	 * over a million contributions. Watch your memory usage!
-	 * 
-	 * @param user The user to get contribs for, without the "User:" prefix.
-	 * @param ns Restrict titles returned to the specified Namespace(s). Optional, leave blank to select all namespaces.
-	 * @return A list of contributions.
-	 */
-	public ArrayList<Contrib> getContribs(String user, NS... ns)
-	{
-		return getContribs(user, -1, false, ns);
+			wq.set("ucdir", "newer");
+		
+		ArrayList<Contrib> l = new ArrayList<>();
+		while(wq.has())
+			l.addAll(FL.toAL(GSONP.getJAofJO(GSONP.getNestedJA(wq.next(), FL.toSAL("query", "usercontribs"))).stream().map(Contrib::new)));
+		
+		return l;
 	}
 
 	/**
 	 * Gets a specified number of Recent Changes in between two timestamps. Note: you *must* use <code>start</code> and
 	 * <code>end</code> together or not at all, otherwise the parameters will be ignored.
 	 * 
-	 * @param num The maximum number of entries to get
 	 * @param start The instant to start enumerating from. Start date must occur before end date. Optinal param - set
 	 *           null to disable.
 	 * @param end The instant to stop enumerating at. Optional param - set null to disable.
 	 * @return A list Recent Changes where return order is newer -&gt; Older
 	 */
-	public ArrayList<RCEntry> getRecentChanges(int num, Instant start, Instant end)
+	public ArrayList<RCEntry> getRecentChanges(Instant start, Instant end)
 	{
 		ColorLog.info(this, "Querying recent changes");
-		HashMap<String, String> pl = FL.pMap("list", "recentchanges", "rcprop",
-				FString.pipeFence("title", "timestamp", "user", "comment"), "rctype", FString.pipeFence("edit", "new", "log"));
-
-		if (start != null && end != null && start.isBefore(end))
-		{
-			pl.put("rcstart", end.toString()); // MediaWiki has start <-> end mixed up
-			pl.put("rcend", start.toString());
-		}
-
-		return SQ.with(this, "rclimit", num, pl).multiQuery().getJAofJOas("recentchanges", RCEntry::new);
-	}
-
-	/**
-	 * Gets a specified number of the newest RecentChanges.
-	 * 
-	 * @param num The maximum number of entries to get
-	 * @return A list Recent Changes where return order is newer -&gt; Older
-	 */
-	public ArrayList<RCEntry> getRecentChanges(int num)
-	{
-		return getRecentChanges(num, null, null);
+		if (start == null || end == null || start.isBefore(end))
+			throw new IllegalArgumentException("start/end is null or start is before end.  Cannot proceed");
+		
+		// MediaWiki has start <-> end mixed up
+		WQuery wq = new WQuery(this, WQuery.RECENTCHANGES).set("rcstart", end.toString()).set("rcend", start.toString()); 
+		ArrayList<RCEntry> l = new ArrayList<>();
+		while(wq.has())
+			l.addAll(FL.toAL(GSONP.getJAofJO(GSONP.getNestedJA(wq.next(), FL.toSAL("query", "recentchanges"))).stream().map(RCEntry::new)));
+		
+		return l;
 	}
 
 	/**
@@ -671,8 +705,13 @@ public class Wiki
 	public ArrayList<String> getUserUploads(String user)
 	{
 		ColorLog.info(this, "Fetching uploads for " + user);
-		return SQ.with(this, "ailimit", FL.pMap("list", "allimages", "aisort", "timestamp", "aiuser", nss(user))).multiQuery()
-				.getJAOfJOasStr("allimages", "title");
+		
+		ArrayList<String> l = new ArrayList<>();
+		WQuery wq = new WQuery(this, WQuery.USERUPLOADS).set("aiuser", nss(user));
+		while(wq.has())
+			l.addAll(GSONP.getStrsFromJAofJO(GSONP.getNestedJA(wq.next(), FL.toSAL("query", "allimages")), "title"));
+		
+		return l;
 	}
 
 	/**
@@ -699,10 +738,20 @@ public class Wiki
 	{
 		ColorLog.info(this, "Fetching section headers for " + title);
 
-		SQ sq = SQ.with(this, FL.pMap("prop", "sections", "page", title));
-		sq.action = "parse";
-		return FL.toAL(sq.singleQuery().getJAofJO("sections").stream()
-				.map(e -> new Triple<>(Integer.parseInt(e.getString("level")), e.getString("line"), e.getInt("byteoffset"))));
+		try
+		{
+			return FL.toAL(GSONP
+					.getJAofJO(GSONP.getNestedJA(
+							GSONP.jp.parse(basicGET("parse", "prop", "sections", "page", title).body().string()).getAsJsonObject(),
+							FL.toSAL("parse", "sections")))
+					.stream().map(e -> new Triple<>(Integer.parseInt(e.get("level").getAsString()), e.get("line").getAsString(),
+							e.get("byteoffset").getAsInt())));
+		}
+		catch (Throwable e)
+		{
+			e.printStackTrace();
+			return new ArrayList<>();
+		}
 	}
 
 	/**
@@ -737,21 +786,8 @@ public class Wiki
 	 */
 	public ArrayList<ImageInfo> getImageInfo(String title)
 	{
-		return getImageInfo(title, -1, -1);
-	}
-
-	/**
-	 * Gets information about a File's revisions.
-	 * 
-	 * @param title The title of the file to use (must be in the file namespace and exist, else return null)
-	 * @param height The height to scale the image to. Disable scalers by passing in a number &ge; 0.
-	 * @param width The width to scale the image to. Disable scalers by passing in a number &ge; 0.
-	 * @return A list of ImageInfo objects, one for each revision. The order is newer -&gt; older.
-	 */
-	public ArrayList<ImageInfo> getImageInfo(String title, int height, int width)
-	{
 		ColorLog.info(this, "Getting image info for " + title);
-		return MQuery.getImageInfo(this, width, height, FL.toSAL(title)).get(title);
+		return MQuery.getImageInfo(this, FL.toSAL(title)).get(title);
 	}
 
 	/**
@@ -832,24 +868,38 @@ public class Wiki
 	public ArrayList<String> allPages(String prefix, boolean redirectsOnly, boolean protectedOnly, int cap, NS ns)
 	{
 		ColorLog.info(this, "Doing all pages fetch for " + (prefix == null ? "all pages" : prefix));
-		HashMap<String, String> pl = FL.pMap("list", "allpages");
-		if (prefix != null)
-			pl.put("apprefix", prefix);
-		if (ns != null)
-			pl.put("apnamespace", "" + ns.v);
-		if (redirectsOnly)
-			pl.put("apfilterredir", "redirects");
-		if (protectedOnly)
-			pl.put("apprtype", FString.pipeFence("edit", "move", "upload"));
 
-		return SQ.with(this, "aplimit", cap, pl).multiQuery().getJAOfJOasStr("allpages", "title");
+		WQuery wq = new WQuery(this, WQuery.ALLPAGES);
+		if (prefix != null)
+			wq.set("apprefix", prefix);
+		if (ns != null)
+			wq.set("apnamespace", "" + ns.v);
+		if (redirectsOnly)
+			wq.set("apfilterredir", "redirects");
+		if (protectedOnly)
+			wq.set("apprtype", "edit|move|upload");
+
+		ArrayList<String> l = new ArrayList<>();
+		boolean isLastQuery = false;
+		for (int cnt = 0; wq.has() && !isLastQuery; cnt += conf.maxResultLimit)
+		{
+			if (cap > 0 && cap - cnt < conf.maxResultLimit)
+			{
+				wq.adjustLimit(cap - cnt);
+				isLastQuery = true;
+			}
+
+			l.addAll(GSONP.getStrsFromJAofJO(GSONP.getNestedJA(wq.next(), FL.toSAL("query", "allpages")), "title"));
+		}
+		return l;
 	}
 
 	/**
 	 * Does the same thing as Special:PrefixIndex.
 	 * 
 	 * @param namespace The namespace to filter by (inclusive)
-	 * @param prefix Get all titles in the specified namespace, that start with this String.
+	 * @param prefix Get all titles in the specified namespace, that start with this String. To select subpages only,
+	 *           append a {@code /} to the end of this parameter.
 	 * @return The list of titles starting with the specified prefix
 	 */
 	public ArrayList<String> prefixIndex(NS namespace, String prefix)
@@ -886,18 +936,6 @@ public class Wiki
 	}
 
 	/**
-	 * Gets a list of duplicated files on the Wiki.
-	 * 
-	 * @param cap The maximum number of titles to return
-	 * @return Duplicated files on the Wiki.
-	 */
-	public ArrayList<String> listDuplicateFiles(int cap)
-	{
-		ColorLog.info(this, "Getting duplicated files on the wiki");
-		return MQuery.querySpecialPage(this, cap, "ListDuplicatedFiles");
-	}
-
-	/**
 	 * Attempts to resolve title redirects on a Wiki.
 	 * 
 	 * @param title The title to attempt resolution at.
@@ -918,7 +956,7 @@ public class Wiki
 	public ArrayList<String> getAllowedFileExts()
 	{
 		ColorLog.info(this, "Fetching a list of permissible file extensions");
-		return FL.toAL(SQ.with(this, FL.pMap("meta", "siteinfo", "siprop", "fileextensions")).singleQuery().getJAofJO("fileextensions")
-				.stream().map(r -> r.getStringR("ext")));
+		return GSONP.getStrsFromJAofJO(
+				GSONP.getNestedJA(new WQuery(this, WQuery.ALLOWEDFILEXTS).next(), FL.toSAL("query", "fileextensions")), "ext");
 	}
 }

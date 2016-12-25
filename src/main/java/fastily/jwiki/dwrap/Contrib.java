@@ -2,7 +2,9 @@ package fastily.jwiki.dwrap;
 
 import java.time.Instant;
 
-import fastily.jwiki.core.Reply;
+import com.google.gson.JsonObject;
+
+import fastily.jwiki.util.GSONP;
 
 /**
  * Represents a contribution made by a user.
@@ -27,10 +29,11 @@ public class Contrib extends DataEntry
 	 * 
 	 * @param r The JSONObject returned by the server, representing a contribution.
 	 */
-	public Contrib(Reply r)
+	public Contrib(JsonObject r)
 	{
-		super(r.getString("user"), r.getString("title"), r.getString("comment"), Instant.parse(r.getString("timestamp")));
-		revid = r.getInt("revid");
-		parentid = r.getInt("parentid");
+		super(GSONP.gString(r, "user"), GSONP.gString(r, "title"), GSONP.gString(r, "comment"),
+				Instant.parse(GSONP.gString(r, "timestamp")));
+		revid = r.get("revid").getAsInt();
+		parentid = r.get("parentid").getAsInt();
 	}
 }

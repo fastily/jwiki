@@ -3,7 +3,6 @@ build/
 
 # OS Generated files
 .DS_Store
-.DS_Store?
 ._*
 .Spotlight-V100
 .Trashes
@@ -18,5 +17,3 @@ Thumbs.db
 
 # Gradle
 .gradle/
-/bin/
-/bin/

@@ -11,7 +11,6 @@ jwiki is a simple Java client library wrapping the [MediaWiki](https://www.media
 ##Getting Started
 * [Quick Start Guide](https://github.com/fastily/jwiki/wiki/Quick-Start-Guide)
 * [Javadocs](https://fastily.github.io/jwiki/docs/jwiki/)
-* Main class: [Wiki.java](https://github.com/fastily/jwiki/blob/master/src/jwiki/core/Wiki.java)
 * [Maven/Gradle settings](https://bintray.com/fastily/maven/jwiki)
 
 ###Example Code
@@ -36,9 +35,6 @@ public class JwikiExample
 * [JDK](https://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html): **1.8.0_40+**
 * [MediaWiki](https://www.mediawiki.org/wiki/MediaWiki): **1.27+**
   * Use release 1.2.1 for older versions 
-
-###License
-jwiki is dual licensed under the [cc-by-sa-4.0](https://creativecommons.org/licenses/by-sa/4.0/) and the [GPLv3](https://www.gnu.org/licenses/gpl-3.0.en.html).  You may select the license of your choice.
 
 ##Project Objectives
 jwiki is intended to be a simple, reliable, and low-overhead framework for anybody seeking to make use of the MediaWiki API.  Emphasis is placed on:

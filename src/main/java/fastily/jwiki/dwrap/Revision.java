@@ -2,7 +2,9 @@ package fastily.jwiki.dwrap;
 
 import java.time.Instant;
 
-import fastily.jwiki.core.Reply;
+import com.google.gson.JsonObject;
+
+import fastily.jwiki.util.GSONP;
 
 /**
  * Represents a single revision in the history of a page.
@@ -24,9 +26,9 @@ public class Revision extends DataEntry
 	 *           server
 	 * @param r The ServerReply containing the revision to parse.
 	 */
-	public Revision(String title, Reply r)
+	public Revision(JsonObject r)
 	{
-		super(r.getString("user"), title, r.getString("comment"), Instant.parse(r.getString("timestamp")));
-		text = r.getString("*");
+		super(GSONP.gString(r, "user"), null, GSONP.gString(r, "comment"), Instant.parse(GSONP.gString(r, "timestamp")));
+		text = GSONP.gString(r, "*");
 	}
 }

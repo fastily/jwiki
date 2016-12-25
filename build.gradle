@@ -57,11 +57,11 @@ repositories {
 }
 
 dependencies {
-    // The production code uses the SLF4J logging API at compile time
-    compile 'org.slf4j:slf4j-api:1.7.21'
-    compile 'org.json:json:20160810'
+   // compile "org.json:json:20160810"
+    compile "com.google.code.gson:gson:2.8.0"
+    compile "com.squareup.okhttp3:okhttp:3.5.0"
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '3.1'
+    gradleVersion = '3.2.1'
 }

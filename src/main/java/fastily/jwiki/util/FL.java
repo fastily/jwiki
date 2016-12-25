@@ -2,6 +2,7 @@ package fastily.jwiki.util;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -146,5 +147,25 @@ public final class FL
 	public static <T> Stream<T> streamFrom(Iterable<T> i)
 	{
 		return StreamSupport.stream(i.spliterator(), false);
+	}
+	
+	/**
+	 * Make a fence with pipe characters as posts.
+	 * @param planks The planks to use, in order.
+	 * @return A String with the specified planks and pipe characters as posts
+	 */
+	public static String pipeFence(String...planks)
+	{
+		return String.join("|", planks);
+	}
+	
+	/**
+	 * Makes a fence with pipe characters as posts
+	 * @param planks The planks to use, in order.
+	 * @return A String with the specified planks and pipe characters as postsß
+	 */
+	public static String pipeFence(Collection<String> planks)
+	{
+		return pipeFence(planks.toArray(new String[0]));
 	}
 }
