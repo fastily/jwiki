@@ -73,7 +73,7 @@ public final class Action
 		ColorLog.info(wiki, "Adding text to " + title);
 
 		HashMap<String, String> pl = FL.pMap("title", title, append ? "appendtext" : "prependtext", text, "summary", summary);
-		if (wiki.isBot)
+		if (wiki.conf.isBot)
 			pl.put("bot", "");
 
 		return postAction(wiki, "edit", true, pl);
@@ -93,7 +93,7 @@ public final class Action
 		ColorLog.info(wiki, "Editing " + title);
 
 		HashMap<String, String> pl = FL.pMap("title", title, "text", text, "summary", summary);
-		if (wiki.isBot)
+		if (wiki.conf.isBot)
 			pl.put("bot", "");
 
 		for (int i = 0; i < 5; i++)

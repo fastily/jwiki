@@ -3,7 +3,7 @@ package fastily.jwiki.dwrap;
 import java.time.Instant;
 
 /**
- * Parent template class for contrib/log/revision data.
+ * Structured data template class.
  * 
  * @author Fastily
  *

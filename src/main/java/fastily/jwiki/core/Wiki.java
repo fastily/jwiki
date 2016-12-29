@@ -53,11 +53,6 @@ public class Wiki
 	protected CookieManager cookiejar = new CookieManager();
 
 	/**
-	 * Flag indicating whether the logged in user is a bot.
-	 */
-	protected boolean isBot = false; // TODO: CHECK FOR BOT FLAG
-
-	/**
 	 * Configurations and settings for this Wiki.
 	 */
 	protected final Conf conf;
@@ -65,7 +60,7 @@ public class Wiki
 	/**
 	 * Used to make calls to and from the API.
 	 */
-	protected final ApiClient apiclient;
+	public final ApiClient apiclient;
 
 	/**
 	 * Constructor, sets username, password, and domain. The user password combo must be valid or program will exit

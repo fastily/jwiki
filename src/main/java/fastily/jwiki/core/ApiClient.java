@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import fastily.jwiki.util.FL;
 import okhttp3.Cookie;
@@ -34,7 +35,7 @@ public final class ApiClient
 	/**
 	 * HTTP client used for all requests.
 	 */
-	private OkHttpClient client;
+	public final OkHttpClient client;
 
 	/**
 	 * The Wiki object tied to this ApiClient.
@@ -49,7 +50,7 @@ public final class ApiClient
 	protected ApiClient(Wiki wiki)
 	{
 		this.wiki = wiki;
-		client = new OkHttpClient.Builder().cookieJar(new JwikiCookieJar()).build();
+		client = new OkHttpClient.Builder().cookieJar(new JwikiCookieJar()).readTimeout(1, TimeUnit.MINUTES).build();
 	}
 
 	/**

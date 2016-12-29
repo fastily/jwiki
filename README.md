@@ -10,8 +10,9 @@ jwiki is a simple Java client library wrapping the [MediaWiki](https://www.media
 
 ##Getting Started
 * [Quick Start Guide](https://github.com/fastily/jwiki/wiki/Quick-Start-Guide)
+* Main class: [Wiki.java](https://github.com/fastily/jwiki/blob/master/src/jwiki/core/Wiki.java)
 * [Javadocs](https://fastily.github.io/jwiki/docs/jwiki/)
-* [Maven/Gradle settings](https://bintray.com/fastily/maven/jwiki)
+* [Maven/Gradle settings]()
 
 ###Example Code
 ```java
@@ -26,6 +27,24 @@ public class JwikiExample
      wiki.edit("Wikipedia:Sandbox", "SomeText", "EditSummary"); // edit
    }
 }
+```
+
+###Download
+jwiki is available from [bintray/jcenter](https://bintray.com/fastily/maven/jwiki)
+
+Maven:
+```xml
+<dependency>
+  <groupId>fastily</groupId>
+  <artifactId>jwiki</artifactId>
+  <version>1.2.1</version>
+  <type>pom</type>
+</dependency>
+```
+
+Gradle:
+```groovy
+compile 'fastily:jwiki:1.2.1'
 ```
 
 ###Dependencies

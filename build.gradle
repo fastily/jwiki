@@ -42,7 +42,9 @@ task genJavadoc(type: Javadoc) {
   
   options
   {
-    links "https://fastily.github.io/jwiki/docs/JSON-java/"
+    links "https://square.github.io/okhttp/3.x/okhttp/"
+    links "https://square.github.io/okio/1.x/okio/"
+    links "https://www.javadoc.io/doc/com.google.code.gson/gson/2.8.0"
     links "https://docs.oracle.com/javase/8/docs/api/"
 
     setMemberLevel JavadocMemberLevel.PUBLIC
@@ -53,13 +55,14 @@ task genJavadoc(type: Javadoc) {
 }
 
 repositories {
-    mavenCentral()
+    jcenter()
 }
 
 dependencies {
-   // compile "org.json:json:20160810"
     compile "com.google.code.gson:gson:2.8.0"
     compile "com.squareup.okhttp3:okhttp:3.5.0"
+    
+    testCompile 'junit:junit:4.12'
 }
 
 task wrapper(type: Wrapper) {

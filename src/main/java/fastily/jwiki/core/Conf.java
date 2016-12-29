@@ -38,8 +38,9 @@ public final class Conf
 	 */
 	public String scptPath = "w/api.php";
 
+	//TODO: set bot flag!
 	/**
-	 * Flag indicating whether the logged in user is a bot.
+	 * Flag indicating whether the logged in user is a bot. 
 	 */
 	public boolean isBot = false;
 
