@@ -162,7 +162,7 @@ public final class FL
 	/**
 	 * Makes a fence with pipe characters as posts
 	 * @param planks The planks to use, in order.
-	 * @return A String with the specified planks and pipe characters as postsß
+	 * @return A String with the specified planks and pipe characters as posts
 	 */
 	public static String pipeFence(Collection<String> planks)
 	{

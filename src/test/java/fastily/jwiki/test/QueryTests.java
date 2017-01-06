@@ -28,7 +28,7 @@ public class QueryTests
 	/**
 	 * The wiki object to use for this test set.
 	 */
-	private static final Wiki wiki = Config.getDefaultUser();
+	private static final Wiki wiki = new Wiki("test.wikipedia.org");
 	
 	/**
 	 * Tests for namespace handling

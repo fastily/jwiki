@@ -248,7 +248,7 @@ public class WQuery
 
 			JsonObject result = GSONP.jp.parse(wiki.apiclient.basicGET(pl).body().string()).getAsJsonObject();
 			if (result.has("continue"))
-				pl.putAll(wiki.conf.gson.fromJson(result.getAsJsonObject("continue"), GSONP.strMapT));
+				pl.putAll(GSONP.gson.fromJson(result.getAsJsonObject("continue"), GSONP.strMapT));
 			else
 				canCont = false;
 
@@ -366,7 +366,7 @@ public class WQuery
 	 *
 	 */
 	public static class QXtract // TODO: Normalize extractions!
-	{
+	{ //TODO: Create better format for list queries
 		/**
 		 * Constructors disallowed
 		 */

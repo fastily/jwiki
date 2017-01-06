@@ -1,7 +1,5 @@
 package fastily.jwiki.core;
 
-import com.google.gson.Gson;
-
 import fastily.jwiki.util.Tuple;
 
 /**
@@ -15,13 +13,8 @@ public final class Conf
 	/**
 	 * Toggles logging of debug information to std err. Disabled by default.
 	 */
-	public boolean debug = false;
+	public boolean debug = false; //TODO: ENABLE DEBUG MODE
 
-	/**
-	 * The default Gson deserializer.
-	 */
-	public Gson gson = new Gson(); //TODO: ENABLE DEBUG MODE
-	
 	/**
 	 * The default <code>User-Agent</code> header for HTTP requests.
 	 */
@@ -42,7 +35,7 @@ public final class Conf
 	/**
 	 * Flag indicating whether the logged in user is a bot. 
 	 */
-	public boolean isBot = false;
+	protected boolean isBot = false;
 
 	/**
 	 * The base API domain. e.g. <code>en.wikipedia.org</code>
@@ -63,7 +56,7 @@ public final class Conf
 	/**
 	 * Username (no namespace prefix) and password, only set if user is logged in.
 	 */
-	protected Tuple<String, String> upx = null;
+	protected Tuple<String, String> upx = null; //TODO: px should be char[]
 
 	/**
 	 * CSRF token. Used for actions that change Wiki content.

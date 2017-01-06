@@ -16,7 +16,6 @@ import com.google.gson.Gson;
 
 import fastily.jwiki.core.ColorLog;
 import fastily.jwiki.core.Wiki;
-import fastily.jwiki.util.FError;
 
 /**
  * A simple console based-credential manager.
@@ -44,7 +43,7 @@ public final class WikiGen
 	/**
 	 * The master user/pass list.
 	 */
-	public HashMap<String, String> master = new HashMap<>();
+	private HashMap<String, String> master = new HashMap<>();
 
 	/**
 	 * Cache saving Wiki objects so we don't do multiple log-ins by accident.
@@ -75,9 +74,9 @@ public final class WikiGen
 	{
 		Console c = System.console();
 		if (c == null)
-			FError.errAndExit("You need to be running in CLI mode");
+			FSystem.errAndExit("You need to be running in CLI mode");
 
-		c.printf("Welcome to FLogin!%nThis utility will encrypt & store your usernames/passwords%n(c) 2016 Fastily%n%n");
+		c.printf("Welcome to WikiGen!%nThis utility will encrypt & store your usernames/passwords%n(c) 2017 Fastily%n%n");
 
 		// let user enter user & pw combos
 		HashMap<String, String> ul = new HashMap<>();
@@ -100,7 +99,7 @@ public final class WikiGen
 		}
 
 		if (ul.isEmpty())
-			FError.errAndExit("You didn't enter any user/pass.  Program will exit.");
+			FSystem.errAndExit("You didn't enter any user/pass.  Program will exit.");
 
 		// Encrypt and dump to file
 		KeyGenerator kg = KeyGenerator.getInstance("AES");

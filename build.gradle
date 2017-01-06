@@ -34,7 +34,7 @@ task writeNewPom << {
         }
     }.writeTo("$buildDir/pom.xml")
 }
-build.finalizedBy(writeNewPom)
+//build.finalizedBy(writeNewPom)
 
 
 task genJavadoc(type: Javadoc) {
@@ -66,5 +66,5 @@ dependencies {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '3.2.1'
+    gradleVersion = '3.3'
 }

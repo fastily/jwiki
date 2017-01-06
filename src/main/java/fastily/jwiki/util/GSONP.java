@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -26,6 +28,11 @@ public class GSONP
 	 */
 	public static final JsonParser jp = new JsonParser();
 
+	/**
+	 * Default Gson object, for convenience.
+	 */
+	public static final Gson gson = new GsonBuilder().setPrettyPrinting().create();
+	
 	/**
 	 * Type describing a HashMap with a String key and String value.
 	 */
@@ -115,6 +122,7 @@ public class GSONP
 	 */
 	public static String getStringInJO(String input, List<String> pathToString, String strKey)
 	{
+		System.out.println(input);
 		return getStringInJO(jp.parse(input).getAsJsonObject(), pathToString, strKey);
 	}
 

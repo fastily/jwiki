@@ -1,6 +1,5 @@
 package fastily.jwiki.core;
 
-import java.net.CookieManager;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -9,15 +8,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 
-import javax.security.auth.login.LoginException;
-
 import fastily.jwiki.dwrap.Contrib;
 import fastily.jwiki.dwrap.ImageInfo;
 import fastily.jwiki.dwrap.LogEntry;
 import fastily.jwiki.dwrap.ProtectedTitleEntry;
 import fastily.jwiki.dwrap.RCEntry;
 import fastily.jwiki.dwrap.Revision;
-import fastily.jwiki.util.FError;
 import fastily.jwiki.util.FL;
 import fastily.jwiki.util.GSONP;
 import fastily.jwiki.util.Triple;
@@ -48,11 +44,6 @@ public class Wiki
 	protected NS.NSManager nsl;
 
 	/**
-	 * Our cookiejar
-	 */
-	protected CookieManager cookiejar = new CookieManager();
-
-	/**
 	 * Configurations and settings for this Wiki.
 	 */
 	protected final Conf conf;
@@ -63,15 +54,14 @@ public class Wiki
 	public final ApiClient apiclient;
 
 	/**
-	 * Constructor, sets username, password, and domain. The user password combo must be valid or program will exit
+	 * Constructor, sets username, password, and domain. The username and password must be valid or else a SecurityException will be thrown.
 	 * 
 	 * @param user The username to use
 	 * @param px The password to use
 	 * @param domain The domain to use
 	 * @param parent The parent wiki who spawned this wiki. If this is the first wiki, disable with null.
-	 * @throws LoginException If we failed to log-in.
 	 */
-	private Wiki(String user, String px, String domain, Wiki parent) throws LoginException
+	private Wiki(String user, String px, String domain, Wiki parent)
 	{
 		conf = new Conf(domain);
 
@@ -88,7 +78,7 @@ public class Wiki
 			apiclient = new ApiClient(this);
 
 			if (user != null && px != null && !login(user, px))
-				throw new LoginException(String.format("Failed to log-in as %s @ %s", conf.upx.x, domain));
+				throw new SecurityException(String.format("Failed to log-in as %s @ %s", conf.upx.x, domain));
 		}
 
 		ColorLog.info(this, "Fetching Namespace List");
@@ -104,21 +94,18 @@ public class Wiki
 	 * @param user The username to use
 	 * @param px The password to use
 	 * @param domain The domain name, in shorthand form (e.g. en.wikipedia.org)
-	 * @throws LoginException If we failed to login
 	 */
-	public Wiki(String user, String px, String domain) throws LoginException
+	public Wiki(String user, String px, String domain)
 	{
 		this(user, px, domain, null);
 	}
 
-	// TODO: make this not throw login exception
 	/**
 	 * Constructor, creates an anonymous Wiki which is not logged in.
 	 * 
 	 * @param domain The domain to use
-	 * @throws LoginException
 	 */
-	public Wiki(String domain) throws LoginException
+	public Wiki(String domain)
 	{
 		this(null, null, domain);
 	}
@@ -140,7 +127,7 @@ public class Wiki
 		try
 		{
 			if (Action.postAction(this, "login", false,
-					FL.pMap("lgname", user, "lgpassword", password, "lgtoken", getTokens().get("logintoken"))))
+					FL.pMap("lgname", user, "lgpassword", password, "lgtoken", getTokens().get("logintoken"))) == Action.ActionResult.SUCCESS)
 			{
 				conf.upx = new Tuple<>(user.length() < 2 ? user.toUpperCase() : user.substring(0, 1).toUpperCase() + user.substring(1), password);
 				conf.token = getTokens().get("csrftoken");
@@ -165,7 +152,7 @@ public class Wiki
 	 */
 	protected HashMap<String, String> getTokens()
 	{
-		return conf.gson.fromJson(GSONP.getNestedJO(new WQuery(this, WQuery.TOKENS).next(), FL.toSAL("query", "tokens")), GSONP.strMapT);
+		return GSONP.gson.fromJson(GSONP.getNestedJO(new WQuery(this, WQuery.TOKENS).next(), FL.toSAL("query", "tokens")), GSONP.strMapT);
 	}
 
 	/* //////////////////////////////////////////////////////////////////////////////// */
@@ -228,9 +215,9 @@ public class Wiki
 	 * 
 	 * @return The user who is logged in, or null if not logged in.
 	 */
-	public String whoami()
+	public String whoami() //TODO: Default value is null, change this to anon
 	{
-		return conf.upx == null ? null : conf.upx.x;
+		return conf.upx == null ? "<Anonymous>" : conf.upx.x;
 	}
 
 	/**
@@ -364,21 +351,6 @@ public class Wiki
 	{
 		String s = getPageText(title), rx = s.replaceAll(regex, replacement);
 		return rx.equals(s) ? true : edit(title, rx, reason);
-	}
-
-	/**
-	 * Undo the top revision of a page. PRECONDITION: <code>title</code> must point to a valid page.
-	 * 
-	 * @param title The title to edit
-	 * @param reason The reason to use
-	 * @return True if we were successful.
-	 */
-	public boolean undo(String title, String reason)
-	{
-		ColorLog.info(this, "Undoing top revision of " + title);
-		ArrayList<Revision> rl = getRevisions(title, 2, false, null, null);
-		return rl.size() < 2 ? FError.printErrAndRet("There are fewer than two revisions in " + title, false)
-				: edit(title, rl.get(1).text, reason);
 	}
 
 	/**

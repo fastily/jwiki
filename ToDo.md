@@ -7,7 +7,9 @@
 ### Usability
 * Verify correct error values in QueryTests
   * Code Coverage ?
-* TPlate does not properly handle templates params with more than one string/template/nowiki/comment.
 
 * Optimizations for WQuery and MQuery.
 * Fix Normalizations.
+* dwrap should use serialization
+
+* May want to back color log with log4j

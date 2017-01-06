@@ -7,6 +7,8 @@ import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import com.google.gson.JsonObject;
+
 import fastily.jwiki.util.FL;
 import fastily.jwiki.util.GSONP;
 import okhttp3.Response;
@@ -38,7 +40,7 @@ public final class Action
 	 * @param form The form data to post. This should not be URL-encoded
 	 * @return True on success
 	 */
-	protected static boolean postAction(Wiki wiki, String action, boolean applyToken, HashMap<String, String> form)
+	protected static ActionResult postAction(Wiki wiki, String action, boolean applyToken, HashMap<String, String> form)
 	{
 		HashMap<String, String> fl = FL.pMap("format", "json");
 		if (applyToken)
@@ -48,13 +50,11 @@ public final class Action
 
 		try
 		{
-			return GSONP.getStringInJO(wiki.apiclient.basicPOST(FL.pMap("action", action), fl).body().string(), FL.toSAL(action),
-					"result").equals("Success");
+			return ActionResult.wrap(wiki.apiclient.basicPOST(FL.pMap("action", action), fl).body().string(), action);
 		}
 		catch (Throwable e)
 		{
-			e.printStackTrace();
-			return false;
+			return ActionResult.NONE;
 		}
 	}
 
@@ -76,7 +76,7 @@ public final class Action
 		if (wiki.conf.isBot)
 			pl.put("bot", "");
 
-		return postAction(wiki, "edit", true, pl);
+		return postAction(wiki, "edit", true, pl) == ActionResult.SUCCESS;
 	}
 
 	/**
@@ -97,10 +97,25 @@ public final class Action
 			pl.put("bot", "");
 
 		for (int i = 0; i < 5; i++)
-			if (postAction(wiki, "edit", true, pl))
-				return true;
+			switch (postAction(wiki, "edit", true, pl))
+			{
+				case SUCCESS:
+					return true;
+				case RATELIMITED:
+					try
+					{
+						ColorLog.fyi(wiki, "Ratelimited by server, sleeping 10 seconds");
+						Thread.sleep(10000);
+					}
+					catch (Throwable e)
+					{
+						e.printStackTrace();
+						return false;
+					}
 
-		// TODO: RESOLVE RATELIMIT ERROR
+				default:
+					ColorLog.warn(wiki, "Got an error, retrying: " + i);
+			}
 
 		return false;
 	}
@@ -116,9 +131,7 @@ public final class Action
 	protected static boolean delete(Wiki wiki, String title, String reason)
 	{
 		ColorLog.info(wiki, "Deleting " + title);
-		return postAction(wiki, "delete", true, FL.pMap("title", title, "reason", reason));
-		// return r != null && !r.hasErrorIfIgnore("missingtitle");
-		// TODO: Resolve Missing title ERROR
+		return postAction(wiki, "delete", true, FL.pMap("title", title, "reason", reason)) == ActionResult.NONE;
 	}
 
 	/**
@@ -134,7 +147,7 @@ public final class Action
 		ColorLog.info("Restoring " + title);
 
 		for (int i = 0; i < 10; i++)
-			if (postAction(wiki, "undelete", true, FL.pMap("title", title, "reason", reason)))
+			if (postAction(wiki, "undelete", true, FL.pMap("title", title, "reason", reason)) == ActionResult.NONE)
 				return true;
 
 		return false;
@@ -166,6 +179,8 @@ public final class Action
 	 */
 	protected static boolean upload(Wiki wiki, String title, String desc, String summary, Path file)
 	{
+		ColorLog.info(wiki, "Uploading " + file);
+		
 		try
 		{
 			ChunkManager cm = new ChunkManager(file);
@@ -176,25 +191,121 @@ public final class Action
 			Chunk c;
 			while ((c = cm.nextChunk()) != null)
 			{
-				System.out.println("Hello!");
+				ColorLog.fyi(wiki, String.format("Uploading chunk [%d of %d] of '%s'", cm.chunkCnt, cm.totalChunks, file));
+				
 				HashMap<String, String> pl = FL.pMap("format", "json", "filename", title, "token", wiki.conf.token, "ignorewarnings", "1",
 						"stash", "1", "offset", "" + c.offset, "filesize", "" + c.filesize);
 				if (filekey != null)
 					pl.put("filekey", filekey);
 
-				// TODO: Retries
-				Response r = wiki.apiclient.multiPartFilePOST(FL.pMap("action", "upload"), pl, fn, c.bl);
+				for (int i = 0; i < 5; i++)
+					try
+					{
+						Response r = wiki.apiclient.multiPartFilePOST(FL.pMap("action", "upload"), pl, fn, c.bl);
+						if (!r.isSuccessful())
+						{
+							ColorLog.error(wiki, "Bad response from server: " + r.code());
+							continue;
+						}
 
-				filekey = GSONP.jp.parse(r.body().string()).getAsJsonObject().get("upload").getAsJsonObject().get("filekey").getAsString();
+						filekey = GSONP.gString(GSONP.jp.parse(r.body().string()).getAsJsonObject().getAsJsonObject("upload"), "filekey");
+						if (filekey != null)
+							break;
+					}
+					catch (Throwable e)
+					{
+						ColorLog.error(wiki, "Encountered an error, retrying - " + i);
+						e.printStackTrace();
+					}
 			}
 
-			return postAction(wiki, "upload", true,
-					FL.pMap("filename", title, "text", desc, "comment", summary, "filekey", filekey, "ignorewarnings", "true"));
+			//TODO: Retries for unstash - sometimes this fails on the first try
+			ColorLog.info(wiki, String.format("Unstashing '%s' as '%s'", filekey, title));
+			return postAction(wiki, "upload", true, FL.pMap("filename", title, "text", desc, "comment", summary, "filekey", filekey,
+					"ignorewarnings", "true")) == ActionResult.SUCCESS;
 		}
 		catch (Throwable e)
 		{
 			e.printStackTrace();
 			return false;
+		}
+	}
+
+	/**
+	 * Represents the result of an action POSTed to a Wiki
+	 * 
+	 * @author Fastily
+	 *
+	 */
+	protected static enum ActionResult
+	{
+		/**
+		 * Used for success responses
+		 */
+		SUCCESS,
+
+		/**
+		 * Catch-all, used for unlisted/other errors
+		 */
+		ERROR,
+
+		/**
+		 * If no result could be determined.
+		 */
+		NONE,
+
+		/**
+		 * Error, if the request had an expired/invalid token.
+		 */
+		BADTOKEN,
+
+		/**
+		 * Error, if the request was missing a valid token.
+		 */
+		NOTOKEN,
+
+		/**
+		 * Error, if the action could not be completed due to being rate-limited by Wiki.
+		 */
+		RATELIMITED;
+
+		/**
+		 * Parses and wraps the response from a POST to the server in an ActionResult.
+		 * @param json The json response from the server
+		 * @param action The name of the action which produced this response.  e.g. {@code edit}, {@code delete}
+		 * @return An ActionResult representing the response result of the query.
+		 */
+		private static ActionResult wrap(String json, String action)
+		{
+			try
+			{
+				JsonObject jo = GSONP.jp.parse(json).getAsJsonObject();
+
+				if (jo.has(action))
+					switch (GSONP.gString(jo.getAsJsonObject(action), "result"))
+					{
+						case "Success":
+							return SUCCESS;
+						default:
+							ColorLog.fyi(String.format("Got back '%s', missing a 'result'?", GSONP.gson.toJson(jo)));
+					}
+				else if (jo.has("error"))
+					switch (GSONP.gString(jo.getAsJsonObject("error"), "code"))
+					{
+						case "notoken":
+							return NOTOKEN;
+						case "badtoken":
+							return BADTOKEN;
+						default:
+							return ERROR;
+					}
+			}
+			catch (Throwable e)
+			{
+				e.printStackTrace();
+			}
+
+			return NONE;
 		}
 	}
 
