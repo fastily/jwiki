@@ -2,15 +2,12 @@ package fastily.jwiki.core;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.stream.Collectors;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import fastily.jwiki.util.FL;
 import fastily.jwiki.util.GSONP;
-import fastily.jwiki.util.MapList;
-import fastily.jwiki.util.Tuple;
 
 /**
  * Wraps the various functions of API functions of {@code action=query}.
@@ -230,7 +227,7 @@ public class WQuery
 	 * 
 	 * @return A JsonObject with the response from the server, or null if something went wrong.
 	 */
-	public JsonObject next()
+	public QReply next()
 	{
 		// sanity check
 		if (pl.containsValue(null))
@@ -252,7 +249,7 @@ public class WQuery
 			else
 				canCont = false;
 
-			return result;
+			return new QReply(result);
 		}
 		catch (Throwable e)
 		{
@@ -360,147 +357,85 @@ public class WQuery
 	}
 
 	/**
-	 * Static functions to transform a JsonObject query response into meaningful java data structures.
-	 * 
+	 * A Response from the server for query modules.  Contains pre-defined comprehension methods for convenience. 
 	 * @author Fastily
 	 *
 	 */
-	public static class QXtract // TODO: Normalize extractions!
-	{ //TODO: Create better format for list queries
+	protected static class QReply
+	{
 		/**
-		 * Constructors disallowed
+		 * Default path to json for {@code prop} queries.
 		 */
-		private QXtract()
-		{
-
-		}
-
+		protected static final ArrayList<String> defaultPropPTJ = FL.toSAL("query", "pages");
+		
 		/**
-		 * Gets a String and JsonArray from each JsonObject in a JsonArray of JsobObject.
+		 * Tracks {@code normalized} titles.  The key is the {@code from} (non-normalized) title and the value is the {@code to} (normalized) title.
+		 */
+		private HashMap<String, String> normalized = null;
+		
+		/**
+		 * The JsonObject which was passed as input 
+		 */
+		protected final JsonObject input;
+		
+		/**
+		 * Creates a new QReply. Will parse the {@code normalized} JsonArray if it is found in {@code input}.
+		 * @param input The Response received from the server.
+		 */
+		private QReply(JsonObject input)
+		{
+			if(input.has("normalized"))
+				normalized = GSONP.pairOff(GSONP.getJAofJO(input, "normalized"), "from", "to");
+			
+			this.input = input;
+		}
+		
+		/**
+		 * Performs simple {@code list} query Response comprehension.  Collects listed JsonObject items in an ArrayList.
+		 * @param k Points to the JsonArray of JsonObject, under {@code query}, of interest.
+		 * @return A lightly processed ArrayList of {@code list} data.
+		 */
+		protected ArrayList<JsonObject> listComp(String k)
+		{	
+			return input.has("query") ? GSONP.getJAofJO(input.getAsJsonObject("query"), k) : new ArrayList<>();
+		}
+		
+		/**
+		 * Performs simple {@code prop} query Response comprehension.  Collects two values from each returned {@code prop} query item in a HashMap.  Title normalization is automatically applied.
+		 * @param kk Points to the String to set as the HashMap key in each {@code prop} query item.
+		 * @param vk Points to the JsonElement to set as the HashMap value in each {@code prop} query item.
+		 * @return A lightly processed HashMap of {@code prop} data.
+		 */
+		protected HashMap<String, JsonElement> propComp(String kk, String vk)
+		{
+			HashMap<String, JsonElement> m = new HashMap<>();
+			
+			JsonObject x = GSONP.getNestedJO(input, defaultPropPTJ);
+			if(x == null)
+				return m;
+			
+			for(JsonObject jo : GSONP.getJOofJO(x))
+				m.put(GSONP.gString(jo, kk), jo.get(vk));
+			
+			return normalize(m);
+		}
+		
+		/**
+		 * Performs title normalization when it is automatically done by MediaWiki. MediaWiki will return a
+		 * {@code normalized} JsonArray when it fixes lightly malformed titles.  This is intended for use with {@code prop} style queries.
 		 * 
-		 * @param src The root JsonObject
-		 * @param pathToJson The path to the nested JsonObject that contains the key {@code rootArrKey}
-		 * @param rootArrKey The key pointing to the target JsonArray of JsonObject
-		 * @param titleKey The key for each String to extract from each JsonObject in JsonArray pointed to by
-		 *           {@code rootArrKey}
-		 * @param elemArrKey The key for each List of String to extract from each JsonObject in JsonArray pointed to by
-		 *           {@code rootArrKey}
-		 * @return A HashMap of extracted String and ArrayList.
+		 * @param <V> Any Object. 
+		 * @param m The Map of elements to normalize.
+		 * @return {@code m}, for chaining convenience. 
 		 */
-		public static HashMap<String, ArrayList<String>> extractJAFromJAofJO(JsonObject src, ArrayList<String> pathToJson,
-				String rootArrKey, String titleKey, String elemArrKey)
+		protected <V> HashMap<String, V> normalize(HashMap<String, V> m)
 		{
-			HashMap<String, ArrayList<String>> l = new HashMap<>();
-			GSONP.jaToStream(GSONP.getNestedJO(src, pathToJson).getAsJsonArray(rootArrKey)).map(JsonElement::getAsJsonObject)
-					.forEach(jo -> l.put(jo.get(titleKey).getAsString(), GSONP.jaOfStrToAL(jo.getAsJsonArray(elemArrKey))));
-
-			return normalize(src, l);
-		}
-
-		/**
-		 * Gets a String and ArrayList of String from each JsonObject in a JsonArray in a JsonObject in a JsonObject of
-		 * JsonObject.
-		 * 
-		 * @param src The root JsonObject
-		 * @param pathToJson The path to the nested JsonObject that contains all other JsonObjects
-		 * @param titleKey The key for each String to extract from each JsonObject in the JsonObject pointed to by
-		 *           {@code pathToJson}
-		 * @param elemArrKey The key for each List of JsonObject in each JsonObject pointed to by {@code pathToJson}
-		 * @param elemKey The key for each String to extract from each JsonObject in the JsonObject pointed to by
-		 *           {@code pathToJson}
-		 * @return A MapList of expected String and List of Strings.
-		 */
-		public static MapList<String, String> extractJOListByStrAndJA(JsonObject src, ArrayList<String> pathToJson, String titleKey,
-				String elemArrKey, String elemKey)
-		{
-			MapList<String, String> l = new MapList<>();
-			for (JsonObject jo : GSONP.getJOofJO(GSONP.getNestedJO(src, pathToJson)))
-			{
-				String k = jo.get(titleKey).getAsString();
-				l.touch(k); // ensure entry if title does not have this property.
-				if (jo.has(elemArrKey))
-					l.put(k, GSONP.getStrsFromJAofJO(jo.getAsJsonArray(elemArrKey), elemKey));
-			}
-
-			normalize(src, l.l);
-			return l;
-		}
-
-		/**
-		 * Gets a String and ArrayList of Tuple&lt;String, String&gt; from each JsonObject in a JsonArray in a JsonObject
-		 * in a JsonObject of JsonObject.
-		 * 
-		 * @param src The root JsonObject
-		 * @param pathToJson The path to the nested JsonObject that contains all other JsonObjects
-		 * @param titleKey The key for each String to extract from each JsonObject in the JsonObject pointed to by
-		 *           {@code pathToJson}
-		 * @param elemArrKey The key for each List of JsonObject in each JsonObject pointed to by {@code pathToJson}
-		 * @param elemKey1 Key #1 for each String to extract from each JsonObject in the JsonObject pointed to by
-		 *           {@code pathToJson}. This is the {@code x} value of each returned Tuple.
-		 * @param elemKey2 Key #2 for each String to extract from each JsonObject in the JsonObject pointed to by
-		 *           {@code pathToJson}. This is the {@code y} value of each returned Tuple.
-		 * @return A MapList of expected String and List of Tuple Strings.
-		 */
-		public static MapList<String, Tuple<String, String>> extractJOListByStrAndJA(JsonObject src, ArrayList<String> pathToJson,
-				String titleKey, String elemArrKey, String elemKey1, String elemKey2)
-		{
-			MapList<String, Tuple<String, String>> l = new MapList<>();
-			for (JsonObject jo : GSONP.getJOofJO(GSONP.getNestedJO(src, pathToJson)))
-			{
-				String k = jo.get(titleKey).getAsString();
-				l.touch(k); // ensure entry if title does not have this property.
-				if (jo.has(elemArrKey))
-					l.put(k, FL.toAL(GSONP.getJAofJO(jo.getAsJsonArray(elemArrKey)).stream()
-							.map(j -> new Tuple<>(GSONP.gString(j, elemKey1), GSONP.gString(j, elemKey2)))));
-			}
-
-			normalize(src, l.l);
-			return l;
-		}
-
-		/**
-		 * Gets a String and Integer from each JsonObject in a JsonObject of JsonObject. If {@code elemJOKey} could not be
-		 * found, then the corresponding value assigned to the value contained in {@code titleKey} for that set will be
-		 * {@code -1}.
-		 * 
-		 * @param src The root JsonObject
-		 * @param pathToJson The path to the top level JsonObject that contains other JsonObjects of interest.
-		 * @param titleKey A String in each JsonObject from {@code pathToJson}
-		 * @param elemJOKey The key pointing to a JsonObject of interest in each JsonObject of {@code pathToJson}.
-		 * @param elemKey The key pointing to each Integer in each JsonObject pointed to by each instance of
-		 *           {@code elemJOKey}.
-		 * @return A HashMap with each {@code titleKey} and {@code elemKey}.
-		 */
-		public static HashMap<String, Integer> extractIntFromJOofJO(JsonObject src, ArrayList<String> pathToJson, String titleKey,
-				String elemJOKey, String elemKey)
-		{
-			return normalize(src,
-					new HashMap<>(GSONP.getJOofJO(GSONP.getNestedJO(src, pathToJson)).stream()
-							.collect(Collectors.toMap(j -> j.get(titleKey).getAsString(),
-									j -> j.has(elemJOKey) ? j.getAsJsonObject(elemJOKey).get(elemKey).getAsInt() : -1))));
-		}
-
-		public static ArrayList<String> extractStrFromJAofJO()
-		{
-			return null;
-		}
-
-		/**
-		 * Applies title normalization when it is auto-applied by MediaWiki. MediaWiki will return a
-		 * <code>normalized</code> JSONArray when it fixes lightly malformed titles. Does nothing if there is no
-		 * {@code normalized} JsonArray.
-		 * 
-		 * @param src The source JsonObject to work with.
-		 * @param m The result Map to normalize
-		 * @return {@code m}, for chaining convenience.
-		 */
-		protected static <T1> HashMap<String, T1> normalize(JsonObject src, HashMap<String, T1> m)
-		{
-			JsonObject jo = GSONP.getNestedJO(src, FL.toSAL("query"));
-			if (jo != null && jo.has("normalized"))
-				for (JsonObject j : GSONP.getJAofJO(jo.getAsJsonArray("normalized")))
-					m.put(j.get("from").getAsString(), m.get(j.get("to").getAsString()));
-
+			if(normalized != null)
+			normalized.forEach((f, t) -> {
+				if(m.containsKey(t))
+					m.put(f, m.get(t));
+			});
+			
 			return m;
 		}
 	}

@@ -12,4 +12,5 @@
 * Fix Normalizations.
 * dwrap should use serialization
 
+* Better handling of meta queries
 * May want to back color log with log4j

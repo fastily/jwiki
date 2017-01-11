@@ -8,6 +8,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 
+import com.google.gson.JsonElement;
+
 import fastily.jwiki.dwrap.Contrib;
 import fastily.jwiki.dwrap.ImageInfo;
 import fastily.jwiki.dwrap.LogEntry;
@@ -82,7 +84,7 @@ public class Wiki
 		}
 
 		ColorLog.info(this, "Fetching Namespace List");
-		nsl = new NS.NSManager(new WQuery(this, WQuery.NAMESPACES).next().getAsJsonObject("query"));
+		nsl = new NS.NSManager(new WQuery(this, WQuery.NAMESPACES).next().input.getAsJsonObject("query")); //TODO: awkward
 
 		if (conf.upx != null)
 			wl.put(conf.domain, this);
@@ -126,8 +128,8 @@ public class Wiki
 		ColorLog.info(this, "Try login for " + user);
 		try
 		{
-			if (Action.postAction(this, "login", false,
-					FL.pMap("lgname", user, "lgpassword", password, "lgtoken", getTokens().get("logintoken"))) == Action.ActionResult.SUCCESS)
+			if (WAction.postAction(this, "login", false,
+					FL.pMap("lgname", user, "lgpassword", password, "lgtoken", getTokens().get("logintoken"))) == WAction.ActionResult.SUCCESS)
 			{
 				conf.upx = new Tuple<>(user.length() < 2 ? user.toUpperCase() : user.substring(0, 1).toUpperCase() + user.substring(1), password);
 				conf.token = getTokens().get("csrftoken");
@@ -151,8 +153,8 @@ public class Wiki
 	 * @return A HashMap with a key for {@code csrftoken} &amp; {@code logintoken}
 	 */
 	protected HashMap<String, String> getTokens()
-	{
-		return GSONP.gson.fromJson(GSONP.getNestedJO(new WQuery(this, WQuery.TOKENS).next(), FL.toSAL("query", "tokens")), GSONP.strMapT);
+	{ //TODO: this is awkward - tuple login and csrf?
+		return GSONP.gson.fromJson(GSONP.getNestedJO(new WQuery(this, WQuery.TOKENS).next().input, FL.toSAL("query", "tokens")), GSONP.strMapT);
 	}
 
 	/* //////////////////////////////////////////////////////////////////////////////// */
@@ -306,7 +308,7 @@ public class Wiki
 	 */
 	public boolean edit(String title, String text, String reason)
 	{
-		return Action.edit(this, title, text, reason);
+		return WAction.edit(this, title, text, reason);
 	}
 
 	/**
@@ -320,7 +322,7 @@ public class Wiki
 	 */
 	public boolean addText(String title, String add, String reason, boolean top)
 	{
-		return Action.addText(this, title, add, reason, !top);
+		return WAction.addText(this, title, add, reason, !top);
 	}
 
 	/**
@@ -373,7 +375,7 @@ public class Wiki
 	 */
 	public boolean delete(String title, String reason)
 	{
-		return Action.delete(this, title, reason);
+		return WAction.delete(this, title, reason);
 	}
 
 	/**
@@ -386,7 +388,7 @@ public class Wiki
 	 */
 	public boolean undelete(String title, String reason)
 	{
-		return Action.undelete(this, title, reason);
+		return WAction.undelete(this, title, reason);
 	}
 
 	/**
@@ -400,7 +402,7 @@ public class Wiki
 	 */
 	public boolean upload(Path p, String title, String text, String reason)
 	{
-		return Action.upload(this, title, text, reason, p);
+		return WAction.upload(this, title, text, reason, p);
 	}
 
 	/* //////////////////////////////////////////////////////////////////////////////// */
@@ -452,20 +454,22 @@ public class Wiki
 
 		if (start != null && end != null && start.isBefore(end))
 		{
-			wq.set("rvstart", end.toString()); // MediaWiki has start <-> end mixed up
+			wq.set("rvstart", end.toString()); // MediaWiki has start <-> end reversed
 			wq.set("rvend", start.toString());
 		}
 		
 		ArrayList<Revision> l = new ArrayList<>();
 		while(wq.has())
-			l.addAll(FL.toAL(GSONP.getJAofJO(GSONP.getJOofJO(GSONP.getNestedJO(wq.next(), MQuery.propPTJ)).get(0).getAsJsonArray("revisions")).stream().map(Revision::new)));
-		
+		{
+			JsonElement e = wq.next().propComp("title", "revisions").get(title);
+			if(e != null)
+				l.addAll(FL.toAL(GSONP.getJAofJO(e.getAsJsonArray()).stream().map(Revision::new)));
+		}
 		return l;
 	}
 
 	/**
-	 * Get log events. Specify at least one of the params or else an error will be thrown; wholesale fetching of logs is
-	 * disabled because it is a potentially destructive action.
+	 * List log events.
 	 * 
 	 * @param title The title to fetch logs for. Optional - set null to disable.
 	 * @param user The performing user to filter log entries by. Optional - set null to disable
@@ -487,7 +491,7 @@ public class Wiki
 		
 		ArrayList<LogEntry> l = new ArrayList<>();
 		while(wq.has())
-			l.addAll(FL.toAL(GSONP.getJAofJO(GSONP.getNestedJA(wq.next(), FL.toSAL("query", "logevents"))).stream().map(LogEntry::new)));
+			l.addAll(FL.toAL(wq.next().listComp("logevents").stream().map(LogEntry::new)));
 		
 		return l;
 	}
@@ -512,7 +516,7 @@ public class Wiki
 		
 		ArrayList<ProtectedTitleEntry> l = new ArrayList<>();
 		while(wq.has())
-			l.addAll(FL.toAL(GSONP.getJAofJO(GSONP.getNestedJA(wq.next(), FL.toSAL("query", "protectedtitles"))).stream().map(ProtectedTitleEntry::new)));
+			l.addAll(FL.toAL(wq.next().listComp("protectedtitles").stream().map(ProtectedTitleEntry::new)));
 		
 		return l;
 	}
@@ -562,16 +566,9 @@ public class Wiki
 		
 		ArrayList<String> l = new ArrayList<>();
 		while(wq.has())
-			l.addAll(GSONP.getStrsFromJAofJO(GSONP.getNestedJA(wq.next(), FL.toSAL("query", "categorymembers")), "title"));
+			l.addAll(FL.toAL(wq.next().listComp("categorymembers").stream().map(e -> GSONP.gString(e, "title"))));
 		
 		return l;
-		
-		/*
-		HashMap<String, String> pl = FL.pMap("list", "categorymembers", "cmtitle", convertIfNotInNS(title, NS.CATEGORY));
-		if (ns.length > 0)
-			pl.put("cmnamespace", nsl.createFilter(ns));
-
-		return SQ.with(this, "cmlimit", cap, pl).multiQuery().getJAOfJOasStr("categorymembers", "title");*/
 	}
 
 	/**
@@ -634,7 +631,7 @@ public class Wiki
 		
 		ArrayList<Contrib> l = new ArrayList<>();
 		while(wq.has())
-			l.addAll(FL.toAL(GSONP.getJAofJO(GSONP.getNestedJA(wq.next(), FL.toSAL("query", "usercontribs"))).stream().map(Contrib::new)));
+			l.addAll(FL.toAL(wq.next().listComp("usercontribs").stream().map(Contrib::new)));
 		
 		return l;
 	}
@@ -658,7 +655,7 @@ public class Wiki
 		WQuery wq = new WQuery(this, WQuery.RECENTCHANGES).set("rcstart", end.toString()).set("rcend", start.toString()); 
 		ArrayList<RCEntry> l = new ArrayList<>();
 		while(wq.has())
-			l.addAll(FL.toAL(GSONP.getJAofJO(GSONP.getNestedJA(wq.next(), FL.toSAL("query", "recentchanges"))).stream().map(RCEntry::new)));
+			l.addAll(FL.toAL(wq.next().listComp("recentchanges").stream().map(RCEntry::new)));
 		
 		return l;
 	}
@@ -676,7 +673,7 @@ public class Wiki
 		ArrayList<String> l = new ArrayList<>();
 		WQuery wq = new WQuery(this, WQuery.USERUPLOADS).set("aiuser", nss(user));
 		while(wq.has())
-			l.addAll(GSONP.getStrsFromJAofJO(GSONP.getNestedJA(wq.next(), FL.toSAL("query", "allimages")), "title"));
+			l.addAll(FL.toAL(wq.next().listComp("allimages").stream().map(e -> GSONP.gString(e, "title"))));
 		
 		return l;
 	}
@@ -856,7 +853,7 @@ public class Wiki
 				isLastQuery = true;
 			}
 
-			l.addAll(GSONP.getStrsFromJAofJO(GSONP.getNestedJA(wq.next(), FL.toSAL("query", "allpages")), "title"));
+			l.addAll(FL.toAL(wq.next().listComp("allpages").stream().map(e -> GSONP.gString(e, "title"))));
 		}
 		return l;
 	}
@@ -923,7 +920,6 @@ public class Wiki
 	public ArrayList<String> getAllowedFileExts()
 	{
 		ColorLog.info(this, "Fetching a list of permissible file extensions");
-		return GSONP.getStrsFromJAofJO(
-				GSONP.getNestedJA(new WQuery(this, WQuery.ALLOWEDFILEXTS).next(), FL.toSAL("query", "fileextensions")), "ext");
+		return FL.toAL(new WQuery(this, WQuery.ALLOWEDFILEXTS).next().listComp("fileextensions").stream().map(e -> GSONP.gString(e, "ext")));
 	}
 }

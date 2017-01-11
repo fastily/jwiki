@@ -21,12 +21,12 @@ import okio.Okio;
  * @author Fastily
  *
  */
-public final class Action
+public final class WAction
 {
 	/**
 	 * All static methods, constructors disallowed.
 	 */
-	private Action()
+	private WAction()
 	{
 
 	}
@@ -310,7 +310,7 @@ public final class Action
 	}
 
 	/**
-	 * Creates and manages Chunk Objects for {@link Action#upload(Wiki, String, String, String, Path)}.
+	 * Creates and manages Chunk Objects for {@link WAction#upload(Wiki, String, String, String, Path)}.
 	 * 
 	 * @author Fastily
 	 *

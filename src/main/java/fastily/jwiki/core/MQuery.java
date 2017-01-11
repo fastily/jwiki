@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import fastily.jwiki.dwrap.ImageInfo;
@@ -16,7 +16,7 @@ import fastily.jwiki.util.MapList;
 import fastily.jwiki.util.Tuple;
 
 /**
- * Perform multi-title queries. Use of these methods is intended for <i>advanced</i> users who wish to make queries to
+ * Perform multi-title queries. Use of these methods is intended for <ins>advanced</ins> users who wish to make queries to
  * the server over a large data set. These methods are optimized for performance, and will consolidate titles into
  * single queries to fetch the most data possible per query. If you're looking to make simple, single-item queries,
  * (which is suitable for most users) please use the methods in Wiki.java.
@@ -27,10 +27,10 @@ import fastily.jwiki.util.Tuple;
 public final class MQuery
 {
 	/**
-	 * Default {@code prop} query path to json.
+	 * The group {@code prop} query (multiple titles query) maximum
 	 */
-	protected static final ArrayList<String> propPTJ = FL.toSAL("query", "pages");
-
+	private static final int groupQueryMax = 50;
+	
 	/**
 	 * Constructors disallowed
 	 */
@@ -46,81 +46,127 @@ public final class MQuery
 	 * @param wiki The Wiki to use
 	 * @param titles The titles to query for.
 	 * @param qut The query template to use. Set this according to the fetching method being implemented
+	 * @param pl Additional custom parameters to apply to each generated WQuery. Optional, set null to disable.
 	 * @param elemArrKey The key for each JsonArray for each title the resulting set
 	 * @param elemKey The key for each String of interest contained in each JsonObject of the JsonArray pointed to by
 	 *           {@code elemArrKey}
 	 * @return A Map where the key is the title of the page, and the value is the List of properties fetched.
 	 */
-	private static HashMap<String, ArrayList<String>> genericGetProp(Wiki wiki, ArrayList<String> titles, WQuery.QTemplate qut,
-			String elemArrKey, String elemKey)
+	protected static MapList<String, JsonObject> genericGetProp(Wiki wiki, ArrayList<String> titles, WQuery.QTemplate qut,
+			HashMap<String, String> pl, String elemArrKey)
 	{
-		return genericGetProp(wiki, titles, qut, new HashMap<>(), elemArrKey, elemKey);
-	}
-
-	/**
-	 * Generic page property ({@code prop}) fetching. This implementation fetches *all* available properties. Use this
-	 * for prop queries that only return one String of interest per nested JsonObject.
-	 * 
-	 * @param wiki The Wiki to use
-	 * @param titles The titles to query for.
-	 * @param qut The query template to use. Set this according to the fetching method being implemented
-	 * @param pl Additional custom parameters to apply to each generated WQuery. Optional, pass empty HashMap to disable.
-	 * @param elemArrKey The key for each JsonArray for each title the resulting set
-	 * @param elemKey The key for each String of interest contained in each JsonObject of the JsonArray pointed to by
-	 *           {@code elemArrKey}
-	 * @return A Map where the key is the title of the page, and the value is the List of properties fetched.
-	 */
-	private static HashMap<String, ArrayList<String>> genericGetProp(Wiki wiki, ArrayList<String> titles, WQuery.QTemplate qut,
-			HashMap<String, String> pl, String elemArrKey, String elemKey)
-	{
-		MapList<String, String> l = new MapList<>();
-
-		GroupQueue<String> gq = new GroupQueue<>(titles, 50);
-		while (gq.has())
-		{
-			WQuery wq = new WQuery(wiki, qut).set("titles", gq.poll()); // .adjustLimit(3);
-			pl.forEach(wq::set);
-
-			while (wq.has())
-				l.merge(WQuery.QXtract.extractJOListByStrAndJA(wq.next(), propPTJ, "title", elemArrKey, elemKey));
-		}
-
-		return l.l;
-	}
-	
-	/**
-	 * 
-	 * @param wiki
-	 * @param titles
-	 * @param qut
-	 * @param pl
-	 * @param elemArrKey
-	 * @param elemKey1
-	 * @param elemKey2
-	 * @return
-	 */
-	private static HashMap<String, ArrayList<Tuple<String, String>>> genericGetProp(Wiki wiki, ArrayList<String> titles, WQuery.QTemplate qut,
-			HashMap<String, String> pl, String elemArrKey, String elemKey1, String elemKey2)
-	{
-		MapList<String, Tuple<String, String>> l = new MapList<>();
-
-		GroupQueue<String> gq = new GroupQueue<>(titles, 50);
+		MapList<String, JsonObject> l = new MapList<>();
+		GroupQueue<String> gq = new GroupQueue<>(titles, groupQueryMax);
+		
 		while (gq.has())
 		{
 			WQuery wq = new WQuery(wiki, qut).set("titles", gq.poll());
-			pl.forEach(wq::set);
+			if(pl != null)
+				pl.forEach(wq::set);
 
 			while (wq.has())
-				l.merge(WQuery.QXtract.extractJOListByStrAndJA(wq.next(), propPTJ, "title", elemArrKey, elemKey1, elemKey2));
+				wq.next().propComp("title", elemArrKey).forEach((k, v) -> {
+					l.touch(k);
+					if(v != null)
+						l.put(k, GSONP.getJAofJO(v.getAsJsonArray()));
+				});
 		}
-
-		return l.l;
+		return l;
+	}
+	
+	/**
+	 * Performs a non-continuing {@code prop} query.  Grabs a title and an element from each returned page.
+	 * 
+	 * @param wiki The Wiki to query.
+	 * @param titles The titles to use
+	 * @param qut The QTemplate to use
+	 * @param pl Additional parameters to pass to each created WQuery, set null to disable.
+	 * @param eKey The value key to get from each page element.  If this cannot be found, then it is set to null.
+	 * @return The {@code title} of each page as the key, and the value of the associated {@code eKey}.
+	 */
+	private static HashMap<String, JsonElement> getNoContProp(Wiki wiki, ArrayList<String> titles, WQuery.QTemplate qut,
+			HashMap<String, String> pl, String eKey)
+	{
+		HashMap<String, JsonElement> m = new HashMap<>();
+		
+		GroupQueue<String> gq = new GroupQueue<>(titles, groupQueryMax);
+		while (gq.has())
+		{
+			WQuery wq = new WQuery(wiki, qut).set("titles", gq.poll());
+			if(pl != null)
+				pl.forEach(wq::set);
+			
+			m.putAll(wq.next().propComp("title", eKey));
+		}
+		
+		return m;
+	}
+	
+	/**
+	 * Performs a non-continuing {@code list} query.  Grabs JsonObjects from the JsonArray in the server Response.
+	 * @param wiki The Wiki to query
+	 * @param titles The titles to use
+	 * @param qut The QTemplate to use
+	 * @param pl Additional parameters to pass to each created WQuery, set null to disable.
+	 * @param tQKey The variable name to use for each set of 50 {@code titles} in the url passed to the server.
+	 * @param aKey The key pointing to the JsonArray of JsonObject in the server's Response.
+	 * @return An ArrayList of JsonObject collected from the server Response(s).
+	 */
+	private static ArrayList<JsonObject> getNoContList(Wiki wiki, ArrayList<String> titles, WQuery.QTemplate qut,
+			HashMap<String, String> pl, String tQKey, String aKey)
+	{
+		ArrayList<JsonObject> l = new ArrayList<>();
+		
+		GroupQueue<String> gq = new GroupQueue<>(titles, groupQueryMax);
+		while (gq.has())
+		{
+			WQuery wq = new WQuery(wiki, qut).set(tQKey, gq.poll());
+			if(pl != null)
+				pl.forEach(wq::set);
+			
+			l.addAll(wq.next().listComp(aKey));
+		}
+		
+		return l;
+	}
+	
+	/**
+	 * Retrieve one String value from each JsonObject ArrayList for each pair in a MapList.
+	 * @param m The MapList to work with
+	 * @param elemKey The key pointing to String to get in each JsonObject.
+	 * @return Each title, and the values that were found for it.
+	 */
+	private static HashMap<String, ArrayList<String>> propToMLSingle(MapList<String, JsonObject> m, String elemKey)
+	{
+		HashMap<String, ArrayList<String>> xl = new HashMap<>();
+		m.l.forEach((k,v) -> xl.put(k, FL.toAL(v.stream().map(e -> GSONP.gString(e, elemKey)))));
+		
+		return xl;
+	}
+	
+	/**
+	 * Retrieve one String value from each JsonObject ArrayList for each pair in a MapList.  Assumes that the key to select from each JsonObject is {@code title}.
+	 * @param m The MapList to work with
+	 * @return Each title, and the values that were found for it.
+	 */
+	private static HashMap<String, ArrayList<String>> propToMLSingle(MapList<String, JsonObject> m)
+	{
+		return propToMLSingle(m, "title");
 	}
 
-	private static HashMap<String, ArrayList<Tuple<String, String>>> genericGetProp(Wiki wiki, ArrayList<String> titles, WQuery.QTemplate qut,
-			String elemArrKey, String elemKey1, String elemKey2)
+	/**
+	 * Retrieve two String value from each JsonObject ArrayList for each pair in a MapList.
+	 * @param m The MapList to work with
+	 * @param elemKey1 The key pointing to the first String to get in each JsonObject.
+	 * @param elemKey2 The key pointing to the second String to get in each JsonObject.
+	 * @return Each title, and the values that were found for it.
+	 */
+	private static HashMap<String, ArrayList<Tuple<String, String>>> propToMLDouble(MapList<String, JsonObject> m, String elemKey1, String elemKey2)
 	{
-		return genericGetProp(wiki, titles, qut, new HashMap<>(), elemArrKey, elemKey1, elemKey2);
+		HashMap<String, ArrayList<Tuple<String, String>>> xl = new HashMap<>();
+		m.l.forEach((k,v) -> xl.put(k, FL.toAL(v.stream().map(e -> new Tuple<>(GSONP.gString(e, elemKey1), GSONP.gString(e, elemKey2))))));
+		
+		return xl;
 	}
 
 	/**
@@ -132,8 +178,10 @@ public final class MQuery
 	 */
 	public static HashMap<String, ArrayList<String>> listUserRights(Wiki wiki, ArrayList<String> users)
 	{
-		return WQuery.QXtract.extractJAFromJAofJO(new WQuery(wiki, WQuery.USERRIGHTS).set("ususers", users).next(), FL.toSAL("query"),
-				"users", "name", "groups");
+		HashMap<String, ArrayList<String>> l = new HashMap<>();
+		getNoContList(wiki, users, WQuery.USERRIGHTS, null, "ususers", "users").forEach(jo -> l.put(GSONP.gString(jo, "name"), GSONP.jaOfStrToAL(jo.getAsJsonArray("groups"))));
+		
+		return l;
 	}
 
 	/**
@@ -145,22 +193,13 @@ public final class MQuery
 	 */
 	public static HashMap<String, ArrayList<ImageInfo>> getImageInfo(Wiki wiki, ArrayList<String> titles)
 	{
-		MapList<String, ImageInfo> l = new MapList<>();
-		
-		WQuery wq = new WQuery(wiki, WQuery.IMAGEINFO).set("titles", titles);
-		while(wq.has())
-			for(JsonObject jo : GSONP.getJOofJO(GSONP.getNestedJO(wq.next(), propPTJ)))
-			{
-				String k = GSONP.gString(jo, "title");
-				l.touch(k);
-				if(jo.has("imageinfo"))
-					l.put(k, FL.toAL(GSONP.getJAofJO(jo.getAsJsonArray("imageinfo")).stream().map(ImageInfo::new)));
-			}
+		HashMap<String, ArrayList<ImageInfo>> l = new HashMap<>();
+		genericGetProp(wiki, titles, WQuery.IMAGEINFO, null, "imageinfo").l.forEach((k,v) -> l.put(k, FL.toAL(v.stream().map(ImageInfo::new))));
 		
 		// MediaWiki imageinfo is not a well-behaved module
-		l.l.forEach((k, v) -> Collections.sort(v));
+		l.forEach((k, v) -> Collections.sort(v));
 		
-		return l.l;
+		return  l;
 	}
 
 	/**
@@ -172,7 +211,7 @@ public final class MQuery
 	 */
 	public static HashMap<String, ArrayList<String>> getCategoriesOnPage(Wiki wiki, ArrayList<String> titles)
 	{
-		return genericGetProp(wiki, titles, WQuery.PAGECATEGORIES, "categories", "title");
+		return propToMLSingle(genericGetProp(wiki, titles, WQuery.PAGECATEGORIES, null, "categories"));
 	}
 
 	/**
@@ -186,12 +225,7 @@ public final class MQuery
 	public static HashMap<String, Integer> getCategorySize(Wiki wiki, ArrayList<String> titles)
 	{
 		HashMap<String, Integer> l = new HashMap<>();
-
-		GroupQueue<String> gq = new GroupQueue<>(titles, 50);
-		while (gq.has())
-			l.putAll(WQuery.QXtract.extractIntFromJOofJO(new WQuery(wiki, WQuery.CATEGORYINFO).set("titles", gq.poll()).next(), propPTJ,
-					"title", "categoryinfo", "size"));
-
+		getNoContProp(wiki, titles, WQuery.CATEGORYINFO, null, "categoryinfo").forEach((k, v) -> l.put(k, v.getAsJsonObject().get("size").getAsInt()));
 		return l;
 	}
 
@@ -204,8 +238,18 @@ public final class MQuery
 	 */
 	public static HashMap<String, String> getPageText(Wiki wiki, ArrayList<String> titles)
 	{
-		return new HashMap<>(genericGetProp(wiki, titles, WQuery.PAGETEXT, "revisions", "*").entrySet().stream()
-				.collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().isEmpty() ? "" : e.getValue().get(0))));
+		HashMap<String, String> l = new HashMap<>();
+		getNoContProp(wiki, titles, WQuery.PAGETEXT, null, "revisions").forEach((k, v) -> {
+			if(v == null)
+				l.put(k, "");
+			else
+			{
+				ArrayList<JsonObject> jl = GSONP.getJAofJO(v.getAsJsonArray());
+				l.put(k, jl.isEmpty() ? "" : GSONP.gString(jl.get(0), "*"));
+			}
+		});
+		
+		return l;
 	}
 
 	/**
@@ -222,7 +266,7 @@ public final class MQuery
 		if (ns != null && ns.length > 0)
 			pl.put("plnamespace", wiki.nsl.createFilter(ns));
 
-		return genericGetProp(wiki, titles, WQuery.LINKSONPAGE, pl, "links", "title");
+		return propToMLSingle(genericGetProp(wiki, titles, WQuery.LINKSONPAGE, pl, "links"));
 	}
 
 	/**
@@ -235,8 +279,7 @@ public final class MQuery
 	 */
 	public static HashMap<String, ArrayList<String>> linksHere(Wiki wiki, boolean redirects, ArrayList<String> titles)
 	{
-		return genericGetProp(wiki, titles, WQuery.LINKSHERE, FL.pMap("lhshow", (redirects ? "" : "!") + "redirect"), "linkshere",
-				"title");
+		return propToMLSingle(genericGetProp(wiki, titles, WQuery.LINKSHERE, FL.pMap("lhshow", (redirects ? "" : "!") + "redirect"), "linkshere"));
 	}
 
 	/**
@@ -253,7 +296,7 @@ public final class MQuery
 		if (ns.length > 0)
 			pl.put("tinamespace", wiki.nsl.createFilter(ns));
 
-		return genericGetProp(wiki, titles, WQuery.TRANSCLUDEDIN, pl, "transcludedin", "title");
+		return propToMLSingle(genericGetProp(wiki, titles, WQuery.TRANSCLUDEDIN, pl, "transcludedin"));
 	}
 
 	/**
@@ -265,7 +308,7 @@ public final class MQuery
 	 */
 	public static HashMap<String, ArrayList<String>> fileUsage(Wiki wiki, ArrayList<String> titles)
 	{
-		return genericGetProp(wiki, titles, WQuery.FILEUSAGE, "fileusage", "title");
+		return propToMLSingle(genericGetProp(wiki, titles, WQuery.FILEUSAGE, null, "fileusage"));
 	}
 
 	/**
@@ -273,18 +316,12 @@ public final class MQuery
 	 * 
 	 * @param wiki The wiki object to use
 	 * @param titles The titles to query
-	 * @return Results keyed by title. True -&gt; exists.
+	 * @return Results keyed by title. {@code true} means the title exists.
 	 */
 	public static HashMap<String, Boolean> exists(Wiki wiki, ArrayList<String> titles)
 	{
 		HashMap<String, Boolean> l = new HashMap<>();
-
-		GroupQueue<String> gq = new GroupQueue<>(titles, 50);
-		while (gq.has())
-			for (JsonObject jo : GSONP
-					.getJOofJO(GSONP.getNestedJO(new WQuery(wiki, WQuery.EXISTS).set("titles", gq.poll()).next(), propPTJ)))
-				l.put(jo.get("title").getAsString(), !jo.has("missing"));
-
+		getNoContProp(wiki, titles, WQuery.EXISTS, null, "missing").forEach((k, v) -> l.put(k, v == null));
 		return l;
 	}
 
@@ -310,7 +347,7 @@ public final class MQuery
 	 */
 	public static HashMap<String, ArrayList<String>> getImagesOnPage(Wiki wiki, ArrayList<String> titles)
 	{
-		return genericGetProp(wiki, titles, WQuery.IMAGES, "images", "title");
+		return propToMLSingle(genericGetProp(wiki, titles, WQuery.IMAGES, null, "images"));
 	}
 
 	/**
@@ -322,7 +359,7 @@ public final class MQuery
 	 */
 	public static HashMap<String, ArrayList<String>> getTemplatesOnPage(Wiki wiki, ArrayList<String> titles)
 	{
-		return genericGetProp(wiki, titles, WQuery.TEMPLATES, "templates", "title");
+		return propToMLSingle(genericGetProp(wiki, titles, WQuery.TEMPLATES, null, "templates"));
 	}
 
 	/**
@@ -334,7 +371,7 @@ public final class MQuery
 	 */
 	public static HashMap<String, ArrayList<Tuple<String, String>>> globalUsage(Wiki wiki, ArrayList<String> titles)
 	{
-		return genericGetProp(wiki, titles, WQuery.GLOBALUSAGE, "globalusage", "title", "wiki");
+		 return propToMLDouble(genericGetProp(wiki, titles, WQuery.GLOBALUSAGE, null, "globalusage"), "title", "wiki");
 	}
 
 	/**
@@ -347,15 +384,10 @@ public final class MQuery
 	public static HashMap<String, String> resolveRedirects(Wiki wiki, ArrayList<String> titles)
 	{
 		HashMap<String, String> l = new HashMap<>();
-
-		GroupQueue<String> gq = new GroupQueue<>(titles, 50);
-		while (gq.has())
-			for (JsonObject jo : GSONP.getJAofJO(
-					GSONP.getNestedJO(new WQuery(wiki, WQuery.RESOLVEREDIRECT).set("titles", gq.poll()).next(), FL.toSAL("query"))
-							.getAsJsonArray("redirects")))
-				l.put(jo.get("from").getAsString(), jo.get("to").getAsString());
-
-		titles.stream().filter(s -> !l.containsKey(s)).forEach(s -> l.put(s, s));
+		titles.stream().forEach(s -> l.put(s, s));
+		
+		getNoContList(wiki, titles, WQuery.RESOLVEREDIRECT, null, "titles", "redirects").forEach(jo -> l.put(GSONP.gString(jo, "from"), GSONP.gString(jo, "to")));
+		
 		return l;
 	}
 
@@ -373,7 +405,7 @@ public final class MQuery
 		if (localOnly)
 			pl.put("dflocalonly", "");
 		
-		HashMap<String, ArrayList<String>> l = genericGetProp(wiki, titles, WQuery.DUPLICATEFILES, pl, "duplicatefiles", "name");
+		HashMap<String, ArrayList<String>> l = propToMLSingle(genericGetProp(wiki, titles, WQuery.DUPLICATEFILES, pl, "duplicatefiles"), "name");
 		l.forEach((k, v) -> v.replaceAll(s -> s.replace('_', ' ')));
 		
 		return l;
@@ -390,7 +422,10 @@ public final class MQuery
 	 */
 	public static HashMap<String, ArrayList<String>> getSharedDuplicatesOf(Wiki wiki, ArrayList<String> titles)
 	{
-		return new HashMap<>(genericGetProp(wiki, titles, WQuery.DUPLICATEFILES, "duplicatefiles", "name", "shared").entrySet().stream()
-		.collect(Collectors.toMap(Map.Entry::getKey, e -> FL.toAL(e.getValue().stream().filter(t -> t.y != null).map(t -> t.x.replace('_', ' '))))));
+		HashMap<String, ArrayList<Tuple<String, String>>> xl = propToMLDouble(genericGetProp(wiki, titles, WQuery.DUPLICATEFILES, null, "duplicatefiles"), "name", "shared");
+		
+		HashMap<String, ArrayList<String>> l = new HashMap<>();
+		xl.forEach((k, v) -> l.put(k, FL.toAL(v.stream().filter(t -> t.y != null).map(t -> t.x.replace('_', ' ')))));
+		return l;
 	}
 }

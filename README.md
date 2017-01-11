@@ -46,13 +46,9 @@ Gradle:
 compile 'fastily:jwiki:1.2.1'
 ```
 
-###Dependencies
-* [JSON-java](https://github.com/stleary/JSON-java)
-
-###Requirements
+###Minimum Requirements
 * [JDK](https://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html): **1.8.0_40+**
 * [MediaWiki](https://www.mediawiki.org/wiki/MediaWiki): **1.27+**
-  * Use release 1.2.1 for older versions 
 
 ##Project Objectives
 jwiki is intended to be a simple, reliable, and low-overhead framework for anybody seeking to make use of the MediaWiki API.  Emphasis is placed on:
@@ -60,6 +56,3 @@ jwiki is intended to be a simple, reliable, and low-overhead framework for anybo
 * **Simplicity** - Complex objects and functions are abstracted into the background so that _anybody_, regardless of Java experience, will be able to use jwiki.
 * **Speed** - Network calls, local computation, and memory usage are optimized and kept at a minimum, so as to enhance performance and reduce overhead.
 * **Succinctness** - Most complex API actions can be performed in jwiki using one line of local code consisting of simple objects and primitive types.
-
-##See Also
-* [jwiki-extras](https://github.com/fastily/jwiki-extras) - Experimental extensions for jwiki

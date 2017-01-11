@@ -4,6 +4,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -39,6 +40,9 @@ public class GSONP
 	public static Type strMapT = new TypeToken<HashMap<String, String>>() {
 	}.getType();
 
+	public static Type strAL = new TypeToken<ArrayList<String>>() {
+	}.getType();
+	
 	/**
 	 * All static methods, no constructors.
 	 */
@@ -68,7 +72,43 @@ public class GSONP
 	{
 		return FL.toAL(StreamSupport.stream(input.spliterator(), false).map(JsonElement::getAsJsonObject));
 	}
-
+	
+	/**
+	 * Get a JsonArray of JsonObject as a List of JsonObject.  PRECONDITION: {@code key} points to a JsonArray of JsonObject in {@code input}
+	 * @param input The source JsonObject.
+	 * @param key Points to a JsonArray of JsonObject
+	 * @return An ArrayList of JsonObject derived from {@code input}, or an empty ArrayList on error.
+	 */
+	public static ArrayList<JsonObject> getJAofJO(JsonObject input, String key)
+	{
+		try
+		{
+			return FL.toAL(FL.streamFrom(input.getAsJsonArray(key)).map(JsonElement::getAsJsonObject));
+		}
+		catch(Throwable e)
+		{
+			e.printStackTrace();
+			return new ArrayList<>();
+		}
+	}
+	
+	/**
+	 * Extract a pair of String values from each JsonObject in an ArrayList of JsonObject
+	 * @param input The source List
+	 * @param kk Points to each key in to be used in the resulting Map.
+	 * @param vk Points to each value in to be used in the resulting Map.
+	 * @return The pairs of String values.
+	 */
+	public static HashMap<String, String> pairOff(ArrayList<JsonObject> input, String kk, String vk)
+	{
+		return new HashMap<>(input.stream().collect(Collectors.toMap(e -> gString(e, kk), e -> gString(e, vk))));
+	}
+	
+	public static Tuple<String, JsonElement> extractTwo(JsonObject input, String kk, String vk)
+	{
+		return new Tuple<>(gString(input, kk), input.get(vk));
+	}
+	
 	/**
 	 * Attempt to get a nested JsonObject inside {@code input}.
 	 * 
@@ -165,14 +205,14 @@ public class GSONP
 	}
 
 	/**
-	 * Creates a Stream from a JsonArray
+	 * Creates a Stream from a JsonArray.
 	 * 
-	 * @param ja The JsonArray to derive a Stream from
+	 * @param ja The JsonArray to derive a Stream from.  If this is null, then an empty JsonArray will be used instead.
 	 * @return A Stream created from {@code ja}
 	 */
 	public static Stream<JsonElement> jaToStream(JsonArray ja)
 	{
-		return StreamSupport.stream(ja.spliterator(), false);
+		return StreamSupport.stream((ja == null ? new JsonArray() : ja).spliterator(), false);
 	}
 
 	/**

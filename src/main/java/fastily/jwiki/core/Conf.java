@@ -47,11 +47,6 @@ public final class Conf
 	 * value is needed but where the client does not know the max.
 	 */
 	protected int maxResultLimit = 500;
-
-	/**
-	 * The group query (multiple titles query) maximum
-	 */
-	protected int groupQueryMax = 50;
 	
 	/**
 	 * Username (no namespace prefix) and password, only set if user is logged in.
