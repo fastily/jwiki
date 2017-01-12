@@ -1,7 +1,5 @@
 package fastily.jwiki.core;
 
-import fastily.jwiki.util.Tuple;
-
 /**
  * Per-Wiki configurable settings.
  * 
@@ -22,16 +20,10 @@ public final class Conf
 			System.getProperty("os.version"), System.getProperty("java.version"));
 
 	/**
-	 * Default HTTP communication protocol.
-	 */
-	public String comms = "https";
-
-	/**
 	 * Default Wiki API path (goes after domain).
 	 */
 	public String scptPath = "w/api.php";
 
-	//TODO: set bot flag!
 	/**
 	 * Flag indicating whether the logged in user is a bot. 
 	 */
@@ -49,9 +41,9 @@ public final class Conf
 	protected int maxResultLimit = 500;
 	
 	/**
-	 * Username (no namespace prefix) and password, only set if user is logged in.
+	 * Username (no namespace prefix), only set if user is logged in.
 	 */
-	protected Tuple<String, String> upx = null; //TODO: px should be char[]
+	protected String uname = null;
 
 	/**
 	 * CSRF token. Used for actions that change Wiki content.

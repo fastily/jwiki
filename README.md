@@ -29,7 +29,7 @@ public class JwikiExample
 ```
 
 ###Download
-jwiki is available from [bintray/jcenter](https://bintray.com/fastily/maven/jwiki)
+jwiki is available via [bintray/jcenter](https://bintray.com/fastily/maven/jwiki)
 
 Maven:
 ```xml

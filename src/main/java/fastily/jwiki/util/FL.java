@@ -84,16 +84,6 @@ public final class FL
 	}
 	
 	/**
-	 * Creates a HashSet from an Array of Strings.
-	 * @param strings The Array of Strings to add to the HashSet.
-	 * @return A HashSet of the specified Strings.
-	 */
-	public static HashSet<String> toSHS(String... strings)
-	{
-		return new HashSet<>(Arrays.asList(strings));	
-	}
-	
-	/**
 	 * Extracts each key-value pair from a Map and return the pairs as an ArrayList of Tuple objects.
 	 * 
 	 * @param <T1> The key type of the Map
@@ -104,18 +94,6 @@ public final class FL
 	public static <T1, T2> ArrayList<Tuple<T1, T2>> mapToList(Map<T1, T2> h)
 	{
 		return toAL(h.entrySet().stream().map(e -> new Tuple<>(e.getKey(), e.getValue())));
-	}
-
-	/**
-	 * Takes an ArrayList of ArrayList of type <code>T1</code> and condenses them into one list.
-	 * 
-	 * @param <T1> The type contained in the inner ArrayLists
-	 * @param l The ArrayList to squash
-	 * @return The squashed ArrayList.
-	 */
-	public static <T1> ArrayList<T1> flattenAL(ArrayList<ArrayList<T1>> l)
-	{
-		return toAL(l.stream().flatMap(ArrayList::stream));
 	}
 
 	/**
@@ -150,22 +128,12 @@ public final class FL
 	}
 	
 	/**
-	 * Make a fence with pipe characters as posts.
-	 * @param planks The planks to use, in order.
-	 * @return A String with the specified planks and pipe characters as posts
-	 */
-	public static String pipeFence(String...planks)
-	{
-		return String.join("|", planks);
-	}
-	
-	/**
 	 * Makes a fence with pipe characters as posts
 	 * @param planks The planks to use, in order.
 	 * @return A String with the specified planks and pipe characters as posts
 	 */
 	public static String pipeFence(Collection<String> planks)
 	{
-		return pipeFence(planks.toArray(new String[0]));
+		return String.join("|", planks);
 	}
 }

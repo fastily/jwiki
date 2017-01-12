@@ -83,7 +83,7 @@ public final class ApiClient
 	 */
 	private Request.Builder startReq(HashMap<String, String> params)
 	{
-		HttpUrl.Builder hb = new HttpUrl.Builder().scheme(wiki.conf.comms).host(wiki.conf.domain).addPathSegments(wiki.conf.scptPath);
+		HttpUrl.Builder hb = new HttpUrl.Builder().scheme("https").host(wiki.conf.domain).addPathSegments(wiki.conf.scptPath);
 		params.forEach(hb::addQueryParameter);
 		
 		return new Request.Builder().addHeader("User-Agent", wiki.conf.userAgent).url(hb.build());

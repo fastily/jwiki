@@ -391,7 +391,7 @@ public class QueryTests
 	@Test
 	public void testListGroupRights()
 	{
-		ArrayList<String> l = wiki.listGroupsRights("Fastily");
+		ArrayList<String> l = wiki.listUserRights("Fastily");
 		assertTrue(l.contains("sysop"));
 		assertTrue(l.contains("autoconfirmed"));
 	}

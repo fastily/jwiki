@@ -421,6 +421,16 @@ public class WQuery
 		}
 		
 		/**
+		 * Performs simple {@code meta} query Response comprehension.
+		 * @param k The key to get a JsonElement for.
+		 * @return The JsonElement pointed to by {@code k} or null/empty JsonObject on error.
+		 */
+		protected JsonElement metaComp(String k)
+		{
+			return input.has("query") ? input.getAsJsonObject("query").get(k) : new JsonObject();
+		}
+		
+		/**
 		 * Performs title normalization when it is automatically done by MediaWiki. MediaWiki will return a
 		 * {@code normalized} JsonArray when it fixes lightly malformed titles.  This is intended for use with {@code prop} style queries.
 		 * 

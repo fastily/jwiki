@@ -5,8 +5,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -39,9 +37,6 @@ public class GSONP
 	 */
 	public static Type strMapT = new TypeToken<HashMap<String, String>>() {
 	}.getType();
-
-	public static Type strAL = new TypeToken<ArrayList<String>>() {
-	}.getType();
 	
 	/**
 	 * All static methods, no constructors.
@@ -70,7 +65,15 @@ public class GSONP
 	 */
 	public static ArrayList<JsonObject> getJAofJO(JsonArray input)
 	{
-		return FL.toAL(StreamSupport.stream(input.spliterator(), false).map(JsonElement::getAsJsonObject));
+		try
+		{
+			return FL.toAL(FL.streamFrom(input).map(JsonElement::getAsJsonObject));
+		}
+		catch(Throwable e)
+		{
+			e.printStackTrace();
+			return null;
+		}
 	}
 	
 	/**
@@ -81,15 +84,7 @@ public class GSONP
 	 */
 	public static ArrayList<JsonObject> getJAofJO(JsonObject input, String key)
 	{
-		try
-		{
-			return FL.toAL(FL.streamFrom(input.getAsJsonArray(key)).map(JsonElement::getAsJsonObject));
-		}
-		catch(Throwable e)
-		{
-			e.printStackTrace();
-			return new ArrayList<>();
-		}
+		return getJAofJO(input.getAsJsonArray(key));
 	}
 	
 	/**
@@ -103,12 +98,7 @@ public class GSONP
 	{
 		return new HashMap<>(input.stream().collect(Collectors.toMap(e -> gString(e, kk), e -> gString(e, vk))));
 	}
-	
-	public static Tuple<String, JsonElement> extractTwo(JsonObject input, String kk, String vk)
-	{
-		return new Tuple<>(gString(input, kk), input.get(vk));
-	}
-	
+
 	/**
 	 * Attempt to get a nested JsonObject inside {@code input}.
 	 * 
@@ -149,48 +139,6 @@ public class GSONP
 		
 		return getNestedJO(input, keys.subList(0, keys.size()-1)).getAsJsonArray(keys.get(keys.size()-1));
 	}
-	
-
-	/**
-	 * Gets a String inside a nested series of JsonObjects based on the specified path.
-	 * 
-	 * @param input The parent/root JsonObject, as a String
-	 * @param pathToString The path to the JsonObject, where each value in {@code pathToString} is a key for the next
-	 *           JsonObject
-	 * @param strKey The key of the actual String to fetch.
-	 * @return The specified String
-	 */
-	public static String getStringInJO(String input, List<String> pathToString, String strKey)
-	{
-		System.out.println(input);
-		return getStringInJO(jp.parse(input).getAsJsonObject(), pathToString, strKey);
-	}
-
-	/**
-	 * Gets a String inside a nested series of JsonObjects based on the specified path.
-	 * 
-	 * @param input The parent/root JsonObject
-	 * @param pathToString The path to the JsonObject, where each value in {@code pathToString} is a key for the next
-	 *           JsonObject
-	 * @param strKey The key of the actual String to fetch.
-	 * @return The specified String
-	 */
-	public static String getStringInJO(JsonObject input, List<String> pathToString, String strKey)
-	{
-		return getNestedJO(input, pathToString).get(strKey).getAsString();
-	}
-
-	/**
-	 * Gets a List of Strings from a JsonArray of JsonObject where each JsonObject has a String with the same key.
-	 * 
-	 * @param ja The parent JsonArray
-	 * @param strKey The String key in each JsonObject of the JsonArray.
-	 * @return The List of Strings recovered.
-	 */
-	public static ArrayList<String> getStrsFromJAofJO(JsonArray ja, String strKey)
-	{
-		return FL.toAL(getJAofJO(ja).stream().map(e -> gString(e, strKey)));
-	}
 
 	/**
 	 * Get a String from a JsonObject. Returns null if a value for {@code key} was not found.
@@ -205,17 +153,6 @@ public class GSONP
 	}
 
 	/**
-	 * Creates a Stream from a JsonArray.
-	 * 
-	 * @param ja The JsonArray to derive a Stream from.  If this is null, then an empty JsonArray will be used instead.
-	 * @return A Stream created from {@code ja}
-	 */
-	public static Stream<JsonElement> jaToStream(JsonArray ja)
-	{
-		return StreamSupport.stream((ja == null ? new JsonArray() : ja).spliterator(), false);
-	}
-
-	/**
 	 * Get a JsonArray of String objects as an ArrayList of String objects.
 	 * 
 	 * @param ja The source JsonArray
@@ -223,6 +160,6 @@ public class GSONP
 	 */
 	public static ArrayList<String> jaOfStrToAL(JsonArray ja)
 	{
-		return FL.toAL(jaToStream(ja).map(JsonElement::getAsString));
+		return FL.toAL(FL.streamFrom(ja).map(JsonElement::getAsString));
 	}
 }

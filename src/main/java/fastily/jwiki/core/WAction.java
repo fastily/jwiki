@@ -302,7 +302,7 @@ public final class WAction
 			}
 			catch (Throwable e)
 			{
-				e.printStackTrace();
+				
 			}
 
 			return NONE;

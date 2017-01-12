@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
 import fastily.jwiki.dwrap.Contrib;
 import fastily.jwiki.dwrap.ImageInfo;
@@ -34,11 +35,6 @@ public class Wiki
 	 * Our list of currently logged in Wiki's associated with this object. Useful for global operations.
 	 */
 	private HashMap<String, Wiki> wl = new HashMap<>();
-
-	/**
-	 * Our edit token
-	 */
-	protected String token;
 
 	/**
 	 * Our namespace manager
@@ -72,22 +68,18 @@ public class Wiki
 			wl = parent.wl;
 			apiclient = new ApiClient(parent, this);
 
-			conf.upx = parent.conf.upx;
-			conf.token = getTokens().get("csrftoken");
+			refreshLoginStatus(parent.conf.uname);
 		}
 		else
 		{
 			apiclient = new ApiClient(this);
 
 			if (user != null && px != null && !login(user, px))
-				throw new SecurityException(String.format("Failed to log-in as %s @ %s", conf.upx.x, domain));
+				throw new SecurityException(String.format("Failed to log-in as %s @ %s", conf.uname, domain));
 		}
 
 		ColorLog.info(this, "Fetching Namespace List");
-		nsl = new NS.NSManager(new WQuery(this, WQuery.NAMESPACES).next().input.getAsJsonObject("query")); //TODO: awkward
-
-		if (conf.upx != null)
-			wl.put(conf.domain, this);
+		nsl = new NS.NSManager(new WQuery(this, WQuery.NAMESPACES).next().input.getAsJsonObject("query"));
 	}
 
 	/**
@@ -122,18 +114,16 @@ public class Wiki
 	 */
 	public boolean login(String user, String password)
 	{
-		if (conf.upx != null) // do not login more than once
+		if (conf.uname != null) // do not login more than once
 			return true;
 
 		ColorLog.info(this, "Try login for " + user);
 		try
 		{
 			if (WAction.postAction(this, "login", false,
-					FL.pMap("lgname", user, "lgpassword", password, "lgtoken", getTokens().get("logintoken"))) == WAction.ActionResult.SUCCESS)
+					FL.pMap("lgname", user, "lgpassword", password, "lgtoken", getTokens().y)) == WAction.ActionResult.SUCCESS)
 			{
-				conf.upx = new Tuple<>(user.length() < 2 ? user.toUpperCase() : user.substring(0, 1).toUpperCase() + user.substring(1), password);
-				conf.token = getTokens().get("csrftoken");
-				wl.put(conf.domain, this);
+				refreshLoginStatus(user.length() < 2 ? user.toUpperCase() : user.substring(0, 1).toUpperCase() + user.substring(1));
 
 				ColorLog.info(this, "Logged in as " + user);
 				return true;
@@ -148,15 +138,37 @@ public class Wiki
 	}
 
 	/**
-	 * Fetches login and csrf tokens.
-	 * 
-	 * @return A HashMap with a key for {@code csrftoken} &amp; {@code logintoken}
+	 * Refresh the login status of a Wiki.  This runs after every login or creation of a new logged-in Wiki.
+	 * @param uname The set {@code uname} to
 	 */
-	protected HashMap<String, String> getTokens()
-	{ //TODO: this is awkward - tuple login and csrf?
-		return GSONP.gson.fromJson(GSONP.getNestedJO(new WQuery(this, WQuery.TOKENS).next().input, FL.toSAL("query", "tokens")), GSONP.strMapT);
-	}
+	private void refreshLoginStatus(String uname)
+	{
+		conf.uname = uname;
+		conf.token = getTokens().x;
+		wl.put(conf.domain, this);
 
+		conf.isBot = listUserRights(conf.uname).contains("bot");
+	}
+	
+	/**
+	 * Fetch login and csrf tokens.
+	 * 
+	 * @return A Tuple where {@code x} is {@code csrftoken} and {@code y} is {@code logintoken}
+	 */
+	private Tuple<String, String> getTokens() //TODO: Split this into multiple methods
+	{ 
+		try
+		{
+			JsonObject jo = new WQuery(this, WQuery.TOKENS).next().metaComp("tokens").getAsJsonObject();
+			return new Tuple<>(GSONP.gString(jo, "csrftoken"), GSONP.gString(jo, "logintoken"));
+		}
+		catch(Throwable e)
+		{
+			e.printStackTrace();
+			return null;
+		}
+	}
+	
 	/* //////////////////////////////////////////////////////////////////////////////// */
 	/* /////////////////////////// UTILITY FUNCTIONS ////////////////////////////////// */
 	/* //////////////////////////////////////////////////////////////////////////////// */
@@ -171,13 +183,13 @@ public class Wiki
 	 */
 	public synchronized Wiki getWiki(String domain)
 	{
-		if (conf.upx == null)
+		if (conf.uname == null)
 			return null;
 
 		ColorLog.fyi(this, String.format("Get Wiki for %s @ %s", whoami(), domain));
 		try
 		{
-			return wl.containsKey(domain) ? wl.get(domain) : new Wiki(conf.upx.x, conf.upx.y, domain, this);
+			return wl.containsKey(domain) ? wl.get(domain) : new Wiki(null, null, domain, this);
 		}
 		catch (Throwable e)
 		{
@@ -217,9 +229,9 @@ public class Wiki
 	 * 
 	 * @return The user who is logged in, or null if not logged in.
 	 */
-	public String whoami() //TODO: Default value is null, change this to anon
+	public String whoami()
 	{
-		return conf.upx == null ? "<Anonymous>" : conf.upx.x;
+		return conf.uname == null ? "<Anonymous>" : conf.uname;
 	}
 
 	/**
@@ -415,7 +427,7 @@ public class Wiki
 	 * @param user The user to get rights information for. Do not include "User:" prefix.
 	 * @return The usergroups <code>user</code> belongs to.
 	 */
-	public ArrayList<String> listGroupsRights(String user)
+	public ArrayList<String> listUserRights(String user)
 	{
 		ColorLog.info(this, "Getting user rights for " + user);
 		return MQuery.listUserRights(this, FL.toSAL(user)).get(user);
@@ -844,8 +856,8 @@ public class Wiki
 			wq.set("apprtype", "edit|move|upload");
 
 		ArrayList<String> l = new ArrayList<>();
-		boolean isLastQuery = false;
-		for (int cnt = 0; wq.has() && !isLastQuery; cnt += conf.maxResultLimit)
+		boolean isLastQuery = false; 
+		for (int cnt = 0; wq.has() && !isLastQuery; cnt += conf.maxResultLimit) //TODO: ?
 		{
 			if (cap > 0 && cap - cnt < conf.maxResultLimit)
 			{
