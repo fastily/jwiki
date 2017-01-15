@@ -135,7 +135,6 @@ public final class ApiClient
 		mpb.addFormDataPart("chunk", fn, RequestBody.create(octetstream, chunk));
 
 		Request r = startReq(params).post(mpb.build()).build();
-//		System.out.println(JT.bodyToString(r));
 		return client.newCall(r).execute();
 	}
 

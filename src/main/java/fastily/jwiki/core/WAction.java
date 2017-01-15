@@ -21,7 +21,7 @@ import okio.Okio;
  * @author Fastily
  *
  */
-public final class WAction
+final class WAction
 {
 	/**
 	 * All static methods, constructors disallowed.
@@ -112,11 +112,15 @@ public final class WAction
 						e.printStackTrace();
 						return false;
 					}
+				case PROTECTED:
+					ColorLog.error(wiki, title + " is protected, cannot edit.");
+					return false;
 
 				default:
 					ColorLog.warn(wiki, "Got an error, retrying: " + i);
 			}
 
+		ColorLog.error(wiki, String.format("Could not edit '%s', aborting.", title));
 		return false;
 	}
 
@@ -263,6 +267,11 @@ public final class WAction
 		 * Error, if the request was missing a valid token.
 		 */
 		NOTOKEN,
+		
+		/**
+		 * Error, if the user lacks permission to perform an action.
+		 */
+		PROTECTED,
 
 		/**
 		 * Error, if the action could not be completed due to being rate-limited by Wiki.
@@ -296,6 +305,9 @@ public final class WAction
 							return NOTOKEN;
 						case "badtoken":
 							return BADTOKEN;
+						case "cascadeprotected":
+						case "protectedpage":
+							return PROTECTED;
 						default:
 							return ERROR;
 					}

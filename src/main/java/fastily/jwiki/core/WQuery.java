@@ -120,7 +120,8 @@ public class WQuery
 	/**
 	 * Default parameters for listing page revisions
 	 */
-	public static final QTemplate REVISIONS = new QTemplate(FL.pMap("prop", "revisions", "rvprop", "timestamp|user|comment|content", "titles", null), "rvlimit");
+	public static final QTemplate REVISIONS = new QTemplate(
+			FL.pMap("prop", "revisions", "rvprop", "timestamp|user|comment|content", "titles", null), "rvlimit");
 
 	/**
 	 * Default parameters for getting templates on a page
@@ -317,7 +318,7 @@ public class WQuery
 	 * @author Fastily
 	 *
 	 */
-	public static class QTemplate
+	protected static class QTemplate
 	{
 		/**
 		 * The default fields for this query type
@@ -357,7 +358,8 @@ public class WQuery
 	}
 
 	/**
-	 * A Response from the server for query modules.  Contains pre-defined comprehension methods for convenience. 
+	 * A Response from the server for query modules. Contains pre-defined comprehension methods for convenience.
+	 * 
 	 * @author Fastily
 	 *
 	 */
@@ -367,41 +369,46 @@ public class WQuery
 		 * Default path to json for {@code prop} queries.
 		 */
 		protected static final ArrayList<String> defaultPropPTJ = FL.toSAL("query", "pages");
-		
+
 		/**
-		 * Tracks {@code normalized} titles.  The key is the {@code from} (non-normalized) title and the value is the {@code to} (normalized) title.
+		 * Tracks {@code normalized} titles. The key is the {@code from} (non-normalized) title and the value is the
+		 * {@code to} (normalized) title.
 		 */
 		private HashMap<String, String> normalized = null;
-		
+
 		/**
-		 * The JsonObject which was passed as input 
+		 * The JsonObject which was passed as input
 		 */
 		protected final JsonObject input;
-		
+
 		/**
 		 * Creates a new QReply. Will parse the {@code normalized} JsonArray if it is found in {@code input}.
+		 * 
 		 * @param input The Response received from the server.
 		 */
 		private QReply(JsonObject input)
 		{
-			if(input.has("normalized"))
+			if (input.has("normalized"))
 				normalized = GSONP.pairOff(GSONP.getJAofJO(input, "normalized"), "from", "to");
-			
+
 			this.input = input;
 		}
-		
+
 		/**
-		 * Performs simple {@code list} query Response comprehension.  Collects listed JsonObject items in an ArrayList.
+		 * Performs simple {@code list} query Response comprehension. Collects listed JsonObject items in an ArrayList.
+		 * 
 		 * @param k Points to the JsonArray of JsonObject, under {@code query}, of interest.
 		 * @return A lightly processed ArrayList of {@code list} data.
 		 */
 		protected ArrayList<JsonObject> listComp(String k)
-		{	
+		{
 			return input.has("query") ? GSONP.getJAofJO(input.getAsJsonObject("query"), k) : new ArrayList<>();
 		}
-		
+
 		/**
-		 * Performs simple {@code prop} query Response comprehension.  Collects two values from each returned {@code prop} query item in a HashMap.  Title normalization is automatically applied.
+		 * Performs simple {@code prop} query Response comprehension. Collects two values from each returned {@code prop}
+		 * query item in a HashMap. Title normalization is automatically applied.
+		 * 
 		 * @param kk Points to the String to set as the HashMap key in each {@code prop} query item.
 		 * @param vk Points to the JsonElement to set as the HashMap value in each {@code prop} query item.
 		 * @return A lightly processed HashMap of {@code prop} data.
@@ -409,19 +416,20 @@ public class WQuery
 		protected HashMap<String, JsonElement> propComp(String kk, String vk)
 		{
 			HashMap<String, JsonElement> m = new HashMap<>();
-			
+
 			JsonObject x = GSONP.getNestedJO(input, defaultPropPTJ);
-			if(x == null)
+			if (x == null)
 				return m;
-			
-			for(JsonObject jo : GSONP.getJOofJO(x))
+
+			for (JsonObject jo : GSONP.getJOofJO(x))
 				m.put(GSONP.gString(jo, kk), jo.get(vk));
-			
+
 			return normalize(m);
 		}
-		
+
 		/**
 		 * Performs simple {@code meta} query Response comprehension.
+		 * 
 		 * @param k The key to get a JsonElement for.
 		 * @return The JsonElement pointed to by {@code k} or null/empty JsonObject on error.
 		 */
@@ -429,23 +437,24 @@ public class WQuery
 		{
 			return input.has("query") ? input.getAsJsonObject("query").get(k) : new JsonObject();
 		}
-		
+
 		/**
 		 * Performs title normalization when it is automatically done by MediaWiki. MediaWiki will return a
-		 * {@code normalized} JsonArray when it fixes lightly malformed titles.  This is intended for use with {@code prop} style queries.
+		 * {@code normalized} JsonArray when it fixes lightly malformed titles. This is intended for use with {@code prop}
+		 * style queries.
 		 * 
-		 * @param <V> Any Object. 
+		 * @param <V> Any Object.
 		 * @param m The Map of elements to normalize.
-		 * @return {@code m}, for chaining convenience. 
+		 * @return {@code m}, for chaining convenience.
 		 */
 		protected <V> HashMap<String, V> normalize(HashMap<String, V> m)
 		{
-			if(normalized != null)
-			normalized.forEach((f, t) -> {
-				if(m.containsKey(t))
-					m.put(f, m.get(t));
-			});
-			
+			if (normalized != null)
+				normalized.forEach((f, t) -> {
+					if (m.containsKey(t))
+						m.put(f, m.get(t));
+				});
+
 			return m;
 		}
 	}

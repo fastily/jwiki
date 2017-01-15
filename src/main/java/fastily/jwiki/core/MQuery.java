@@ -12,7 +12,7 @@ import fastily.jwiki.dwrap.ImageInfo;
 import fastily.jwiki.util.FL;
 import fastily.jwiki.util.GSONP;
 import fastily.jwiki.util.GroupQueue;
-import fastily.jwiki.util.MapList;
+import fastily.jwiki.util.MultiMap;
 import fastily.jwiki.util.Tuple;
 
 /**
@@ -52,10 +52,10 @@ public final class MQuery
 	 *           {@code elemArrKey}
 	 * @return A Map where the key is the title of the page, and the value is the List of properties fetched.
 	 */
-	private static MapList<String, JsonObject> getContProp(Wiki wiki, ArrayList<String> titles, WQuery.QTemplate qut,
+	private static MultiMap<String, JsonObject> getContProp(Wiki wiki, ArrayList<String> titles, WQuery.QTemplate qut,
 			HashMap<String, String> pl, String elemArrKey)
 	{
-		MapList<String, JsonObject> l = new MapList<>();
+		MultiMap<String, JsonObject> l = new MultiMap<>();
 		GroupQueue<String> gq = new GroupQueue<>(titles, groupQueryMax);
 
 		while (gq.has())
@@ -98,7 +98,6 @@ public final class MQuery
 
 			m.putAll(wq.next().propComp("title", eKey));
 		}
-
 		return m;
 	}
 
@@ -138,7 +137,7 @@ public final class MQuery
 	 * @param elemKey The key pointing to String to get in each JsonObject.
 	 * @return Each title, and the values that were found for it.
 	 */
-	private static HashMap<String, ArrayList<String>> parsePropToSingle(MapList<String, JsonObject> m, String elemKey)
+	private static HashMap<String, ArrayList<String>> parsePropToSingle(MultiMap<String, JsonObject> m, String elemKey)
 	{
 		HashMap<String, ArrayList<String>> xl = new HashMap<>();
 		m.l.forEach((k, v) -> xl.put(k, FL.toAL(v.stream().map(e -> GSONP.gString(e, elemKey)))));
@@ -153,7 +152,7 @@ public final class MQuery
 	 * @param m The MapList to work with
 	 * @return Each title, and the values that were found for it.
 	 */
-	private static HashMap<String, ArrayList<String>> parsePropToSingle(MapList<String, JsonObject> m)
+	private static HashMap<String, ArrayList<String>> parsePropToSingle(MultiMap<String, JsonObject> m)
 	{
 		return parsePropToSingle(m, "title");
 	}
@@ -166,7 +165,7 @@ public final class MQuery
 	 * @param elemKey2 The key pointing to the second String to get in each JsonObject.
 	 * @return Each title, and the values that were found for it.
 	 */
-	private static HashMap<String, ArrayList<Tuple<String, String>>> parsePropToDouble(MapList<String, JsonObject> m, String elemKey1,
+	private static HashMap<String, ArrayList<Tuple<String, String>>> parsePropToDouble(MultiMap<String, JsonObject> m, String elemKey1,
 			String elemKey2)
 	{
 		HashMap<String, ArrayList<Tuple<String, String>>> xl = new HashMap<>();

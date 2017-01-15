@@ -11,7 +11,7 @@ import java.util.HashMap;
  * @param <K> The type of the key
  * @param <V> The type of the values, which will be stored in an ArrayList.
  */
-public class MapList<K, V>
+public class MultiMap<K, V>
 {
 	/**
 	 * The backing structure for this MapList. This is public because a getter would just return a reference to this
@@ -22,7 +22,7 @@ public class MapList<K, V>
 	/**
 	 * Constructor, creates an empty MapList.
 	 */
-	public MapList()
+	public MultiMap()
 	{
 
 	}
@@ -59,15 +59,5 @@ public class MapList<K, V>
 	{
 		touch(k);
 		l.get(k).addAll(vl);
-	}
-
-	/**
-	 * Merges the elements of {@code m} into this MapList.
-	 * 
-	 * @param m The MapList to merge into this MapList.
-	 */
-	public void merge(MapList<K, V> m)
-	{
-		m.l.forEach(this::put);
 	}
 }
