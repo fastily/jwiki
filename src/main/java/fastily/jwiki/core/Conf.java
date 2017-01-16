@@ -11,7 +11,7 @@ public final class Conf
 	/**
 	 * Toggles logging of debug information to std err. Disabled by default.
 	 */
-	public boolean debug = false; //TODO: ENABLE DEBUG MODE
+	private boolean debug = false; //TODO: ENABLE DEBUG MODE
 
 	/**
 	 * The default <code>User-Agent</code> header for HTTP requests.
@@ -20,7 +20,7 @@ public final class Conf
 			System.getProperty("os.version"), System.getProperty("java.version"));
 
 	/**
-	 * Default Wiki API path (goes after domain).
+	 * Default Wiki API path (goes after domain).  Don't change this after logging in.
 	 */
 	public String scptPath = "w/api.php";
 
@@ -50,6 +50,15 @@ public final class Conf
 	 */
 	protected String token = "+\\";
 
+	/**
+	 * Toggles the debug flag for this jwiki instance.  If debug mode is active, then jwiki functions will log more frequently.
+	 * @return The new debug value.  True means that debug mode is active.
+	 */
+	public boolean toggleDebug()
+	{
+		return debug = !debug;	
+	}
+	
 	/**
 	 * Constructor, should only be called by new instances of Wiki.
 	 */

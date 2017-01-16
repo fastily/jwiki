@@ -129,9 +129,14 @@ public class WQuery
 	public static final QTemplate TEMPLATES = new QTemplate(FL.pMap("prop", "templates", "tiprop", "title", "titles", null), "tllimit");
 
 	/**
-	 * Default parameters for {@code meta=tokens}.
+	 * Default parameters for getting a csrf token.
 	 */
-	public static final QTemplate TOKENS = new QTemplate(FL.pMap("meta", "tokens", "type", "login|csrf"));
+	public static final QTemplate TOKENS_CSRF = new QTemplate(FL.pMap("meta", "tokens", "type", "csrf"));
+	
+	/**
+	 * Default parameters for getting a login token.
+	 */
+	public static final QTemplate TOKENS_LOGIN = new QTemplate(FL.pMap("meta", "tokens", "type", "login"));
 
 	/**
 	 * Default parameters for getting a page's transclusions.

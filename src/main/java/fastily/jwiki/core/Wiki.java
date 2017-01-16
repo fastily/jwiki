@@ -9,7 +9,6 @@ import java.util.Map;
 import java.util.regex.Matcher;
 
 import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 
 import fastily.jwiki.dwrap.Contrib;
 import fastily.jwiki.dwrap.ImageInfo;
@@ -121,7 +120,7 @@ public class Wiki
 		try
 		{
 			if (WAction.postAction(this, "login", false,
-					FL.pMap("lgname", user, "lgpassword", password, "lgtoken", getTokens().y)) == WAction.ActionResult.SUCCESS)
+					FL.pMap("lgname", user, "lgpassword", password, "lgtoken", getTokens(WQuery.TOKENS_LOGIN, "logintoken"))) == WAction.ActionResult.SUCCESS)
 			{
 				refreshLoginStatus(user.length() < 2 ? user.toUpperCase() : user.substring(0, 1).toUpperCase() + user.substring(1));
 
@@ -144,23 +143,28 @@ public class Wiki
 	private void refreshLoginStatus(String uname)
 	{
 		conf.uname = uname;
-		conf.token = getTokens().x;
+		conf.token = getTokens(WQuery.TOKENS_CSRF, "csrftoken");
 		wl.put(conf.domain, this);
 
 		conf.isBot = listUserRights(conf.uname).contains("bot");
 	}
 	
 	/**
-	 * Fetch login and csrf tokens.
+	 * 
 	 * 
 	 * @return A Tuple where {@code x} is {@code csrftoken} and {@code y} is {@code logintoken}
 	 */
-	private Tuple<String, String> getTokens() //TODO: Split this into multiple methods
-	{ 
+	/**
+	 * Fetch tokens
+	 * @param wqt The {@code tokens} QTemplate to use
+	 * @param tk The key pointing to the String with the specified token.
+	 * @return The token, or null on error.
+	 */
+	private String getTokens(WQuery.QTemplate wqt, String tk)
+	{
 		try
 		{
-			JsonObject jo = new WQuery(this, WQuery.TOKENS).next().metaComp("tokens").getAsJsonObject();
-			return new Tuple<>(GSONP.gString(jo, "csrftoken"), GSONP.gString(jo, "logintoken"));
+			return GSONP.gString(new WQuery(this, wqt).next().metaComp("tokens").getAsJsonObject(), tk);
 		}
 		catch(Throwable e)
 		{

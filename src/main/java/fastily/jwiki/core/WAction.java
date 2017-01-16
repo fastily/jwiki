@@ -112,6 +112,7 @@ final class WAction
 						e.printStackTrace();
 						return false;
 					}
+					break;
 				case PROTECTED:
 					ColorLog.error(wiki, title + " is protected, cannot edit.");
 					return false;
@@ -184,7 +185,7 @@ final class WAction
 	protected static boolean upload(Wiki wiki, String title, String desc, String summary, Path file)
 	{
 		ColorLog.info(wiki, "Uploading " + file);
-		
+
 		try
 		{
 			ChunkManager cm = new ChunkManager(file);
@@ -196,7 +197,7 @@ final class WAction
 			while ((c = cm.nextChunk()) != null)
 			{
 				ColorLog.fyi(wiki, String.format("Uploading chunk [%d of %d] of '%s'", cm.chunkCnt, cm.totalChunks, file));
-				
+
 				HashMap<String, String> pl = FL.pMap("format", "json", "filename", title, "token", wiki.conf.token, "ignorewarnings", "1",
 						"stash", "1", "offset", "" + c.offset, "filesize", "" + c.filesize);
 				if (filekey != null)
@@ -223,7 +224,7 @@ final class WAction
 					}
 			}
 
-			//TODO: Retries for unstash - sometimes this fails on the first try
+			// TODO: Retries for unstash - sometimes this fails on the first try
 			ColorLog.info(wiki, String.format("Unstashing '%s' as '%s'", filekey, title));
 			return postAction(wiki, "upload", true, FL.pMap("filename", title, "text", desc, "comment", summary, "filekey", filekey,
 					"ignorewarnings", "true")) == ActionResult.SUCCESS;
@@ -267,7 +268,7 @@ final class WAction
 		 * Error, if the request was missing a valid token.
 		 */
 		NOTOKEN,
-		
+
 		/**
 		 * Error, if the user lacks permission to perform an action.
 		 */
@@ -280,8 +281,9 @@ final class WAction
 
 		/**
 		 * Parses and wraps the response from a POST to the server in an ActionResult.
+		 * 
 		 * @param json The json response from the server
-		 * @param action The name of the action which produced this response.  e.g. {@code edit}, {@code delete}
+		 * @param action The name of the action which produced this response. e.g. {@code edit}, {@code delete}
 		 * @return An ActionResult representing the response result of the query.
 		 */
 		private static ActionResult wrap(String json, String action)
@@ -314,7 +316,7 @@ final class WAction
 			}
 			catch (Throwable e)
 			{
-				
+
 			}
 
 			return NONE;
