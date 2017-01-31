@@ -11,26 +11,26 @@ public final class Conf
 	/**
 	 * Toggles logging of debug information to std err. Disabled by default.
 	 */
-	private boolean debug = false; //TODO: ENABLE DEBUG MODE
+	public boolean debug = false;
 
 	/**
-	 * The default <code>User-Agent</code> header for HTTP requests.
+	 * The default {@code User-Agent} header for HTTP requests.
 	 */
 	public String userAgent = String.format("jwiki on %s %s with JVM %s", System.getProperty("os.name"),
 			System.getProperty("os.version"), System.getProperty("java.version"));
 
 	/**
-	 * Default Wiki API path (goes after domain).  Don't change this after logging in.
+	 * Default Wiki API path (goes after domain). Don't change this after logging in.
 	 */
-	public String scptPath = "w/api.php";
+	protected String scptPath = "w/api.php";
 
 	/**
-	 * Flag indicating whether the logged in user is a bot. 
+	 * Flag indicating whether the logged in user is a bot.
 	 */
 	protected boolean isBot = false;
 
 	/**
-	 * The base API domain. e.g. <code>en.wikipedia.org</code>
+	 * The base domain. e.g. {@code en.wikipedia.org}
 	 */
 	public final String domain;
 
@@ -39,9 +39,9 @@ public final class Conf
 	 * value is needed but where the client does not know the max.
 	 */
 	protected int maxResultLimit = 500;
-	
+
 	/**
-	 * Username (no namespace prefix), only set if user is logged in.
+	 * User name (without namespace prefix), only set if user is logged in.
 	 */
 	protected String uname = null;
 
@@ -50,15 +50,6 @@ public final class Conf
 	 */
 	protected String token = "+\\";
 
-	/**
-	 * Toggles the debug flag for this jwiki instance.  If debug mode is active, then jwiki functions will log more frequently.
-	 * @return The new debug value.  True means that debug mode is active.
-	 */
-	public boolean toggleDebug()
-	{
-		return debug = !debug;	
-	}
-	
 	/**
 	 * Constructor, should only be called by new instances of Wiki.
 	 */

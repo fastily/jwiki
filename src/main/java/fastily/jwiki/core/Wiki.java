@@ -43,7 +43,7 @@ public class Wiki
 	/**
 	 * Configurations and settings for this Wiki.
 	 */
-	protected final Conf conf;
+	public final Conf conf;
 
 	/**
 	 * Used to make calls to and from the API.
@@ -817,7 +817,7 @@ public class Wiki
 	 */
 	public ArrayList<String> whatLinksHere(String title, boolean redirects)
 	{
-		ColorLog.info("Getting links to " + title);
+		ColorLog.info(this, "Getting links to " + title);
 		return MQuery.linksHere(this, redirects, FL.toSAL(title)).get(title);
 	}
 

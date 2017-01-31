@@ -175,7 +175,28 @@ public enum ColorLog
 	{
 		log(wiki, s, "ERROR", RED);
 	}
+	
+	/**
+	 * Output debug message. Text is purple.
+	 * 
+	 * @param s The String to print.
+	 */
+	public static void debug(String s)
+	{
+		log(s, "DEBUG", PURPLE);
+	}
 
+	/**
+	 * Output debug message for wiki. Text is purple.
+	 * 
+	 * @param wiki The wiki object to use
+	 * @param s The String to print.
+	 */
+	protected static void debug(Wiki wiki, String s)
+	{
+		log(wiki, s, "DEBUG", PURPLE);
+	}
+	
 	/**
 	 * Output miscellaneous message. Text is blue.
 	 * 
@@ -186,6 +207,8 @@ public enum ColorLog
 		log(s, "FYI", CYAN);
 	}
 
+	
+	
 	/**
 	 * Output miscellaneous message for wiki. Text is blue.
 	 * 

@@ -30,7 +30,12 @@ public class GSONP
 	/**
 	 * Default Gson object, for convenience.
 	 */
-	public static final Gson gson = new GsonBuilder().setPrettyPrinting().create();
+	public static final Gson gson = new GsonBuilder().create();
+	
+	/**
+	 * Gson object which generates pretty-print (human-readable) JSON.
+	 */
+	public static final Gson gsonPP = new GsonBuilder().setPrettyPrinting().create();
 	
 	/**
 	 * Type describing a HashMap with a String key and String value.

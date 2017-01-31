@@ -255,6 +255,9 @@ public class WQuery
 			else
 				canCont = false;
 
+			if(wiki.conf.debug)
+				ColorLog.debug(wiki, GSONP.gsonPP.toJson(result));
+			
 			return new QReply(result);
 		}
 		catch (Throwable e)

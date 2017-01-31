@@ -3,7 +3,6 @@ package fastily.jwiki.core;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Map;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -345,7 +344,13 @@ public final class MQuery
 	 */
 	public static ArrayList<String> exists(Wiki wiki, boolean exists, ArrayList<String> titles)
 	{
-		return FL.toAL(exists(wiki, titles).entrySet().stream().filter(t -> t.getValue() == exists).map(Map.Entry::getKey));
+		ArrayList<String> l = new ArrayList<>();
+		exists(wiki, titles).forEach((k, v) -> {
+			if(v == exists)
+				l.add(k);
+		});
+		
+		return l;
 	}
 
 	/**

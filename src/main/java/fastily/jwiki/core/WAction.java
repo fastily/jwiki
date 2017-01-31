@@ -50,7 +50,11 @@ final class WAction
 
 		try
 		{
-			return ActionResult.wrap(wiki.apiclient.basicPOST(FL.pMap("action", action), fl).body().string(), action);
+			JsonObject result = GSONP.jp.parse(wiki.apiclient.basicPOST(FL.pMap("action", action), fl).body().string()).getAsJsonObject();
+			if(wiki.conf.debug)
+				ColorLog.debug(wiki, GSONP.gsonPP.toJson(result));
+			
+			return ActionResult.wrap(result, action);
 		}
 		catch (Throwable e)
 		{
@@ -282,16 +286,14 @@ final class WAction
 		/**
 		 * Parses and wraps the response from a POST to the server in an ActionResult.
 		 * 
-		 * @param json The json response from the server
+		 * @param jo The json response from the server
 		 * @param action The name of the action which produced this response. e.g. {@code edit}, {@code delete}
 		 * @return An ActionResult representing the response result of the query.
 		 */
-		private static ActionResult wrap(String json, String action)
+		private static ActionResult wrap(JsonObject jo, String action)
 		{
 			try
 			{
-				JsonObject jo = GSONP.jp.parse(json).getAsJsonObject();
-
 				if (jo.has(action))
 					switch (GSONP.gString(jo.getAsJsonObject(action), "result"))
 					{
