@@ -9,8 +9,8 @@ jwiki is a simple Java client library wrapping the [MediaWiki](https://www.media
 * Support for popular MediaWiki extensions, including [CentralAuth](https://www.mediawiki.org/wiki/Extension:CentralAuth) and [GlobalUsage](https://www.mediawiki.org/wiki/Extension:GlobalUsage).
 
 ##Getting Started
-* [Quick Start Guide](https://github.com/fastily/jwiki/wiki/Quick-Start-Guide)
-* Main class: [Wiki.java](https://github.com/fastily/jwiki/blob/master/src/jwiki/core/Wiki.java)
+* Main class: [Wiki.java](https://github.com/fastily/jwiki/blob/master/src/main/java/fastily/jwiki/core/Wiki.java)
+* [Recipe Book/Cheatsheet](https://github.com/fastily/jwiki/wiki/Recipe-Book)
 * [Javadocs](https://fastily.github.io/jwiki/docs/jwiki/)
 
 ###Example Code

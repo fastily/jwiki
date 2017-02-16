@@ -233,7 +233,7 @@ public final class MQuery
 	{
 		HashMap<String, Integer> l = new HashMap<>();
 		getNoContProp(wiki, titles, WQuery.CATEGORYINFO, null, "categoryinfo")
-				.forEach((k, v) -> l.put(k, v.getAsJsonObject().get("size").getAsInt()));
+				.forEach((k, v) -> l.put(k, v == null ? 0 : v.getAsJsonObject().get("size").getAsInt()));
 		return l;
 	}
 

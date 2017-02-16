@@ -51,7 +51,7 @@ public enum ColorLog
 	 * A font color, white, which can be applied to a String if your terminal supports it.
 	 */
 	WHITE(37);
-	
+
 	/**
 	 * The date formatter prefixing output.
 	 */
@@ -60,7 +60,8 @@ public enum ColorLog
 	/**
 	 * Indicates whether we are using a terminal that supports color.
 	 */
-	private static final boolean noColor = System.getProperty("os.name").contains("Windows") || System.getProperty("os.version").startsWith("10.6");
+	private static final boolean noColor = System.getProperty("os.name").contains("Windows")
+			|| System.getProperty("os.version").startsWith("10.6");
 
 	/**
 	 * The value of the enum
@@ -175,7 +176,7 @@ public enum ColorLog
 	{
 		log(wiki, s, "ERROR", RED);
 	}
-	
+
 	/**
 	 * Output debug message. Text is purple.
 	 * 
@@ -196,7 +197,7 @@ public enum ColorLog
 	{
 		log(wiki, s, "DEBUG", PURPLE);
 	}
-	
+
 	/**
 	 * Output miscellaneous message. Text is blue.
 	 * 
@@ -207,8 +208,6 @@ public enum ColorLog
 		log(s, "FYI", CYAN);
 	}
 
-	
-	
 	/**
 	 * Output miscellaneous message for wiki. Text is blue.
 	 * 

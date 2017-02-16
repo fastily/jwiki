@@ -202,6 +202,8 @@ public class QueryTests
 	{
 		assertEquals(4, wiki.getCategorySize("Category:Fastily Test"));
 		assertEquals(2, wiki.getCategorySize("Category:Fastily Test2"));
+		
+		assertEquals(0, wiki.getCategorySize("Category:Does0Not0Exist6"));
 	}
 
 	/**

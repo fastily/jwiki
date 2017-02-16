@@ -50,7 +50,7 @@ public final class ApiClient
 	protected ApiClient(Wiki wiki)
 	{
 		this.wiki = wiki;
-		client = new OkHttpClient.Builder().cookieJar(new JwikiCookieJar()).readTimeout(1, TimeUnit.MINUTES).build();
+		client = new OkHttpClient.Builder().cookieJar(new JwikiCookieJar()).readTimeout(2, TimeUnit.MINUTES).build();
 	}
 
 	/**
