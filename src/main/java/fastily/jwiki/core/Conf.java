@@ -1,5 +1,7 @@
 package fastily.jwiki.core;
 
+import okhttp3.HttpUrl;
+
 /**
  * Per-Wiki configurable settings.
  * 
@@ -19,6 +21,11 @@ public final class Conf
 	public String userAgent = String.format("jwiki on %s %s with JVM %s", System.getProperty("os.name"),
 			System.getProperty("os.version"), System.getProperty("java.version"));
 
+	/**
+	 * The url pointing to the base MediaWiki API endpoint.
+	 */
+	protected final HttpUrl baseURL;
+	
 	/**
 	 * Default Wiki API path (goes after domain). Don't change this after logging in.
 	 */
@@ -52,9 +59,11 @@ public final class Conf
 
 	/**
 	 * Constructor, should only be called by new instances of Wiki.
+	 * @param baseURL The url pointing to the base MediaWiki API endpoint.
 	 */
-	protected Conf(String domain)
+	protected Conf(HttpUrl baseURL)
 	{
-		this.domain = domain;
+		this.baseURL = baseURL;
+		domain = baseURL.host();
 	}
 }

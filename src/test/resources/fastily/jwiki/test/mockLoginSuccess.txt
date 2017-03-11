@@ -1,0 +1,7 @@
+{
+  "login": {
+    "result": "Success",
+    "lguserid": 123456789,
+    "lgusername": "Test"
+  }
+}

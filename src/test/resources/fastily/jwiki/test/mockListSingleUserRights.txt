@@ -1,0 +1,17 @@
+{
+  "batchcomplete": "",
+  "query": {
+    "users": [
+      {
+        "userid": 123456789,
+        "name": "Test",
+        "groups": [
+          "extendedconfirmed",
+          "*",
+          "user",
+          "autoconfirmed"
+        ]
+      }
+    ]
+  }
+}

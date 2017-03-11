@@ -16,3 +16,5 @@
 * May want to back color log with log4j
 
 * mockhttpserver for unit tests.
+
+* Could cached Wiki objects be keyed by HttpUrl?

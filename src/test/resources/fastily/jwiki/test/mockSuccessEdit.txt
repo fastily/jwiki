@@ -1,0 +1,12 @@
+{
+  "edit": {
+    "new": "",
+    "result": "Success",
+    "pageid": 123456,
+    "title": "Wikipedia:Sandbox",
+    "contentmodel": "wikitext",
+    "oldrevid": 0,
+    "newrevid": 123456789,
+    "newtimestamp": "2017-03-11T00:23:03Z"
+  }
+}

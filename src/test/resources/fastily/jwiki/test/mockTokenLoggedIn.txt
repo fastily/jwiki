@@ -1,0 +1,9 @@
+{
+  "batchcomplete": "",
+  "query": {
+    "tokens": {
+      "logintoken": "66f29bb987b695123a000a1bc321ff9876a55555+\\",
+      "csrftoken": "66f29bb987b695123a000a1bc321ff9876a44444+\\"
+    }
+  }
+}

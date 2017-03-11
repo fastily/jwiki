@@ -20,6 +20,7 @@ import fastily.jwiki.util.FL;
 import fastily.jwiki.util.GSONP;
 import fastily.jwiki.util.Triple;
 import fastily.jwiki.util.Tuple;
+import okhttp3.HttpUrl;
 import okhttp3.Response;
 
 /**
@@ -51,16 +52,16 @@ public class Wiki
 	public final ApiClient apiclient;
 
 	/**
-	 * Constructor, sets username, password, and domain. The username and password must be valid or else a SecurityException will be thrown.
+	 * Constructor, sets username, password, and domain. If the username and password are not valid then a SecurityException will be thrown.
 	 * 
 	 * @param user The username to use
 	 * @param px The password to use
-	 * @param domain The domain to use
-	 * @param parent The parent wiki who spawned this wiki. If this is the first wiki, disable with null.
+	 * @param baseURL The url pointing to the base MediaWiki API endpoint. 
+	 * @param parent The parent Wiki which spawned this Wiki. If this is the first Wiki, disable with null.
 	 */
-	private Wiki(String user, String px, String domain, Wiki parent)
+	private Wiki(String user, String px, HttpUrl baseURL, Wiki parent)
 	{
-		conf = new Conf(domain);
+		conf = new Conf(baseURL);
 
 		if (parent != null) // CentralAuth login
 		{
@@ -74,11 +75,22 @@ public class Wiki
 			apiclient = new ApiClient(this);
 
 			if (user != null && px != null && !login(user, px))
-				throw new SecurityException(String.format("Failed to log-in as %s @ %s", conf.uname, domain));
+				throw new SecurityException(String.format("Failed to log-in as %s @ %s", conf.uname, conf.domain));
 		}
 
 		ColorLog.info(this, "Fetching Namespace List");
 		nsl = new NS.NSManager(new WQuery(this, WQuery.NAMESPACES).next().input.getAsJsonObject("query"));
+	}
+
+	/**
+	 * Constructor, takes a user, password, and the base URL for the API endpoint.
+	 * @param user The username to use
+	 * @param px The password to use
+	 * @param baseURL The base URL for the API endpoint.
+	 */
+	public Wiki(String user, String px, HttpUrl baseURL)
+	{
+		this(user, px, baseURL, null);
 	}
 
 	/**
@@ -90,7 +102,7 @@ public class Wiki
 	 */
 	public Wiki(String user, String px, String domain)
 	{
-		this(user, px, domain, null);
+		this(user, px, HttpUrl.parse(String.format("https://%s/w/api.php", domain)));
 	}
 
 	/**
@@ -179,11 +191,10 @@ public class Wiki
 
 	/**
 	 * Gets a Wiki object for this domain. This method is cached. A new Wiki will be created as necessary. PRECONDITION:
-	 * The <a href="https://www.mediawiki.org/wiki/Extension:CentralAuth">CentralAuth</a> extension MUST be installed on
-	 * your MediaWiki cluster for this to work.
+	 * The <a href="https://www.mediawiki.org/wiki/Extension:CentralAuth">CentralAuth</a> extension is installed on the target MediaWiki farm.
 	 * 
 	 * @param domain The domain to use
-	 * @return The wiki, or null if something went wrong.
+	 * @return The Wiki, or null on error.
 	 */
 	public synchronized Wiki getWiki(String domain)
 	{
@@ -193,7 +204,7 @@ public class Wiki
 		ColorLog.fyi(this, String.format("Get Wiki for %s @ %s", whoami(), domain));
 		try
 		{
-			return wl.containsKey(domain) ? wl.get(domain) : new Wiki(null, null, domain, this);
+			return wl.containsKey(domain) ? wl.get(domain) : new Wiki(null, null, conf.baseURL.newBuilder().host(domain).build(), this);
 		}
 		catch (Throwable e)
 		{
