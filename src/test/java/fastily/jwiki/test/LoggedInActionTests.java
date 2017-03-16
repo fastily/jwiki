@@ -1,5 +1,10 @@
 package fastily.jwiki.test;
 
+
+import static org.junit.Assert.*;
+
+import org.junit.Test;
+
 import fastily.jwiki.core.Wiki;
 
 /**
@@ -22,5 +27,25 @@ public class LoggedInActionTests extends ActionTests
 		addResponse("mockNSInfo");
 
 		wiki = new Wiki("Test", "password", server.url("/w/api.php"));
+	}
+	
+	/**
+	 * Test privileged delete.
+	 */
+	@Test
+	public void testDelete()
+	{
+		addResponse("mockDeleteSuccess");
+		assertTrue(wiki.delete("Test", "Test Reason"));
+	}
+	
+	/**
+	 * Test privileged undelete.
+	 */
+	@Test
+	public void testUndelete()
+	{
+		addResponse("mockUndeleteSuccess");
+		assertTrue(wiki.undelete("Test", "test"));
 	}
 }

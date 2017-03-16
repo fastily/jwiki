@@ -85,6 +85,18 @@ public class ActionTests
 	}
 
 	/**
+	 * Tests prepending and appending text via edit.
+	 */
+	@Test
+	public void testAddText()
+	{
+		addResponse("mockSuccessEdit");
+		addResponse("mockSuccessEdit");
+		assertTrue(wiki.addText("Wikipedia:Sandbox", "Appending text!", "test", true));
+		assertTrue(wiki.addText("Wikipedia:Sandbox", "Appending text!", "test", false));
+	}
+	
+	/**
 	 * Loads a MockResponse into the {@code server}'s queue.
 	 * 
 	 * @param fn The text file, without a {@code .txt} extension, to load a response from.

@@ -20,22 +20,22 @@ compileJava {
     targetCompatibility = "1.8"
 }
 
-task writeNewPom << {
-    pom {
-        project {
-            inceptionYear '2014'
-            licenses {
-                license {
-                    name 'GNU General Public License, Version 3.0'
-                    url 'https://www.gnu.org/licenses/gpl-3.0.txt'
-                    distribution 'repo'
+task writeNewPom {
+    doLast {
+        pom {
+            project {
+                inceptionYear '2014'
+                licenses {
+                    license {
+                        name 'GNU General Public License, Version 3.0'
+                        url 'https://www.gnu.org/licenses/gpl-3.0.txt'
+                        distribution 'repo'
+                    }
                 }
             }
-        }
-    }.writeTo("$buildDir/pom.xml")
+        } .writeTo("$buildDir/pom.xml")
+    }
 }
-//build.finalizedBy(writeNewPom)
-
 
 task genJavadoc(type: Javadoc) {
   source = sourceSets.main.allJava
@@ -62,8 +62,8 @@ dependencies {
     api "com.google.code.gson:gson:2.8.0"
     api "com.squareup.okhttp3:okhttp:3.6.0"
     
-    testCompile 'junit:junit:4.12'
-	testCompile 'com.squareup.okhttp3:mockwebserver:3.6.0'
+    testImplementation 'junit:junit:4.12'
+	testImplementation 'com.squareup.okhttp3:mockwebserver:3.6.0'
 }
 
 task wrapper(type: Wrapper) {

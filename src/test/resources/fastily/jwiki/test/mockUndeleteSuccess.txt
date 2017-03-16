@@ -1,0 +1,8 @@
+{
+    "undelete": {
+        "title": "Test",
+        "revisions": 1,
+        "fileversions": 0,
+        "reason": "1 revision restored: test"
+    }
+}

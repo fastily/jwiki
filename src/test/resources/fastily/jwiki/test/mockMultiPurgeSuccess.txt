@@ -1,0 +1,20 @@
+{
+  "batchcomplete": "",
+  "purge": [
+    {
+      "ns": 0,
+      "title": "Foo",
+      "purged": ""
+    },
+    {
+      "ns": 0,
+      "title": "Test",
+      "purged": ""
+    },
+    {
+      "ns": 4,
+      "title": "Wikipedia:Sandbox",
+      "purged": ""
+    }
+  ]
+}

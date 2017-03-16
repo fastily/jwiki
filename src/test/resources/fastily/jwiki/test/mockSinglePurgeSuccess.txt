@@ -1,0 +1,10 @@
+{
+  "batchcomplete": "",
+  "purge": [
+    {
+      "ns": 3,
+      "title": "User:Test",
+      "purged": ""
+    }
+  ]
+}

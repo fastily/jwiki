@@ -1,0 +1,7 @@
+{
+    "delete": {
+        "title": "Test",
+        "reason": "Test Reason",
+        "logid": 12345
+    }
+}
