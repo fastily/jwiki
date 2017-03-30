@@ -86,7 +86,7 @@ public final class ApiClient
 		HttpUrl.Builder hb = wiki.conf.baseURL.newBuilder();
 		params.forEach(hb::addQueryParameter);
 		
-		return new Request.Builder().addHeader("User-Agent", wiki.conf.userAgent).url(hb.build());
+		return new Request.Builder().url(hb.build()).header("User-Agent", wiki.conf.userAgent);
 	}
 
 	/**
@@ -98,7 +98,7 @@ public final class ApiClient
 	 */
 	protected Response basicGET(HashMap<String, String> params) throws IOException
 	{
-		return client.newCall(startReq(params).build()).execute();
+		return client.newCall(startReq(params).get().build()).execute();
 	}
 
 	/**
@@ -130,7 +130,7 @@ public final class ApiClient
 			throws IOException
 	{
 		MultipartBody.Builder mpb = new MultipartBody.Builder().setType(MultipartBody.FORM);
-		form.entrySet().stream().forEach(e -> mpb.addFormDataPart(e.getKey(), e.getValue()));
+		form.forEach(mpb::addFormDataPart);
 
 		mpb.addFormDataPart("chunk", fn, RequestBody.create(octetstream, chunk));
 

@@ -22,8 +22,6 @@ public class Revision extends DataEntry
 	/**
 	 * Constructor, creates a revision object.
 	 * 
-	 * @param title The title of the page we're using. NB: This isn't explicitly included in the JSONObject from the
-	 *           server
 	 * @param r The ServerReply containing the revision to parse.
 	 */
 	public Revision(JsonObject r)

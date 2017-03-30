@@ -1,23 +1,42 @@
 apply plugin: 'java-library'
 apply plugin: 'eclipse'
 apply plugin: 'maven'
+// apply plugin: 'maven-publish'
 
 version="1.2.2"
 description="jwiki build script"
 group="fastily"
 
-sourceSets {
-    main {
-        resources {
-            srcDirs = ['.']
-            includes=['*.md']
-        }
-    }
-}
-
 compileJava {
     sourceCompatibility = "1.8"
     targetCompatibility = "1.8"
+}
+
+/*publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+        }
+    }
+
+   model {
+    tasks.generatePomFileForMavenCustomPublication {
+        destination = file("$buildDir/generated-pom.xml")
+    }
+}
+}
+*/
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+    api "com.google.code.gson:gson:2.8.0"
+    api "com.squareup.okhttp3:okhttp:3.6.0"
+    
+    testImplementation 'junit:junit:4.12'
+    testImplementation 'com.squareup.okhttp3:mockwebserver:3.6.0'
 }
 
 task writeNewPom {
@@ -42,28 +61,18 @@ task genJavadoc(type: Javadoc) {
   
   options
   {
-    links "https://square.github.io/okhttp/3.x/okhttp/"
-    links "https://square.github.io/okio/1.x/okio/"
-    links "https://www.javadoc.io/doc/com.google.code.gson/gson/2.8.0"
-    links "https://docs.oracle.com/javase/8/docs/api/"
-
     setMemberLevel JavadocMemberLevel.PUBLIC
     setAuthor true
+
+    links "https://docs.oracle.com/javase/8/docs/api/"
+    links "https://square.github.io/okio/1.x/okio/"
+    links "https://square.github.io/okhttp/3.x/okhttp/"
+    links "https://fastily.github.io/jwiki/docs/gson/"
+
+    // setOutputLevel JavadocOutputLevel.VERBOSE
   }
   
-  classpath = configurations.compile
-}
-
-repositories {
-    jcenter()
-}
-
-dependencies {
-    api "com.google.code.gson:gson:2.8.0"
-    api "com.squareup.okhttp3:okhttp:3.6.0"
-    
-    testImplementation 'junit:junit:4.12'
-	testImplementation 'com.squareup.okhttp3:mockwebserver:3.6.0'
+  classpath = configurations.compileClasspath
 }
 
 task wrapper(type: Wrapper) {

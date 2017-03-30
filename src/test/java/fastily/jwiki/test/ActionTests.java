@@ -4,6 +4,7 @@ import static org.junit.Assert.*;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.After;
 import org.junit.Before;
@@ -70,10 +71,20 @@ public class ActionTests
 	{
 		assertEquals("File:Test.jpg", wiki.convertIfNotInNS("Test.jpg", NS.FILE));
 
+		try
+		{
+			assertTrue(server.takeRequest(2, TimeUnit.SECONDS).getHeader("User-Agent").contains("jwiki"));
+		}
+		catch (Throwable e)
+		{
+			e.printStackTrace();
+			fail();
+		}
+
 		assertEquals(NS.FILE.v, wiki.whichNS("File:Test.jpg").v);
 		assertEquals(NS.MAIN.v, wiki.whichNS("hello").v);
 	}
-	
+
 	/**
 	 * Test editing
 	 */
@@ -95,7 +106,7 @@ public class ActionTests
 		assertTrue(wiki.addText("Wikipedia:Sandbox", "Appending text!", "test", true));
 		assertTrue(wiki.addText("Wikipedia:Sandbox", "Appending text!", "test", false));
 	}
-	
+
 	/**
 	 * Loads a MockResponse into the {@code server}'s queue.
 	 * 

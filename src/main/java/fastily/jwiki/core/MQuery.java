@@ -15,7 +15,7 @@ import fastily.jwiki.util.MultiMap;
 import fastily.jwiki.util.Tuple;
 
 /**
- * Perform multi-title queries. Use of these methods is intended for <ins>advanced</ins> users who wish to make queries
+ * Perform multi-title queries. Use of these methods is intended for <span style="text-decoration:underline;">advanced</span> users who wish to make queries
  * to the server over a large data set. These methods are optimized for performance, and will consolidate titles into
  * single queries to fetch the most data possible per query. If you're looking to make simple, single-item queries,
  * (which is suitable for most users) please use the methods in Wiki.java.
