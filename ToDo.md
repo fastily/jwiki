@@ -12,3 +12,5 @@
 
 * Could cached Wiki objects be keyed by HttpUrl?
 * Fix purge()
+
+* WikiGen needs refactor

@@ -21,12 +21,7 @@ public final class FSystem
 	 * The default separator for pathnames by OS. For Windows it is '\' for Mac/Unix it is '/'
 	 */
 	public static final String psep = FileSystems.getDefault().getSeparator();
-	
-	/**
-	 * The user's home directory.
-	 */
-	public static final String home = System.getProperty("user.home");
-	
+		
 	/**
 	 * All static methods, no constructors allowed.
 	 */

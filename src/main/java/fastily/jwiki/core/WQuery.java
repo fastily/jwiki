@@ -15,7 +15,7 @@ import fastily.jwiki.util.GSONP;
  * @author Fastily
  *
  */
-public class WQuery
+class WQuery
 {
 	/**
 	 * Default parameters for getting category size info

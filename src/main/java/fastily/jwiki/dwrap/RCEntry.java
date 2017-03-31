@@ -15,7 +15,7 @@ import fastily.jwiki.util.GSONP;
 public class RCEntry extends DataEntry
 {
 	/**
-	 * The type of entry this RCEntry represents (e.g. log, edit, new)
+	 * The type of entry this RCEntry represents (ex: log, edit, new)
 	 */
 	public final String type;
 

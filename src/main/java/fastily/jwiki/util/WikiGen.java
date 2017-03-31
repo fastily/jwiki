@@ -33,7 +33,7 @@ public final class WikiGen
 	/**
 	 * An additional location to save credentials under.
 	 */
-	private static final String homefmt = FSystem.home + FSystem.psep;
+	private static final String homefmt = System.getProperty("user.home") + FSystem.psep;
 
 	/**
 	 * The default WikiGen object created at run time.

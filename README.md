@@ -13,21 +13,6 @@ jwiki is a simple Java client library wrapping the [MediaWiki](https://www.media
 * [Recipe Book/Cheatsheet](https://github.com/fastily/jwiki/wiki/Recipe-Book)
 * [Javadocs](https://fastily.github.io/jwiki/docs/jwiki/)
 
-### Example Code
-```java
-import fastily.jwiki.core.Wiki;
-
-//Edit a Wikipedia page by replacing its text with text of your choosing.
-public class JwikiExample
-{
-   public static void main(String[] args) throws Throwable
-   {
-     Wiki wiki = new Wiki("Username", "Password", "en.wikipedia.org"); // login
-     wiki.edit("Wikipedia:Sandbox", "SomeText", "EditSummary"); // edit
-   }
-}
-```
-
 ### Download
 jwiki is available via [bintray/jcenter](https://bintray.com/fastily/maven/jwiki)
 
@@ -36,14 +21,14 @@ Maven:
 <dependency>
   <groupId>fastily</groupId>
   <artifactId>jwiki</artifactId>
-  <version>1.2.1</version>
+  <version>1.3.0</version>
   <type>pom</type>
 </dependency>
 ```
 
 Gradle:
 ```groovy
-compile 'fastily:jwiki:1.2.1'
+compile 'fastily:jwiki:1.3.0'
 ```
 
 ### Minimum Requirements

@@ -2,16 +2,22 @@
 
 #: Generates Maven artifacts for jwiki. 
 #: 
-#: PRECONDITION: gradle build succeeded.  Minimum gradle version >= 3.0
-#: 
-#: Tested on OS X 10.11.6
+#: Tested on macOS 10.12.4
 #: Author: Fastily
 
-version="1.2.2"
+version="1.3.0"
 name="jwiki"
 outputDir="build/artifacts"
 
-cd "${0%/*}"
+cd "${0%/*}" &> /dev/null
+
+gradle clean build -x test
+
+if ! gradle writeNewPom genJavadoc ; then
+    printf "ERROR: Build Failed\n"
+    exit 1
+fi
+
 mkdir -p "$outputDir"
 
 ## Copy sources
