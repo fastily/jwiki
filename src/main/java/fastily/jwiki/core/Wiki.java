@@ -123,7 +123,7 @@ public class Wiki
 	 * @param password The password to use
 	 * @return True if the user is now logged in.
 	 */
-	public boolean login(String user, String password)
+	public synchronized boolean login(String user, String password)
 	{
 		if (conf.uname != null) // do not login more than once
 			return true;
@@ -319,7 +319,7 @@ public class Wiki
 	{
 		return whichNS(title).equals(ns) ? title : String.format("%s:%s", nsl.nsM.get(ns.v), nss(title));
 	}
-
+	
 	/* //////////////////////////////////////////////////////////////////////////////// */
 	/* /////////////////////////////////// ACTIONS //////////////////////////////////// */
 	/* //////////////////////////////////////////////////////////////////////////////// */

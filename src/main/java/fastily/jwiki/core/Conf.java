@@ -35,7 +35,7 @@ public final class Conf
 	 * Flag indicating whether the logged in user is a bot.
 	 */
 	protected boolean isBot = false;
-
+	
 	/**
 	 * The base domain. e.g. {@code en.wikipedia.org}
 	 */
