@@ -20,145 +20,150 @@ class WQuery
 	/**
 	 * Default parameters for getting category size info
 	 */
-	public static final QTemplate ALLOWEDFILEXTS = new QTemplate(FL.pMap("meta", "siteinfo", "siprop", "fileextensions"));
+	public static final QTemplate ALLOWEDFILEXTS = new QTemplate(FL.pMap("meta", "siteinfo", "siprop", "fileextensions"), "fileextensions");
 
 	/**
 	 * Default parameters for getting category size info
 	 */
-	public static final QTemplate ALLPAGES = new QTemplate(FL.pMap("list", "allpages"), "aplimit");
+	public static final QTemplate ALLPAGES = new QTemplate(FL.pMap("list", "allpages"), "aplimit", "allpages");
 
 	/**
 	 * Default parameters for getting category size info
 	 */
-	public static final QTemplate CATEGORYINFO = new QTemplate(FL.pMap("prop", "categoryinfo", "titles", null));
+	public static final QTemplate CATEGORYINFO = new QTemplate(FL.pMap("prop", "categoryinfo", "titles", null), "categoryinfo");
 
 	/**
 	 * Default parameters for listing category members
 	 */
-	public static final QTemplate CATEGORYMEMBERS = new QTemplate(FL.pMap("list", "categorymembers", "cmtitle", null), "cmlimit");
+	public static final QTemplate CATEGORYMEMBERS = new QTemplate(FL.pMap("list", "categorymembers", "cmtitle", null), "cmlimit", "categorymembers");
 
 	/**
 	 * Default parameters for getting Namespace information on a Wiki.
 	 */
-	public static final QTemplate NAMESPACES = new QTemplate(FL.pMap("meta", "siteinfo", "siprop", "namespaces|namespacealiases"));
+	public static final QTemplate NAMESPACES = new QTemplate(FL.pMap("meta", "siteinfo", "siprop", "namespaces|namespacealiases"), null);
 
 	/**
 	 * Default parameters for getting duplicate files
 	 */
-	public static final QTemplate DUPLICATEFILES = new QTemplate(FL.pMap("prop", "duplicatefiles", "titles", null), "dflimit");
+	public static final QTemplate DUPLICATEFILES = new QTemplate(FL.pMap("prop", "duplicatefiles", "titles", null), "dflimit", "duplicatefiles");
 
 	/**
 	 * Default parameters for determining if a page exists.
 	 */
-	public static final QTemplate EXISTS = new QTemplate(FL.pMap("prop", "pageprops", "ppprop", "missing", "titles", null));
+	public static final QTemplate EXISTS = new QTemplate(FL.pMap("prop", "pageprops", "ppprop", "missing", "titles", null), null);
 
+	/**
+	 * Default parameters for fetching external links on a page
+	 */
+	public static final QTemplate EXTLINKS = new QTemplate(FL.pMap("prop", "extlinks", "elexpandurl", "1", "titles", null), "ellimit", "extlinks");
+	
 	/**
 	 * Default parameters for getting file usage
 	 */
-	public static final QTemplate FILEUSAGE = new QTemplate(FL.pMap("prop", "fileusage", "titles", null), "fulimit");
+	public static final QTemplate FILEUSAGE = new QTemplate(FL.pMap("prop", "fileusage", "titles", null), "fulimit", "fileusage");
 
 	/**
 	 * Default parameters for getting global usage of a file
 	 */
-	public static final QTemplate GLOBALUSAGE = new QTemplate(FL.pMap("prop", "globalusage", "titles", null), "gulimit");
+	public static final QTemplate GLOBALUSAGE = new QTemplate(FL.pMap("prop", "globalusage", "titles", null), "gulimit", "globalusage");
 
 	/**
 	 * Default parameters for getting files on a page
 	 */
-	public static final QTemplate IMAGES = new QTemplate(FL.pMap("prop", "images", "titles", null), "imlimit");
+	public static final QTemplate IMAGES = new QTemplate(FL.pMap("prop", "images", "titles", null), "imlimit", "images");
 
 	/**
 	 * Default parameters for getting image info of a file.
 	 */
 	public static final QTemplate IMAGEINFO = new QTemplate(
 			FL.pMap("prop", "imageinfo", "iiprop", "canonicaltitle|url|size|sha1|mime|user|timestamp|comment", "titles", null),
-			"iilimit");
+			"iilimit", "imageinfo");
 
 	/**
 	 * Default parameters for getting links to a page
 	 */
 	public static final QTemplate LINKSHERE = new QTemplate(
-			FL.pMap("prop", "linkshere", "lhprop", "title", "lhshow", null, "titles", null), "lhlimit");
+			FL.pMap("prop", "linkshere", "lhprop", "title", "lhshow", null, "titles", null), "lhlimit", "linkshere");
 
 	/**
 	 * Default parameters for getting links on a page
 	 */
-	public static final QTemplate LINKSONPAGE = new QTemplate(FL.pMap("prop", "links", "titles", null), "pllimit");
+	public static final QTemplate LINKSONPAGE = new QTemplate(FL.pMap("prop", "links", "titles", null), "pllimit", "links");
 
 	/**
 	 * Default parameters for listing logs.
 	 */
-	public static final QTemplate LOGEVENTS = new QTemplate(FL.pMap("list", "logevents"), "lelimit");
+	public static final QTemplate LOGEVENTS = new QTemplate(FL.pMap("list", "logevents"), "lelimit", "logevents");
 
 	/**
 	 * Default parameters for getting page categories.
 	 */
-	public static final QTemplate PAGECATEGORIES = new QTemplate(FL.pMap("prop", "categories", "titles", null), "cllimit");
+	public static final QTemplate PAGECATEGORIES = new QTemplate(FL.pMap("prop", "categories", "titles", null), "cllimit", "categories");
 
 	/**
 	 * Default parameters for getting page text.
 	 */
-	public static final QTemplate PAGETEXT = new QTemplate(FL.pMap("prop", "revisions", "rvprop", "content", "titles", null));
+	public static final QTemplate PAGETEXT = new QTemplate(FL.pMap("prop", "revisions", "rvprop", "content", "titles", null), null);
 
 	/**
 	 * Default parameters for listing protected titles.
 	 */
 	public static final QTemplate PROTECTEDTITLES = new QTemplate(
-			FL.pMap("list", "protectedtitles", "ptprop", "timestamp|level|user|comment"), "ptlimit");
+			FL.pMap("list", "protectedtitles", "ptprop", "timestamp|level|user|comment"), "ptlimit", "protectedtitles");
 
 	/**
 	 * Default parameters for listing recent changes.
 	 */
 	public static final QTemplate RECENTCHANGES = new QTemplate(
-			FL.pMap("list", "recentchanges", "rcprop", "title|timestamp|user|comment", "rctype", "edit|new|log"), "rclimit");
+			FL.pMap("list", "recentchanges", "rcprop", "title|timestamp|user|comment", "rctype", "edit|new|log"), "rclimit", "recentchanges");
 
 	/**
 	 * Default parameters for resolving redirects
 	 */
-	public static final QTemplate RESOLVEREDIRECT = new QTemplate(FL.pMap("redirects", "", "titles", null));
+	public static final QTemplate RESOLVEREDIRECT = new QTemplate(FL.pMap("redirects", "", "titles", null), "redirects");
 
 	/**
 	 * Default parameters for listing page revisions
 	 */
 	public static final QTemplate REVISIONS = new QTemplate(
-			FL.pMap("prop", "revisions", "rvprop", "timestamp|user|comment|content", "titles", null), "rvlimit");
+			FL.pMap("prop", "revisions", "rvprop", "timestamp|user|comment|content", "titles", null), "rvlimit", "revisions");
 
 	/**
 	 * Default parameters for getting templates on a page
 	 */
-	public static final QTemplate TEMPLATES = new QTemplate(FL.pMap("prop", "templates", "tiprop", "title", "titles", null), "tllimit");
+	public static final QTemplate TEMPLATES = new QTemplate(FL.pMap("prop", "templates", "tiprop", "title", "titles", null), "tllimit", "templates");
 
 	/**
 	 * Default parameters for getting a csrf token.
 	 */
-	public static final QTemplate TOKENS_CSRF = new QTemplate(FL.pMap("meta", "tokens", "type", "csrf"));
+	public static final QTemplate TOKENS_CSRF = new QTemplate(FL.pMap("meta", "tokens", "type", "csrf"), null);
 	
 	/**
 	 * Default parameters for getting a login token.
 	 */
-	public static final QTemplate TOKENS_LOGIN = new QTemplate(FL.pMap("meta", "tokens", "type", "login"));
+	public static final QTemplate TOKENS_LOGIN = new QTemplate(FL.pMap("meta", "tokens", "type", "login"), null);
 
 	/**
 	 * Default parameters for getting a page's transclusions.
 	 */
 	public static final QTemplate TRANSCLUDEDIN = new QTemplate(FL.pMap("prop", "transcludedin", "tiprop", "title", "titles", null),
-			"tilimit");
+			"tilimit", "transcludedin");
 
 	/**
 	 * Default parameters for listing user contributions.
 	 */
-	public static final QTemplate USERCONTRIBS = new QTemplate(FL.pMap("list", "usercontribs", "ucuser", null), "uclimit");
+	public static final QTemplate USERCONTRIBS = new QTemplate(FL.pMap("list", "usercontribs", "ucuser", null), "uclimit", "usercontribs");
 
 	/**
 	 * Default parameters for listing users and their rights.
 	 */
-	public static final QTemplate USERRIGHTS = new QTemplate(FL.pMap("list", "users", "usprop", "groups", "ususers", null));
+	public static final QTemplate USERRIGHTS = new QTemplate(FL.pMap("list", "users", "usprop", "groups", "ususers", null), "users");
 
 	/**
 	 * Default parameters for listing user uploads
 	 */
 	public static final QTemplate USERUPLOADS = new QTemplate(FL.pMap("list", "allimages", "aisort", "timestamp", "aiuser", null),
-			"ailimit");
+			"ailimit", "allimages");
 
 	/**
 	 * The master parameter list. Tracks current query status.
@@ -339,14 +344,19 @@ class WQuery
 		private final String limString;
 
 		/**
+		 * An id which can be used to lookup a query result (in JSON) for a query created from this Object.
+		 */
+		protected final String id;
+		
+		/**
 		 * Constructor, creates a new QueryUnitTemplate
 		 * 
 		 * @param defaultFields The default parameters for the query described by this QueryUnitTemplate.
-		 * @param reqtFields The required parameters (user-specified) for the query described by this QueryUnitTemplate.
+		 * @param id The id to use to lookup a query result for queries created with this Object.
 		 */
-		public QTemplate(HashMap<String, String> defaultFields)
+		public QTemplate(HashMap<String, String> defaultFields, String id)
 		{
-			this(defaultFields, null);
+			this(defaultFields, null, id);
 		}
 
 		/**
@@ -355,9 +365,10 @@ class WQuery
 		 * @param defaultFields The default parameters for the query described by this QueryUnitTemplate.
 		 * @param limString The limit String parameter. Optional, set null to disable.
 		 */
-		public QTemplate(HashMap<String, String> defaultFields, String limString)
+		public QTemplate(HashMap<String, String> defaultFields, String limString, String id)
 		{
 			this.defaultFields = defaultFields;
+			this.id = id;
 
 			this.limString = limString;
 			if (limString != null)

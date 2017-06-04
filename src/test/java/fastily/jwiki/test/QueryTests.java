@@ -420,7 +420,7 @@ public class QueryTests
 	}
 	
 	/**
-	 * Tests what transcludes here
+	 * Tests whatTranscludesHere()
 	 */
 	@Test
 	public void testWhatTranscludesHere()
@@ -434,5 +434,20 @@ public class QueryTests
 		l = wiki.whatTranscludesHere("Template:FastilyTest", NS.MAIN);
 		assertEquals(1, l.size());
 		assertTrue(l.contains("FastilyTest"));
+	}
+	
+	/**
+	 * Tests external link fetching.
+	 */
+	@Test
+	public void testGetExternalLinks()
+	{
+		ArrayList<String> l = wiki.getExternalLinks("User:Fastily/Sandbox/ExternalLink");
+		
+		assertTrue(l.contains("https://www.google.com"));
+		assertTrue(l.contains("https://www.facebook.com"));
+		assertTrue(l.contains("https://github.com"));
+		
+		assertEquals(3, l.size());
 	}
 }

@@ -7,6 +7,7 @@ import java.util.HashMap;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
+import fastily.jwiki.core.WQuery.QTemplate;
 import fastily.jwiki.dwrap.ImageInfo;
 import fastily.jwiki.util.FL;
 import fastily.jwiki.util.GSONP;
@@ -51,7 +52,7 @@ public final class MQuery
 	 *           {@code elemArrKey}
 	 * @return A Map where the key is the title of the page, and the value is the List of properties fetched.
 	 */
-	private static MultiMap<String, JsonObject> getContProp(Wiki wiki, ArrayList<String> titles, WQuery.QTemplate qut,
+	private static MultiMap<String, JsonObject> getContProp(Wiki wiki, ArrayList<String> titles, QTemplate qut,
 			HashMap<String, String> pl, String elemArrKey)
 	{
 		MultiMap<String, JsonObject> l = new MultiMap<>();
@@ -83,7 +84,7 @@ public final class MQuery
 	 * @param eKey The value key to get from each page element. If this cannot be found, then it is set to null.
 	 * @return The {@code title} of each page as the key, and the value of the associated {@code eKey}.
 	 */
-	private static HashMap<String, JsonElement> getNoContProp(Wiki wiki, ArrayList<String> titles, WQuery.QTemplate qut,
+	private static HashMap<String, JsonElement> getNoContProp(Wiki wiki, ArrayList<String> titles, QTemplate qut,
 			HashMap<String, String> pl, String eKey)
 	{
 		HashMap<String, JsonElement> m = new HashMap<>();
@@ -111,7 +112,7 @@ public final class MQuery
 	 * @param aKey The key pointing to the JsonArray of JsonObject in the server's Response.
 	 * @return An ArrayList of JsonObject collected from the server Response(s).
 	 */
-	private static ArrayList<JsonObject> getNoContList(Wiki wiki, ArrayList<String> titles, WQuery.QTemplate qut,
+	private static ArrayList<JsonObject> getNoContList(Wiki wiki, ArrayList<String> titles, QTemplate qut,
 			HashMap<String, String> pl, String tQKey, String aKey)
 	{
 		ArrayList<JsonObject> l = new ArrayList<>();
@@ -318,6 +319,17 @@ public final class MQuery
 	public static HashMap<String, ArrayList<String>> fileUsage(Wiki wiki, ArrayList<String> titles)
 	{
 		return parsePropToSingle(getContProp(wiki, titles, WQuery.FILEUSAGE, null, "fileusage"));
+	}
+	
+	/**
+	 * Gets a list of external (non-interwiki) links on the specified titles.
+	 * @param wiki The Wiki object to use
+	 * @param titles The titles to query
+	 * @return A Map of results keyed by title.
+	 */
+	public static HashMap<String, ArrayList<String>> getExternalLinks(Wiki wiki, ArrayList<String> titles)
+	{
+		return parsePropToSingle(getContProp(wiki, titles, WQuery.EXTLINKS, null, "extlinks"), "*");
 	}
 
 	/**

@@ -636,7 +636,7 @@ public class Wiki
 		return FL.toAL(MQuery.exists(this, getLinksOnPage(title, ns)).entrySet().stream().filter(t -> t.getValue() == exists)
 				.map(Map.Entry::getKey));
 	}
-
+	
 	/**
 	 * Gets the contributions of a user.
 	 * 
@@ -843,6 +843,17 @@ public class Wiki
 	public ArrayList<String> whatLinksHere(String title)
 	{
 		return whatLinksHere(title, false);
+	}
+	
+	/**
+	 * Gets a list of external URLs on a page.
+	 * @param title The title to query
+	 * @return A List of external links found on the page.
+	 */
+	public ArrayList<String> getExternalLinks(String title)
+	{
+		ColorLog.info(this, "Getting external links on " + title);
+		return MQuery.getExternalLinks(this, FL.toSAL(title)).get(title);
 	}
 
 	/**
