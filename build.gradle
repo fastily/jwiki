@@ -1,22 +1,30 @@
 apply plugin: 'java-library'
 apply plugin: 'eclipse'
 apply plugin: 'maven'
+apply plugin: 'maven-publish'
 
-version="1.3.0"
+version="1.3.1"
 description="jwiki build script"
 group="fastily"
-
 
 repositories {
     jcenter()
 }
 
 dependencies {
-    api "com.google.code.gson:gson:2.8.0"
+    api "com.google.code.gson:gson:2.8.1"
     api "com.squareup.okhttp3:okhttp:3.8.0"
     
     testImplementation 'junit:junit:4.12'
     testImplementation 'com.squareup.okhttp3:mockwebserver:3.8.0'
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+        }
+    }
 }
 
 task writeNewPom {
