@@ -160,12 +160,7 @@ public class Wiki
 
 		conf.isBot = listUserRights(conf.uname).contains("bot");
 	}
-	
-	/**
-	 * 
-	 * 
-	 * @return A Tuple where {@code x} is {@code csrftoken} and {@code y} is {@code logintoken}
-	 */
+
 	/**
 	 * Fetch tokens
 	 * @param wqt The {@code tokens} QTemplate to use
@@ -289,11 +284,11 @@ public class Wiki
 	}
 
 	/**
-	 * Filters pages by namespace. Only pages with a namespace in <code>ns</code> are selected.
+	 * Filters pages by namespace. Only pages with a namespace in {@code ns} are selected.
 	 * 
 	 * @param pages Titles to filter
 	 * @param ns Pages in this/these namespace(s) will be returned.
-	 * @return Titles belonging to a NS in <code>ns</code>
+	 * @return Titles belonging to a NS in {@code ns}
 	 */
 	public ArrayList<String> filterByNS(ArrayList<String> pages, NS... ns)
 	{
@@ -313,7 +308,7 @@ public class Wiki
 	 * 
 	 * @param title The title to check
 	 * @param ns The namespace to convert the title to.
-	 * @return The same title if it is in <code>ns</code>, or the converted title.
+	 * @return The same title if it is in {@code ns}, or the converted title.
 	 */
 	public String convertIfNotInNS(String title, NS ns)
 	{
@@ -339,7 +334,7 @@ public class Wiki
 	}
 
 	/**
-	 * Appends text to a page. If <code>title</code> does not exist, then create the page normally with <code>text</code>
+	 * Appends text to a page. If {@code title} does not exist, then create the page normally with {@code text}
 	 * 
 	 * @param title The title to edit.
 	 * @param add The text to append
@@ -379,7 +374,7 @@ public class Wiki
 	public boolean replaceText(String title, String regex, String replacement, String reason)
 	{
 		String s = getPageText(title), rx = s.replaceAll(regex, replacement);
-		return rx.equals(s) ? true : edit(title, rx, reason);
+		return rx.equals(s) || edit(title, rx, reason);
 	}
 
 	/**

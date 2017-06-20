@@ -106,7 +106,7 @@ public final class FL
 	public static HashMap<String, String> pMap(String... sl)
 	{
 		if (sl.length % 2 == 1)
-			return null;
+			throw new IllegalArgumentException("pMap() cannot work with an odd number of entries!");
 
 		HashMap<String, String> l = new HashMap<>();
 		for (int i = 0; i < sl.length; i += 2)

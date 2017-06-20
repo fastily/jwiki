@@ -71,7 +71,7 @@ public enum ColorLog
 	/**
 	 * Constructor, takes an ASCII color value.
 	 */
-	private ColorLog(int v)
+	ColorLog(int v)
 	{
 		this.v = v;
 	}

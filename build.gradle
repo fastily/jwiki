@@ -1,5 +1,6 @@
 apply plugin: 'java-library'
 apply plugin: 'eclipse'
+apply plugin: 'idea'
 apply plugin: 'maven'
 apply plugin: 'maven-publish'
 
@@ -64,5 +65,5 @@ task genJavadoc(type: Javadoc) {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '3.5'
+    gradleVersion = '4.0'
 }

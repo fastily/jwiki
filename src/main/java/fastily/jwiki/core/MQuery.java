@@ -48,8 +48,6 @@ public final class MQuery
 	 * @param qut The query template to use. Set this according to the fetching method being implemented
 	 * @param pl Additional custom parameters to apply to each generated WQuery. Optional, set null to disable.
 	 * @param elemArrKey The key for each JsonArray for each title the resulting set
-	 * @param elemKey The key for each String of interest contained in each JsonObject of the JsonArray pointed to by
-	 *           {@code elemArrKey}
 	 * @return A Map where the key is the title of the page, and the value is the List of properties fetched.
 	 */
 	private static MultiMap<String, JsonObject> getContProp(Wiki wiki, ArrayList<String> titles, QTemplate qut,
@@ -411,7 +409,8 @@ public final class MQuery
 	public static HashMap<String, String> resolveRedirects(Wiki wiki, ArrayList<String> titles)
 	{
 		HashMap<String, String> l = new HashMap<>();
-		titles.stream().forEach(s -> l.put(s, s));
+		for(String s : titles)
+			l.put(s, s);
 
 		getNoContList(wiki, titles, WQuery.RESOLVEREDIRECT, null, "titles", "redirects")
 				.forEach(jo -> l.put(GSONP.gString(jo, "from"), GSONP.gString(jo, "to")));

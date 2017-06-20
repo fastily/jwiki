@@ -61,7 +61,7 @@ public final class WikiGen
 		c.init(Cipher.DECRYPT_MODE, new SecretKeySpec(Files.readAllBytes(findConfig(pf)), "AES"));
 		
 		GSONP.jp.parse(new String(c.doFinal(Files.readAllBytes(findConfig(px))), "UTF-8")).getAsJsonObject()
-		.entrySet().stream().forEach(e -> master.put(e.getKey(), e.getValue().getAsString()));
+		.entrySet().forEach(e -> master.put(e.getKey(), e.getValue().getAsString()));
 	}
 
 	/**
