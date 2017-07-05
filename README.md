@@ -2,6 +2,8 @@
 jwiki is a simple Java client library wrapping the [MediaWiki](https://www.mediawiki.org/wiki/MediaWiki) Web [API](https://www.mediawiki.org/wiki/API:Main_page).  It can be used by developers to create bots and tools, or to perform analytics on just about any Wiki.
 
 [![Build Status](https://travis-ci.org/fastily/jwiki.svg?branch=master)](https://travis-ci.org/fastily/jwiki)
+![JDK-1.8+](https://upload.wikimedia.org/wikipedia/commons/7/75/Blue_JDK_1.8%2B_Shield_Badge.svg)
+![MediaWiki 1.27+](https://upload.wikimedia.org/wikipedia/commons/2/2c/MediaWiki_1.27%2B_Blue_Badge.svg)
 
 ## Features
 * Perform actions, such as edit, delete, and upload (using chunked uploads).
@@ -30,10 +32,6 @@ Gradle:
 ```groovy
 compile 'fastily:jwiki:1.3.0'
 ```
-
-### Minimum Requirements
-* [JDK](https://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html): **1.8.0_40+**
-* [MediaWiki](https://www.mediawiki.org/wiki/MediaWiki): **1.27+**
 
 ## Project Objectives
 jwiki is intended to be a simple, reliable, and low-overhead framework for anybody seeking to make use of the MediaWiki API.  Emphasis is placed on:
