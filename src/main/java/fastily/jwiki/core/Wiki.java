@@ -209,13 +209,13 @@ public class Wiki
 	}
 
 	/**
-	 * Performs a basic GET action on this wiki. Use this to implement custom or non-standard API calls.
+	 * Performs a basic GET action on this Wiki. Use this to implement custom or non-standard API calls.
 	 * 
-	 * @param action The action to perform
+	 * @param action The action to perform.
 	 * @param params Each parameter and its corresponding value. For example, the parameters,
-	 *           <code>&amp;foo=bar&amp;baz=blah</code>, should be passed in as
-	 *           {<code>"foo", "bar", "baz", "blah"</code>}. URL-encoding will be applied automatically.
-	 * @return A Reply object generated with JSON from the server, or null on error.
+	 *           {@code &amp;foo=bar&amp;baz=blah}, should be passed in as
+	 *           {{@code "foo", "bar", "baz", "blah"}}. URL-encoding will be applied automatically.
+	 * @return The Response from the server, or null on error.
 	 */
 	public Response basicGET(String action, String... params)
 	{
@@ -228,6 +228,27 @@ public class Wiki
 			return apiclient.basicGET(pl);
 		}
 		catch (Throwable e)
+		{
+			e.printStackTrace();
+			return null;
+		}
+	}
+	
+	/**
+	 * Performs a basic POST action on this Wiki.  Use this to implement custom or non-standard API calls.
+	 * @param action The action to perform.
+	 * @param form The form data to post.  This will be automatically URL-encoded.
+	 * @return The Response from the server, or null on error.
+	 */
+	public Response basicPOST(String action, HashMap<String, String> form)
+	{
+		form.put("format", "json");
+		
+		try
+		{
+			return apiclient.basicPOST(FL.pMap("action", action), form);
+		}
+		catch(Throwable e)
 		{
 			e.printStackTrace();
 			return null;
