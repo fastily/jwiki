@@ -60,8 +60,7 @@ public enum ColorLog
 	/**
 	 * Indicates whether we are using a terminal that supports color.
 	 */
-	private static final boolean noColor = System.getProperty("os.name").contains("Windows")
-			|| System.getProperty("os.version").startsWith("10.6");
+	private static final boolean noColor = System.getProperty("os.name").contains("Windows");
 
 	/**
 	 * The value of the enum
