@@ -31,18 +31,18 @@ public class GSONP
 	 * Default Gson object, for convenience.
 	 */
 	public static final Gson gson = new GsonBuilder().create();
-	
+
 	/**
 	 * Gson object which generates pretty-print (human-readable) JSON.
 	 */
 	public static final Gson gsonPP = new GsonBuilder().setPrettyPrinting().create();
-	
+
 	/**
 	 * Type describing a HashMap with a String key and String value.
 	 */
 	public static Type strMapT = new TypeToken<HashMap<String, String>>() {
 	}.getType();
-	
+
 	/**
 	 * All static methods, no constructors.
 	 */
@@ -74,15 +74,17 @@ public class GSONP
 		{
 			return FL.toAL(FL.streamFrom(input).map(JsonElement::getAsJsonObject));
 		}
-		catch(Throwable e)
+		catch (Throwable e)
 		{
 			e.printStackTrace();
 			return null;
 		}
 	}
-	
+
 	/**
-	 * Get a JsonArray of JsonObject as a List of JsonObject.  PRECONDITION: {@code key} points to a JsonArray of JsonObject in {@code input}
+	 * Get a JsonArray of JsonObject as a List of JsonObject. PRECONDITION: {@code key} points to a JsonArray of
+	 * JsonObject in {@code input}
+	 * 
 	 * @param input The source JsonObject.
 	 * @param key Points to a JsonArray of JsonObject
 	 * @return An ArrayList of JsonObject derived from {@code input}, or an empty ArrayList on error.
@@ -91,9 +93,10 @@ public class GSONP
 	{
 		return getJAofJO(input.getAsJsonArray(key));
 	}
-	
+
 	/**
 	 * Extract a pair of String values from each JsonObject in an ArrayList of JsonObject
+	 * 
 	 * @param input The source List
 	 * @param kk Points to each key in to be used in the resulting Map.
 	 * @param vk Points to each value in to be used in the resulting Map.
@@ -128,21 +131,23 @@ public class GSONP
 			return null;
 		}
 	}
-	
+
 	/**
-	 * Attempt to get a nested JsonArray inside {@code input}.  This means that the JsonArray is the last element in a set of nested JsonObjects.
+	 * Attempt to get a nested JsonArray inside {@code input}. This means that the JsonArray is the last element in a set
+	 * of nested JsonObjects.
+	 * 
 	 * @param input The parent JsonObject
 	 * @param keys The path to follow to access the nested JsonArray.
 	 * @return The specified JsonArray or null if it could not be found.
 	 */
 	public static JsonArray getNestedJA(JsonObject input, List<String> keys)
 	{
-		if(keys.isEmpty())
+		if (keys.isEmpty())
 			return new JsonArray();
-		else if(keys.size() == 1)
+		else if (keys.size() == 1)
 			return input.getAsJsonArray(keys.get(0));
-		
-		return getNestedJO(input, keys.subList(0, keys.size()-1)).getAsJsonArray(keys.get(keys.size()-1));
+
+		return getNestedJO(input, keys.subList(0, keys.size() - 1)).getAsJsonArray(keys.get(keys.size() - 1));
 	}
 
 	/**
@@ -154,7 +159,11 @@ public class GSONP
 	 */
 	public static String gString(JsonObject jo, String key)
 	{
-		return jo.has(key) ? jo.get(key).getAsString() : null;
+		if(!jo.has(key))
+			return null;
+		
+		JsonElement e = jo.get(key);
+		return e.isJsonPrimitive() ? e.getAsString() : null;
 	}
 
 	/**
