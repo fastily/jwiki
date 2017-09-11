@@ -117,7 +117,7 @@ public class ActionTests
 		try
 		{
 			server.enqueue(new MockResponse()
-					.setBody(String.join("\n", Files.readAllLines(Paths.get(getClass().getResource(fn + ".txt").toURI())))));
+					.setBody(String.join("\n", Files.readAllLines(Paths.get(getClass().getResource(fn + ".json").toURI())))));
 		}
 		catch (Throwable e)
 		{

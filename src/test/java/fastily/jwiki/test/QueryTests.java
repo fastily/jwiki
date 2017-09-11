@@ -257,6 +257,7 @@ public class QueryTests
 		assertEquals("275e96b2660f761cca02b8d2cb5425bcaab4dd98", result.sha1);
 		assertEquals("image/svg+xml", result.mime);
 		assertEquals("https://upload.wikimedia.org/wikipedia/test/f/f7/FastilyTest.svg", result.url.toString());
+		assertEquals("part of unit test for jwiki", result.summary);
 	}
 
 	/**
