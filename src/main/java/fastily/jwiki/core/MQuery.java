@@ -16,10 +16,11 @@ import fastily.jwiki.util.MultiMap;
 import fastily.jwiki.util.Tuple;
 
 /**
- * Perform multi-title queries. Use of these methods is intended for <span style="text-decoration:underline;">advanced</span> users who wish to make queries
- * to the server over a large data set. These methods are optimized for performance, and will consolidate titles into
- * single queries to fetch the most data possible per query. If you're looking to make simple, single-item queries,
- * (which is suitable for most users) please use the methods in Wiki.java.
+ * Perform multi-title queries. Use of these methods is intended for
+ * <span style="text-decoration:underline;">advanced</span> users who wish to make queries to the server over a large
+ * data set. These methods are optimized for performance, and will consolidate titles into single queries to fetch the
+ * most data possible per query. If you're looking to make simple, single-item queries, (which is suitable for most
+ * users) please use the methods in Wiki.java.
  * 
  * @author Fastily
  * @see Wiki
@@ -110,8 +111,8 @@ public final class MQuery
 	 * @param aKey The key pointing to the JsonArray of JsonObject in the server's Response.
 	 * @return An ArrayList of JsonObject collected from the server Response(s).
 	 */
-	private static ArrayList<JsonObject> getNoContList(Wiki wiki, ArrayList<String> titles, QTemplate qut,
-			HashMap<String, String> pl, String tQKey, String aKey)
+	private static ArrayList<JsonObject> getNoContList(Wiki wiki, ArrayList<String> titles, QTemplate qut, HashMap<String, String> pl,
+			String tQKey, String aKey)
 	{
 		ArrayList<JsonObject> l = new ArrayList<>();
 
@@ -318,9 +319,10 @@ public final class MQuery
 	{
 		return parsePropToSingle(getContProp(wiki, titles, WQuery.FILEUSAGE, null, "fileusage"));
 	}
-	
+
 	/**
 	 * Gets a list of external (non-interwiki) links on the specified titles.
+	 * 
 	 * @param wiki The Wiki object to use
 	 * @param titles The titles to query
 	 * @return A Map of results keyed by title.
@@ -356,10 +358,10 @@ public final class MQuery
 	{
 		ArrayList<String> l = new ArrayList<>();
 		exists(wiki, titles).forEach((k, v) -> {
-			if(v == exists)
+			if (v == exists)
 				l.add(k);
 		});
-		
+
 		return l;
 	}
 
@@ -409,7 +411,7 @@ public final class MQuery
 	public static HashMap<String, String> resolveRedirects(Wiki wiki, ArrayList<String> titles)
 	{
 		HashMap<String, String> l = new HashMap<>();
-		for(String s : titles)
+		for (String s : titles)
 			l.put(s, s);
 
 		getNoContList(wiki, titles, WQuery.RESOLVEREDIRECT, null, "titles", "redirects")

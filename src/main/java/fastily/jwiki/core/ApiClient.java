@@ -65,13 +65,13 @@ public final class ApiClient
 		client = from.apiclient.client;
 
 		JwikiCookieJar cl = (JwikiCookieJar) client.cookieJar();
-		
+
 		HashMap<String, String> l = new HashMap<>();
-		cl.cj.get(from.conf.domain).forEach((k,v) -> {
-			if(k.contains("centralauth"))
+		cl.cj.get(from.conf.domain).forEach((k, v) -> {
+			if (k.contains("centralauth"))
 				l.put(k, v);
 		});
-		
+
 		cl.cj.put(wiki.conf.domain, l);
 	}
 
@@ -85,7 +85,7 @@ public final class ApiClient
 	{
 		HttpUrl.Builder hb = wiki.conf.baseURL.newBuilder();
 		params.forEach(hb::addQueryParameter);
-		
+
 		return new Request.Builder().url(hb.build()).header("User-Agent", wiki.conf.userAgent);
 	}
 
@@ -119,6 +119,7 @@ public final class ApiClient
 
 	/**
 	 * Performs a multi-part file {@code POST}.
+	 * 
 	 * @param params Any URL parameters (not URL-encoded).
 	 * @param form The Key-Value form parameters to {@code POST}.
 	 * @param fn The system name of the file to {@code POST}

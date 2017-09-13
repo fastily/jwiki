@@ -25,7 +25,7 @@ public final class Conf
 	 * The url pointing to the base MediaWiki API endpoint.
 	 */
 	protected final HttpUrl baseURL;
-	
+
 	/**
 	 * Default Wiki API path (goes after domain). Don't change this after logging in.
 	 */
@@ -35,7 +35,7 @@ public final class Conf
 	 * Flag indicating whether the logged in user is a bot.
 	 */
 	protected boolean isBot = false;
-	
+
 	/**
 	 * The base domain. e.g. {@code en.wikipedia.org}
 	 */
@@ -59,6 +59,7 @@ public final class Conf
 
 	/**
 	 * Constructor, should only be called by new instances of Wiki.
+	 * 
 	 * @param baseURL The url pointing to the base MediaWiki API endpoint.
 	 */
 	protected Conf(HttpUrl baseURL)

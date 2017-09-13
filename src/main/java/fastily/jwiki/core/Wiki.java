@@ -3,6 +3,7 @@ package fastily.jwiki.core;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -52,11 +53,12 @@ public class Wiki
 	public final ApiClient apiclient;
 
 	/**
-	 * Constructor, sets username, password, and domain. If the username and password are not valid then a SecurityException will be thrown.
+	 * Constructor, sets username, password, and domain. If the username and password are not valid then a
+	 * SecurityException will be thrown.
 	 * 
 	 * @param user The username to use
 	 * @param px The password to use
-	 * @param baseURL The url pointing to the base MediaWiki API endpoint. 
+	 * @param baseURL The url pointing to the base MediaWiki API endpoint.
 	 * @param parent The parent Wiki which spawned this Wiki. If this is the first Wiki, disable with null.
 	 */
 	private Wiki(String user, String px, HttpUrl baseURL, Wiki parent)
@@ -84,6 +86,7 @@ public class Wiki
 
 	/**
 	 * Constructor, takes a user, password, and the base URL for the API endpoint.
+	 * 
 	 * @param user The username to use
 	 * @param px The password to use
 	 * @param baseURL The base URL for the API endpoint.
@@ -131,8 +134,8 @@ public class Wiki
 		ColorLog.info(this, "Try login for " + user);
 		try
 		{
-			if (WAction.postAction(this, "login", false,
-					FL.pMap("lgname", user, "lgpassword", password, "lgtoken", getTokens(WQuery.TOKENS_LOGIN, "logintoken"))) == WAction.ActionResult.SUCCESS)
+			if (WAction.postAction(this, "login", false, FL.pMap("lgname", user, "lgpassword", password, "lgtoken",
+					getTokens(WQuery.TOKENS_LOGIN, "logintoken"))) == WAction.ActionResult.SUCCESS)
 			{
 				refreshLoginStatus(user.length() < 2 ? user.toUpperCase() : user.substring(0, 1).toUpperCase() + user.substring(1));
 
@@ -149,7 +152,8 @@ public class Wiki
 	}
 
 	/**
-	 * Refresh the login status of a Wiki.  This runs after every login or creation of a new logged-in Wiki.
+	 * Refresh the login status of a Wiki. This runs after every login or creation of a new logged-in Wiki.
+	 * 
 	 * @param uname The set {@code uname} to
 	 */
 	private void refreshLoginStatus(String uname)
@@ -163,6 +167,7 @@ public class Wiki
 
 	/**
 	 * Fetch tokens
+	 * 
 	 * @param wqt The {@code tokens} QTemplate to use
 	 * @param tk The key pointing to the String with the specified token.
 	 * @return The token, or null on error.
@@ -173,20 +178,21 @@ public class Wiki
 		{
 			return GSONP.gString(new WQuery(this, wqt).next().metaComp("tokens").getAsJsonObject(), tk);
 		}
-		catch(Throwable e)
+		catch (Throwable e)
 		{
 			e.printStackTrace();
 			return null;
 		}
 	}
-	
+
 	/* //////////////////////////////////////////////////////////////////////////////// */
 	/* /////////////////////////// UTILITY FUNCTIONS ////////////////////////////////// */
 	/* //////////////////////////////////////////////////////////////////////////////// */
 
 	/**
 	 * Gets a Wiki object for this domain. This method is cached. A new Wiki will be created as necessary. PRECONDITION:
-	 * The <a href="https://www.mediawiki.org/wiki/Extension:CentralAuth">CentralAuth</a> extension is installed on the target MediaWiki farm.
+	 * The <a href="https://www.mediawiki.org/wiki/Extension:CentralAuth">CentralAuth</a> extension is installed on the
+	 * target MediaWiki farm.
 	 * 
 	 * @param domain The domain to use
 	 * @return The Wiki, or null on error.
@@ -213,8 +219,8 @@ public class Wiki
 	 * 
 	 * @param action The action to perform.
 	 * @param params Each parameter and its corresponding value. For example, the parameters,
-	 *           {@code &amp;foo=bar&amp;baz=blah}, should be passed in as
-	 *           {{@code "foo", "bar", "baz", "blah"}}. URL-encoding will be applied automatically.
+	 *           {@code &amp;foo=bar&amp;baz=blah}, should be passed in as {{@code "foo", "bar", "baz", "blah"}}.
+	 *           URL-encoding will be applied automatically.
 	 * @return The Response from the server, or null on error.
 	 */
 	public Response basicGET(String action, String... params)
@@ -233,22 +239,23 @@ public class Wiki
 			return null;
 		}
 	}
-	
+
 	/**
-	 * Performs a basic POST action on this Wiki.  Use this to implement custom or non-standard API calls.
+	 * Performs a basic POST action on this Wiki. Use this to implement custom or non-standard API calls.
+	 * 
 	 * @param action The action to perform.
-	 * @param form The form data to post.  This will be automatically URL-encoded.
+	 * @param form The form data to post. This will be automatically URL-encoded.
 	 * @return The Response from the server, or null on error.
 	 */
 	public Response basicPOST(String action, HashMap<String, String> form)
 	{
 		form.put("format", "json");
-		
+
 		try
 		{
 			return apiclient.basicPOST(FL.pMap("action", action), form);
 		}
-		catch(Throwable e)
+		catch (Throwable e)
 		{
 			e.printStackTrace();
 			return null;
@@ -305,6 +312,17 @@ public class Wiki
 	}
 
 	/**
+	 * Strips the namespaces from a Collection of titles.
+	 * 
+	 * @param l The Collection of titles to strip namespaces from
+	 * @return A List where each of the titles does not have a namespace.
+	 */
+	public ArrayList<String> nss(Collection<String> l)
+	{
+		return FL.toAL(l.stream().map(this::nss));
+	}
+
+	/**
 	 * Filters pages by namespace. Only pages with a namespace in {@code ns} are selected.
 	 * 
 	 * @param pages Titles to filter
@@ -335,7 +353,7 @@ public class Wiki
 	{
 		return whichNS(title).equals(ns) ? title : String.format("%s:%s", nsl.nsM.get(ns.v), nss(title));
 	}
-	
+
 	/* //////////////////////////////////////////////////////////////////////////////// */
 	/* /////////////////////////////////// ACTIONS //////////////////////////////////// */
 	/* //////////////////////////////////////////////////////////////////////////////// */
@@ -490,7 +508,7 @@ public class Wiki
 	public ArrayList<Revision> getRevisions(String title, int cap, boolean olderFirst, Instant start, Instant end)
 	{
 		ColorLog.info(this, "Getting revisions from " + title);
-		
+
 		WQuery wq = new WQuery(this, cap, WQuery.REVISIONS).set("titles", title);
 		if (olderFirst)
 			wq.set("rvdir", "newer"); // MediaWiki is weird.
@@ -500,12 +518,12 @@ public class Wiki
 			wq.set("rvstart", end.toString()); // MediaWiki has start <-> end reversed
 			wq.set("rvend", start.toString());
 		}
-		
+
 		ArrayList<Revision> l = new ArrayList<>();
-		while(wq.has())
+		while (wq.has())
 		{
 			JsonElement e = wq.next().propComp("title", "revisions").get(title);
-			if(e != null)
+			if (e != null)
 				l.addAll(FL.toAL(GSONP.getJAofJO(e.getAsJsonArray()).stream().map(Revision::new)));
 		}
 		return l;
@@ -531,11 +549,11 @@ public class Wiki
 			wq.set("leuser", nss(user));
 		if (type != null)
 			wq.set("letype", type);
-		
+
 		ArrayList<LogEntry> l = new ArrayList<>();
-		while(wq.has())
+		while (wq.has())
 			l.addAll(FL.toAL(wq.next().listComp("logevents").stream().map(LogEntry::new)));
-		
+
 		return l;
 	}
 
@@ -556,11 +574,11 @@ public class Wiki
 			wq.set("ptnamespace", nsl.createFilter(ns));
 		if (olderFirst)
 			wq.set("ptdir", "newer"); // MediaWiki is weird.
-		
+
 		ArrayList<ProtectedTitleEntry> l = new ArrayList<>();
-		while(wq.has())
+		while (wq.has())
 			l.addAll(FL.toAL(wq.next().listComp("protectedtitles").stream().map(ProtectedTitleEntry::new)));
-		
+
 		return l;
 	}
 
@@ -606,11 +624,11 @@ public class Wiki
 		WQuery wq = new WQuery(this, cap, WQuery.CATEGORYMEMBERS).set("cmtitle", convertIfNotInNS(title, NS.CATEGORY));
 		if (ns.length > 0)
 			wq.set("cmnamespace", nsl.createFilter(ns));
-		
+
 		ArrayList<String> l = new ArrayList<>();
-		while(wq.has())
+		while (wq.has())
 			l.addAll(FL.toAL(wq.next().listComp("categorymembers").stream().map(e -> GSONP.gString(e, "title"))));
-		
+
 		return l;
 	}
 
@@ -652,12 +670,13 @@ public class Wiki
 		return FL.toAL(MQuery.exists(this, getLinksOnPage(title, ns)).entrySet().stream().filter(t -> t.getValue() == exists)
 				.map(Map.Entry::getKey));
 	}
-	
+
 	/**
 	 * Gets the contributions of a user.
 	 * 
 	 * @param user The user to get contribs for, without the "User:" prefix.
-	 * @param cap The maximum number of results to return.  Optional, disable with -1 (<b>caveat</b>: this will get *all* of a user's contributions)
+	 * @param cap The maximum number of results to return. Optional, disable with -1 (<b>caveat</b>: this will get *all*
+	 *           of a user's contributions)
 	 * @param olderFirst Set to true to enumerate from older → newer revisions
 	 * @param ns Restrict titles returned to the specified Namespace(s). Optional, leave blank to select all namespaces.
 	 * @return A list of contributions.
@@ -665,17 +684,17 @@ public class Wiki
 	public ArrayList<Contrib> getContribs(String user, int cap, boolean olderFirst, NS... ns)
 	{
 		ColorLog.info(this, "Fetching contribs of " + user);
-		
+
 		WQuery wq = new WQuery(this, cap, WQuery.USERCONTRIBS).set("ucuser", user);
 		if (ns.length > 0)
 			wq.set("ucnamespace", nsl.createFilter(ns));
 		if (olderFirst)
 			wq.set("ucdir", "newer");
-		
+
 		ArrayList<Contrib> l = new ArrayList<>();
-		while(wq.has())
+		while (wq.has())
 			l.addAll(FL.toAL(wq.next().listComp("usercontribs").stream().map(Contrib::new)));
-		
+
 		return l;
 	}
 
@@ -693,13 +712,13 @@ public class Wiki
 		ColorLog.info(this, "Querying recent changes");
 		if (start == null || end == null || start.isBefore(end))
 			throw new IllegalArgumentException("start/end is null or start is before end.  Cannot proceed");
-		
+
 		// MediaWiki has start <-> end mixed up
-		WQuery wq = new WQuery(this, WQuery.RECENTCHANGES).set("rcstart", end.toString()).set("rcend", start.toString()); 
+		WQuery wq = new WQuery(this, WQuery.RECENTCHANGES).set("rcstart", end.toString()).set("rcend", start.toString());
 		ArrayList<RCEntry> l = new ArrayList<>();
-		while(wq.has())
+		while (wq.has())
 			l.addAll(FL.toAL(wq.next().listComp("recentchanges").stream().map(RCEntry::new)));
-		
+
 		return l;
 	}
 
@@ -712,12 +731,12 @@ public class Wiki
 	public ArrayList<String> getUserUploads(String user)
 	{
 		ColorLog.info(this, "Fetching uploads for " + user);
-		
+
 		ArrayList<String> l = new ArrayList<>();
 		WQuery wq = new WQuery(this, WQuery.USERUPLOADS).set("aiuser", nss(user));
-		while(wq.has())
+		while (wq.has())
 			l.addAll(FL.toAL(wq.next().listComp("allimages").stream().map(e -> GSONP.gString(e, "title"))));
-		
+
 		return l;
 	}
 
@@ -860,9 +879,10 @@ public class Wiki
 	{
 		return whatLinksHere(title, false);
 	}
-	
+
 	/**
 	 * Gets a list of external URLs on a page.
+	 * 
 	 * @param title The title to query
 	 * @return A List of external links found on the page.
 	 */
@@ -898,8 +918,8 @@ public class Wiki
 			wq.set("apprtype", "edit|move|upload");
 
 		ArrayList<String> l = new ArrayList<>();
-		boolean isLastQuery = false; 
-		for (int cnt = 0; wq.has() && !isLastQuery; cnt += conf.maxResultLimit) //TODO: ?
+		boolean isLastQuery = false;
+		for (int cnt = 0; wq.has() && !isLastQuery; cnt += conf.maxResultLimit) // TODO: ?
 		{
 			if (cap > 0 && cap - cnt < conf.maxResultLimit)
 			{
@@ -974,6 +994,7 @@ public class Wiki
 	public ArrayList<String> getAllowedFileExts()
 	{
 		ColorLog.info(this, "Fetching a list of permissible file extensions");
-		return FL.toAL(new WQuery(this, WQuery.ALLOWEDFILEXTS).next().listComp("fileextensions").stream().map(e -> GSONP.gString(e, "ext")));
+		return FL.toAL(
+				new WQuery(this, WQuery.ALLOWEDFILEXTS).next().listComp("fileextensions").stream().map(e -> GSONP.gString(e, "ext")));
 	}
 }
