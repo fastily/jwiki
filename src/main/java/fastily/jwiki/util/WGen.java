@@ -108,7 +108,8 @@ public class WGen
 	}
 
 	/**
-	 * Creates or returns a Wiki using locally stored credentials previously saved with the main method. This method is cached.
+	 * Creates or returns a Wiki using locally stored credentials previously saved with the main method. This method is
+	 * cached.
 	 * 
 	 * @param user The username to use
 	 * @param domain The domain (shorthand) to login at.

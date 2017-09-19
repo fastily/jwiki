@@ -459,4 +459,18 @@ public final class MQuery
 		xl.forEach((k, v) -> l.put(k, FL.toAL(v.stream().filter(t -> t.y != null).map(t -> t.x.replace('_', ' ')))));
 		return l;
 	}
+	
+	/**
+	 * Gets a text extract (the lead paragraph) of a page.
+	 * @param wiki The Wiki object to use.
+	 * @param titles The titles to get a text extract for.
+	 * @return A Map of results keyed by title.  A null mapping means that the page doesn't exist or is not eligble for text extract.
+	 */
+	public static HashMap<String, String> getTextExtracts(Wiki wiki, ArrayList<String> titles)
+	{
+		HashMap<String, String> l = new HashMap<>();
+		getNoContProp(wiki, titles, WQuery.TEXTEXTRACTS, null, "extract").forEach((k, v) -> l.put(k, v == null ? null : v.getAsString()));
+
+		return l;
+	}
 }

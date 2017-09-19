@@ -111,23 +111,23 @@ public final class NS
 	{
 		this.v = v;
 	}
-	
+
 	/**
-	 * Gets a hash code for this object.  This is simply the namespace number.
+	 * Gets a hash code for this object. This is simply the namespace number.
 	 */
 	public int hashCode()
 	{
 		return v;
 	}
-	
+
 	/**
 	 * Determines if two namespaces are the same namespace
 	 */
 	public boolean equals(Object x)
 	{
-		return x instanceof NS && v == ((NS)x).v;
+		return x instanceof NS && v == ((NS) x).v;
 	}
-	
+
 	/**
 	 * A namespace manager object. One for each Wiki object.
 	 * 
@@ -139,12 +139,12 @@ public final class NS
 		 * The Map of all valid namespace-number pairs.
 		 */
 		protected final HashMap<Object, Object> nsM = new HashMap<>();
-		
+
 		/**
 		 * The List of valid namespaces as Strings.
 		 */
 		protected final ArrayList<String> nsL = new ArrayList<>();
-		
+
 		/**
 		 * Regex used to strip the namespace from a title.
 		 */
@@ -154,9 +154,10 @@ public final class NS
 		 * Pattern version of <code>nssRegex</code>
 		 */
 		protected final Pattern p;
-		
+
 		/**
 		 * Constructor, takes a Reply with Namespace data.
+		 * 
 		 * @param r A Reply object with a <code>namespaces</code> JSONObject.
 		 */
 		protected NSManager(JsonObject r)
@@ -166,21 +167,21 @@ public final class NS
 				String name = x.get("*").getAsString();
 				if (name.isEmpty())
 					name = "Main";
-				
+
 				int id = x.get("id").getAsInt();
 				nsM.put(name, id);
 				nsM.put(id, name);
-				
+
 				nsL.add(name);
 			}
 
-			for(JsonObject x : GSONP.getJAofJO(r.getAsJsonArray("namespacealiases")))
+			for (JsonObject x : GSONP.getJAofJO(r.getAsJsonArray("namespacealiases")))
 			{
 				String name = x.get("*").getAsString();
 				nsM.put(name, x.get("id").getAsInt());
 				nsL.add(name);
 			}
-			
+
 			nssRegex = String.format("(?i)^(%s):", FL.pipeFence(FL.toAL(nsL.stream().map(s -> s.replace(" ", "(_| )")))));
 			p = Pattern.compile(nssRegex);
 		}
@@ -192,7 +193,7 @@ public final class NS
 		 * @return The raw filter string.
 		 */
 		protected String createFilter(NS... nsl)
-		{	
+		{
 			return FL.pipeFence(FL.toSet(Stream.of(nsl).map(e -> "" + e.v)));
 		}
 	}

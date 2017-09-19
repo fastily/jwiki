@@ -1,6 +1,7 @@
 package fastily.jwiki.util;
 
 import java.nio.file.FileSystems;
+import java.time.format.DateTimeFormatter;
 
 import fastily.jwiki.core.ColorLog;
 
@@ -16,18 +17,23 @@ public final class FSystem
 	 * The default line separator for text files by OS. For Windows it's '\r\n' and for Mac/Unix it's just '\n'.
 	 */
 	public static final String lsep = System.getProperty("line.separator");
-	
+
 	/**
 	 * The default separator for pathnames by OS. For Windows it is '\' for Mac/Unix it is '/'
 	 */
 	public static final String psep = FileSystems.getDefault().getSeparator();
-		
+
+	/**
+	 * A date formatter for UTC times.
+	 */
+	public static final DateTimeFormatter iso8601dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
 	/**
 	 * All static methods, no constructors allowed.
 	 */
 	private FSystem()
 	{
-		
+
 	}
 
 	/**

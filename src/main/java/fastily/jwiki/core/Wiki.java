@@ -997,4 +997,15 @@ public class Wiki
 		return FL.toAL(
 				new WQuery(this, WQuery.ALLOWEDFILEXTS).next().listComp("fileextensions").stream().map(e -> GSONP.gString(e, "ext")));
 	}
+	
+	/**
+	 * 	Gets a text extract (the lead paragraph) of a page.
+	 * @param title The title to get a text extract for.
+	 * @return The text extract. Null if {@code title} does not exist or is a special page.
+	 */
+	public String getTextExtract(String title)
+	{		
+		ColorLog.info(this, "Getting a text extract for " + title);
+		return MQuery.getTextExtracts(this, FL.toSAL(title)).get(title);
+	}
 }

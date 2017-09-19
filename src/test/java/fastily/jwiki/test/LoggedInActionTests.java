@@ -1,6 +1,5 @@
 package fastily.jwiki.test;
 
-
 import static org.junit.Assert.*;
 
 import org.junit.Test;
@@ -28,7 +27,7 @@ public class LoggedInActionTests extends ActionTests
 
 		wiki = new Wiki("Test", "password", server.url("/w/api.php"));
 	}
-	
+
 	/**
 	 * Test privileged delete.
 	 */
@@ -38,7 +37,7 @@ public class LoggedInActionTests extends ActionTests
 		addResponse("mockDeleteSuccess");
 		assertTrue(wiki.delete("Test", "Test Reason"));
 	}
-	
+
 	/**
 	 * Test privileged undelete.
 	 */

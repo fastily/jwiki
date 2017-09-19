@@ -40,7 +40,7 @@ public final class FL
 	{
 		return s.collect(Collectors.toCollection(ArrayList::new));
 	}
-	
+
 	/**
 	 * Collects the elements of a Stream into a HashSet.
 	 * 
@@ -82,7 +82,7 @@ public final class FL
 	{
 		return new ArrayList<>(Arrays.asList(strings));
 	}
-	
+
 	/**
 	 * Extracts each key-value pair from a Map and return the pairs as an ArrayList of Tuple objects.
 	 * 
@@ -126,9 +126,10 @@ public final class FL
 	{
 		return StreamSupport.stream(i.spliterator(), false);
 	}
-	
+
 	/**
 	 * Makes a fence with pipe characters as posts
+	 * 
 	 * @param planks The planks to use, in order.
 	 * @return A String with the specified planks and pipe characters as posts
 	 */

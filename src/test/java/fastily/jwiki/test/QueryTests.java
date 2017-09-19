@@ -451,4 +451,13 @@ public class QueryTests
 		
 		assertEquals(3, l.size());
 	}
+	
+	/**
+	 * Test getting text extracts
+	 */
+	@Test
+	public void testGetTextExtracts()
+	{
+		assertEquals("Start of an article", wiki.getTextExtract("User:Fastily/Article"));
+	}
 }

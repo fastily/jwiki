@@ -134,6 +134,11 @@ class WQuery
 	public static final QTemplate TEMPLATES = new QTemplate(FL.pMap("prop", "templates", "tiprop", "title", "titles", null), "tllimit", "templates");
 
 	/**
+	 * Default parameters for getting text extracts from a page
+	 */
+	public static final QTemplate TEXTEXTRACTS = new QTemplate(FL.pMap("prop", "extracts", "exintro", "1", "explaintext", "1", "titles", null), "exlimit", "extract");
+	
+	/**
 	 * Default parameters for getting a csrf token.
 	 */
 	public static final QTemplate TOKENS_CSRF = new QTemplate(FL.pMap("meta", "tokens", "type", "csrf"), null);
@@ -364,6 +369,7 @@ class WQuery
 		 * 
 		 * @param defaultFields The default parameters for the query described by this QueryUnitTemplate.
 		 * @param limString The limit String parameter. Optional, set null to disable.
+		 * @param id The id to use to lookup a query result for queries created with this Object.
 		 */
 		public QTemplate(HashMap<String, String> defaultFields, String limString, String id)
 		{

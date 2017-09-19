@@ -54,11 +54,11 @@ public class WTemplate
 	 * 
 	 * @param wiki The Wiki to normalize against.
 	 */
-	public void normalizeTitle(Wiki wiki) //TODO: Account for non-template NS
+	public void normalizeTitle(Wiki wiki) // TODO: Account for non-template NS
 	{
 		if (wiki.whichNS(title).equals(NS.TEMPLATE))
 			title = wiki.nss(title);
-		
+
 		title = title.length() <= 1 ? title.toUpperCase() : "" + Character.toUpperCase(title.charAt(0)) + title.substring(1);
 		title = title.replace('_', ' ');
 	}
