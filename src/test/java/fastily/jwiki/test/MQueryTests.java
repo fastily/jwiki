@@ -25,7 +25,7 @@ public class MQueryTests
 	/**
 	 * The Wiki object to use for this test set.
 	 */
-	private static final Wiki wiki = new Wiki("test.wikipedia.org");
+	private static Wiki wiki = new Wiki("test.wikipedia.org");
 
 	/**
 	 * Test for listUserRights.

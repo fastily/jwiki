@@ -28,7 +28,7 @@ public class QueryTests
 	/**
 	 * The wiki object to use for this test set.
 	 */
-	private static final Wiki wiki = new Wiki("test.wikipedia.org");
+	private static Wiki wiki = new Wiki("test.wikipedia.org");
 	
 	/**
 	 * Tests for namespace handling
@@ -458,6 +458,6 @@ public class QueryTests
 	@Test
 	public void testGetTextExtracts()
 	{
-		assertEquals("Start of an article", wiki.getTextExtract("User:Fastily/Article"));
+		assertEquals("Start of an article", wiki.getTextExtract("User:Fastily/Sandbox/Article"));
 	}
 }
