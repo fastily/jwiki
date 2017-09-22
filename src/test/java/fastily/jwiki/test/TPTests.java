@@ -27,10 +27,10 @@ public class TPTests
 	private static Wiki wiki = new Wiki("test.wikipedia.org");
 
 	/**
-	 * Basic test for WParse
+	 * Test parsePage in WParse
 	 */
 	@Test
-	public void testWParseTest()
+	public void testParsePage()
 	{
 		WikiText wt = WParser.parsePage(wiki, "User:Fastily/Sandbox/TPTest1");
 
@@ -52,10 +52,10 @@ public class TPTests
 	}
 
 	/**
-	 * Test for WTemplate.
+	 * Test parseText in WParse
 	 */
 	@Test
-	public void testWTemplate()
+	public void testParseText()
 	{
 		WikiText wt = WParser.parseText(wiki, wiki.getPageText("User:Fastily/Sandbox/TPTest2"));
 		ArrayList<WTemplate> wtl = wt.getTemplates();
@@ -72,5 +72,42 @@ public class TPTests
 		// test drop
 		t.drop();
 		assertTrue(wt.getTemplates().isEmpty());
+	}
+	
+	/**
+	 * Test for WikiText
+	 */
+	@Test
+	public void testWikiText()
+	{
+		WikiText wt = new WikiText();
+		assertTrue(wt.getTemplatesR().isEmpty());
+		
+		wt.append("foo");
+		assertEquals("foo", wt.toString());
+		
+		WTemplate tp1 = new WTemplate();
+		tp1.title = "Template:test";
+		wt.append(tp1);
+		
+		assertEquals("foo{{Template:test}}", wt.toString());
+		
+		ArrayList<WTemplate> wtl = wt.getTemplates();
+		assertEquals(1, wtl.size());
+		assertEquals("Template:test", wtl.get(0).title);
+		
+		tp1.normalizeTitle(wiki);
+		assertEquals("Test", tp1.title);
+		
+		assertEquals("foo{{Test}}", wt.toString());
+		
+		wt.append("bar");
+		assertEquals("foo{{Test}}bar", wt.toString());
+		
+		tp1.put("baz", "nyah");
+		assertEquals("foo{{Test|baz=nyah}}bar", wt.toString());
+		
+		tp1.drop();
+		assertEquals("foobar", wt.toString());
 	}
 }

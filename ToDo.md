@@ -14,3 +14,4 @@
 * Fix purge()
 
 * ImageInfo should use HttpUrl
+* Investigate nss on (malformed) lowercase namespaces

@@ -106,7 +106,7 @@ public class WTemplate
 	 * Appends {@code o} to the end of the WikiText associated with {@code k}
 	 * 
 	 * @param k The key to associate new text with.
-	 * @param o True
+	 * @param o The Object to append to the value keyed by {@code k} in this WTemplate
 	 */
 	public void append(String k, Object o)
 	{
