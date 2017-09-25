@@ -21,7 +21,7 @@ import okio.Okio;
  * @author Fastily
  *
  */
-final class WAction
+class WAction
 {
 	/**
 	 * All static methods, constructors disallowed.

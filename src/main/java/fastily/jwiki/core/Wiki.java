@@ -50,7 +50,7 @@ public class Wiki
 	/**
 	 * Used to make calls to and from the API.
 	 */
-	public final ApiClient apiclient;
+	protected final ApiClient apiclient;
 
 	/**
 	 * Constructor, sets username, password, and domain. If the username and password are not valid then a

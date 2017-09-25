@@ -25,7 +25,7 @@ import okhttp3.Response;
  * @author Fastily
  *
  */
-public final class ApiClient
+class ApiClient
 {
 	/**
 	 * MediaType for {@code application/octet-stream}.
@@ -35,7 +35,7 @@ public final class ApiClient
 	/**
 	 * HTTP client used for all requests.
 	 */
-	public final OkHttpClient client;
+	protected final OkHttpClient client;
 
 	/**
 	 * The Wiki object tied to this ApiClient.
