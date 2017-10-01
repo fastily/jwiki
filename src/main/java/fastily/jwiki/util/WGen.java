@@ -31,7 +31,15 @@ public class WGen
 	private static HashMap<String, Wiki> cache = new HashMap<>();
 
 	/**
-	 * Main driver
+	 * No constructors necessary
+	 */
+	private WGen()
+	{
+		
+	}
+	
+	/**
+	 * Main driver, runs the WGen application.
 	 * 
 	 * @param args Program arguments, not used
 	 * @throws Throwable On I/O error
