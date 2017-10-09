@@ -109,7 +109,8 @@ public class WParser
 						t.title = getNextElementText(r).trim();
 						break;
 					case "name":
-						lastNameParsed = parseTKey(r, se).trim();
+						Attribute index = se.getAttributeByName(new QName("index"));
+						lastNameParsed = index != null ? index.getValue() : getNextElementText(r);
 						break;
 					case "equals":
 						getNextElementText(r);
@@ -125,21 +126,6 @@ public class WParser
 				break;
 		}
 		return t;
-	}
-
-	/**
-	 * Parses a template parameter key. PRECONDTION: {@code e} is a {@code name} StartElement.
-	 * 
-	 * @param r The XMLEventReader to use
-	 * @param e The StartElement for a {@code name} event. May try to read an index attribute as parameter if there is no
-	 *           Characters element following this tag.
-	 * @return The name of this template parameter.
-	 * @throws Throwable On parse error.
-	 */
-	private static String parseTKey(XMLEventReader r, StartElement e) throws Throwable
-	{
-		Attribute index = e.getAttributeByName(new QName("index"));
-		return index != null ? index.getValue() : getNextElementText(r);
 	}
 
 	/**
@@ -178,21 +164,21 @@ public class WParser
 	 */
 	private static String getNextElementText(XMLEventReader r) throws Throwable
 	{
-		String x = "";
+		StringBuilder x = new StringBuilder();
 
 		while (r.hasNext())
 		{
 			XMLEvent e = r.nextEvent();
 
 			if (e.isStartElement())
-				throw new RuntimeException("What is " + e + " doing in element text?");
+				getNextElementText(r); // skip nested blocks, these are usually strangely placed comments
 			else if (e.isCharacters())
-				x += cToStr(e);
+				x.append(cToStr(e));
 			else if (e.isEndElement())
 				break;
 		}
 
-		return x;
+		return x.toString();
 	}
 
 	/**

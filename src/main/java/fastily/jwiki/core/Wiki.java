@@ -282,7 +282,7 @@ public class Wiki
 	 */
 	public NS getNS(String prefix)
 	{
-		if (prefix.isEmpty() || prefix.toLowerCase().equals("main"))
+		if (prefix.isEmpty() || prefix.equalsIgnoreCase("main"))
 			return NS.MAIN;
 
 		return nsl.nsM.containsKey(prefix) ? new NS((int) nsl.nsM.get(prefix)) : null;
@@ -412,7 +412,9 @@ public class Wiki
 	 */
 	public boolean replaceText(String title, String regex, String replacement, String reason)
 	{
-		String s = getPageText(title), rx = s.replaceAll(regex, replacement);
+		String s = getPageText(title);
+		String rx = s.replaceAll(regex, replacement);
+		
 		return rx.equals(s) || edit(title, rx, reason);
 	}
 

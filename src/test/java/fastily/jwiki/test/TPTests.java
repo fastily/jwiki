@@ -68,10 +68,26 @@ public class TPTests
 		assertEquals("TEST1", t.get("1").toString());
 		assertEquals("{{Tlx|1=FOOBAR|n=123456}}", t.get("another").toString());
 		assertEquals("", t.get("empty").toString());
-
+		assertEquals("test <!-- meh --> abc", t.get("asdf").toString());
+		
 		// test drop
 		t.drop();
 		assertTrue(wt.getTemplates().isEmpty());
+	}
+	
+	/**
+	 * Tests parseText with comments in strange locations
+	 */
+	@Test
+	public void testParseTextWithComments()
+	{
+		WikiText wt = WParser.parseText(wiki, wiki.getPageText("User:Fastily/Sandbox/TPTest3"));
+		ArrayList<WTemplate> wtl = wt.getTemplates();
+		
+		WTemplate t = wtl.get(0);
+		assertEquals("Tl", t.title);
+		assertEquals("test <!-- meh --> abc", t.get("asdf").toString());
+		assertEquals("<!-- ignore --> ok", t.get("bsdf").toString());
 	}
 	
 	/**

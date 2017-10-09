@@ -122,7 +122,7 @@ public class ActionTests
 		catch (Throwable e)
 		{
 			e.printStackTrace();
-			throw new RuntimeException("Should *never* reach here. Is a mock configuration file missing?");
+			throw new IllegalStateException("Should *never* reach here. Is a mock configuration file missing?");
 		}
 	}
 
