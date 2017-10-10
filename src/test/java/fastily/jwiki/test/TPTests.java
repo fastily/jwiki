@@ -69,6 +69,7 @@ public class TPTests
 		assertEquals("{{Tlx|1=FOOBAR|n=123456}}", t.get("another").toString());
 		assertEquals("", t.get("empty").toString());
 		assertEquals("test <!-- meh --> abc", t.get("asdf").toString());
+		assertEquals("big space", t.get("s").toString());
 		
 		// test drop
 		t.drop();

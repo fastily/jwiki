@@ -110,7 +110,7 @@ public class WParser
 						break;
 					case "name":
 						Attribute index = se.getAttributeByName(new QName("index"));
-						lastNameParsed = index != null ? index.getValue() : getNextElementText(r);
+						lastNameParsed = index != null ? index.getValue() : getNextElementText(r).trim();
 						break;
 					case "equals":
 						getNextElementText(r);
