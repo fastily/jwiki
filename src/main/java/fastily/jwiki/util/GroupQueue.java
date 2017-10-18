@@ -1,6 +1,8 @@
 package fastily.jwiki.util;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 /**
  * A simple read-only Queue that allows multiple items to be polled at once.
@@ -14,7 +16,7 @@ public class GroupQueue<T>
 	/**
 	 * The backing data structure.
 	 */
-	private final ArrayList<T> l;
+	private ArrayList<T> l;
 
 	/**
 	 * The size, start, end, and maximum size of polls.
@@ -27,9 +29,9 @@ public class GroupQueue<T>
 	 * @param l The backing ArrayList to use. This will not be modified.
 	 * @param maxPoll The maximum number of elements to poll at once.
 	 */
-	public GroupQueue(ArrayList<T> l, int maxPoll)
+	public GroupQueue(Collection<T> l, int maxPoll)
 	{
-		this.l = l;
+		this.l = l instanceof ArrayList<?> ? (ArrayList<T>) l : new ArrayList<>(l);
 		size = l.size();
 		end = maxPoll;
 
@@ -37,12 +39,12 @@ public class GroupQueue<T>
 	}
 
 	/**
-	 * Polls this Queue and returns &le; <code>maxPoll</code> elements.
+	 * Polls this Queue and returns &le; {@code maxPoll} elements.
 	 * 
-	 * @return An ArrayList with the first <code>maxPoll</code> elements if possible. Returns the empty list if there is
+	 * @return An ArrayList with the first {@code maxPoll} elements if possible. Returns the empty list if there is
 	 *         nothing left.
 	 */
-	public ArrayList<T> poll()
+	public List<T> poll()
 	{
 		if (!has())
 			return new ArrayList<>();
@@ -50,7 +52,7 @@ public class GroupQueue<T>
 		if (size - start < maxPoll)
 			end = size;
 
-		ArrayList<T> temp = new ArrayList<>(l.subList(start, end));
+		List<T> temp = l.subList(start, end);
 
 		start += maxPoll;
 		end += maxPoll;

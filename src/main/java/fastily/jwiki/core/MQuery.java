@@ -1,6 +1,7 @@
 package fastily.jwiki.core;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 
@@ -51,7 +52,7 @@ public final class MQuery
 	 * @param elemArrKey The key for each JsonArray for each title the resulting set
 	 * @return A Map where the key is the title of the page, and the value is the List of properties fetched.
 	 */
-	private static MultiMap<String, JsonObject> getContProp(Wiki wiki, ArrayList<String> titles, QTemplate qut,
+	private static MultiMap<String, JsonObject> getContProp(Wiki wiki, Collection<String> titles, QTemplate qut,
 			HashMap<String, String> pl, String elemArrKey)
 	{
 		MultiMap<String, JsonObject> l = new MultiMap<>();
@@ -83,7 +84,7 @@ public final class MQuery
 	 * @param eKey The value key to get from each page element. If this cannot be found, then it is set to null.
 	 * @return The {@code title} of each page as the key, and the value of the associated {@code eKey}.
 	 */
-	private static HashMap<String, JsonElement> getNoContProp(Wiki wiki, ArrayList<String> titles, QTemplate qut,
+	private static HashMap<String, JsonElement> getNoContProp(Wiki wiki, Collection<String> titles, QTemplate qut,
 			HashMap<String, String> pl, String eKey)
 	{
 		HashMap<String, JsonElement> m = new HashMap<>();
@@ -111,7 +112,7 @@ public final class MQuery
 	 * @param aKey The key pointing to the JsonArray of JsonObject in the server's Response.
 	 * @return An ArrayList of JsonObject collected from the server Response(s).
 	 */
-	private static ArrayList<JsonObject> getNoContList(Wiki wiki, ArrayList<String> titles, QTemplate qut, HashMap<String, String> pl,
+	private static ArrayList<JsonObject> getNoContList(Wiki wiki, Collection<String> titles, QTemplate qut, HashMap<String, String> pl,
 			String tQKey, String aKey)
 	{
 		ArrayList<JsonObject> l = new ArrayList<>();
@@ -181,7 +182,7 @@ public final class MQuery
 	 * @param users The list of users to get rights information for. Do not include "User:" prefix.
 	 * @return The list of results keyed by username.
 	 */
-	public static HashMap<String, ArrayList<String>> listUserRights(Wiki wiki, ArrayList<String> users)
+	public static HashMap<String, ArrayList<String>> listUserRights(Wiki wiki, Collection<String> users)
 	{
 		HashMap<String, ArrayList<String>> l = new HashMap<>();
 		getNoContList(wiki, users, WQuery.USERRIGHTS, null, "ususers", "users")
@@ -197,7 +198,7 @@ public final class MQuery
 	 * @param titles The titles to query
 	 * @return A map with titles keyed to respective lists of ImageInfo.
 	 */
-	public static HashMap<String, ArrayList<ImageInfo>> getImageInfo(Wiki wiki, ArrayList<String> titles)
+	public static HashMap<String, ArrayList<ImageInfo>> getImageInfo(Wiki wiki, Collection<String> titles)
 	{
 		HashMap<String, ArrayList<ImageInfo>> l = new HashMap<>();
 		getContProp(wiki, titles, WQuery.IMAGEINFO, null, "imageinfo").l
@@ -216,7 +217,7 @@ public final class MQuery
 	 * @param titles The titles to query.
 	 * @return A list of results keyed by title.
 	 */
-	public static HashMap<String, ArrayList<String>> getCategoriesOnPage(Wiki wiki, ArrayList<String> titles)
+	public static HashMap<String, ArrayList<String>> getCategoriesOnPage(Wiki wiki, Collection<String> titles)
 	{
 		return parsePropToSingle(getContProp(wiki, titles, WQuery.PAGECATEGORIES, null, "categories"));
 	}
@@ -229,7 +230,7 @@ public final class MQuery
 	 * @return A list of results keyed by title. Value returned will be -1 if Category entered was empty <b>and</b>
 	 *         non-existent.
 	 */
-	public static HashMap<String, Integer> getCategorySize(Wiki wiki, ArrayList<String> titles)
+	public static HashMap<String, Integer> getCategorySize(Wiki wiki, Collection<String> titles)
 	{
 		HashMap<String, Integer> l = new HashMap<>();
 		getNoContProp(wiki, titles, WQuery.CATEGORYINFO, null, "categoryinfo")
@@ -244,7 +245,7 @@ public final class MQuery
 	 * @param titles The titles to query
 	 * @return A list of results keyed by title.
 	 */
-	public static HashMap<String, String> getPageText(Wiki wiki, ArrayList<String> titles)
+	public static HashMap<String, String> getPageText(Wiki wiki, Collection<String> titles)
 	{
 		HashMap<String, String> l = new HashMap<>();
 		getNoContProp(wiki, titles, WQuery.PAGETEXT, null, "revisions").forEach((k, v) -> {
@@ -268,7 +269,7 @@ public final class MQuery
 	 * @param ns Namespaces to include-only. Optional param: leave blank to disable.
 	 * @return A list of results keyed by title.
 	 */
-	public static HashMap<String, ArrayList<String>> getLinksOnPage(Wiki wiki, ArrayList<String> titles, NS... ns)
+	public static HashMap<String, ArrayList<String>> getLinksOnPage(Wiki wiki, Collection<String> titles, NS... ns)
 	{
 		HashMap<String, String> pl = new HashMap<>();
 		if (ns != null && ns.length > 0)
@@ -285,7 +286,7 @@ public final class MQuery
 	 * @param titles The titles to query
 	 * @return A list of results keyed by title.
 	 */
-	public static HashMap<String, ArrayList<String>> linksHere(Wiki wiki, boolean redirects, ArrayList<String> titles)
+	public static HashMap<String, ArrayList<String>> linksHere(Wiki wiki, boolean redirects, Collection<String> titles)
 	{
 		return parsePropToSingle(
 				getContProp(wiki, titles, WQuery.LINKSHERE, FL.pMap("lhshow", (redirects ? "" : "!") + "redirect"), "linkshere"));
@@ -299,7 +300,7 @@ public final class MQuery
 	 * @param ns Only return results from this/these namespace(s). Optional param: leave blank to disable.
 	 * @return A list of results keyed by title.
 	 */
-	public static HashMap<String, ArrayList<String>> transcludesIn(Wiki wiki, ArrayList<String> titles, NS... ns)
+	public static HashMap<String, ArrayList<String>> transcludesIn(Wiki wiki, Collection<String> titles, NS... ns)
 	{
 		HashMap<String, String> pl = new HashMap<>();
 		if (ns.length > 0)
@@ -315,7 +316,7 @@ public final class MQuery
 	 * @param titles The titles to query. PRECONDITION: These must be valid file names prefixed with the "File:" prefix.
 	 * @return A Map of results keyed by title.
 	 */
-	public static HashMap<String, ArrayList<String>> fileUsage(Wiki wiki, ArrayList<String> titles)
+	public static HashMap<String, ArrayList<String>> fileUsage(Wiki wiki, Collection<String> titles)
 	{
 		return parsePropToSingle(getContProp(wiki, titles, WQuery.FILEUSAGE, null, "fileusage"));
 	}
@@ -327,7 +328,7 @@ public final class MQuery
 	 * @param titles The titles to query
 	 * @return A Map of results keyed by title.
 	 */
-	public static HashMap<String, ArrayList<String>> getExternalLinks(Wiki wiki, ArrayList<String> titles)
+	public static HashMap<String, ArrayList<String>> getExternalLinks(Wiki wiki, Collection<String> titles)
 	{
 		return parsePropToSingle(getContProp(wiki, titles, WQuery.EXTLINKS, null, "extlinks"), "*");
 	}
@@ -339,7 +340,7 @@ public final class MQuery
 	 * @param titles The titles to query
 	 * @return Results keyed by title. {@code true} means the title exists.
 	 */
-	public static HashMap<String, Boolean> exists(Wiki wiki, ArrayList<String> titles)
+	public static HashMap<String, Boolean> exists(Wiki wiki, Collection<String> titles)
 	{
 		HashMap<String, Boolean> l = new HashMap<>();
 		getNoContProp(wiki, titles, WQuery.EXISTS, null, "missing").forEach((k, v) -> l.put(k, v == null));
@@ -354,7 +355,7 @@ public final class MQuery
 	 * @param titles The titles to query
 	 * @return A list of titles that exist or don't exist.
 	 */
-	public static ArrayList<String> exists(Wiki wiki, boolean exists, ArrayList<String> titles)
+	public static ArrayList<String> exists(Wiki wiki, boolean exists, Collection<String> titles)
 	{
 		ArrayList<String> l = new ArrayList<>();
 		exists(wiki, titles).forEach((k, v) -> {
@@ -372,7 +373,7 @@ public final class MQuery
 	 * @param titles The titles to query
 	 * @return A list of results keyed by title.
 	 */
-	public static HashMap<String, ArrayList<String>> getImagesOnPage(Wiki wiki, ArrayList<String> titles)
+	public static HashMap<String, ArrayList<String>> getImagesOnPage(Wiki wiki, Collection<String> titles)
 	{
 		return parsePropToSingle(getContProp(wiki, titles, WQuery.IMAGES, null, "images"));
 	}
@@ -384,7 +385,7 @@ public final class MQuery
 	 * @param titles The titles to query
 	 * @return A list of results keyed by title.
 	 */
-	public static HashMap<String, ArrayList<String>> getTemplatesOnPage(Wiki wiki, ArrayList<String> titles)
+	public static HashMap<String, ArrayList<String>> getTemplatesOnPage(Wiki wiki, Collection<String> titles)
 	{
 		return parsePropToSingle(getContProp(wiki, titles, WQuery.TEMPLATES, null, "templates"));
 	}
@@ -396,7 +397,7 @@ public final class MQuery
 	 * @param titles The titles to query
 	 * @return A list of results keyed by title. The inner tuple is of the form (title, shorthand url notation).
 	 */
-	public static HashMap<String, ArrayList<Tuple<String, String>>> globalUsage(Wiki wiki, ArrayList<String> titles)
+	public static HashMap<String, ArrayList<Tuple<String, String>>> globalUsage(Wiki wiki, Collection<String> titles)
 	{
 		return parsePropToDouble(getContProp(wiki, titles, WQuery.GLOBALUSAGE, null, "globalusage"), "title", "wiki");
 	}
@@ -408,7 +409,7 @@ public final class MQuery
 	 * @param titles The titles to attempt resolving.
 	 * @return A HashMap where each key is the original title, and the value is the resolved title.
 	 */
-	public static HashMap<String, String> resolveRedirects(Wiki wiki, ArrayList<String> titles)
+	public static HashMap<String, String> resolveRedirects(Wiki wiki, Collection<String> titles)
 	{
 		HashMap<String, String> l = new HashMap<>();
 		for (String s : titles)
@@ -428,7 +429,7 @@ public final class MQuery
 	 * @param titles The titles to query
 	 * @return A list of results keyed by title.
 	 */
-	public static HashMap<String, ArrayList<String>> getDuplicatesOf(Wiki wiki, boolean localOnly, ArrayList<String> titles)
+	public static HashMap<String, ArrayList<String>> getDuplicatesOf(Wiki wiki, boolean localOnly, Collection<String> titles)
 	{
 		HashMap<String, String> pl = new HashMap<>();
 		if (localOnly)
@@ -450,7 +451,7 @@ public final class MQuery
 	 * @param titles The titles to query
 	 * @return A list of results keyed by title.
 	 */
-	public static HashMap<String, ArrayList<String>> getSharedDuplicatesOf(Wiki wiki, ArrayList<String> titles)
+	public static HashMap<String, ArrayList<String>> getSharedDuplicatesOf(Wiki wiki, Collection<String> titles)
 	{
 		HashMap<String, ArrayList<Tuple<String, String>>> xl = parsePropToDouble(
 				getContProp(wiki, titles, WQuery.DUPLICATEFILES, null, "duplicatefiles"), "name", "shared");
@@ -466,7 +467,7 @@ public final class MQuery
 	 * @param titles The titles to get a text extract for.
 	 * @return A Map of results keyed by title.  A null mapping means that the page doesn't exist or is not eligble for text extract.
 	 */
-	public static HashMap<String, String> getTextExtracts(Wiki wiki, ArrayList<String> titles)
+	public static HashMap<String, String> getTextExtracts(Wiki wiki, Collection<String> titles)
 	{
 		HashMap<String, String> l = new HashMap<>();
 		getNoContProp(wiki, titles, WQuery.TEXTEXTRACTS, null, "extract").forEach((k, v) -> l.put(k, v == null ? null : v.getAsString()));

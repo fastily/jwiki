@@ -2,6 +2,7 @@ package fastily.jwiki.core;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -297,7 +298,7 @@ class WQuery
 	 * @param values The parameter value to set; these will be pipe-fenced.
 	 * @return This WQuery. Useful for chaining.
 	 */
-	public WQuery set(String key, ArrayList<String> values)
+	public WQuery set(String key, List<String> values)
 	{
 		return set(key, FL.pipeFence(values));
 	}
