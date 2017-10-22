@@ -3,9 +3,10 @@ package fastily.jwiki.core;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.regex.Matcher;
 
@@ -301,6 +302,19 @@ public class Wiki
 	}
 
 	/**
+	 * Get the talk page of {@code title}.  
+	 * @param title The title to get a talk page for.  PRECONDITION: This cannot be a special page.
+	 * @return The talk page of {@code title}
+	 */
+	public String talkPageOf(String title)
+	{
+		int i = whichNS(title).v;
+		if(i < 0 || i % 2 == 1)
+			throw new IllegalArgumentException("Cannot get talk page of a talk page or special page: " + title);
+		return (String) nsl.nsM.get(i+1) + ":" + nss(title);
+	}
+	
+	/**
 	 * Strip the namespace from a title.
 	 * 
 	 * @param title The title to strip the namespace from
@@ -331,15 +345,8 @@ public class Wiki
 	 */
 	public ArrayList<String> filterByNS(ArrayList<String> pages, NS... ns)
 	{
-		ArrayList<String> l = new ArrayList<>();
-		ArrayList<NS> nl = new ArrayList<>();
-		Collections.addAll(nl, ns);
-
-		for (String s : pages)
-			if (nl.contains(whichNS(s)))
-				l.add(s);
-
-		return l;
+		HashSet<NS> l = new HashSet<>(Arrays.asList(ns));
+		return FL.toAL(pages.stream().filter(s -> l.contains(whichNS(s))));
 	}
 
 	/**

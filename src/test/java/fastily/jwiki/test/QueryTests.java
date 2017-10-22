@@ -460,4 +460,16 @@ public class QueryTests
 	{
 		assertEquals("Start of an article", wiki.getTextExtract("User:Fastily/Sandbox/Article"));
 	}
+	
+	/**
+	 * Test getting talk page of a title
+	 */
+	@Test
+	public void testGetTalkPage() 
+	{
+		assertEquals("File talk:Example.jpg", wiki.talkPageOf("File:Example.jpg"));
+		assertEquals("Talk:Main Page", wiki.talkPageOf("Main Page"));
+		assertEquals("Wikipedia talk:Test", wiki.talkPageOf("Wikipedia:Test"));
+		assertEquals("TimedText talk:File:Test.webm.srt", wiki.talkPageOf("TimedText:File:Test.webm.srt"));
+	}
 }
