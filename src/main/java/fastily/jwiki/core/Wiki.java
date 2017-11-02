@@ -302,18 +302,19 @@ public class Wiki
 	}
 
 	/**
-	 * Get the talk page of {@code title}.  
-	 * @param title The title to get a talk page for.  PRECONDITION: This cannot be a special page.
+	 * Get the talk page of {@code title}.
+	 * 
+	 * @param title The title to get a talk page for. PRECONDITION: This cannot be a special page.
 	 * @return The talk page of {@code title}
 	 */
 	public String talkPageOf(String title)
 	{
 		int i = whichNS(title).v;
-		if(i < 0 || i % 2 == 1)
+		if (i < 0 || i % 2 == 1)
 			throw new IllegalArgumentException("Cannot get talk page of a talk page or special page: " + title);
-		return (String) nsl.nsM.get(i+1) + ":" + nss(title);
+		return (String) nsl.nsM.get(i + 1) + ":" + nss(title);
 	}
-	
+
 	/**
 	 * Strip the namespace from a title.
 	 * 
@@ -421,7 +422,7 @@ public class Wiki
 	{
 		String s = getPageText(title);
 		String rx = s.replaceAll(regex, replacement);
-		
+
 		return rx.equals(s) || edit(title, rx, reason);
 	}
 
@@ -1006,14 +1007,15 @@ public class Wiki
 		return FL.toAL(
 				new WQuery(this, WQuery.ALLOWEDFILEXTS).next().listComp("fileextensions").stream().map(e -> GSONP.gString(e, "ext")));
 	}
-	
+
 	/**
-	 * 	Gets a text extract (the lead paragraph) of a page.
+	 * Gets a text extract (the lead paragraph) of a page.
+	 * 
 	 * @param title The title to get a text extract for.
 	 * @return The text extract. Null if {@code title} does not exist or is a special page.
 	 */
 	public String getTextExtract(String title)
-	{		
+	{
 		ColorLog.info(this, "Getting a text extract for " + title);
 		return MQuery.getTextExtracts(this, FL.toSAL(title)).get(title);
 	}
