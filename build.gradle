@@ -82,7 +82,7 @@ javadoc {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '4.3'
+    gradleVersion = '4.3.1'
 }
 
 task sourceJar(type: Jar) {
@@ -93,4 +93,20 @@ task sourceJar(type: Jar) {
 task packageJavadoc(type: Jar) {
     from javadoc
     classifier = 'javadoc'
+}
+
+task wgen(type: Jar) {
+  baseName = "WGen"
+
+  from {
+    configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+  }
+
+  manifest {
+    attributes 'Main-Class': 'fastily.jwiki.util.WGen'
+  }
+  
+  exclude "META-INF/*.SF", "**/LICENSE*", "**/NOTICE*", "**/maven/**"
+
+  with jar
 }
