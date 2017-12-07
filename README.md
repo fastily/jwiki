@@ -28,6 +28,12 @@ Gradle:
 compile 'fastily:jwiki:1.4.0'
 ```
 
+## Build
+You can build and publish jwiki on your local machine with
+```bash
+./gradlew build publishToMavenLocal
+```
+
 ## Project Objectives
 jwiki is intended to be a simple, reliable, and low-overhead framework for anybody seeking to make use of the MediaWiki API.  Emphasis is placed on:
 * **Simplicity** - Complex objects and functions are abstracted into the background so that _anybody_, regardless of Java experience, will be able to use jwiki.
