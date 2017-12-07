@@ -4,14 +4,17 @@
 [![MediaWiki 1.27+](https://upload.wikimedia.org/wikipedia/commons/2/2c/MediaWiki_1.27%2B_Blue_Badge.svg)](https://www.mediawiki.org/wiki/MediaWiki)
 [![License: GPL v3](https://upload.wikimedia.org/wikipedia/commons/8/86/GPL_v3_Blue_Badge.svg)](https://www.gnu.org/licenses/gpl-3.0.en.html)
 
-jwiki is a simple Java client library wrapping the [MediaWiki](https://www.mediawiki.org/wiki/MediaWiki) Web [API](https://www.mediawiki.org/wiki/API:Main_page).  It can be used by developers to create bots and tools, or to perform analytics on just about any Wiki.
+jwiki is a simple, lightweight Java framework for interacting with a [MediaWiki](https://www.mediawiki.org/wiki/MediaWiki) instance.
+
+The MediaWiki [API](https://www.mediawiki.org/wiki/API:Main_page) is complicated and difficult to use effectively.  Clients are forced to deal with nasty details such as pagination, credential management, JSON, and unexpected errors.  I created jwiki to manage and hide away these nasty bits while providing effortless access to all the powerful features of the MediaWiki API.  jwiki allows complex API queries and actions to be executed with _one_ straightforward function call consisting of simple objects and/or primitive types.  It's so easy that _anyone_ (new developers included) can create an application that works with MediaWiki.
+
 
 ## Getting Started
 * Main class: [Wiki.java](https://github.com/fastily/jwiki/blob/master/src/main/java/fastily/jwiki/core/Wiki.java)
 * [Javadocs](https://fastily.github.io/jwiki/docs/jwiki/)
 
 ## Download
-jwiki is available via [bintray/jcenter](https://bintray.com/fastily/maven/jwiki)
+jwiki is [available](https://bintray.com/fastily/maven/jwiki) on [jcenter](https://bintray.com/bintray/jcenter)
 
 Maven:
 ```xml
@@ -29,17 +32,10 @@ compile 'fastily:jwiki:1.4.0'
 ```
 
 ## Build
-You can build and publish jwiki on your local machine with
+Build and publish jwiki on your local machine with
 ```bash
 ./gradlew build publishToMavenLocal
 ```
-
-## Project Objectives
-jwiki is intended to be a simple, reliable, and low-overhead framework for anybody seeking to make use of the MediaWiki API.  Emphasis is placed on:
-* **Simplicity** - Complex objects and functions are abstracted into the background so that _anybody_, regardless of Java experience, will be able to use jwiki.
-* **Speed** - Network calls, local computation, and memory usage are optimized and kept at a minimum, so as to enhance performance and reduce overhead.
-* **Succinctness** - Most complex API actions can be performed in jwiki using one line of local code consisting of simple objects and primitive types.
-
 
 ## Examples
 ### Get Page Text
@@ -73,7 +69,7 @@ if(success)
 ```java
 // Gets the author of the Main Page and prints it
 Wiki wiki = new Wiki("en.wikipedia.org");
-System.out.println(wiki.getRevisions("Main page", 1, true, null, null).get(0).user);
+System.out.println(wiki.getPageCreator("Main page"));
 ```
 
 ### Upload a file

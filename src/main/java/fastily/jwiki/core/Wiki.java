@@ -1019,4 +1019,42 @@ public class Wiki
 		ColorLog.info(this, "Getting a text extract for " + title);
 		return MQuery.getTextExtracts(this, FL.toSAL(title)).get(title);
 	}
+
+	/**
+	 * Gets the first editor (creator) of a page. Specifically, get the author of the first revision of {@code title}.
+	 * 
+	 * @param title The title to query
+	 * @return The page creator (excluding {@code User:} prefix) or null on error.
+	 */
+	public String getPageCreator(String title)
+	{
+		try
+		{
+			return getRevisions(title, 1, true, null, null).get(0).user;
+		}
+		catch (Throwable e)
+		{
+			e.printStackTrace();
+			return null;
+		}
+	}
+
+	/**
+	 * Gets the username of the editor who last edited a page.
+	 * 
+	 * @param title The title to query
+	 * @return The most recent editor of {@code title} (excluding {@code User:} prefix) or null on error.
+	 */
+	public String getLastEditor(String title)
+	{
+		try
+		{
+			return getRevisions(title, 1, false, null, null).get(0).user;
+		}
+		catch (Throwable e)
+		{
+			e.printStackTrace();
+			return null;
+		}
+	}
 }
