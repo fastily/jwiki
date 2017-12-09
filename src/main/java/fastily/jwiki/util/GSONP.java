@@ -104,7 +104,7 @@ public class GSONP
 	 */
 	public static HashMap<String, String> pairOff(ArrayList<JsonObject> input, String kk, String vk)
 	{
-		return new HashMap<>(input.stream().collect(Collectors.toMap(e -> gString(e, kk), e -> gString(e, vk))));
+		return new HashMap<>(input.stream().collect(Collectors.toMap(e -> getStr(e, kk), e -> getStr(e, vk))));
 	}
 
 	/**
@@ -157,7 +157,7 @@ public class GSONP
 	 * @param key The key to look for
 	 * @return The value associated with {@code key} as a String, or null if the {@code key} could not be found.
 	 */
-	public static String gString(JsonObject jo, String key)
+	public static String getStr(JsonObject jo, String key)
 	{
 		if(!jo.has(key))
 			return null;
@@ -165,7 +165,7 @@ public class GSONP
 		JsonElement e = jo.get(key);
 		return e.isJsonPrimitive() ? e.getAsString() : null;
 	}
-
+	
 	/**
 	 * Get a JsonArray of String objects as an ArrayList of String objects.
 	 * 

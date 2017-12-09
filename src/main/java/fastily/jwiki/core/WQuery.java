@@ -448,7 +448,7 @@ class WQuery
 				return m;
 
 			for (JsonObject jo : GSONP.getJOofJO(x))
-				m.put(GSONP.gString(jo, kk), jo.get(vk));
+				m.put(GSONP.getStr(jo, kk), jo.get(vk));
 
 			return normalize(m);
 		}

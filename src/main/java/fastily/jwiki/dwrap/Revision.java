@@ -26,7 +26,7 @@ public class Revision extends DataEntry
 	 */
 	public Revision(JsonObject r)
 	{
-		super(GSONP.gString(r, "user"), null, GSONP.gString(r, "comment"), Instant.parse(GSONP.gString(r, "timestamp")));
-		text = GSONP.gString(r, "*");
+		super(GSONP.getStr(r, "user"), null, GSONP.getStr(r, "comment"), Instant.parse(GSONP.getStr(r, "timestamp")));
+		text = GSONP.getStr(r, "*");
 	}
 }

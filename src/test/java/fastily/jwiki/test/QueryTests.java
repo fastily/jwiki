@@ -12,6 +12,7 @@ import fastily.jwiki.core.NS;
 import fastily.jwiki.core.Wiki;
 import fastily.jwiki.dwrap.Contrib;
 import fastily.jwiki.dwrap.ImageInfo;
+import fastily.jwiki.dwrap.PageSection;
 import fastily.jwiki.dwrap.Revision;
 import fastily.jwiki.util.FL;
 import fastily.jwiki.util.Tuple;
@@ -471,5 +472,34 @@ public class QueryTests
 		assertEquals("Talk:Main Page", wiki.talkPageOf("Main Page"));
 		assertEquals("Wikipedia talk:Test", wiki.talkPageOf("Wikipedia:Test"));
 		assertEquals("TimedText talk:File:Test.webm.srt", wiki.talkPageOf("TimedText:File:Test.webm.srt"));
+	}
+	
+	/**
+	 * Test splitting a page by header
+	 */
+	@Test
+	public void testSplitPageByHeader()
+	{
+		ArrayList<PageSection> l = wiki.splitPageByHeader("User:Fastily/Sandbox/HelloWorld2");
+		
+		assertEquals(1, l.size());
+		assertEquals("Hello, World!", l.get(0).header);
+		assertEquals(2, l.get(0).level);
+		
+		
+		l = wiki.splitPageByHeader("User:Fastily/Sandbox/HelloWorld");
+		assertEquals(1, l.size());
+		assertNull(l.get(0).header);
+		assertEquals(-1, l.get(0).level);
+		assertEquals("Hello World!", l.get(0).text);
+		
+		l = wiki.splitPageByHeader("User:Fastily/Sandbox/Article");
+		assertEquals(3, l.size());
+		assertNull(l.get(0).header);
+		assertEquals("Section 1", l.get(1).header);
+		assertEquals("Section 2", l.get(2).header);
+		
+		assertEquals("Start of an article\n\n", l.get(0).text);
+		assertEquals("==Section 2==\nFoo Baz Bar", l.get(2).text);
 	}
 }

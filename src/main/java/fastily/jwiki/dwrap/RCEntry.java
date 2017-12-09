@@ -26,7 +26,7 @@ public class RCEntry extends DataEntry
 	 */
 	public RCEntry(JsonObject r)
 	{
-		super(GSONP.gString(r, "user"), GSONP.gString(r, "title"), GSONP.gString(r, "comment"), Instant.parse(GSONP.gString(r, "timestamp")));
-		type = GSONP.gString(r, "type");
+		super(GSONP.getStr(r, "user"), GSONP.getStr(r, "title"), GSONP.getStr(r, "comment"), Instant.parse(GSONP.getStr(r, "timestamp")));
+		type = GSONP.getStr(r, "type");
 	}
 }

@@ -140,7 +140,7 @@ public final class MQuery
 	private static HashMap<String, ArrayList<String>> parsePropToSingle(MultiMap<String, JsonObject> m, String elemKey)
 	{
 		HashMap<String, ArrayList<String>> xl = new HashMap<>();
-		m.l.forEach((k, v) -> xl.put(k, FL.toAL(v.stream().map(e -> GSONP.gString(e, elemKey)))));
+		m.l.forEach((k, v) -> xl.put(k, FL.toAL(v.stream().map(e -> GSONP.getStr(e, elemKey)))));
 
 		return xl;
 	}
@@ -170,7 +170,7 @@ public final class MQuery
 	{
 		HashMap<String, ArrayList<Tuple<String, String>>> xl = new HashMap<>();
 		m.l.forEach(
-				(k, v) -> xl.put(k, FL.toAL(v.stream().map(e -> new Tuple<>(GSONP.gString(e, elemKey1), GSONP.gString(e, elemKey2))))));
+				(k, v) -> xl.put(k, FL.toAL(v.stream().map(e -> new Tuple<>(GSONP.getStr(e, elemKey1), GSONP.getStr(e, elemKey2))))));
 
 		return xl;
 	}
@@ -186,7 +186,7 @@ public final class MQuery
 	{
 		HashMap<String, ArrayList<String>> l = new HashMap<>();
 		getNoContList(wiki, users, WQuery.USERRIGHTS, null, "ususers", "users")
-				.forEach(jo -> l.put(GSONP.gString(jo, "name"), GSONP.jaOfStrToAL(jo.getAsJsonArray("groups"))));
+				.forEach(jo -> l.put(GSONP.getStr(jo, "name"), GSONP.jaOfStrToAL(jo.getAsJsonArray("groups"))));
 
 		return l;
 	}
@@ -254,7 +254,7 @@ public final class MQuery
 			else
 			{
 				ArrayList<JsonObject> jl = GSONP.getJAofJO(v.getAsJsonArray());
-				l.put(k, jl.isEmpty() ? "" : GSONP.gString(jl.get(0), "*"));
+				l.put(k, jl.isEmpty() ? "" : GSONP.getStr(jl.get(0), "*"));
 			}
 		});
 
@@ -416,7 +416,7 @@ public final class MQuery
 			l.put(s, s);
 
 		getNoContList(wiki, titles, WQuery.RESOLVEREDIRECT, null, "titles", "redirects")
-				.forEach(jo -> l.put(GSONP.gString(jo, "from"), GSONP.gString(jo, "to")));
+				.forEach(jo -> l.put(GSONP.getStr(jo, "from"), GSONP.getStr(jo, "to")));
 
 		return l;
 	}

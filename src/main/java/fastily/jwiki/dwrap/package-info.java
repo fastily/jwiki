@@ -1,5 +1,5 @@
 /**
- * Contains data storage formats for jwiki. These are simple objects with public final, immutable fields.
+ * Simple wrappers for managing sets of data returned by the API.
  * 
  * @author Fastily
  */

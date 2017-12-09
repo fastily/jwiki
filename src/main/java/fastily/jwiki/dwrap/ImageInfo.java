@@ -48,13 +48,13 @@ public final class ImageInfo extends DataEntry implements Comparable<ImageInfo>
 	 */
 	public ImageInfo(JsonObject r)
 	{
-		super(GSONP.gString(r, "user"), null, GSONP.gString(r, "comment"), Instant.parse(GSONP.gString(r, "timestamp")));
+		super(GSONP.getStr(r, "user"), null, GSONP.getStr(r, "comment"), Instant.parse(GSONP.getStr(r, "timestamp")));
 		size = r.get("size").getAsInt();
 		dimensions = new Tuple<>(r.get("width").getAsInt(), r.get("height").getAsInt());
-		url = genURL(GSONP.gString(r, "url"));
+		url = genURL(GSONP.getStr(r, "url"));
 
-		sha1 = GSONP.gString(r, "sha1");
-		mime = GSONP.gString(r, "mime");
+		sha1 = GSONP.getStr(r, "sha1");
+		mime = GSONP.getStr(r, "mime");
 	}
 
 	/**

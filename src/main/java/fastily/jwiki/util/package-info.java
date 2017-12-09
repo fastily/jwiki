@@ -1,6 +1,6 @@
 /**
- * Classes with static methods that support the jwiki core framework. These are very general, and may be helpful in
- * applications that build on jwiki.
+ * A collection of static methods and data structures that support the jwiki core framework. These are general-purpose,
+ * and exposed so that they may be helpful to applications that build on jwiki.
  * 
  * @author Fastily
  */

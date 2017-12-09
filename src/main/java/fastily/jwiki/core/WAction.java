@@ -217,7 +217,7 @@ class WAction
 							continue;
 						}
 
-						filekey = GSONP.gString(GSONP.jp.parse(r.body().string()).getAsJsonObject().getAsJsonObject("upload"), "filekey");
+						filekey = GSONP.getStr(GSONP.jp.parse(r.body().string()).getAsJsonObject().getAsJsonObject("upload"), "filekey");
 						if (filekey != null)
 							break;
 					}
@@ -295,7 +295,7 @@ class WAction
 			try
 			{
 				if (jo.has(action))
-					switch (GSONP.gString(jo.getAsJsonObject(action), "result"))
+					switch (GSONP.getStr(jo.getAsJsonObject(action), "result"))
 					{
 						case "Success":
 							return SUCCESS;
@@ -303,7 +303,7 @@ class WAction
 							ColorLog.fyi(String.format("Got back '%s', missing a 'result'?", GSONP.gson.toJson(jo)));
 					}
 				else if (jo.has("error"))
-					switch (GSONP.gString(jo.getAsJsonObject("error"), "code"))
+					switch (GSONP.getStr(jo.getAsJsonObject("error"), "code"))
 					{
 						case "notoken":
 							return NOTOKEN;

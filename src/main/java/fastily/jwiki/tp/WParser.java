@@ -38,7 +38,7 @@ public class WParser
 		{
 			XMLEventReader r = XMLInputFactory.newInstance()
 					.createXMLEventReader(new StringReader(GSONP
-							.gString(GSONP.getNestedJO(GSONP.jp.parse(wiki.basicPOST("parse", queryParams).body().string()).getAsJsonObject(),
+							.getStr(GSONP.getNestedJO(GSONP.jp.parse(wiki.basicPOST("parse", queryParams).body().string()).getAsJsonObject(),
 									FL.toSAL("parse", "parsetree")), "*")));
 
 			WikiText root = new WikiText();

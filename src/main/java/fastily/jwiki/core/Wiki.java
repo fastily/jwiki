@@ -15,12 +15,12 @@ import com.google.gson.JsonElement;
 import fastily.jwiki.dwrap.Contrib;
 import fastily.jwiki.dwrap.ImageInfo;
 import fastily.jwiki.dwrap.LogEntry;
+import fastily.jwiki.dwrap.PageSection;
 import fastily.jwiki.dwrap.ProtectedTitleEntry;
 import fastily.jwiki.dwrap.RCEntry;
 import fastily.jwiki.dwrap.Revision;
 import fastily.jwiki.util.FL;
 import fastily.jwiki.util.GSONP;
-import fastily.jwiki.util.Triple;
 import fastily.jwiki.util.Tuple;
 import okhttp3.HttpUrl;
 import okhttp3.Response;
@@ -177,7 +177,7 @@ public class Wiki
 	{
 		try
 		{
-			return GSONP.gString(new WQuery(this, wqt).next().metaComp("tokens").getAsJsonObject(), tk);
+			return GSONP.getStr(new WQuery(this, wqt).next().metaComp("tokens").getAsJsonObject(), tk);
 		}
 		catch (Throwable e)
 		{
@@ -637,7 +637,7 @@ public class Wiki
 
 		ArrayList<String> l = new ArrayList<>();
 		while (wq.has())
-			l.addAll(FL.toAL(wq.next().listComp("categorymembers").stream().map(e -> GSONP.gString(e, "title"))));
+			l.addAll(FL.toAL(wq.next().listComp("categorymembers").stream().map(e -> GSONP.getStr(e, "title"))));
 
 		return l;
 	}
@@ -745,7 +745,7 @@ public class Wiki
 		ArrayList<String> l = new ArrayList<>();
 		WQuery wq = new WQuery(this, WQuery.USERUPLOADS).set("aiuser", nss(user));
 		while (wq.has())
-			l.addAll(FL.toAL(wq.next().listComp("allimages").stream().map(e -> GSONP.gString(e, "title"))));
+			l.addAll(FL.toAL(wq.next().listComp("allimages").stream().map(e -> GSONP.getStr(e, "title"))));
 
 		return l;
 	}
@@ -764,24 +764,20 @@ public class Wiki
 	}
 
 	/**
-	 * Gets the section headers on a page
+	 * Splits the text of a page by header.
 	 * 
-	 * @param title The title to get section headers for
-	 * @return An ArrayList with section header data. Format is ( Integer, String, Integer ) : ( Header Level, Header
-	 *         Title, Header offset ).
+	 * @param title The title to query
+	 * @return An ArrayList where each section (in order) is contained in a PageSection object.
 	 */
-	public ArrayList<Triple<Integer, String, Integer>> getSectionHeaders(String title)
+	public ArrayList<PageSection> splitPageByHeader(String title)
 	{
-		ColorLog.info(this, "Fetching section headers for " + title);
+		ColorLog.info(this, "Splitting " + title + " by header");
 
 		try
 		{
-			return FL.toAL(GSONP
-					.getJAofJO(GSONP.getNestedJA(
-							GSONP.jp.parse(basicGET("parse", "prop", "sections", "page", title).body().string()).getAsJsonObject(),
-							FL.toSAL("parse", "sections")))
-					.stream().map(e -> new Triple<>(Integer.parseInt(e.get("level").getAsString()), e.get("line").getAsString(),
-							e.get("byteoffset").getAsInt())));
+			return PageSection.pageBySection(GSONP.getJAofJO(GSONP.getNestedJA(
+					GSONP.jp.parse(basicGET("parse", "prop", "sections", "page", title).body().string()).getAsJsonObject(),
+					FL.toSAL("parse", "sections"))), getPageText(title));
 		}
 		catch (Throwable e)
 		{
@@ -937,7 +933,7 @@ public class Wiki
 				isLastQuery = true;
 			}
 
-			l.addAll(FL.toAL(wq.next().listComp("allpages").stream().map(e -> GSONP.gString(e, "title"))));
+			l.addAll(FL.toAL(wq.next().listComp("allpages").stream().map(e -> GSONP.getStr(e, "title"))));
 		}
 		return l;
 	}
@@ -1004,8 +1000,8 @@ public class Wiki
 	public ArrayList<String> getAllowedFileExts()
 	{
 		ColorLog.info(this, "Fetching a list of permissible file extensions");
-		return FL.toAL(
-				new WQuery(this, WQuery.ALLOWEDFILEXTS).next().listComp("fileextensions").stream().map(e -> GSONP.gString(e, "ext")));
+		return FL
+				.toAL(new WQuery(this, WQuery.ALLOWEDFILEXTS).next().listComp("fileextensions").stream().map(e -> GSONP.getStr(e, "ext")));
 	}
 
 	/**

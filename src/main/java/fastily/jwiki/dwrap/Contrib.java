@@ -31,8 +31,8 @@ public class Contrib extends DataEntry
 	 */
 	public Contrib(JsonObject r)
 	{
-		super(GSONP.gString(r, "user"), GSONP.gString(r, "title"), GSONP.gString(r, "comment"),
-				Instant.parse(GSONP.gString(r, "timestamp")));
+		super(GSONP.getStr(r, "user"), GSONP.getStr(r, "title"), GSONP.getStr(r, "comment"),
+				Instant.parse(GSONP.getStr(r, "timestamp")));
 		revid = r.get("revid").getAsInt();
 		parentid = r.get("parentid").getAsInt();
 	}
