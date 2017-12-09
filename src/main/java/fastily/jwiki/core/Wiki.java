@@ -427,17 +427,6 @@ public class Wiki
 	}
 
 	/**
-	 * Null edits a page.
-	 * 
-	 * @param title The title to null edit
-	 * @return True if we were successful.
-	 */
-	public boolean nullEdit(String title)
-	{
-		return edit(title, getPageText(title), "null edit");
-	}
-
-	/**
 	 * Deletes a page. You must have admin rights or this won't work.
 	 * 
 	 * @param title Title to delete
