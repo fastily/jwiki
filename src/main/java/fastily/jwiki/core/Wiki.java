@@ -78,7 +78,7 @@ public class Wiki
 			apiclient = new ApiClient(this);
 
 			if (user != null && px != null && !login(user, px))
-				throw new SecurityException(String.format("Failed to log-in as %s @ %s", conf.uname, conf.domain));
+				throw new SecurityException(String.format("Failed to log-in as %s @ %s", conf.uname, conf.hostname));
 		}
 
 		ColorLog.info(this, "Fetching Namespace List");
@@ -161,7 +161,7 @@ public class Wiki
 	{
 		conf.uname = uname;
 		conf.token = getTokens(WQuery.TOKENS_CSRF, "csrftoken");
-		wl.put(conf.domain, this);
+		wl.put(conf.hostname, this);
 
 		conf.isBot = listUserRights(conf.uname).contains("bot");
 	}

@@ -37,9 +37,9 @@ public final class Conf
 	protected boolean isBot = false;
 
 	/**
-	 * The base domain. e.g. {@code en.wikipedia.org}
+	 * The base hostname of the Wiki to target. e.g. {@code en.wikipedia.org}
 	 */
-	public final String domain;
+	public final String hostname;
 
 	/**
 	 * The low maximum limit for maximum number of list items returned for queries that return lists. Use this if a max
@@ -65,6 +65,6 @@ public final class Conf
 	protected Conf(HttpUrl baseURL)
 	{
 		this.baseURL = baseURL;
-		domain = baseURL.host();
+		hostname = baseURL.host();
 	}
 }

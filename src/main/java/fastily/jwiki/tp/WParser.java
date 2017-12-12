@@ -25,6 +25,14 @@ import fastily.jwiki.util.GSONP;
 public class WParser
 {
 	/**
+	 * No constructors needed
+	 */
+	private WParser()
+	{
+		
+	}
+	
+	/**
 	 * Runs a parse query for wikitext/pages and then parses the result into a WikiText object.
 	 * 
 	 * @param wiki The Wiki object to use

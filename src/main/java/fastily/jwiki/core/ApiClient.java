@@ -67,12 +67,12 @@ class ApiClient
 		JwikiCookieJar cl = (JwikiCookieJar) client.cookieJar();
 
 		HashMap<String, String> l = new HashMap<>();
-		cl.cj.get(from.conf.domain).forEach((k, v) -> {
+		cl.cj.get(from.conf.hostname).forEach((k, v) -> {
 			if (k.contains("centralauth"))
 				l.put(k, v);
 		});
 
-		cl.cj.put(wiki.conf.domain, l);
+		cl.cj.put(wiki.conf.hostname, l);
 	}
 
 	/**
