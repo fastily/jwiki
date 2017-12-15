@@ -1,12 +1,12 @@
 package fastily.jwiki.dwrap;
 
-import java.net.URL;
 import java.time.Instant;
 
 import com.google.gson.JsonObject;
 
 import fastily.jwiki.util.GSONP;
 import fastily.jwiki.util.Tuple;
+import okhttp3.HttpUrl;
 
 /**
  * Container object for a result returned by the ImageInfo MediaWiki module.
@@ -32,9 +32,9 @@ public final class ImageInfo extends DataEntry implements Comparable<ImageInfo>
 	public final String sha1;
 
 	/**
-	 * A URL to the full size image.
+	 * The url of the full size image.
 	 */
-	public final URL url;
+	public final HttpUrl url;
 
 	/**
 	 * The MIME string of the file.
@@ -51,7 +51,7 @@ public final class ImageInfo extends DataEntry implements Comparable<ImageInfo>
 		super(GSONP.getStr(r, "user"), null, GSONP.getStr(r, "comment"), Instant.parse(GSONP.getStr(r, "timestamp")));
 		size = r.get("size").getAsInt();
 		dimensions = new Tuple<>(r.get("width").getAsInt(), r.get("height").getAsInt());
-		url = genURL(GSONP.getStr(r, "url"));
+		url = HttpUrl.parse(GSONP.getStr(r, "url"));
 
 		sha1 = GSONP.getStr(r, "sha1");
 		mime = GSONP.getStr(r, "mime");
@@ -63,24 +63,5 @@ public final class ImageInfo extends DataEntry implements Comparable<ImageInfo>
 	public int compareTo(ImageInfo o)
 	{
 		return o.timestamp.compareTo(timestamp);
-	}
-
-	/**
-	 * Creates a URL from a String.
-	 * 
-	 * @param u The String to turn into a URL
-	 * @return The URL, or null if something went wrong.
-	 */
-	private static URL genURL(String u)
-	{
-		try
-		{
-			return u == null ? null : new URL(u);
-		}
-		catch (Throwable e)
-		{
-			e.printStackTrace();
-			return null;
-		}
 	}
 }
