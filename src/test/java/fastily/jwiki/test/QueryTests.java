@@ -360,35 +360,6 @@ public class QueryTests
 		assertEquals(2, result.size());
 		assertTrue(result.containsAll(expected));
 	}
-
-	/**
-	 * Tests global usage. This does nothing at the moment, because gu isn't testable using testwiki. Might be doable if
-	 * we get a test-commons
-	 */
-	@Test
-	public void testGlobalUsage()
-	{
-		// nothing for now
-	}
-
-	/**
-	 * Test for listing duplicate files. Basically does the same thing as the special page by the same name. This does
-	 * nothing because the results returned by the server are variable
-	 */
-	@Test
-	public void testListDuplicateFiles()
-	{
-		// nothing for now
-	}
-
-	/**
-	 * Test log fetching.  Test is empty for now because I don't have a good way to test in an evironment which stays static.
-	 */
-	@Test
-	public void testGetLogs()
-	{
-		//nothing for now
-	}
 	
 	/**
 	 * Tests user list group rights.

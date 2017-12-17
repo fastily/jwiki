@@ -1,0 +1,26 @@
+{
+    "batchcomplete": "",
+    "continue": {
+        "rncontinue": "0.674224663894|0.674225086928|46611783|0",
+        "continue": "-||"
+    },
+    "query": {
+        "random": [
+            {
+                "id": 50698924,
+                "ns": 6,
+                "title": "File:Immortals Logo.svg"
+            },
+            {
+                "id": 7726401,
+                "ns": 0,
+                "title": "Karigane Junichi"
+            },
+            {
+                "id": 29571224,
+                "ns": 0,
+                "title": "Spulerina aphanosema"
+            }
+        ]
+    }
+}

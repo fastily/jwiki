@@ -21,7 +21,8 @@ class WQuery
 	/**
 	 * Default parameters for getting category size info
 	 */
-	public static final QTemplate ALLOWEDFILEXTS = new QTemplate(FL.pMap("meta", "siteinfo", "siprop", "fileextensions"), "fileextensions");
+	public static final QTemplate ALLOWEDFILEXTS = new QTemplate(FL.pMap("meta", "siteinfo", "siprop", "fileextensions"),
+			"fileextensions");
 
 	/**
 	 * Default parameters for getting category size info
@@ -36,17 +37,20 @@ class WQuery
 	/**
 	 * Default parameters for listing category members
 	 */
-	public static final QTemplate CATEGORYMEMBERS = new QTemplate(FL.pMap("list", "categorymembers", "cmtitle", null), "cmlimit", "categorymembers");
+	public static final QTemplate CATEGORYMEMBERS = new QTemplate(FL.pMap("list", "categorymembers", "cmtitle", null), "cmlimit",
+			"categorymembers");
 
 	/**
 	 * Default parameters for getting Namespace information on a Wiki.
 	 */
-	public static final QTemplate NAMESPACES = new QTemplate(FL.pMap("meta", "siteinfo", "siprop", "namespaces|namespacealiases"), null);
+	public static final QTemplate NAMESPACES = new QTemplate(FL.pMap("meta", "siteinfo", "siprop", "namespaces|namespacealiases"),
+			null);
 
 	/**
 	 * Default parameters for getting duplicate files
 	 */
-	public static final QTemplate DUPLICATEFILES = new QTemplate(FL.pMap("prop", "duplicatefiles", "titles", null), "dflimit", "duplicatefiles");
+	public static final QTemplate DUPLICATEFILES = new QTemplate(FL.pMap("prop", "duplicatefiles", "titles", null), "dflimit",
+			"duplicatefiles");
 
 	/**
 	 * Default parameters for determining if a page exists.
@@ -56,8 +60,9 @@ class WQuery
 	/**
 	 * Default parameters for fetching external links on a page
 	 */
-	public static final QTemplate EXTLINKS = new QTemplate(FL.pMap("prop", "extlinks", "elexpandurl", "1", "titles", null), "ellimit", "extlinks");
-	
+	public static final QTemplate EXTLINKS = new QTemplate(FL.pMap("prop", "extlinks", "elexpandurl", "1", "titles", null), "ellimit",
+			"extlinks");
+
 	/**
 	 * Default parameters for getting file usage
 	 */
@@ -77,8 +82,8 @@ class WQuery
 	 * Default parameters for getting image info of a file.
 	 */
 	public static final QTemplate IMAGEINFO = new QTemplate(
-			FL.pMap("prop", "imageinfo", "iiprop", "canonicaltitle|url|size|sha1|mime|user|timestamp|comment", "titles", null),
-			"iilimit", "imageinfo");
+			FL.pMap("prop", "imageinfo", "iiprop", "canonicaltitle|url|size|sha1|mime|user|timestamp|comment", "titles", null), "iilimit",
+			"imageinfo");
 
 	/**
 	 * Default parameters for getting links to a page
@@ -99,7 +104,8 @@ class WQuery
 	/**
 	 * Default parameters for getting page categories.
 	 */
-	public static final QTemplate PAGECATEGORIES = new QTemplate(FL.pMap("prop", "categories", "titles", null), "cllimit", "categories");
+	public static final QTemplate PAGECATEGORIES = new QTemplate(FL.pMap("prop", "categories", "titles", null), "cllimit",
+			"categories");
 
 	/**
 	 * Default parameters for getting page text.
@@ -113,10 +119,17 @@ class WQuery
 			FL.pMap("list", "protectedtitles", "ptprop", "timestamp|level|user|comment"), "ptlimit", "protectedtitles");
 
 	/**
+	 * Default parameters for listing random pages
+	 */
+	public static final QTemplate RANDOM = new QTemplate(FL.pMap("list", "random", "rnfilterredir", "nonredirects"), "rnlimit",
+			"random");
+
+	/**
 	 * Default parameters for listing recent changes.
 	 */
 	public static final QTemplate RECENTCHANGES = new QTemplate(
-			FL.pMap("list", "recentchanges", "rcprop", "title|timestamp|user|comment", "rctype", "edit|new|log"), "rclimit", "recentchanges");
+			FL.pMap("list", "recentchanges", "rcprop", "title|timestamp|user|comment", "rctype", "edit|new|log"), "rclimit",
+			"recentchanges");
 
 	/**
 	 * Default parameters for resolving redirects
@@ -132,18 +145,20 @@ class WQuery
 	/**
 	 * Default parameters for getting templates on a page
 	 */
-	public static final QTemplate TEMPLATES = new QTemplate(FL.pMap("prop", "templates", "tiprop", "title", "titles", null), "tllimit", "templates");
+	public static final QTemplate TEMPLATES = new QTemplate(FL.pMap("prop", "templates", "tiprop", "title", "titles", null), "tllimit",
+			"templates");
 
 	/**
 	 * Default parameters for getting text extracts from a page
 	 */
-	public static final QTemplate TEXTEXTRACTS = new QTemplate(FL.pMap("prop", "extracts", "exintro", "1", "explaintext", "1", "titles", null), "exlimit", "extract");
-	
+	public static final QTemplate TEXTEXTRACTS = new QTemplate(
+			FL.pMap("prop", "extracts", "exintro", "1", "explaintext", "1", "titles", null), "exlimit", "extract");
+
 	/**
 	 * Default parameters for getting a csrf token.
 	 */
 	public static final QTemplate TOKENS_CSRF = new QTemplate(FL.pMap("meta", "tokens", "type", "csrf"), null);
-	
+
 	/**
 	 * Default parameters for getting a login token.
 	 */
@@ -158,7 +173,8 @@ class WQuery
 	/**
 	 * Default parameters for listing user contributions.
 	 */
-	public static final QTemplate USERCONTRIBS = new QTemplate(FL.pMap("list", "usercontribs", "ucuser", null), "uclimit", "usercontribs");
+	public static final QTemplate USERCONTRIBS = new QTemplate(FL.pMap("list", "usercontribs", "ucuser", null), "uclimit",
+			"usercontribs");
 
 	/**
 	 * Default parameters for listing users and their rights.
@@ -266,9 +282,9 @@ class WQuery
 			else
 				canCont = false;
 
-			if(wiki.conf.debug)
+			if (wiki.conf.debug)
 				ColorLog.debug(wiki, GSONP.gsonPP.toJson(result));
-			
+
 			return new QReply(result);
 		}
 		catch (Throwable e)
@@ -353,7 +369,7 @@ class WQuery
 		 * An id which can be used to lookup a query result (in JSON) for a query created from this Object.
 		 */
 		protected final String id;
-		
+
 		/**
 		 * Constructor, creates a new QueryUnitTemplate
 		 * 

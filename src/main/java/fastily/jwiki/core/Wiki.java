@@ -465,6 +465,16 @@ public class Wiki
 		return WAction.upload(this, title, text, reason, p);
 	}
 
+	/**
+	 * Purges page caches.
+	 * 
+	 * @param titles The titles to purge.
+	 */
+	public void purge(String... titles)
+	{
+		WAction.purge(this, FL.toSAL(titles));
+	}
+
 	/* //////////////////////////////////////////////////////////////////////////////// */
 	/* ///////////////////////////////// QUERIES ////////////////////////////////////// */
 	/* //////////////////////////////////////////////////////////////////////////////// */
@@ -750,6 +760,32 @@ public class Wiki
 	{
 		ColorLog.info(this, "Fetching local file usage of " + title);
 		return MQuery.fileUsage(this, FL.toSAL(title)).get(title);
+	}
+
+	/**
+	 * Gets a list of random pages.
+	 * 
+	 * @param limit The number of titles to retrieve. PRECONDITION: {@code limit} cannot be a negative number.
+	 * @param ns Returned titles will be in these namespaces. Optional param - leave blank to disable.
+	 * @return A list of random titles on this Wiki.
+	 */
+	public ArrayList<String> getRandomPages(int limit, NS... ns)
+	{
+		ColorLog.info(this, "Fetching random page(s)");
+
+		if (limit < 0)
+			throw new IllegalArgumentException("limit for getRandomPages() cannot be a negative number");
+
+		ArrayList<String> l = new ArrayList<>();
+		WQuery wq = new WQuery(this, limit, WQuery.RANDOM);
+
+		if (ns.length > 0)
+			wq.set("rnnamespace", nsl.createFilter(ns));
+
+		while (wq.has())
+			l.addAll(FL.toAL(wq.next().listComp("random").stream().map(e -> GSONP.getStr(e, "title"))));
+
+		return l;
 	}
 
 	/**
