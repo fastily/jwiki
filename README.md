@@ -4,17 +4,19 @@
 [![MediaWiki 1.27+](https://upload.wikimedia.org/wikipedia/commons/2/2c/MediaWiki_1.27%2B_Blue_Badge.svg)](https://www.mediawiki.org/wiki/MediaWiki)
 [![License: GPL v3](https://upload.wikimedia.org/wikipedia/commons/8/86/GPL_v3_Blue_Badge.svg)](https://www.gnu.org/licenses/gpl-3.0.en.html)
 
-jwiki is a simple, lightweight Java framework for interacting with a [MediaWiki](https://www.mediawiki.org/wiki/MediaWiki) instance.
+jwiki is a lightweight Java library that makes interacting with [MediaWiki](https://www.mediawiki.org/wiki/MediaWiki) effortless.
 
 ## Purpose
-The MediaWiki [API](https://www.mediawiki.org/wiki/API:Main_page) is complicated and difficult to use effectively.  Clients are forced to deal with nasty details such as pagination, credential management, JSON, and unexpected errors.  I created jwiki to manage and hide away these nasty bits while providing effortless access to all the powerful features of the MediaWiki API.  jwiki allows complex API queries and actions to be executed with _one_ straightforward function call consisting of simple objects and/or primitive types.  It's so easy that _anyone_ (new developers included) can create an application that works with MediaWiki.
+The MediaWiki [API](https://www.mediawiki.org/wiki/API:Main_page) is complicated and difficult to use effectively.  Clients must handle  complexities such as pagination, credential management, JSON, and errors.  I created jwiki to hide these nasty bits in the background, while providing a simple interface to access all the powerful features of the MediaWiki API.
+
+With jwiki, complex API actions/queries can be executed with _one_ simple function call using only simple objects and primitive types.  It's so easy that _anyone_ can write an application that works with MediaWiki.
 
 ## Getting Started
 * [Examples](https://github.com/fastily/jwiki/wiki/Examples)
 * [Javadocs](https://fastily.github.io/jwiki/docs/jwiki/)
 
 ## Download
-jwiki is [available](https://bintray.com/fastily/maven/jwiki) on [jcenter](https://bintray.com/bintray/jcenter)
+jwiki is [available on jcenter](https://bintray.com/fastily/maven/jwiki).
 
 #### Maven
 ```xml
