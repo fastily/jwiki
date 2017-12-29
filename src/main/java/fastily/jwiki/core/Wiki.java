@@ -649,8 +649,8 @@ public class Wiki
 	
 		ArrayList<Contrib> l = new ArrayList<>();
 		while (wq.has())
-			l.addAll(FL.toAL(wq.next().listComp("usercontribs").stream().map(Contrib::new)));
-	
+			l.addAll(FL.toAL(wq.next().listComp("usercontribs").stream().map(jo -> GSONP.gson.fromJson(jo, Contrib.class))));
+		
 		return l;
 	}
 
@@ -772,7 +772,7 @@ public class Wiki
 	
 		ArrayList<LogEntry> l = new ArrayList<>();
 		while (wq.has())
-			l.addAll(FL.toAL(wq.next().listComp("logevents").stream().map(LogEntry::new)));
+			l.addAll(FL.toAL(wq.next().listComp("logevents").stream().map(jo -> GSONP.gson.fromJson(jo, LogEntry.class))));
 	
 		return l;
 	}

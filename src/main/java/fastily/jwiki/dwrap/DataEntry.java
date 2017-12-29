@@ -2,6 +2,8 @@ package fastily.jwiki.dwrap;
 
 import java.time.Instant;
 
+import com.google.gson.annotations.SerializedName;
+
 /**
  * Structured data template class.
  * 
@@ -13,23 +15,30 @@ public abstract class DataEntry
 	/**
 	 * The name of the user who made the contribution.
 	 */
-	public final String user;
+	public String user;
 
 	/**
 	 * Title and edit summary.
 	 */
-	public final String title;
+	public String title;
 
 	/**
 	 * The edit summary used in this contribution.
 	 */
-	public final String summary;
+	@SerializedName("comment")
+	public String summary;
 
 	/**
 	 * The date and time at which this edit was made.
 	 */
-	public final Instant timestamp;
+	public Instant timestamp;
 
+	
+	protected DataEntry()
+	{
+		//TODO: TEMP
+	}
+	
 	/**
 	 * Constructor for basic data object.
 	 * 
@@ -45,9 +54,9 @@ public abstract class DataEntry
 		this.summary = summary;
 		this.timestamp = timestamp;
 	}
-	
+
 	/**
-	 * Gets a String representation of this DataEntry.  Useful for debugging.
+	 * Gets a String representation of this DataEntry. Useful for debugging.
 	 */
 	public String toString()
 	{

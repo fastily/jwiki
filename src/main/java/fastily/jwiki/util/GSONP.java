@@ -1,6 +1,7 @@
 package fastily.jwiki.util;
 
 import java.lang.reflect.Type;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -9,8 +10,11 @@ import java.util.stream.Collectors;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
 
@@ -30,7 +34,12 @@ public class GSONP
 	/**
 	 * Default Gson object, for convenience.
 	 */
-	public static final Gson gson = new GsonBuilder().create();
+	public static final Gson gson = new GsonBuilder().registerTypeAdapter(Instant.class, new JsonDeserializer<Instant>() {
+		public Instant deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException
+		{
+			return Instant.parse(json.getAsJsonPrimitive().getAsString());
+		}
+	}).create();
 
 	/**
 	 * Gson object which generates pretty-print (human-readable) JSON.
@@ -159,13 +168,13 @@ public class GSONP
 	 */
 	public static String getStr(JsonObject jo, String key)
 	{
-		if(!jo.has(key))
+		if (!jo.has(key))
 			return null;
-		
+
 		JsonElement e = jo.get(key);
 		return e.isJsonPrimitive() ? e.getAsString() : null;
 	}
-	
+
 	/**
 	 * Get a JsonArray of String objects as an ArrayList of String objects.
 	 * 

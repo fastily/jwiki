@@ -220,6 +220,12 @@ public class QueryTests
 		assertEquals("File:FCTest2.svg", result.get(0).title); // descending
 		assertEquals("File:FCTest1.png", result.get(1).title);
 
+		assertEquals(244225, result.get(0).revid);
+		assertEquals(244224, result.get(1).revid);
+		
+		assertEquals(0, result.get(0).parentid);
+		assertEquals(0, result.get(1).parentid);
+		
 		assertEquals(Instant.parse("2015-10-20T00:28:54Z"), result.get(0).timestamp);
 		assertEquals(Instant.parse("2015-10-20T00:28:32Z"), result.get(1).timestamp);
 

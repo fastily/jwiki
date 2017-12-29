@@ -6,7 +6,7 @@
 
 jwiki is a lightweight Java library that makes interacting with [MediaWiki](https://www.mediawiki.org/wiki/MediaWiki) effortless.
 
-## Purpose
+## Overview
 The MediaWiki [API](https://www.mediawiki.org/wiki/API:Main_page) is complicated and difficult to use effectively.  Clients must handle  complexities such as pagination, credential management, JSON, and errors.  I created jwiki to hide these nasty bits in the background, while providing a simple interface to access all the powerful features of the MediaWiki API.
 
 With jwiki, complex API actions/queries can be executed with _one_ simple function call using only simple objects and primitive types.  It's so easy that _anyone_ can write an application that works with MediaWiki.
