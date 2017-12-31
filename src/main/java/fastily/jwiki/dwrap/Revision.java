@@ -1,10 +1,6 @@
 package fastily.jwiki.dwrap;
 
-import java.time.Instant;
-
-import com.google.gson.JsonObject;
-
-import fastily.jwiki.util.GSONP;
+import com.google.gson.annotations.SerializedName;
 
 /**
  * Represents a single revision in the history of a page.
@@ -17,16 +13,14 @@ public class Revision extends DataEntry
 	/**
 	 * The text of this revision
 	 */
-	public final String text;
+	@SerializedName("*")
+	public String text;
 
 	/**
-	 * Constructor, creates a revision object.
-	 * 
-	 * @param r The ServerReply containing the revision to parse.
+	 * Constructor, creates a Revision with all null fields.
 	 */
-	public Revision(JsonObject r)
+	protected Revision()
 	{
-		super(GSONP.getStr(r, "user"), null, GSONP.getStr(r, "comment"), Instant.parse(GSONP.getStr(r, "timestamp")));
-		text = GSONP.getStr(r, "*");
+
 	}
 }

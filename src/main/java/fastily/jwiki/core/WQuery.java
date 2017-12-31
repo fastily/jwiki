@@ -1,11 +1,13 @@
 package fastily.jwiki.core;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.reflect.TypeToken;
 
 import fastily.jwiki.util.FL;
 import fastily.jwiki.util.GSONP;
@@ -188,6 +190,12 @@ class WQuery
 			"ailimit", "allimages");
 
 	/**
+	 * Type describing a HashMap with a String key and String value.
+	 */
+	private static Type strMapT = new TypeToken<HashMap<String, String>>() {
+	}.getType();
+	
+	/**
 	 * The master parameter list. Tracks current query status.
 	 */
 	private final HashMap<String, String> pl = FL.pMap("action", "query", "format", "json");
@@ -278,7 +286,7 @@ class WQuery
 
 			JsonObject result = GSONP.jp.parse(wiki.apiclient.basicGET(pl).body().string()).getAsJsonObject();
 			if (result.has("continue"))
-				pl.putAll(GSONP.gson.fromJson(result.getAsJsonObject("continue"), GSONP.strMapT));
+				pl.putAll(GSONP.gson.fromJson(result.getAsJsonObject("continue"), strMapT));
 			else
 				canCont = false;
 

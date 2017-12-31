@@ -1,11 +1,5 @@
 package fastily.jwiki.dwrap;
 
-import java.time.Instant;
-
-import com.google.gson.JsonObject;
-
-import fastily.jwiki.util.GSONP;
-
 /**
  * Represents a Recent Changes entry.
  * 
@@ -17,16 +11,13 @@ public class RCEntry extends DataEntry
 	/**
 	 * The type of entry this RCEntry represents (ex: log, edit, new)
 	 */
-	public final String type;
+	public String type;
 
 	/**
-	 * Constructor, creates a Recent Changes Entry based on a Reply from the server.
-	 * 
-	 * @param r The Reply object containing Recent
+	 * Constructor, creates an RCEntry with all null fields.
 	 */
-	public RCEntry(JsonObject r)
+	protected RCEntry()
 	{
-		super(GSONP.getStr(r, "user"), GSONP.getStr(r, "title"), GSONP.getStr(r, "comment"), Instant.parse(GSONP.getStr(r, "timestamp")));
-		type = GSONP.getStr(r, "type");
+
 	}
 }

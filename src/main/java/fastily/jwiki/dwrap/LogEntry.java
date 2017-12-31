@@ -19,7 +19,7 @@ public class LogEntry extends DataEntry
 	public String action;
 	
 	/**
-	 * Constructor, creates a Contrib with all null fields.
+	 * Constructor, creates a LogEntry with all null fields.
 	 */
 	protected LogEntry()
 	{

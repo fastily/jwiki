@@ -750,7 +750,7 @@ public class Wiki
 	}
 
 	/**
-	 * List log events.
+	 * List log events.  Order is newer -&gt; older.
 	 * 
 	 * @param title The title to fetch logs for. Optional - set null to disable.
 	 * @param user The performing user to filter log entries by. Optional - set null to disable
@@ -878,7 +878,7 @@ public class Wiki
 		WQuery wq = new WQuery(this, WQuery.RECENTCHANGES).set("rcstart", end.toString()).set("rcend", start.toString());
 		ArrayList<RCEntry> l = new ArrayList<>();
 		while (wq.has())
-			l.addAll(FL.toAL(wq.next().listComp("recentchanges").stream().map(RCEntry::new)));
+			l.addAll(FL.toAL(wq.next().listComp("recentchanges").stream().map(jo -> GSONP.gson.fromJson(jo, RCEntry.class))));
 
 		return l;
 	}
@@ -913,7 +913,7 @@ public class Wiki
 		{
 			JsonElement e = wq.next().propComp("title", "revisions").get(title);
 			if (e != null)
-				l.addAll(FL.toAL(GSONP.getJAofJO(e.getAsJsonArray()).stream().map(Revision::new)));
+				l.addAll(FL.toAL(GSONP.getJAofJO(e.getAsJsonArray()).stream().map(jo -> GSONP.gson.fromJson(jo, Revision.class))));
 		}
 		return l;
 	}

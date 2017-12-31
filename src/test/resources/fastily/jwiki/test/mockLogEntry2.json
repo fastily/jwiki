@@ -1,0 +1,54 @@
+{
+    "batchcomplete": "",
+    "query": {
+        "logevents": [
+            {
+                "logid": 88000919,
+                "ns": 0,
+                "title": "Test",
+                "pageid": 55878743,
+                "logpage": 55878701,
+                "params": {
+                    "count": {
+                        "revisions": 9,
+                        "files": 0
+                    }
+                },
+                "type": "delete",
+                "action": "restore",
+                "user": "Fastily",
+                "timestamp": "2017-12-29T07:19:21Z",
+                "comment": "restore reason"
+            },
+            {
+                "logid": 87759759,
+                "ns": 0,
+                "title": "Test",
+                "pageid": 55878743,
+                "logpage": 55878701,
+                "params": {},
+                "type": "delete",
+                "action": "delete",
+                "user": "Fastily",
+                "timestamp": "2017-12-19T08:06:22Z",
+                "comment": "delete reason"
+            },
+            {
+                "logid": 87759692,
+                "ns": 0,
+                "title": "Test",
+                "pageid": 55878743,
+                "logpage": 55878701,
+                "params": {
+                    "curid": 811897541,
+                    "previd": 0
+                },
+                "type": "patrol",
+                "action": "patrol",
+                "user": "FastilyBot",
+                "timestamp": "2017-12-19T07:57:31Z",
+                "comment": ""
+            }
+        ]
+    }
+}

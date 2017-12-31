@@ -2,12 +2,14 @@ package fastily.jwiki.test;
 
 import static org.junit.Assert.*;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashSet;
 
 import org.junit.Test;
 
 import fastily.jwiki.core.NS;
+import fastily.jwiki.dwrap.LogEntry;
 
 /**
  * Tests queries which may have dynamic/variable outputs.
@@ -50,12 +52,60 @@ public class MockQueryTests extends MockTemplate
 		// TODO:
 	}
 
+	@Test
+	public void testRecentChanges()
+	{
+		// TODO:
+	}
+	
 	/**
-	 * Test log fetching.  Test is empty for now because I don't have a good way to test in an evironment which stays static.
+	 * Test log entry fetching.
 	 */
 	@Test
 	public void testGetLogs()
 	{
-		// TODO:
+		// Test 1
+		addResponse("mockLogEntry1");
+		ArrayList<LogEntry> l = wiki.getLogs("File:Example.jpg", "Fastily", "delete", -1);
+		
+		assertEquals(3, l.size());
+		
+		assertEquals("File:Example.jpg", l.get(0).title);
+		assertEquals("Fastily", l.get(0).user);
+		assertEquals("summary1", l.get(0).summary);
+		assertEquals("delete", l.get(0).action);
+		assertEquals("delete", l.get(0).type);
+		assertEquals(Instant.parse("2010-04-25T01:17:52Z"), l.get(0).timestamp);
+		
+		assertEquals(Instant.parse("2010-04-25T01:17:48Z"), l.get(1).timestamp);
+		assertEquals("summary2", l.get(1).summary);
+		
+		assertEquals(Instant.parse("2010-04-25T01:17:45Z"), l.get(2).timestamp);
+		assertEquals("summary3", l.get(2).summary);
+		
+		// Test 2
+		addResponse("mockLogEntry2");
+		l = wiki.getLogs("Test", null, null, -1);
+		
+		assertEquals(3, l.size());
+		
+		assertEquals("Test", l.get(0).title);
+		assertEquals("Fastily", l.get(0).user);
+		assertEquals("restore reason", l.get(0).summary);
+		assertEquals("restore", l.get(0).action);
+		assertEquals("delete", l.get(0).type);
+		assertEquals(Instant.parse("2017-12-29T07:19:21Z"), l.get(0).timestamp);
+		
+		assertEquals(Instant.parse("2017-12-19T08:06:22Z"), l.get(1).timestamp);
+		assertEquals("delete reason", l.get(1).summary);
+		assertEquals("delete", l.get(1).action);
+		assertEquals("delete", l.get(1).type);
+		
+		assertEquals(Instant.parse("2017-12-19T07:57:31Z"), l.get(2).timestamp);
+		assertEquals("", l.get(2).summary);
+		assertEquals("patrol", l.get(2).action);
+		assertEquals("patrol", l.get(2).type);
+		assertEquals("FastilyBot", l.get(2).user);
+		assertEquals("Test", l.get(2).title);
 	}
 }

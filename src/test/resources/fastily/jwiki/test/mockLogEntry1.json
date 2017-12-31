@@ -1,0 +1,46 @@
+{
+    "batchcomplete": "",
+    "query": {
+        "logevents": [
+            {
+                "logid": 28947284,
+                "ns": 6,
+                "title": "File:Example.jpg",
+                "pageid": 586539,
+                "logpage": 586539,
+                "params": {},
+                "type": "delete",
+                "action": "delete",
+                "user": "Fastily",
+                "timestamp": "2010-04-25T01:17:52Z",
+                "comment": "summary1"
+            },
+            {
+                "logid": 28947285,
+                "ns": 6,
+                "title": "File:Example.jpg",
+                "pageid": 586539,
+                "logpage": 586539,
+                "params": {},
+                "type": "delete",
+                "action": "delete",
+                "user": "Fastily",
+                "timestamp": "2010-04-25T01:17:48Z",
+                "comment": "summary2"
+            },
+            {
+                "logid": 28947286,
+                "ns": 6,
+                "title": "File:Example.jpg",
+                "pageid": 586539,
+                "logpage": 586539,
+                "params": {},
+                "type": "delete",
+                "action": "delete",
+                "user": "Fastily",
+                "timestamp": "2010-04-25T01:17:45Z",
+                "comment": "summary3"
+            }
+        ]
+    }
+}
