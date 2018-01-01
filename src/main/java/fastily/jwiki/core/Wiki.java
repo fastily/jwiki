@@ -119,11 +119,10 @@ public class Wiki
 		this(null, null, domain);
 	}
 
-	
 	/* //////////////////////////////////////////////////////////////////////////////// */
 	/* ///////////////////////////// AUTH FUNCTIONS /////////////////////////////////// */
 	/* //////////////////////////////////////////////////////////////////////////////// */
-	
+
 	/**
 	 * Performs a login with the specified username and password. Does nothing if this Wiki is already logged in as a
 	 * user.
@@ -190,7 +189,6 @@ public class Wiki
 			return null;
 		}
 	}
-	
 
 	/* //////////////////////////////////////////////////////////////////////////////// */
 	/* /////////////////////////// UTILITY FUNCTIONS ////////////////////////////////// */
@@ -297,7 +295,7 @@ public class Wiki
 	{
 		if (conf.uname == null)
 			return null;
-	
+
 		ColorLog.fyi(this, String.format("Get Wiki for %s @ %s", whoami(), domain));
 		try
 		{
@@ -367,7 +365,7 @@ public class Wiki
 	{
 		return conf.uname == null ? "<Anonymous>" : conf.uname;
 	}
-	
+
 	/* //////////////////////////////////////////////////////////////////////////////// */
 	/* /////////////////////////////////// ACTIONS //////////////////////////////////// */
 	/* //////////////////////////////////////////////////////////////////////////////// */
@@ -386,7 +384,6 @@ public class Wiki
 		return WAction.addText(this, title, add, reason, !top);
 	}
 
-	
 	/**
 	 * Edit a page, and check if the request actually went through.
 	 * 
@@ -482,7 +479,6 @@ public class Wiki
 		return WAction.upload(this, title, text, reason, p);
 	}
 
-
 	/* //////////////////////////////////////////////////////////////////////////////// */
 	/* ///////////////////////////////// QUERIES ////////////////////////////////////// */
 	/* //////////////////////////////////////////////////////////////////////////////// */
@@ -526,7 +522,7 @@ public class Wiki
 		}
 		return l;
 	}
-	
+
 	/**
 	 * Checks if a title exists.
 	 * 
@@ -538,7 +534,7 @@ public class Wiki
 		ColorLog.info(this, "Checking to see if title exists: " + title);
 		return MQuery.exists(this, FL.toSAL(title)).get(title);
 	}
-	
+
 	/**
 	 * Gets a list of pages linking to a file.
 	 * 
@@ -602,15 +598,15 @@ public class Wiki
 	public ArrayList<String> getCategoryMembers(String title, int cap, NS... ns)
 	{
 		ColorLog.info(this, "Getting category members from " + title);
-	
+
 		WQuery wq = new WQuery(this, cap, WQuery.CATEGORYMEMBERS).set("cmtitle", convertIfNotInNS(title, NS.CATEGORY));
 		if (ns.length > 0)
 			wq.set("cmnamespace", nsl.createFilter(ns));
-	
+
 		ArrayList<String> l = new ArrayList<>();
 		while (wq.has())
 			l.addAll(FL.toAL(wq.next().listComp("categorymembers").stream().map(e -> GSONP.getStr(e, "title"))));
-	
+
 		return l;
 	}
 
@@ -640,17 +636,17 @@ public class Wiki
 	public ArrayList<Contrib> getContribs(String user, int cap, boolean olderFirst, NS... ns)
 	{
 		ColorLog.info(this, "Fetching contribs of " + user);
-	
+
 		WQuery wq = new WQuery(this, cap, WQuery.USERCONTRIBS).set("ucuser", user);
 		if (ns.length > 0)
 			wq.set("ucnamespace", nsl.createFilter(ns));
 		if (olderFirst)
 			wq.set("ucdir", "newer");
-	
+
 		ArrayList<Contrib> l = new ArrayList<>();
 		while (wq.has())
 			l.addAll(FL.toAL(wq.next().listComp("usercontribs").stream().map(jo -> GSONP.gson.fromJson(jo, Contrib.class))));
-		
+
 		return l;
 	}
 
@@ -750,7 +746,7 @@ public class Wiki
 	}
 
 	/**
-	 * List log events.  Order is newer -&gt; older.
+	 * List log events. Order is newer -&gt; older.
 	 * 
 	 * @param title The title to fetch logs for. Optional - set null to disable.
 	 * @param user The performing user to filter log entries by. Optional - set null to disable
@@ -761,7 +757,7 @@ public class Wiki
 	public ArrayList<LogEntry> getLogs(String title, String user, String type, int cap)
 	{
 		ColorLog.info(this, String.format("Fetching log entries -> title: %s, user: %s, type: %s", title, user, type));
-	
+
 		WQuery wq = new WQuery(this, cap, WQuery.LOGEVENTS);
 		if (title != null)
 			wq.set("letitle", title);
@@ -769,11 +765,11 @@ public class Wiki
 			wq.set("leuser", nss(user));
 		if (type != null)
 			wq.set("letype", type);
-	
+
 		ArrayList<LogEntry> l = new ArrayList<>();
 		while (wq.has())
 			l.addAll(FL.toAL(wq.next().listComp("logevents").stream().map(jo -> GSONP.gson.fromJson(jo, LogEntry.class))));
-	
+
 		return l;
 	}
 
@@ -843,39 +839,48 @@ public class Wiki
 	public ArrayList<String> getRandomPages(int limit, NS... ns)
 	{
 		ColorLog.info(this, "Fetching random page(s)");
-	
+
 		if (limit < 0)
 			throw new IllegalArgumentException("limit for getRandomPages() cannot be a negative number");
-	
+
 		ArrayList<String> l = new ArrayList<>();
 		WQuery wq = new WQuery(this, limit, WQuery.RANDOM);
-	
+
 		if (ns.length > 0)
 			wq.set("rnnamespace", nsl.createFilter(ns));
-	
+
 		while (wq.has())
 			l.addAll(FL.toAL(wq.next().listComp("random").stream().map(e -> GSONP.getStr(e, "title"))));
-	
+
 		return l;
 	}
 
 	/**
-	 * Gets a specified number of Recent Changes in between two timestamps. Note: you *must* use <code>start</code> and
-	 * <code>end</code> together or not at all, otherwise the parameters will be ignored.
+	 * Gets a specified number of Recent Changes in between two timestamps. WARNING: if you use both {@code start} and
+	 * {@code end}, then {@code start} MUST be earlier than {@code end}. If you set both {@code start} and {@code end} to
+	 * null, then the default behavior is to fetch the last 30 seconds of recent changes.
 	 * 
-	 * @param start The instant to start enumerating from. Start date must occur before end date. Optinal param - set
-	 *           null to disable.
-	 * @param end The instant to stop enumerating at. Optional param - set null to disable.
+	 * @param start The Instant to start enumerating from. Can be used without {@code end}. Optional param - set null to
+	 *           disable.
+	 * @param end The Instant to stop enumerating at. {@code start} must be set, otherwise this will be ignored. Optional
+	 *           param - set null to disable.
 	 * @return A list Recent Changes where return order is newer -&gt; Older
 	 */
 	public ArrayList<RCEntry> getRecentChanges(Instant start, Instant end)
 	{
 		ColorLog.info(this, "Querying recent changes");
-		if (start == null || end == null || start.isBefore(end))
-			throw new IllegalArgumentException("start/end is null or start is before end.  Cannot proceed");
 
-		// MediaWiki has start <-> end mixed up
-		WQuery wq = new WQuery(this, WQuery.RECENTCHANGES).set("rcstart", end.toString()).set("rcend", start.toString());
+		Instant s = start, e = end;
+		if (s == null)
+			s = (e = Instant.now()).minusSeconds(30);
+		else if (e != null && e.isBefore(s)) // implied s != null
+			throw new IllegalArgumentException("start is before end, cannot proceed");
+
+		// MediaWiki has start <-> end backwards
+		WQuery wq = new WQuery(this, WQuery.RECENTCHANGES).set("rcend", s.toString());
+		if (e != null)
+			wq.set("rcstart", e.toString());
+
 		ArrayList<RCEntry> l = new ArrayList<>();
 		while (wq.has())
 			l.addAll(FL.toAL(wq.next().listComp("recentchanges").stream().map(jo -> GSONP.gson.fromJson(jo, RCEntry.class))));
@@ -897,17 +902,17 @@ public class Wiki
 	public ArrayList<Revision> getRevisions(String title, int cap, boolean olderFirst, Instant start, Instant end)
 	{
 		ColorLog.info(this, "Getting revisions from " + title);
-	
+
 		WQuery wq = new WQuery(this, cap, WQuery.REVISIONS).set("titles", title);
 		if (olderFirst)
 			wq.set("rvdir", "newer"); // MediaWiki is weird.
-	
+
 		if (start != null && end != null && start.isBefore(end))
 		{
 			wq.set("rvstart", end.toString()); // MediaWiki has start <-> end reversed
 			wq.set("rvend", start.toString());
 		}
-	
+
 		ArrayList<Revision> l = new ArrayList<>();
 		while (wq.has())
 		{
@@ -1033,7 +1038,7 @@ public class Wiki
 	public ArrayList<PageSection> splitPageByHeader(String title)
 	{
 		ColorLog.info(this, "Splitting " + title + " by header");
-	
+
 		try
 		{
 			return PageSection.pageBySection(GSONP.getJAofJO(GSONP.getNestedJA(

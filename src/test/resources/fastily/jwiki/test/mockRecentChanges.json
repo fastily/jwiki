@@ -1,0 +1,32 @@
+{
+    "batchcomplete": "",
+    "query": {
+        "recentchanges": [
+            {
+                "type": "edit",
+                "ns": 0,
+                "title": "Title1",
+                "user": "127.0.0.1",
+                "anon": "",
+                "timestamp": "2017-12-31T02:06:09Z",
+                "comment": "comment1"
+            },
+            {
+                "type": "new",
+                "ns": 0,
+                "title": "Title2",
+                "user": "TestUser",
+                "timestamp": "2017-12-31T02:10:32Z",
+                "comment": "comment2"
+            },
+            {
+                "type": "log",
+                "ns": 0,
+                "title": "Title3",
+                "user": "Foobar",
+                "timestamp": "2017-12-31T02:09:57Z",
+                "comment": ""
+            }
+        ]
+    }
+}

@@ -12,7 +12,7 @@ The MediaWiki [API](https://www.mediawiki.org/wiki/API:Main_page) is complicated
 With jwiki, complex API actions/queries can be executed with _one_ simple function call using only simple objects and primitive types.  It's so easy that _anyone_ can write an application that works with MediaWiki.
 
 ## Getting Started
-* [Examples](https://github.com/fastily/jwiki/wiki/Examples)
+* [Examples](fastily/jwiki/wiki/Examples)
 * [Javadocs](https://fastily.github.io/jwiki/docs/jwiki/)
 
 ## Download
@@ -38,3 +38,6 @@ Build and publish jwiki on your local machine with
 ```bash
 ./gradlew build publishToMavenLocal
 ```
+
+## Feedback
+Please use [issues](fastily/jwiki/issues) for bug reports and/or feature requests.
