@@ -202,7 +202,7 @@ public final class MQuery
 	{
 		HashMap<String, ArrayList<ImageInfo>> l = new HashMap<>();
 		getContProp(wiki, titles, WQuery.IMAGEINFO, null, "imageinfo").l
-				.forEach((k, v) -> l.put(k, FL.toAL(v.stream().map(ImageInfo::new))));
+				.forEach((k, v) -> l.put(k, FL.toAL(v.stream().map(jo -> GSONP.gson.fromJson(jo, ImageInfo.class)))));
 
 		// MediaWiki imageinfo is not a well-behaved module
 		l.forEach((k, v) -> Collections.sort(v));

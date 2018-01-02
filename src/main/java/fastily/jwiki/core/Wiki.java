@@ -824,7 +824,7 @@ public class Wiki
 
 		ArrayList<ProtectedTitleEntry> l = new ArrayList<>();
 		while (wq.has())
-			l.addAll(FL.toAL(wq.next().listComp("protectedtitles").stream().map(ProtectedTitleEntry::new)));
+			l.addAll(FL.toAL(wq.next().listComp("protectedtitles").stream().map(jo -> GSONP.gson.fromJson(jo, ProtectedTitleEntry.class))));
 
 		return l;
 	}

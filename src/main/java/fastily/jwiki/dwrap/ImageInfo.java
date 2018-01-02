@@ -1,11 +1,5 @@
 package fastily.jwiki.dwrap;
 
-import java.time.Instant;
-
-import com.google.gson.JsonObject;
-
-import fastily.jwiki.util.GSONP;
-import fastily.jwiki.util.Tuple;
 import okhttp3.HttpUrl;
 
 /**
@@ -19,42 +13,39 @@ public final class ImageInfo extends DataEntry implements Comparable<ImageInfo>
 	/**
 	 * The image size (in bytes)
 	 */
-	public final int size;
+	public int size;
 
 	/**
-	 * The image's width x height (in pixels)
+	 * The file's height (in pixels), if applicable.
 	 */
-	public final Tuple<Integer, Integer> dimensions;
-
+	public int height;
+	
+	/**
+	 * The file's width (in pixels), if applicable.
+	 */
+	public int width;
+	
 	/**
 	 * The sha1 hash for this file
 	 */
-	public final String sha1;
+	public String sha1;
 
 	/**
 	 * The url of the full size image.
 	 */
-	public final HttpUrl url;
+	public HttpUrl url;
 
 	/**
 	 * The MIME string of the file.
 	 */
-	public final String mime;
-
+	public String mime;
+	
 	/**
-	 * Constructor, takes a JSONObject containing image info returned by the server.
-	 * 
-	 * @param r The Reply to use.
+	 * Constructor, creates an ImageInfo with all null fields.
 	 */
-	public ImageInfo(JsonObject r)
+	protected ImageInfo()
 	{
-		super(GSONP.getStr(r, "user"), null, GSONP.getStr(r, "comment"), Instant.parse(GSONP.getStr(r, "timestamp")));
-		size = r.get("size").getAsInt();
-		dimensions = new Tuple<>(r.get("width").getAsInt(), r.get("height").getAsInt());
-		url = HttpUrl.parse(GSONP.getStr(r, "url"));
-
-		sha1 = GSONP.getStr(r, "sha1");
-		mime = GSONP.getStr(r, "mime");
+		
 	}
 
 	/**

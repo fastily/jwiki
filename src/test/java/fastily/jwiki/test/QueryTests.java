@@ -15,7 +15,6 @@ import fastily.jwiki.dwrap.ImageInfo;
 import fastily.jwiki.dwrap.PageSection;
 import fastily.jwiki.dwrap.Revision;
 import fastily.jwiki.util.FL;
-import fastily.jwiki.util.Tuple;
 import okhttp3.HttpUrl;
 
 
@@ -254,13 +253,15 @@ public class QueryTests
 	{
 		// Test 1
 		ImageInfo result = wiki.getImageInfo("File:FastilyTestR.svg").get(0);
-		assertEquals(new Tuple<>(512, 477), result.dimensions);
+		assertEquals(477, result.height);
+		assertEquals(512, result.width);
 		assertEquals(876, result.size);
 		assertEquals("275e96b2660f761cca02b8d2cb5425bcaab4dd98", result.sha1);
 		
 		// Test 2
 		result = wiki.getImageInfo("File:FastilyTest.svg").get(0);
-		assertEquals(new Tuple<>(512, 477), result.dimensions);
+		assertEquals(477, result.height);
+		assertEquals(512, result.width);
 		assertEquals(876, result.size);
 		assertEquals("275e96b2660f761cca02b8d2cb5425bcaab4dd98", result.sha1);
 		assertEquals("image/svg+xml", result.mime);

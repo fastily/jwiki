@@ -12,7 +12,6 @@ import fastily.jwiki.core.MQuery;
 import fastily.jwiki.core.Wiki;
 import fastily.jwiki.dwrap.ImageInfo;
 import fastily.jwiki.util.FL;
-import fastily.jwiki.util.Tuple;
 
 /**
  * Tests for MQuery in jwiki. These are only simple sanity checks; this is not a comprehensive test suite.
@@ -61,13 +60,15 @@ public class MQueryTests
 		ImageInfo subResult = result.get("File:FastilyTestCircle1.svg").get(0);
 		assertEquals("Fastily", subResult.user);
 		assertEquals(Instant.parse("2016-03-21T02:12:43Z"), subResult.timestamp);
-		assertEquals(new Tuple<>(512, 502), subResult.dimensions);
+		assertEquals(502, subResult.height);
+		assertEquals(512, subResult.width);
 		assertEquals("0bfe3100d0277c0d42553b9d16db71a89cc67ef7", subResult.sha1);
 
 		subResult = result.get("File:FastilyTestCircle2.svg").get(0);
 		assertEquals("Fastily", subResult.user);
 		assertEquals(Instant.parse("2016-03-21T02:13:15Z"), subResult.timestamp);
-		assertEquals(new Tuple<>(512, 502), subResult.dimensions);
+		assertEquals(502, subResult.height);
+		assertEquals(512, subResult.width);
 		assertEquals("bbe1ffbfb03ec9489ffdb3f33596b531c7b222ef", subResult.sha1);
 	}
 

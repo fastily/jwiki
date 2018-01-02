@@ -14,6 +14,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
+import okhttp3.HttpUrl;
+
 /**
  * Static utility methods for use with Gson.
  * 
@@ -28,6 +30,11 @@ public class GSONP
 	private static JsonDeserializer<Instant> instantDeserializer = (j, t, c) -> Instant.parse(j.getAsJsonPrimitive().getAsString());
 
 	/**
+	 * Default json deserializer for HttpUrl objects.
+	 */
+	private static JsonDeserializer<HttpUrl> httpurlDeserializer = (j, t, c) -> HttpUrl.parse(j.getAsJsonPrimitive().getAsString());
+
+	/**
 	 * Static JsonParser, for convenience.
 	 */
 	public static final JsonParser jp = new JsonParser();
@@ -35,7 +42,8 @@ public class GSONP
 	/**
 	 * Default Gson object, for convenience.
 	 */
-	public static final Gson gson = new GsonBuilder().registerTypeAdapter(Instant.class, instantDeserializer).create();
+	public static final Gson gson = new GsonBuilder().registerTypeAdapter(Instant.class, instantDeserializer)
+			.registerTypeAdapter(HttpUrl.class, httpurlDeserializer).create();
 
 	/**
 	 * Gson object which generates pretty-print (human-readable) JSON.

@@ -53,6 +53,12 @@ public class MockQueryTests extends MockTemplate
 		// TODO:
 	}
 
+	@Test
+	public void testProtectedTitles()
+	{
+		//TODO:
+	}
+	
 	/**
 	 * Test recent changes fetching.
 	 */

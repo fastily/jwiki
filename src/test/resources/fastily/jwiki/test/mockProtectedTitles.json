@@ -1,0 +1,34 @@
+{
+    "batchcomplete": "",
+    "query": {
+        "protectedtitles": [
+            {
+                "ns": 6,
+                "title": "File:Test.jpg",
+                "timestamp": "2007-12-28T03:22:03Z",
+                "user": "Foo",
+                "userid": 212620,
+                "comment": "summary1",
+                "level": "sysop"
+            },
+            {
+                "ns": 0,
+                "title": "TestTest",
+                "timestamp": "2007-12-28T06:41:03Z",
+                "user": "Foo",
+                "userid": 212620,
+                "comment": "summary2",
+                "level": "sysop"
+            },
+            {
+                "ns": 6,
+                "title": "File:Example.jpg",
+                "timestamp": "2007-12-28T06:43:00Z",
+                "user": "Bar",
+                "userid": 212618,
+                "comment": "summary3",
+                "level": "autoconfirmed"
+            }
+        ]
+    }
+}
