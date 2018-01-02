@@ -20,8 +20,7 @@ import fastily.jwiki.util.FL;
 import fastily.jwiki.util.GSONP;
 
 /**
- * Parses wikitext into a DOM-style, machine-manipulatable format that is sane to work with. This is the entry point for
- * this API.
+ * Parses wikitext into a DOM-style, manipulatable format that is easy to work with.
  * 
  * @author Fastily
  *
@@ -229,7 +228,7 @@ public class WParser
 	}
 	
 	/**
-	 * Represents wikitext. May contain Strings and templates.
+	 * Mutable representation of parsed wikitext. May contain Strings and templates.
 	 * 
 	 * @author Fastily
 	 *
@@ -338,7 +337,7 @@ public class WParser
 	}
 	
 	/**
-	 * Represents a parsed, wiki-text template.
+	 * Mutable representation of a parsed wikitext template.
 	 * 
 	 * @author Fastily
 	 *

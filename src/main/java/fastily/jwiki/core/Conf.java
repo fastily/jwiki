@@ -11,12 +11,12 @@ import okhttp3.HttpUrl;
 public final class Conf
 {
 	/**
-	 * Toggles logging of debug information to std err. Disabled by default.
+	 * Toggles logging of debug information to std err.  Disabled (false) by default.
 	 */
 	public boolean debug = false;
 
 	/**
-	 * The default {@code User-Agent} header for HTTP requests.
+	 * The {@code User-Agent} header to use for HTTP requests.
 	 */
 	public String userAgent = String.format("jwiki on %s %s with JVM %s", System.getProperty("os.name"),
 			System.getProperty("os.version"), System.getProperty("java.version"));
@@ -37,7 +37,7 @@ public final class Conf
 	protected boolean isBot = false;
 
 	/**
-	 * The base hostname of the Wiki to target. e.g. {@code en.wikipedia.org}
+	 * The hostname of the Wiki to target. Example: {@code en.wikipedia.org}
 	 */
 	public final String hostname;
 

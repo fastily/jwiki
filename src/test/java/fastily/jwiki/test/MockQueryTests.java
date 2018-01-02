@@ -10,6 +10,7 @@ import org.junit.Test;
 
 import fastily.jwiki.core.NS;
 import fastily.jwiki.dwrap.LogEntry;
+import fastily.jwiki.dwrap.ProtectedTitleEntry;
 import fastily.jwiki.dwrap.RCEntry;
 
 /**
@@ -53,10 +54,35 @@ public class MockQueryTests extends MockTemplate
 		// TODO:
 	}
 
+	/**
+	 * Test protected title fetching
+	 */
 	@Test
 	public void testProtectedTitles()
 	{
-		//TODO:
+		addResponse("mockProtectedTitles");
+		
+		ArrayList<ProtectedTitleEntry> l = wiki.getProtectedTitles(3, true);
+		
+		assertFalse(l.isEmpty());
+		
+		assertEquals("File:Test.jpg", l.get(0).title);
+		assertEquals("Foo", l.get(0).user);
+		assertEquals("summary1", l.get(0).summary);
+		assertEquals(Instant.parse("2007-12-28T03:22:03Z"), l.get(0).timestamp);
+		assertEquals("sysop", l.get(0).level);
+		
+		assertEquals("TestTest", l.get(1).title);
+		assertEquals("Foo", l.get(1).user);
+		assertEquals("summary2", l.get(1).summary);
+		assertEquals(Instant.parse("2007-12-28T06:41:03Z"), l.get(1).timestamp);
+		assertEquals("sysop", l.get(1).level);
+		
+		assertEquals("File:Example.jpg", l.get(2).title);
+		assertEquals("Bar", l.get(2).user);
+		assertEquals("summary3", l.get(2).summary);
+		assertEquals(Instant.parse("2007-12-28T06:43:00Z"), l.get(2).timestamp);
+		assertEquals("autoconfirmed", l.get(2).level);
 	}
 	
 	/**

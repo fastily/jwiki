@@ -26,8 +26,8 @@ import okhttp3.HttpUrl;
 import okhttp3.Response;
 
 /**
- * Main class of jwiki. Most developers will only need this class. This class implements all queries/actions which jwiki
- * can perform on a wiki. All methods are backed by static calls and are thread-safe.
+ * Main entry point of the jwiki API. This class contains most queries/actions which jwiki can perform on a wiki. Unless
+ * stated otherwise, all methods are thread-safe.
  * 
  * @author Fastily
  */
@@ -44,7 +44,7 @@ public class Wiki
 	protected NS.NSManager nsl;
 
 	/**
-	 * Configurations and settings for this Wiki.
+	 * Default configuration and settings for this Wiki.
 	 */
 	public final Conf conf;
 
@@ -824,7 +824,8 @@ public class Wiki
 
 		ArrayList<ProtectedTitleEntry> l = new ArrayList<>();
 		while (wq.has())
-			l.addAll(FL.toAL(wq.next().listComp("protectedtitles").stream().map(jo -> GSONP.gson.fromJson(jo, ProtectedTitleEntry.class))));
+			l.addAll(
+					FL.toAL(wq.next().listComp("protectedtitles").stream().map(jo -> GSONP.gson.fromJson(jo, ProtectedTitleEntry.class))));
 
 		return l;
 	}
