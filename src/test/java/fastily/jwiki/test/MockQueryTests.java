@@ -12,6 +12,7 @@ import fastily.jwiki.core.NS;
 import fastily.jwiki.dwrap.LogEntry;
 import fastily.jwiki.dwrap.ProtectedTitleEntry;
 import fastily.jwiki.dwrap.RCEntry;
+import fastily.jwiki.util.Tuple;
 
 /**
  * Tests queries which may have dynamic/variable outputs.
@@ -19,7 +20,7 @@ import fastily.jwiki.dwrap.RCEntry;
  * @author Fastily
  *
  */
-public class MockQueryTests extends MockTemplate
+public class MockQueryTests extends MockWParserTests
 {
 	/**
 	 * Mock fetching of random pages
@@ -35,23 +36,25 @@ public class MockQueryTests extends MockTemplate
 	}
 
 	/**
-	 * Tests global usage. This does nothing at the moment, because gu isn't testable using testwiki. Might be doable if
-	 * we get a test-commons
+	 * Test fetching of global usage.
 	 */
 	@Test
 	public void testGlobalUsage()
 	{
-		// TODO:
-	}
+		addResponse("mockGlobalUsage");
 
-	/**
-	 * Test for listing duplicate files. Basically does the same thing as the special page by the same name. This does
-	 * nothing because the results returned by the server are variable
-	 */
-	@Test
-	public void testListDuplicateFiles()
-	{
-		// TODO:
+		ArrayList<Tuple<String, String>> l = wiki.globalUsage("File:Example.jpg");
+
+		assertFalse(l.isEmpty());
+
+		assertEquals("TestTest", l.get(0).x);
+		assertEquals("ay.wikipedia.org", l.get(0).y);
+
+		assertEquals("Foobar", l.get(1).x);
+		assertEquals("bat-smg.wikipedia.org", l.get(1).y);
+
+		assertEquals("Hello", l.get(2).x);
+		assertEquals("ka.wiktionary.org", l.get(2).y);
 	}
 
 	/**
@@ -61,30 +64,30 @@ public class MockQueryTests extends MockTemplate
 	public void testProtectedTitles()
 	{
 		addResponse("mockProtectedTitles");
-		
+
 		ArrayList<ProtectedTitleEntry> l = wiki.getProtectedTitles(3, true);
-		
+
 		assertFalse(l.isEmpty());
-		
+
 		assertEquals("File:Test.jpg", l.get(0).title);
 		assertEquals("Foo", l.get(0).user);
 		assertEquals("summary1", l.get(0).summary);
 		assertEquals(Instant.parse("2007-12-28T03:22:03Z"), l.get(0).timestamp);
 		assertEquals("sysop", l.get(0).level);
-		
+
 		assertEquals("TestTest", l.get(1).title);
 		assertEquals("Foo", l.get(1).user);
 		assertEquals("summary2", l.get(1).summary);
 		assertEquals(Instant.parse("2007-12-28T06:41:03Z"), l.get(1).timestamp);
 		assertEquals("sysop", l.get(1).level);
-		
+
 		assertEquals("File:Example.jpg", l.get(2).title);
 		assertEquals("Bar", l.get(2).user);
 		assertEquals("summary3", l.get(2).summary);
 		assertEquals(Instant.parse("2007-12-28T06:43:00Z"), l.get(2).timestamp);
 		assertEquals("autoconfirmed", l.get(2).level);
 	}
-	
+
 	/**
 	 * Test recent changes fetching.
 	 */

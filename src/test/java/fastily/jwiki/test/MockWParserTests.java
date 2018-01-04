@@ -16,7 +16,7 @@ import okhttp3.mockwebserver.MockWebServer;
  * @author Fastily
  *
  */
-public class MockTemplate
+public class MockWParserTests
 {
 	/**
 	 * The mock MediaWiki server

@@ -33,26 +33,12 @@ public abstract class DataEntry
 	 */
 	public Instant timestamp;
 
-	
+	/**
+	 * Constructor, creates a DataEntry with all null fields.
+	 */
 	protected DataEntry()
 	{
-		//TODO: TEMP
-	}
-	
-	/**
-	 * Constructor for basic data object.
-	 * 
-	 * @param user The user who performed this action
-	 * @param title The title the action was performed on
-	 * @param summary The edit/log summary
-	 * @param timestamp The timestamp this action was performed at.
-	 */
-	protected DataEntry(String user, String title, String summary, Instant timestamp)
-	{
-		this.user = user;
-		this.title = title;
-		this.summary = summary;
-		this.timestamp = timestamp;
+
 	}
 
 	/**

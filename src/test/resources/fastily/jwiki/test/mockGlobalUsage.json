@@ -1,0 +1,29 @@
+{
+    "batchcomplete": "",
+    "query": {
+        "pages": {
+            "36703557": {
+                "pageid": 36704000,
+                "ns": 6,
+                "title": "File:Example.jpg",
+                "globalusage": [
+                    {
+                        "title": "TestTest",
+                        "wiki": "ay.wikipedia.org",
+                        "url": "https://ay.wikipedia.org/wiki/TestTest"
+                    },
+                    {
+                        "title": "Foobar",
+                        "wiki": "bat-smg.wikipedia.org",
+                        "url": "https://bat-smg.wikipedia.org/wiki/Foobar"
+                    },
+                    {
+                        "title": "Hello",
+                        "wiki": "ka.wiktionary.org",
+                        "url": "https://ka.wiktionary.org/wiki/Hello"
+                    }
+                ]
+            }
+        }
+    }
+}
