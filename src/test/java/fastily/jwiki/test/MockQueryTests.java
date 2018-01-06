@@ -20,7 +20,7 @@ import fastily.jwiki.util.Tuple;
  * @author Fastily
  *
  */
-public class MockQueryTests extends MockWParserTests
+public class MockQueryTests extends BaseMockTemplate
 {
 	/**
 	 * Mock fetching of random pages

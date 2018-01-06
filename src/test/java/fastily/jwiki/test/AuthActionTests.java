@@ -12,7 +12,7 @@ import fastily.jwiki.core.Wiki;
  * @author Fastily
  *
  */
-public class AuthActionTests extends MockWParserTests
+public class AuthActionTests extends BaseMockTemplate
 {
 	/**
 	 * Initializes a logged-in Wiki.

@@ -14,7 +14,7 @@ import fastily.jwiki.core.NS;
  * @author Fastily
  *
  */
-public class ActionTests extends MockWParserTests
+public class ActionTests extends BaseMockTemplate
 {
 	/**
 	 * Sanity check to make sure the mock Wiki object is properly initialized.
