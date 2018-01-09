@@ -10,7 +10,7 @@ import java.time.format.DateTimeFormatter;
  * @author Fastily
  *
  */
-public enum ColorLog
+enum ColorLog
 {
 	/**
 	 * A font color, black, which can be applied to a String if your terminal supports it.

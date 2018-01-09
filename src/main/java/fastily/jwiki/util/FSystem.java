@@ -3,8 +3,6 @@ package fastily.jwiki.util;
 import java.nio.file.FileSystems;
 import java.time.format.DateTimeFormatter;
 
-import fastily.jwiki.core.ColorLog;
-
 /**
  * System properties and static error handling methods.
  * 
@@ -44,7 +42,7 @@ public final class FSystem
 	public static void errAndExit(String s)
 	{
 		if (s != null)
-			ColorLog.error(s);
+			System.err.println(s);
 		System.exit(1);
 	}
 
