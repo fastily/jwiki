@@ -1,5 +1,6 @@
 package fastily.jwiki.core;
 
+import java.net.Proxy;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -23,6 +24,7 @@ import fastily.jwiki.util.FL;
 import fastily.jwiki.util.GSONP;
 import fastily.jwiki.util.Tuple;
 import okhttp3.HttpUrl;
+import okhttp3.Interceptor;
 import okhttp3.Response;
 
 /**
@@ -54,15 +56,17 @@ public class Wiki
 	protected final ApiClient apiclient;
 
 	/**
-	 * Constructor, sets username, password, and domain. If the username and password are not valid then a
+	 * Constructor, configures all possible params. If the username and password are set but not valid then a
 	 * SecurityException will be thrown.
 	 * 
-	 * @param user The username to use
-	 * @param px The password to use
-	 * @param baseURL The url pointing to the base MediaWiki API endpoint.
-	 * @param parent The parent Wiki which spawned this Wiki. If this is the first Wiki, disable with null.
+	 * @param user The username to use.  Optional - set null to disable.
+	 * @param px The password to login with.  Optional - depends on user not being null, set null to disable.
+	 * @param baseURL The URL pointing to the target MediaWiki API endpoint.
+	 * @param proxy The Proxy to use.  Optional - set null to disable.
+	 * @param interceptor An OkHttp interceptor, useful for pre/post flight modifications.  Optional - set null to disable.
+	 * @param parent The parent Wiki which spawned this Wiki using {@code getWiki()}. If this is the first Wiki, disable with null.
 	 */
-	private Wiki(String user, String px, HttpUrl baseURL, Wiki parent)
+	private Wiki(String user, String px, HttpUrl baseURL, Proxy proxy, Interceptor interceptor, Wiki parent)
 	{
 		conf = new Conf(baseURL);
 
@@ -75,7 +79,7 @@ public class Wiki
 		}
 		else
 		{
-			apiclient = new ApiClient(this);
+			apiclient = new ApiClient(this, proxy, interceptor);
 
 			if (user != null && px != null && !login(user, px))
 				throw new SecurityException(String.format("Failed to log-in as %s @ %s", conf.uname, conf.hostname));
@@ -83,6 +87,17 @@ public class Wiki
 
 		ColorLog.info(this, "Fetching Namespace List");
 		nsl = new NS.NSManager(new WQuery(this, WQuery.NAMESPACES).next().input.getAsJsonObject("query"));
+	}
+
+	/**
+	 * Constructor, creates an anonymous Wiki with the specified API endpoint, proxy, and/or interceptor.
+	 * @param baseURL The URL pointing to the target MediaWiki API endpoint.
+	 * @param proxy The Proxy to use.  Optional - set null to disable.
+	 * @param interceptor An OkHttp interceptor, useful for pre/post flight modifications.  Optional - set null to disable.
+	 */
+	public Wiki(HttpUrl baseURL, Proxy proxy, Interceptor interceptor)
+	{	
+		this(null, null, baseURL, proxy, interceptor, null);
 	}
 
 	/**
@@ -94,9 +109,9 @@ public class Wiki
 	 */
 	public Wiki(String user, String px, HttpUrl baseURL)
 	{
-		this(user, px, baseURL, null);
+		this(user, px, baseURL, null, null, null);
 	}
-
+	
 	/**
 	 * Constructor, takes user, password, and domain to login as.
 	 * 
@@ -299,7 +314,7 @@ public class Wiki
 		ColorLog.fyi(this, String.format("Get Wiki for %s @ %s", whoami(), domain));
 		try
 		{
-			return wl.containsKey(domain) ? wl.get(domain) : new Wiki(null, null, conf.baseURL.newBuilder().host(domain).build(), this);
+			return wl.containsKey(domain) ? wl.get(domain) : new Wiki(null, null, conf.baseURL.newBuilder().host(domain).build(), null, null, this);
 		}
 		catch (Throwable e)
 		{

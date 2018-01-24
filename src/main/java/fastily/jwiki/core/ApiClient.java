@@ -1,6 +1,7 @@
 package fastily.jwiki.core;
 
 import java.io.IOException;
+import java.net.Proxy;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -11,6 +12,7 @@ import okhttp3.Cookie;
 import okhttp3.CookieJar;
 import okhttp3.FormBody;
 import okhttp3.HttpUrl;
+import okhttp3.Interceptor;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
@@ -46,11 +48,21 @@ class ApiClient
 	 * Constructor, create a new ApiClient for a Wiki instance.
 	 * 
 	 * @param wiki The Wiki object this ApiClient is associated with.
+	 * @param proxy The proxy to use. Optional param - set null to disable.
+	 * @param interceptor An okhttp Interceptor to use. Useful for pre/post processing of output. Optional param - set
+	 *           null to disable.
 	 */
-	protected ApiClient(Wiki wiki)
+	protected ApiClient(Wiki wiki, Proxy proxy, Interceptor interceptor)
 	{
 		this.wiki = wiki;
-		client = new OkHttpClient.Builder().cookieJar(new JwikiCookieJar()).readTimeout(2, TimeUnit.MINUTES).build();
+
+		OkHttpClient.Builder builder = new OkHttpClient.Builder().cookieJar(new JwikiCookieJar()).readTimeout(2, TimeUnit.MINUTES);
+		if (proxy != null)
+			builder.proxy(proxy);
+		if (interceptor != null)
+			builder.addInterceptor(interceptor);
+
+		client = builder.build();
 	}
 
 	/**
