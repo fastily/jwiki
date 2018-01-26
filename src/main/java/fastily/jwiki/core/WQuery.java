@@ -179,6 +179,11 @@ class WQuery
 			"usercontribs");
 
 	/**
+	 * Default parameters for getting a user's username and id.
+	 */
+	public static final QTemplate USERINFO = new QTemplate(FL.pMap("meta", "userinfo"), null);
+	
+	/**
 	 * Default parameters for listing users and their rights.
 	 */
 	public static final QTemplate USERRIGHTS = new QTemplate(FL.pMap("list", "users", "usprop", "groups", "ususers", null), "users");

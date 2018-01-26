@@ -21,13 +21,23 @@ public class AuthActionTests extends BaseMockTemplate
 	{
 		addResponse("mockTokenNotLoggedIn");
 		addResponse("mockLoginSuccess");
+		addResponse("mockUserInfo");
 		addResponse("mockTokenLoggedIn");
 		addResponse("mockListSingleUserRights");
 		addResponse("mockNSInfo");
 
-		wiki = new Wiki("Test", "password", server.url("/w/api.php"));
+		wiki = new Wiki("Test", "password", server.url("/w/api.php"), null, null);
 	}
 
+	/**
+	 * Verify that the username was set properly.
+	 */
+	@Test
+	public void testWhoAmI()
+	{
+		assertEquals("Test", wiki.whoami());
+	}
+	
 	/**
 	 * Test privileged delete.
 	 */

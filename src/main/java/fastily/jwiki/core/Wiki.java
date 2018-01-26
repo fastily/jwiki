@@ -59,12 +59,14 @@ public class Wiki
 	 * Constructor, configures all possible params. If the username and password are set but not valid then a
 	 * SecurityException will be thrown.
 	 * 
-	 * @param user The username to use.  Optional - set null to disable.
-	 * @param px The password to login with.  Optional - depends on user not being null, set null to disable.
+	 * @param user The username to use. Optional - set null to disable.
+	 * @param px The password to login with. Optional - depends on user not being null, set null to disable.
 	 * @param baseURL The URL pointing to the target MediaWiki API endpoint.
-	 * @param proxy The Proxy to use.  Optional - set null to disable.
-	 * @param interceptor An OkHttp interceptor, useful for pre/post flight modifications.  Optional - set null to disable.
-	 * @param parent The parent Wiki which spawned this Wiki using {@code getWiki()}. If this is the first Wiki, disable with null.
+	 * @param proxy The Proxy to use. Optional - set null to disable.
+	 * @param interceptor An OkHttp interceptor, useful for pre/post flight modifications. Optional - set null to
+	 *           disable.
+	 * @param parent The parent Wiki which spawned this Wiki using {@code getWiki()}. If this is the first Wiki, disable
+	 *           with null.
 	 */
 	private Wiki(String user, String px, HttpUrl baseURL, Proxy proxy, Interceptor interceptor, Wiki parent)
 	{
@@ -75,7 +77,7 @@ public class Wiki
 			wl = parent.wl;
 			apiclient = new ApiClient(parent, this);
 
-			refreshLoginStatus(parent.conf.uname);
+			refreshLoginStatus();
 		}
 		else
 		{
@@ -90,44 +92,63 @@ public class Wiki
 	}
 
 	/**
-	 * Constructor, creates an anonymous Wiki with the specified API endpoint, proxy, and/or interceptor.
-	 * @param baseURL The URL pointing to the target MediaWiki API endpoint.
-	 * @param proxy The Proxy to use.  Optional - set null to disable.
-	 * @param interceptor An OkHttp interceptor, useful for pre/post flight modifications.  Optional - set null to disable.
+	 * Constructor, creates a Wiki with the specified domain and other optional parameters.
+	 * 
+	 * @param user The username to use. Optional - set null to disable.
+	 * @param px The password to login with. Optional - depends on user not bei
+	 * @param domain The domain name. Use shorthand form, ex: {@code en.wikipedia.org}.
+	 * @param proxy The Proxy to use. Optional - set null to disable.
+	 * @param interceptor An OkHttp interceptor, useful for pre/post flight modifications. Optional - set null to
+	 *           disable.
 	 */
-	public Wiki(HttpUrl baseURL, Proxy proxy, Interceptor interceptor)
-	{	
-		this(null, null, baseURL, proxy, interceptor, null);
+	private Wiki(String user, String px, String domain, Proxy proxy, Interceptor interceptor)
+	{
+		this(user, px, HttpUrl.parse(String.format("https://%s/w/api.php", domain)), proxy, interceptor, null);
 	}
 
 	/**
-	 * Constructor, takes a user, password, and the base URL for the API endpoint.
+	 * Constructor, creates an anonymous Wiki with the specified API endpoint, proxy, and/or interceptor.
 	 * 
-	 * @param user The username to use
-	 * @param px The password to use
-	 * @param baseURL The base URL for the API endpoint.
+	 * @param user The username to use. Optional - set null to disable.
+	 * @param px The password to use. Optional - set null to disable. CAVEAT: ignored if user is null.
+	 * @param baseURL The URL pointing to the target MediaWiki API endpoint.
+	 * @param proxy The Proxy to use. Optional - set null to disable.
+	 * @param interceptor An OkHttp interceptor, useful for pre/post flight modifications. Optional - set null to
+	 *           disable.
 	 */
-	public Wiki(String user, String px, HttpUrl baseURL)
+	public Wiki(String user, String px, HttpUrl baseURL, Proxy proxy, Interceptor interceptor)
 	{
-		this(user, px, baseURL, null, null, null);
+		this(user, px, baseURL, proxy, interceptor, null);
 	}
-	
+
+	/**
+	 * Constructor, creates an anonymous Wiki with the specified domain and interceptor.
+	 * 
+	 * @param domain The domain name. Use shorthand form, ex: {@code en.wikipedia.org}.
+	 * @param interceptor An OkHttp interceptor, useful for pre/post flight modifications. Optional - set null to
+	 *           disable.
+	 */
+	public Wiki(String domain, Interceptor interceptor)
+	{
+		this(null, null, domain, null, interceptor);
+	}
+
 	/**
 	 * Constructor, takes user, password, and domain to login as.
 	 * 
 	 * @param user The username to use
 	 * @param px The password to use
-	 * @param domain The domain name, in shorthand form (e.g. en.wikipedia.org)
+	 * @param domain The domain name. Use shorthand form, ex: {@code en.wikipedia.org}.
 	 */
 	public Wiki(String user, String px, String domain)
 	{
-		this(user, px, HttpUrl.parse(String.format("https://%s/w/api.php", domain)));
+		this(user, px, domain, null, null);
 	}
 
 	/**
 	 * Constructor, creates an anonymous Wiki which is not logged in.
 	 * 
-	 * @param domain The domain to use
+	 * @param domain The domain name. Use shorthand form, ex: {@code en.wikipedia.org}.
 	 */
 	public Wiki(String domain)
 	{
@@ -157,7 +178,7 @@ public class Wiki
 			if (WAction.postAction(this, "login", false, FL.pMap("lgname", user, "lgpassword", password, "lgtoken",
 					getTokens(WQuery.TOKENS_LOGIN, "logintoken"))) == WAction.ActionResult.SUCCESS)
 			{
-				refreshLoginStatus(user.length() < 2 ? user.toUpperCase() : user.substring(0, 1).toUpperCase() + user.substring(1));
+				refreshLoginStatus();
 
 				ColorLog.info(this, "Logged in as " + user);
 				return true;
@@ -172,16 +193,14 @@ public class Wiki
 	}
 
 	/**
-	 * Refresh the login status of a Wiki. This runs after every login or creation of a new logged-in Wiki.
-	 * 
-	 * @param uname The set {@code uname} to
+	 * Refresh the login status of a Wiki.  This runs automatically on login or creation of a new CentralAuth'd Wiki.
 	 */
-	private void refreshLoginStatus(String uname)
+	public void refreshLoginStatus()
 	{
-		conf.uname = uname;
+		conf.uname = GSONP.getStr(new WQuery(this, WQuery.USERINFO).next().metaComp("userinfo").getAsJsonObject(), "name");
 		conf.token = getTokens(WQuery.TOKENS_CSRF, "csrftoken");
 		wl.put(conf.hostname, this);
-
+		
 		conf.isBot = listUserRights(conf.uname).contains("bot");
 	}
 
@@ -204,6 +223,7 @@ public class Wiki
 			return null;
 		}
 	}
+		
 
 	/* //////////////////////////////////////////////////////////////////////////////// */
 	/* /////////////////////////// UTILITY FUNCTIONS ////////////////////////////////// */
@@ -314,7 +334,8 @@ public class Wiki
 		ColorLog.fyi(this, String.format("Get Wiki for %s @ %s", whoami(), domain));
 		try
 		{
-			return wl.containsKey(domain) ? wl.get(domain) : new Wiki(null, null, conf.baseURL.newBuilder().host(domain).build(), null, null, this);
+			return wl.containsKey(domain) ? wl.get(domain)
+					: new Wiki(null, null, conf.baseURL.newBuilder().host(domain).build(), null, null, this);
 		}
 		catch (Throwable e)
 		{
@@ -1067,7 +1088,7 @@ public class Wiki
 			return new ArrayList<>();
 		}
 	}
-
+	
 	/**
 	 * Gets a list of links or redirects to a page.
 	 * 

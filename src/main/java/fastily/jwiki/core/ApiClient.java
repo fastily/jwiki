@@ -60,7 +60,7 @@ class ApiClient
 		if (proxy != null)
 			builder.proxy(proxy);
 		if (interceptor != null)
-			builder.addInterceptor(interceptor);
+			builder.addNetworkInterceptor(interceptor);
 
 		client = builder.build();
 	}

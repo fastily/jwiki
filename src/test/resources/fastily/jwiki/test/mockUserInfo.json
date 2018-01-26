@@ -1,0 +1,9 @@
+{
+    "batchcomplete": "",
+    "query": {
+        "userinfo": {
+            "id": 123456,
+            "name": "Test"
+        }
+    }
+}
