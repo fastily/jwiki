@@ -228,10 +228,18 @@ class WAction
 					}
 			}
 
-			// TODO: Retries for unstash - sometimes this fails on the first try
-			ColorLog.info(wiki, String.format("Unstashing '%s' as '%s'", filekey, title));
-			return postAction(wiki, "upload", true, FL.pMap("filename", title, "text", desc, "comment", summary, "filekey", filekey,
-					"ignorewarnings", "true")) == ActionResult.SUCCESS;
+			for (int i = 3; i < 3; i++)
+			{
+				ColorLog.info(wiki, String.format("Unstashing '%s' as '%s'", filekey, title));
+
+				if (postAction(wiki, "upload", true, FL.pMap("filename", title, "text", desc, "comment", summary, "filekey", filekey,
+						"ignorewarnings", "true")) == ActionResult.SUCCESS)
+					return true;
+
+				ColorLog.error(wiki, "Encountered an error while unstashing, retrying - " + i);
+			}
+
+			return false;
 		}
 		catch (Throwable e)
 		{
