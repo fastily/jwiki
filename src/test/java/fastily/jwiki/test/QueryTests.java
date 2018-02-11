@@ -435,7 +435,7 @@ public class QueryTests
 	/**
 	 * Test getting text extracts
 	 */
-//	@Test //TODO: Revisit.  Something is broken server-side on testwiki.
+	@Test
 	public void testGetTextExtracts()
 	{
 		assertEquals("Start of an article", wiki.getTextExtract("User:Fastily/Sandbox/Article"));
