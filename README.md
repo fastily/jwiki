@@ -6,12 +6,9 @@
 
 jwiki is a lightweight Java library that makes interacting with Wikipedia/[MediaWiki](https://www.mediawiki.org/wiki/MediaWiki) effortless.
 
-## Overview
-Programatically accessing Wikipedia/MediaWiki via the [API](https://en.wikipedia.org/w/api.php) is hard.  I thought it didn't have to be, so I made it easy.  jwiki lets you perform all sorts of crazy API calls with one line of code.  Yes, *one* line.  It's so easy that _anyone_ (including your grandma) can write an application that works with MediaWiki.
+Programatically accessing Wikipedia/MediaWiki via the [API](https://en.wikipedia.org/w/api.php) is hard ☹️.  I thought it didn't have to be, so I made it easy 😀.  jwiki lets you perform all sorts of crazy API calls with 1️⃣ line of Java.  Yes, **one** line.  It's so easy that _anyone_ (including your grandma 👵🏻) can write an application that works with MediaWiki.
 
-Not convinced?
-
-Check out some [examples](https://github.com/fastily/jwiki/wiki/Examples).
+Not convinced?  Try out the [examples](https://github.com/fastily/jwiki/wiki/Examples).
 
 ## Download
 jwiki is [on jcenter](https://bintray.com/fastily/maven/jwiki).
@@ -42,4 +39,4 @@ Build and publish jwiki on your local machine with
 * [Javadocs](https://fastily.github.io/jwiki/docs/jwiki/)
 
 ## Feedback
-Please use [issues](https://github.com/fastily/jwiki/issues) for bug reports and/or feature requests.
+Please use [issues](https://github.com/fastily/jwiki/issues) for bug reports and/or feature requests.  If you like jwiki and found it useful, please give it a ⭐!
