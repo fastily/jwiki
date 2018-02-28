@@ -176,7 +176,7 @@ public class Wiki
 		try
 		{
 			if (WAction.postAction(this, "login", false, FL.pMap("lgname", user, "lgpassword", password, "lgtoken",
-					getTokens(WQuery.TOKENS_LOGIN, "logintoken"))) == WAction.ActionResult.SUCCESS)
+					getTokens(WQuery.TOKENS_LOGIN, "logintoken"))).resultcode == WAction.ResultCode.SUCCESS)
 			{
 				refreshLoginStatus();
 

@@ -54,11 +54,11 @@ class WAction
 			if (wiki.conf.debug)
 				ColorLog.debug(wiki, GSONP.gsonPP.toJson(result));
 
-			return ActionResult.wrap(result, action);
+			return new ActionResult(result, action);
 		}
 		catch (Throwable e)
 		{
-			return ActionResult.NONE;
+			return new ActionResult();
 		}
 	}
 
@@ -80,7 +80,7 @@ class WAction
 		if (wiki.conf.isBot)
 			pl.put("bot", "");
 
-		return postAction(wiki, "edit", true, pl) == ActionResult.SUCCESS;
+		return postAction(wiki, "edit", true, pl).resultcode == ResultCode.SUCCESS;
 	}
 
 	/**
@@ -101,7 +101,7 @@ class WAction
 			pl.put("bot", "");
 
 		for (int i = 0; i < 5; i++)
-			switch (postAction(wiki, "edit", true, pl))
+			switch (postAction(wiki, "edit", true, pl).resultcode)
 			{
 				case SUCCESS:
 					return true;
@@ -140,7 +140,7 @@ class WAction
 	protected static boolean delete(Wiki wiki, String title, String reason)
 	{
 		ColorLog.info(wiki, "Deleting " + title);
-		return postAction(wiki, "delete", true, FL.pMap("title", title, "reason", reason)) == ActionResult.NONE;
+		return postAction(wiki, "delete", true, FL.pMap("title", title, "reason", reason)).resultcode == ResultCode.NONE;
 	}
 
 	/**
@@ -156,7 +156,7 @@ class WAction
 		ColorLog.info("Restoring " + title);
 
 		for (int i = 0; i < 10; i++)
-			if (postAction(wiki, "undelete", true, FL.pMap("title", title, "reason", reason)) == ActionResult.NONE)
+			if (postAction(wiki, "undelete", true, FL.pMap("title", title, "reason", reason)).resultcode == ResultCode.NONE)
 				return true;
 
 		return false;
@@ -233,7 +233,7 @@ class WAction
 				ColorLog.info(wiki, String.format("Unstashing '%s' as '%s'", filekey, title));
 
 				if (postAction(wiki, "upload", true, FL.pMap("filename", title, "text", desc, "comment", summary, "filekey", filekey,
-						"ignorewarnings", "true")) == ActionResult.SUCCESS)
+						"ignorewarnings", "true")).resultcode == ResultCode.SUCCESS)
 					return true;
 
 				ColorLog.error(wiki, "Encountered an error while unstashing, retrying - " + i);
@@ -249,12 +249,76 @@ class WAction
 	}
 
 	/**
+	 * The result of a performed action.
+	 * @author Fastily
+	 *
+	 */
+	protected static class ActionResult
+	{
+		/**
+		 * The result code
+		 */
+		protected ResultCode resultcode;
+
+		/**
+		 * The response from the server.
+		 */
+		protected JsonObject response;
+
+		private ActionResult()
+		{
+			resultcode = ResultCode.NONE;
+			response = null;
+		}
+
+		/**
+		 * Parses and wraps the response from a POST to the server in an ActionResult.
+		 * 
+		 * @param jo The json response from the server
+		 * @param action The name of the action which produced this response. e.g. {@code edit}, {@code delete}
+		 * @return An ActionResult representing the response result of the query.
+		 */
+		private ActionResult(JsonObject jo, String action)
+		{
+			try
+			{
+				if (jo.has(action))
+					switch (GSONP.getStr((response = jo.getAsJsonObject(action)), "result"))
+					{
+						case "Success":
+							resultcode = ResultCode.SUCCESS;
+						default:
+							resultcode = ResultCode.UNKNOWN;
+							ColorLog.fyi(String.format("Got back '%s', missing a 'result'?", GSONP.gson.toJson(jo)));
+					}
+				else if (jo.has("error"))
+					switch (GSONP.getStr((response = jo.getAsJsonObject("error")), "code"))
+					{
+						case "notoken":
+							resultcode = ResultCode.NOTOKEN;
+						case "badtoken":
+							resultcode = ResultCode.BADTOKEN;
+						case "cascadeprotected":
+						case "protectedpage":
+							resultcode = ResultCode.PROTECTED;
+						default:
+							resultcode = ResultCode.ERROR;
+					}
+			}
+			catch (Throwable e)
+			{
+				resultcode = ResultCode.NONE;
+			}
+		}
+	}
+
+	/**
 	 * Represents the result of an action POSTed to a Wiki
 	 * 
 	 * @author Fastily
 	 *
 	 */
-	protected static enum ActionResult
+	protected static enum ResultCode
 	{
 		/**
 		 * Used for success responses
@@ -289,48 +353,12 @@ class WAction
 		/**
 		 * Error, if the action could not be completed due to being rate-limited by Wiki.
 		 */
-		RATELIMITED;
+		RATELIMITED,
 
 		/**
-		 * Parses and wraps the response from a POST to the server in an ActionResult.
-		 * 
-		 * @param jo The json response from the server
-		 * @param action The name of the action which produced this response. e.g. {@code edit}, {@code delete}
-		 * @return An ActionResult representing the response result of the query.
+		 * Code for unknown result.
 		 */
-		private static ActionResult wrap(JsonObject jo, String action)
-		{
-			try
-			{
-				if (jo.has(action))
-					switch (GSONP.getStr(jo.getAsJsonObject(action), "result"))
-					{
-						case "Success":
-							return SUCCESS;
-						default:
-							ColorLog.fyi(String.format("Got back '%s', missing a 'result'?", GSONP.gson.toJson(jo)));
-					}
-				else if (jo.has("error"))
-					switch (GSONP.getStr(jo.getAsJsonObject("error"), "code"))
-					{
-						case "notoken":
-							return NOTOKEN;
-						case "badtoken":
-							return BADTOKEN;
-						case "cascadeprotected":
-						case "protectedpage":
-							return PROTECTED;
-						default:
-							return ERROR;
-					}
-			}
-			catch (Throwable e)
-			{
-
-			}
-
-			return NONE;
-		}
+		UNKNOWN;
 	}
 
 	/**
@@ -409,7 +437,6 @@ class WAction
 				Chunk c = new Chunk(offset, filesize, ++chunkCnt == totalChunks ? src.readByteArray() : src.readByteArray(chunksize));
 
 				offset += chunksize;
-				// chunkCnt++;
 
 				if (!has())
 					src.close();
