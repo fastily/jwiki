@@ -3,8 +3,8 @@ package fastily.jwiki.test;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 import fastily.jwiki.core.Wiki;
 import okhttp3.mockwebserver.MockResponse;
@@ -33,7 +33,7 @@ public class BaseMockTemplate
 	 * 
 	 * @throws Throwable If the MockWebServer failed to start.
 	 */
-	@Before
+	@BeforeEach
 	public void setUp() throws Throwable
 	{
 		server = new MockWebServer();
@@ -49,7 +49,7 @@ public class BaseMockTemplate
 	 * 
 	 * @throws Throwable If the MockWebServer failed to exit.
 	 */
-	@After
+	@AfterEach
 	public void tearDown() throws Throwable
 	{
 		wiki = null;

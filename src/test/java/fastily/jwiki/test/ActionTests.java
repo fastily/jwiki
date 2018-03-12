@@ -1,10 +1,10 @@
 package fastily.jwiki.test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.concurrent.TimeUnit;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import fastily.jwiki.core.NS;
 
@@ -31,7 +31,7 @@ public class ActionTests extends BaseMockTemplate
 		catch (Throwable e)
 		{
 			e.printStackTrace();
-			fail();
+			fail(e);
 		}
 
 		assertEquals(NS.FILE.v, wiki.whichNS("File:Test.jpg").v);

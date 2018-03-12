@@ -1,12 +1,12 @@
 package fastily.jwiki.test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import fastily.jwiki.core.MQuery;
 import fastily.jwiki.core.Wiki;
