@@ -451,6 +451,28 @@ public class QueryTests
 		assertEquals("Talk:Main Page", wiki.talkPageOf("Main Page"));
 		assertEquals("Wikipedia talk:Test", wiki.talkPageOf("Wikipedia:Test"));
 		assertEquals("TimedText talk:File:Test.webm.srt", wiki.talkPageOf("TimedText:File:Test.webm.srt"));
+		
+		// check error conditions
+		assertNull(wiki.talkPageOf("Talk:Main Page"));
+		assertNull(wiki.talkPageOf("File talk:Example.jpg"));
+		assertNull(wiki.talkPageOf("Special:Upload"));
+	}
+	
+	/**
+	 * Test getting the content page associated with a talk page
+	 */
+	@Test
+	public void testTalkPageBelongsTo()
+	{
+		assertEquals("File:Example.jpg", wiki.talkPageBelongsTo("File talk:Example.jpg"));
+		assertEquals("Main Page", wiki.talkPageBelongsTo("Talk:Main Page"));
+		assertEquals("Wikipedia:Test", wiki.talkPageBelongsTo("Wikipedia talk:Test"));
+		assertEquals("TimedText:File:Test.webm.srt", wiki.talkPageBelongsTo("TimedText talk:File:Test.webm.srt"));
+		
+		//check error conditions
+		assertNull(wiki.talkPageBelongsTo("Main Page"));
+		assertNull(wiki.talkPageBelongsTo("File:Example.jpg"));
+		assertNull(wiki.talkPageBelongsTo("Special:Upload"));
 	}
 	
 	/**

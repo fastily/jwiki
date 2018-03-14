@@ -193,14 +193,14 @@ public class Wiki
 	}
 
 	/**
-	 * Refresh the login status of a Wiki.  This runs automatically on login or creation of a new CentralAuth'd Wiki.
+	 * Refresh the login status of a Wiki. This runs automatically on login or creation of a new CentralAuth'd Wiki.
 	 */
 	public void refreshLoginStatus()
 	{
 		conf.uname = GSONP.getStr(new WQuery(this, WQuery.USERINFO).next().metaComp("userinfo").getAsJsonObject(), "name");
 		conf.token = getTokens(WQuery.TOKENS_CSRF, "csrftoken");
 		wl.put(conf.hostname, this);
-		
+
 		conf.isBot = listUserRights(conf.uname).contains("bot");
 	}
 
@@ -223,7 +223,6 @@ public class Wiki
 			return null;
 		}
 	}
-		
 
 	/* //////////////////////////////////////////////////////////////////////////////// */
 	/* /////////////////////////// UTILITY FUNCTIONS ////////////////////////////////// */
@@ -369,15 +368,32 @@ public class Wiki
 	/**
 	 * Get the talk page of {@code title}.
 	 * 
-	 * @param title The title to get a talk page for. PRECONDITION: This cannot be a special page.
-	 * @return The talk page of {@code title}
+	 * @param title The title to get a talk page for.
+	 * @return The talk page of {@code title}, or null if {@code title} is a special page or is already a talk page.
 	 */
 	public String talkPageOf(String title)
 	{
 		int i = whichNS(title).v;
-		if (i < 0 || i % 2 == 1)
-			throw new IllegalArgumentException("Cannot get talk page of a talk page or special page: " + title);
-		return (String) nsl.nsM.get(i + 1) + ":" + nss(title);
+		return i < 0 || i % 2 == 1 ? null : (String) nsl.nsM.get(i + 1) + ":" + nss(title);
+	}
+
+	/**
+	 * Get the name of a page belonging to a talk page ({@code title}).
+	 * 
+	 * @param title The talk page whose content page will be determined.
+	 * @return The title of the content page associated with the specified talk page, or null if {@code title} is a
+	 *         special page or is already a content page.
+	 */
+	public String talkPageBelongsTo(String title)
+	{
+		NS ns = whichNS(title);
+		
+		if(ns.v < 0 || ns.v % 2 == 0 )
+			return null;
+		else if(ns.equals(NS.TALK))
+			return nss(title);
+		
+		return (String) nsl.nsM.get(ns.v - 1) + ":" + nss(title);
 	}
 
 	/**
@@ -773,7 +789,7 @@ public class Wiki
 	 * @param exists Fetch mode. Set true to get existing pages and false to get missing/non-existent pages.
 	 * @param title The title to query
 	 * @param ns Namespaces to include-only. Optional, leave blank to select all namespaces.
-	 * @return The list of existing links on <code>title</code>
+	 * @return The list of existing links on {@code title}
 	 */
 	public ArrayList<String> getLinksOnPage(boolean exists, String title, NS... ns)
 	{
@@ -1088,7 +1104,7 @@ public class Wiki
 			return new ArrayList<>();
 		}
 	}
-	
+
 	/**
 	 * Gets a list of links or redirects to a page.
 	 * 
