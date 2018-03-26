@@ -1,9 +1,10 @@
-apply plugin: 'java-library'
-apply plugin: 'maven'
-apply plugin: 'maven-publish'
-
-apply plugin: 'eclipse'
-apply plugin: 'idea'
+plugins {
+    id 'java-library'
+    id 'maven'
+    id 'maven-publish'
+    id 'eclipse'
+    id 'idea'
+}
 
 version="1.5.1"
 description="${project.name} build script"
@@ -88,10 +89,6 @@ javadoc {
     }
 }
 
-task wrapper(type: Wrapper) {
-    gradleVersion = '4.6'
-}
-
 task sourceJar(type: Jar) {
     from sourceSets.main.allJava
     classifier = 'sources'
@@ -116,4 +113,8 @@ task wgen(type: Jar) {
   exclude "META-INF/*.SF", "**/LICENSE*", "**/NOTICE*", "**/maven/**"
 
   with jar
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '4.6'
 }
