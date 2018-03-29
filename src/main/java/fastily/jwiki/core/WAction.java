@@ -228,7 +228,7 @@ class WAction
 					}
 			}
 
-			for (int i = 3; i < 3; i++)
+			for (int i = 0; i < 3; i++)
 			{
 				ColorLog.info(wiki, String.format("Unstashing '%s' as '%s'", filekey, title));
 
