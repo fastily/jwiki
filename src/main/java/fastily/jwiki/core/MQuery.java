@@ -337,7 +337,7 @@ public final class MQuery
 	 * Checks if list of titles exists.
 	 * 
 	 * @param wiki The wiki object to use
-	 * @param titles The titles to query
+	 * @param titles The titles to query. CAVEAT: {@code null} values will be interpreted as "Null"!
 	 * @return Results keyed by title. {@code true} means the title exists.
 	 */
 	public static HashMap<String, Boolean> exists(Wiki wiki, Collection<String> titles)
@@ -352,7 +352,7 @@ public final class MQuery
 	 * 
 	 * @param wiki The wiki object to use
 	 * @param exists Set to true to select all pages that exist. False selects all that don't exist
-	 * @param titles The titles to query
+	 * @param titles The titles to query. CAVEAT: {@code null} values will be interpreted as "Null"!
 	 * @return A list of titles that exist or don't exist.
 	 */
 	public static ArrayList<String> exists(Wiki wiki, boolean exists, Collection<String> titles)

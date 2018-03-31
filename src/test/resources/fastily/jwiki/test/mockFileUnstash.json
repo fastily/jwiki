@@ -1,0 +1,79 @@
+{
+    "upload": {
+        "result": "Success",
+        "filename": "TestSVG.svg",
+        "imageinfo": {
+            "timestamp": "2018-03-18T05:55:19Z",
+            "user": "Test",
+            "userid": 123456,
+            "size": 41,
+            "width": 512,
+            "height": 512,
+            "parsedcomment": "summary",
+            "comment": "summary",
+            "html": "<div>warning about similar file names blah blah blah</div>\n",
+            "canonicaltitle": "File:TestSVG.svg",
+            "url": "https://upload.wikimedia.org/wikipedia/en/d/d8/TestSVG.svg",
+            "descriptionurl": "https://en.wikipedia.org/wiki/File:TestSVG.svg",
+            "descriptionshorturl": "https://en.wikipedia.org/w/index.php?curid=0",
+            "sha1": "f70e244175be4f96a237a748577f28f39dd3c7cb",
+            "metadata": [
+                {
+                    "name": "version",
+                    "value": 2
+                },
+                {
+                    "name": "width",
+                    "value": 512
+                },
+                {
+                    "name": "height",
+                    "value": 512
+                },
+                {
+                    "name": "originalWidth",
+                    "value": "100%"
+                },
+                {
+                    "name": "originalHeight",
+                    "value": "100%"
+                },
+                {
+                    "name": "translations",
+                    "value": []
+                }
+            ],
+            "commonmetadata": [],
+            "extmetadata": {
+                "DateTime": {
+                    "value": "2018-03-31 06:15:49",
+                    "source": "mediawiki-metadata",
+                    "hidden": ""
+                },
+                "ObjectName": {
+                    "value": "20180331012345!chunkedupload 30456209cc9b",
+                    "source": "mediawiki-metadata",
+                    "hidden": ""
+                },
+                "CommonsMetadataExtension": {
+                    "value": 1.2,
+                    "source": "extension",
+                    "hidden": ""
+                },
+                "Categories": {
+                    "value": "",
+                    "source": "commons-categories",
+                    "hidden": ""
+                },
+                "Assessments": {
+                    "value": "",
+                    "source": "commons-categories",
+                    "hidden": ""
+                }
+            },
+            "mime": "image/svg+xml",
+            "mediatype": "DRAWING",
+            "bitdepth": 0
+        }
+    }
+}
