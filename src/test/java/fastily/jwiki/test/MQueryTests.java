@@ -123,4 +123,13 @@ public class MQueryTests
 		assertEquals("Hello World!", result.get("User:Fastily/Sandbox/HelloWorld"));
 		assertEquals("jwiki unit testing!", result.get("Category:Fastily Test"));
 	}
+
+	/**
+	 * Verifies that passing {@code null} as an element in a {@code titles} Collection is not permitted.
+	 */
+	@Test
+	public void testNullTitles()
+	{
+		assertThrows(IllegalArgumentException.class, () -> MQuery.exists(wiki, FL.toSAL("", null, "test")));
+	}
 }

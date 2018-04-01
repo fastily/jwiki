@@ -119,7 +119,7 @@ public final class FL
 	 * 
 	 * @param i The Iterable to make into a Stream
 	 * 
-	 * @param <T> <code>i</code>'s type
+	 * @param <T> {@code i}'s type
 	 * @return The Stream
 	 */
 	public static <T> Stream<T> streamFrom(Iterable<T> i)
@@ -136,5 +136,17 @@ public final class FL
 	public static String pipeFence(Collection<String> planks)
 	{
 		return String.join("|", planks);
+	}
+
+	/**
+	 * Check if a Collection contains null.
+	 * 
+	 * @param <T> The type of {@code l}
+	 * @param l The Collection to check.
+	 * @return True if there are no null elements in the Collection.
+	 */
+	public static <T> boolean containsNull(Collection<T> l)
+	{
+		return l.stream().anyMatch(o -> o == null);
 	}
 }
