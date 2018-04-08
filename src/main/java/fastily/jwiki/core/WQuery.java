@@ -443,10 +443,10 @@ class WQuery
 		 */
 		private QReply(JsonObject input)
 		{
-			if (input.has("normalized"))
-				normalized = GSONP.pairOff(GSONP.getJAofJO(input, "normalized"), "from", "to");
-
 			this.input = input;
+			
+			if(GSONP.nestedHas(input, FL.toSAL("query", "normalized")))
+				normalized = GSONP.pairOff(GSONP.getJAofJO(GSONP.getNestedJA(input, FL.toSAL("query", "normalized"))), "from", "to");				
 		}
 
 		/**

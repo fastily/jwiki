@@ -96,8 +96,10 @@ public class QueryTests
 	{
 		assertTrue(wiki.exists("Main Page"));
 		assertTrue(wiki.exists("User:Fastily/Sandbox"));
-
+		assertTrue(wiki.exists("uSeR:fastily/Sandbox"));
+		
 		assertFalse(wiki.exists("User:Fastily/NoPageHere"));
+		assertFalse(wiki.exists("user:fastily/noPageHere"));
 	}
 
 	/**

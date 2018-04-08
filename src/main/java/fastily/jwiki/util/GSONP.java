@@ -115,6 +115,30 @@ public class GSONP
 	}
 
 	/**
+	 * Performs a nested JO lookup for the specified path to see if it exists.
+	 * 
+	 * @param jo The JsonObject to check.
+	 * @param keys The key path to follow.
+	 * @return True if the path specified by {@code keys} exists, or false otherwise.
+	 */
+	public static boolean nestedHas(JsonObject jo, List<String> keys)
+	{
+		JsonObject last = jo;
+
+		try
+		{
+			for (int i = 0; i < keys.size() - 1; i++)
+				last = last.getAsJsonObject(keys.get(i));
+		}
+		catch (Throwable e)
+		{
+			return false;
+		}
+
+		return last.has(keys.get(keys.size() - 1));
+	}
+
+	/**
 	 * Attempt to get a nested JsonObject inside {@code input}.
 	 * 
 	 * @param input The parent JsonObject
