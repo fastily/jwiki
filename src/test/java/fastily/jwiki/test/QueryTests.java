@@ -38,11 +38,16 @@ public class QueryTests
 	public void testBasicNSHandling()
 	{
 		assertEquals(NS.MAIN, wiki.getNS("Main"));
+		assertNull(wiki.getNS("blahblahblah"));
+		
 		assertEquals(NS.USER, wiki.whichNS("User:TestUser"));
 		assertEquals("ABC.jpg", wiki.nss("File:ABC.jpg"));
-
+		assertEquals("ABC.jpg", wiki.nss("fIlE:ABC.jpg"));
+		assertEquals("TestUser", wiki.nss("user tALk:TestUser"));
+		
 		assertEquals("File:ABC.jpg", wiki.convertIfNotInNS("ABC.jpg", NS.FILE));
 		assertEquals("Testing", wiki.convertIfNotInNS("Testing", NS.MAIN));
+		assertEquals("User talk:TestUser", wiki.convertIfNotInNS("TestUser", NS.USER_TALK));
 	}
 
 	/**
