@@ -169,4 +169,19 @@ public class MockQueryTests extends BaseMockTemplate
 		assertEquals("FastilyBot", l.get(2).user);
 		assertEquals("Test", l.get(2).title);
 	}
+
+	/**
+	 * Tests querying of special pages.
+	 */
+	@Test
+	public void testQuerySpecialPage()
+	{
+		addResponse("mockQuerySpecialPage");
+
+		ArrayList<String> l = wiki.querySpecialPage("Deadendpages", 10);
+
+		assertTrue(l.contains("TestPage"));
+		assertTrue(l.contains("File:Example.jpg"));
+		assertTrue(l.contains("Talk:Main page"));
+	}
 }

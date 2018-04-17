@@ -121,6 +121,11 @@ class WQuery
 			FL.pMap("list", "protectedtitles", "ptprop", "timestamp|level|user|comment"), "ptlimit", "protectedtitles");
 
 	/**
+	 * Default parameters for listing the results of querying Special pages.
+	 */
+	public static final QTemplate QUERYPAGES = new QTemplate(FL.pMap("list", "querypage", "qppage", null), "qplimit", "querypage");
+
+	/**
 	 * Default parameters for listing random pages
 	 */
 	public static final QTemplate RANDOM = new QTemplate(FL.pMap("list", "random", "rnfilterredir", "nonredirects"), "rnlimit",
@@ -182,7 +187,7 @@ class WQuery
 	 * Default parameters for getting a user's username and id.
 	 */
 	public static final QTemplate USERINFO = new QTemplate(FL.pMap("meta", "userinfo"), null);
-	
+
 	/**
 	 * Default parameters for listing users and their rights.
 	 */
@@ -199,7 +204,7 @@ class WQuery
 	 */
 	private static Type strMapT = new TypeToken<HashMap<String, String>>() {
 	}.getType();
-	
+
 	/**
 	 * The master parameter list. Tracks current query status.
 	 */
@@ -444,9 +449,9 @@ class WQuery
 		private QReply(JsonObject input)
 		{
 			this.input = input;
-			
-			if(GSONP.nestedHas(input, FL.toSAL("query", "normalized")))
-				normalized = GSONP.pairOff(GSONP.getJAofJO(GSONP.getNestedJA(input, FL.toSAL("query", "normalized"))), "from", "to");				
+
+			if (GSONP.nestedHas(input, FL.toSAL("query", "normalized")))
+				normalized = GSONP.pairOff(GSONP.getJAofJO(GSONP.getNestedJA(input, FL.toSAL("query", "normalized"))), "from", "to");
 		}
 
 		/**

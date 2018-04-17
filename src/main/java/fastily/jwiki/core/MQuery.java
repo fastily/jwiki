@@ -483,5 +483,5 @@ public final class MQuery
 		getNoContProp(wiki, titles, WQuery.TEXTEXTRACTS, null, "extract").forEach((k, v) -> l.put(k, v == null ? null : v.getAsString()));
 
 		return l;
-	}
+	}	
 }

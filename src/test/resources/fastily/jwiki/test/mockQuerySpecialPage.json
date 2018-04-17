@@ -1,0 +1,27 @@
+{
+    "query": {
+        "querypage": {
+            "name": "Deadendpages",
+            "cached": "",
+            "cachedtimestamp": "2017-01-01T01:17:04Z",
+            "maxresults": 5000,
+            "results": [
+                {
+                    "value": "0",
+                    "ns": 0,
+                    "title": "TestPage"
+                },
+                {
+                    "value": "0",
+                    "ns": 6,
+                    "title": "File:Example.jpg"
+                },
+                {
+                    "value": "0",
+                    "ns": 1,
+                    "title": "Talk:Main page"
+                }
+            ]
+        }
+    }
+}

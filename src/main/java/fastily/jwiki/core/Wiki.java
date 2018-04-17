@@ -387,12 +387,12 @@ public class Wiki
 	public String talkPageBelongsTo(String title)
 	{
 		NS ns = whichNS(title);
-		
-		if(ns.v < 0 || ns.v % 2 == 0 )
+
+		if (ns.v < 0 || ns.v % 2 == 0)
 			return null;
-		else if(ns.equals(NS.TALK))
+		else if (ns.equals(NS.TALK))
 			return nss(title);
-		
+
 		return (String) nsl.nsM.get(ns.v - 1) + ":" + nss(title);
 	}
 
@@ -1068,6 +1068,35 @@ public class Wiki
 	{
 		ColorLog.info(this, "Doing prefix index search for " + prefix);
 		return allPages(prefix, false, false, -1, namespace);
+	}
+
+	/**
+	 * Queries a special page.
+	 * 
+	 * @param title The special page to query, without the {@code Special:} prefix. CAVEAT: this is CASE-sensitive, so be
+	 *           sure to use the exact title (e.g. {@code UnusedFiles}, {@code BrokenRedirects}). For a full list of
+	 *           titles, see <a href="https://www.mediawiki.org/w/api.php?action=help&modules=query+querypage">the
+	 *           official documentation</a>.
+	 * @param cap The maximum number of elements to return. Use {@code -1} to get everything, but be careful because some
+	 *           pages can have 10k+ entries.
+	 * @return A List of titles returned by this special page.
+	 */
+	public ArrayList<String> querySpecialPage(String title, int cap)
+	{
+		WQuery wq = new WQuery(this, cap, WQuery.QUERYPAGES).set("qppage", nss(title));
+
+		ArrayList<String> l = new ArrayList<>();
+		while (wq.has())
+			try
+			{
+				l.addAll(FL.toAL(FL.streamFrom(GSONP.getNestedJA(wq.next().input, FL.toSAL("query", "querypage", "results")))
+						.map(e -> GSONP.getStr(e.getAsJsonObject(), "title"))));
+			}
+			catch (Throwable e)
+			{
+				e.printStackTrace();
+			}
+		return l;
 	}
 
 	/**
