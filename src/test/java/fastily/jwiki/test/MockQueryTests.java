@@ -180,8 +180,27 @@ public class MockQueryTests extends BaseMockTemplate
 
 		ArrayList<String> l = wiki.querySpecialPage("Deadendpages", 10);
 
+		assertEquals(3, l.size());
+
 		assertTrue(l.contains("TestPage"));
 		assertTrue(l.contains("File:Example.jpg"));
 		assertTrue(l.contains("Talk:Main page"));
+	}
+
+	/**
+	 * Tests listing of all pages
+	 */
+	@Test
+	public void testGetAllPages()
+	{
+		addResponse("mockAllPages");
+
+		ArrayList<String> l = wiki.allPages(null, false, false, 3, NS.MAIN);
+
+		assertEquals(3, l.size());
+
+		assertTrue(l.contains("Test"));
+		assertTrue(l.contains("Foobar"));
+		assertTrue(l.contains("Cats"));
 	}
 }

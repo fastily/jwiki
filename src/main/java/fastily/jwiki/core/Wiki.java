@@ -536,21 +536,21 @@ public class Wiki
 	/* //////////////////////////////////////////////////////////////////////////////// */
 
 	/**
-	 * Get a list of all pages from the Wiki.
+	 * Get a list of pages from the Wiki.
 	 * 
-	 * @param prefix Get files starting with this String. DO NOT include a namespace prefix (e.g. "File:"). Optional
+	 * @param prefix Only return titles starting with this prefix. DO NOT include a namespace prefix (e.g. {@code File:}). Optional
 	 *           param - set null to disable
-	 * @param redirectsOnly Set True to get redirects only.
-	 * @param protectedOnly Set True to get protected pages only.
-	 * @param cap The max number of titles to return. Specify -1 to get all pages.
+	 * @param redirectsOnly Set true to get redirects only.
+	 * @param protectedOnly Set true to get protected pages only.
+	 * @param cap The max number of titles to return.  Optional param - set {@code -1} to get all pages.
 	 * @param ns The namespace to filter by. Optional param - set null to disable
-	 * @return A list of titles on this Wiki
+	 * @return A list of titles on this Wiki, as specified.
 	 */
 	public ArrayList<String> allPages(String prefix, boolean redirectsOnly, boolean protectedOnly, int cap, NS ns)
 	{
 		ColorLog.info(this, "Doing all pages fetch for " + (prefix == null ? "all pages" : prefix));
 
-		WQuery wq = new WQuery(this, WQuery.ALLPAGES);
+		WQuery wq = new WQuery(this, cap, WQuery.ALLPAGES);
 		if (prefix != null)
 			wq.set("apprefix", prefix);
 		if (ns != null)
@@ -559,19 +559,11 @@ public class Wiki
 			wq.set("apfilterredir", "redirects");
 		if (protectedOnly)
 			wq.set("apprtype", "edit|move|upload");
-
+		
 		ArrayList<String> l = new ArrayList<>();
-		boolean isLastQuery = false;
-		for (int cnt = 0; wq.has() && !isLastQuery; cnt += conf.maxResultLimit) // TODO: ?
-		{
-			if (cap > 0 && cap - cnt < conf.maxResultLimit)
-			{
-				wq.adjustLimit(cap - cnt);
-				isLastQuery = true;
-			}
-
-			l.addAll(FL.toAL(wq.next().listComp("allpages").stream().map(e -> GSONP.getStr(e, "title"))));
-		}
+		while(wq.has())
+			l.addAll(FL.toAL(wq.next().listComp("allpages").stream().map(jo -> GSONP.getStr(jo, "title"))));
+		
 		return l;
 	}
 
@@ -1083,9 +1075,11 @@ public class Wiki
 	 */
 	public ArrayList<String> querySpecialPage(String title, int cap)
 	{
+		ColorLog.info("Querying special page " + title);
+		
 		WQuery wq = new WQuery(this, cap, WQuery.QUERYPAGES).set("qppage", nss(title));
-
 		ArrayList<String> l = new ArrayList<>();
+		
 		while (wq.has())
 			try
 			{

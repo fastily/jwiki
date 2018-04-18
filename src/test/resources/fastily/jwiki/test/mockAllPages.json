@@ -1,0 +1,21 @@
+{
+    "query": {
+        "allpages": [
+            {
+                "pageid": 1111111,
+                "ns": 0,
+                "title": "Test"
+            },
+            {
+                "pageid": 2222222,
+                "ns": 0,
+                "title": "Foobar"
+            },
+            {
+                "pageid": 3333333,
+                "ns": 0,
+                "title": "Cats"
+            }
+        ]
+    }
+}
