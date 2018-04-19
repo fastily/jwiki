@@ -94,11 +94,13 @@ public class GSONP
 	 * 
 	 * @param input The source JsonObject.
 	 * @param key Points to a JsonArray of JsonObject
-	 * @return An ArrayList of JsonObject derived from {@code input}, or an empty ArrayList on error.
+	 * @return An ArrayList of JsonObject derived from {@code input}, or an empty ArrayList if a JsonArray associated
+	 *         with {@code key} could not be found in {@code input}
 	 */
 	public static ArrayList<JsonObject> getJAofJO(JsonObject input, String key)
 	{
-		return getJAofJO(input.getAsJsonArray(key));
+		JsonArray ja = input.getAsJsonArray(key);
+		return ja != null ? getJAofJO(input.getAsJsonArray(key)) : new ArrayList<>();
 	}
 
 	/**

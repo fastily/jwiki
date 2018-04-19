@@ -510,4 +510,16 @@ public class QueryTests
 		assertEquals("Start of an article\n\n", l.get(0).text);
 		assertEquals("==Section 2==\nFoo Baz Bar", l.get(2).text);
 	}
+	
+	/**
+	 * Tests resolving of redirects
+	 */
+	@Test
+	public void testResolveRedirect()
+	{
+		assertEquals("User:Fastily/Sandbox/RedirectTarget", wiki.resolveRedirect("User:Fastily/Sandbox/Redirect2"));
+		
+		// test resolving of non-redirect
+		assertEquals("User:Fastily/Sandbox/Redirect3", wiki.resolveRedirect("User:Fastily/Sandbox/Redirect3"));
+	}
 }
