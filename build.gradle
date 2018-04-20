@@ -6,7 +6,7 @@ plugins {
     id 'idea'
 }
 
-version="1.5.1"
+version="1.6.0"
 description="${project.name} build script"
 group="fastily"
 
@@ -116,5 +116,5 @@ task wgen(type: Jar) {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '4.6'
+    gradleVersion = '4.7'
 }
