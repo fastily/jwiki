@@ -41,4 +41,6 @@ Build and publish jwiki on your local machine with
 * [Javadocs](https://fastily.github.io/jwiki/docs/jwiki/)
 
 ## Feedback
-Please use [issues](https://github.com/fastily/jwiki/issues) for bug reports and/or feature requests.  If you like jwiki and find it useful, please give it a ⭐ on GitHub!
+Please use [issues](https://github.com/fastily/jwiki/issues) for bug reports and/or feature requests.
+
+If you like jwiki and find it useful, please give it a ⭐ on GitHub!

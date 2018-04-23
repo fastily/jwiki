@@ -6,10 +6,13 @@ plugins {
     id 'idea'
 }
 
-version="1.6.0"
+version="1.6.1"
 description="${project.name} build script"
 group="fastily"
 
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+    
 repositories {
     jcenter()
 }
@@ -84,6 +87,8 @@ javadoc {
         links "https://square.github.io/okio/1.x/okio/"
         links "https://square.github.io/okhttp/3.x/okhttp/"
         links "https://fastily.github.io/jwiki/docs/gson/"
+        
+        // links "http://square.github.io/okhttp/3.x/mockwebserver/"
 
         // setOutputLevel JavadocOutputLevel.VERBOSE
     }
