@@ -350,7 +350,7 @@ public final class MQuery
 	 * @param titles The titles to query.
 	 * @return Results keyed by title. {@code true} means the title exists.
 	 */
-	public static HashMap<String, Boolean> exists(Wiki wiki, Collection<String> titles)
+	public static HashMap<String, Boolean> exists(Wiki wiki, Collection<String> titles) //FIXME: getNoContProp -> doubled output on non-normal titles
 	{
 		HashMap<String, Boolean> l = new HashMap<>();
 		getNoContProp(wiki, titles, WQuery.EXISTS, null, "missing").forEach((k, v) -> l.put(k, v == null));

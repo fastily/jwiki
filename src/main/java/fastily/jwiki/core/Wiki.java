@@ -122,7 +122,9 @@ public class Wiki
 	}
 
 	/**
-	 * Constructor, creates an anonymous Wiki with the specified domain and interceptor.
+	 * Constructor, creates an anonymous Wiki with the specified domain and interceptor. CAVEAT: This method assumes that the base API
+	 * endpoint you are targeting is located at {@code https://<WIKI_DOMAIN>/w/api.php}. If this is not the case,
+	 * then please use {@link #Wiki(String, String, HttpUrl, Proxy, Interceptor)}.
 	 * 
 	 * @param domain The domain name. Use shorthand form, ex: {@code en.wikipedia.org}.
 	 * @param interceptor An OkHttp interceptor, useful for pre/post flight modifications. Optional - set null to
@@ -134,7 +136,9 @@ public class Wiki
 	}
 
 	/**
-	 * Constructor, takes user, password, and domain to login as.
+	 * Constructor, takes user, password, and domain to login as. CAVEAT: This method assumes that the base API
+	 * endpoint you are targeting is located at {@code https://<WIKI_DOMAIN>/w/api.php}. If this is not the case,
+	 * then please use {@link #Wiki(String, String, HttpUrl, Proxy, Interceptor)}.
 	 * 
 	 * @param user The username to use
 	 * @param px The password to use
@@ -146,7 +150,9 @@ public class Wiki
 	}
 
 	/**
-	 * Constructor, creates an anonymous Wiki which is not logged in.
+	 * Constructor, creates an anonymous Wiki which is not logged in. CAVEAT: This method assumes that the base API
+	 * endpoint you are targeting is located at {@code https://<WIKI_DOMAIN>/w/api.php}. If this is not the case,
+	 * then please use {@link #Wiki(String, String, HttpUrl, Proxy, Interceptor)}.
 	 * 
 	 * @param domain The domain name. Use shorthand form, ex: {@code en.wikipedia.org}.
 	 */
@@ -538,11 +544,11 @@ public class Wiki
 	/**
 	 * Get a list of pages from the Wiki.
 	 * 
-	 * @param prefix Only return titles starting with this prefix. DO NOT include a namespace prefix (e.g. {@code File:}). Optional
-	 *           param - set null to disable
+	 * @param prefix Only return titles starting with this prefix. DO NOT include a namespace prefix (e.g.
+	 *           {@code File:}). Optional param - set null to disable
 	 * @param redirectsOnly Set true to get redirects only.
 	 * @param protectedOnly Set true to get protected pages only.
-	 * @param cap The max number of titles to return.  Optional param - set {@code -1} to get all pages.
+	 * @param cap The max number of titles to return. Optional param - set {@code -1} to get all pages.
 	 * @param ns The namespace to filter by. Optional param - set null to disable
 	 * @return A list of titles on this Wiki, as specified.
 	 */
@@ -559,11 +565,11 @@ public class Wiki
 			wq.set("apfilterredir", "redirects");
 		if (protectedOnly)
 			wq.set("apprtype", "edit|move|upload");
-		
+
 		ArrayList<String> l = new ArrayList<>();
-		while(wq.has())
+		while (wq.has())
 			l.addAll(FL.toAL(wq.next().listComp("allpages").stream().map(jo -> GSONP.getStr(jo, "title"))));
-		
+
 		return l;
 	}
 
@@ -1076,10 +1082,10 @@ public class Wiki
 	public ArrayList<String> querySpecialPage(String title, int cap)
 	{
 		ColorLog.info("Querying special page " + title);
-		
+
 		WQuery wq = new WQuery(this, cap, WQuery.QUERYPAGES).set("qppage", nss(title));
 		ArrayList<String> l = new ArrayList<>();
-		
+
 		while (wq.has())
 			try
 			{
