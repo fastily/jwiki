@@ -423,6 +423,14 @@ public class Wiki
 	{
 		return conf.uname == null ? "<Anonymous>" : conf.uname;
 	}
+	
+	/**
+	 * Gets a String representation of this Wiki, in the format {@code [username @ domain]}
+	 */
+	public String toString()
+	{
+		return String.format("[%s @ %s]", whoami(), conf.hostname);
+	}
 
 	/* //////////////////////////////////////////////////////////////////////////////// */
 	/* /////////////////////////////////// ACTIONS //////////////////////////////////// */
