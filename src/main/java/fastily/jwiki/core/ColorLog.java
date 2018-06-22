@@ -10,117 +10,40 @@ import java.time.format.DateTimeFormatter;
  * @author Fastily
  *
  */
-enum ColorLog
+class ColorLog
 {
-	/**
-	 * A font color, black, which can be applied to a String if your terminal supports it.
-	 */
-	BLACK(30),
-
-	/**
-	 * A font color, red, which can be applied to a String if your terminal supports it.
-	 */
-	RED(31),
-
-	/**
-	 * A font color, green, which can be applied to a String if your terminal supports it.
-	 */
-	GREEN(32),
-
-	/**
-	 * A font color, yellow, which can be applied to a String if your terminal supports it.
-	 */
-	YELLOW(33),
-
-	/**
-	 * A font color, blue, which can be applied to a String if your terminal supports it.
-	 */
-	BLUE(34),
-
-	/**
-	 * A font color, purple, which can be applied to a String if your terminal supports it.
-	 */
-	PURPLE(35),
-
-	/**
-	 * A font color, cyan, which can be applied to a String if your terminal supports it.
-	 */
-	CYAN(36),
-
-	/**
-	 * A font color, white, which can be applied to a String if your terminal supports it.
-	 */
-	WHITE(37);
-
 	/**
 	 * The date formatter prefixing output.
 	 */
 	private static final DateTimeFormatter df = DateTimeFormatter.ofPattern("MMM dd, yyyy hh:mm:ss a");
 
 	/**
-	 * Indicates whether we are using a terminal that supports color.
+	 * Flag indicating whether logging with this object is allowed.
 	 */
-	private static final boolean noColor = System.getProperty("os.name").contains("Windows");
+	protected boolean enabled;
 
 	/**
-	 * The value of the enum
-	 */
-	private int v;
-
-	/**
-	 * Constructor, takes an ASCII color value.
-	 */
-	ColorLog(int v)
-	{
-		this.v = v;
-	}
-
-	/**
-	 * Formats a String for ASCII colored escape output if the system you're using supports it. Returns non-escaped ASCII
-	 * text otherwise.
+	 * Constructor, creates a new ColorLog.
 	 * 
-	 * @param text The text to color
-	 * @param c The color to use
-	 * @return The colored string, or the same string if this system does not support ASCII color escapes.
+	 * @param enableLogging Set true to allow this ColorLog to print log output.
 	 */
-	public static String makeString(String text, ColorLog c)
+	protected ColorLog(boolean enableLogging)
 	{
-		return noColor ? text : String.format("\u001B[%dm%s\u001B[0m", c.v, text);
-	}
-
-	/**
-	 * Logs a message to the standard error output stream
-	 * 
-	 * @param s The message
-	 * @param l The identifier to log the message at (e.g. "INFO", "WARNING")
-	 * @param c The color to print the message with. Output will only be colored if this terminal supports it.
-	 */
-	public static void log(String s, String l, ColorLog c)
-	{
-		System.err.printf("%s%n%s: %s%n", LocalDateTime.now().format(df), l, makeString(s, c));
+		enabled = enableLogging;
 	}
 
 	/**
 	 * Logs a message for a wiki method.
 	 * 
 	 * @param wiki The wiki object to use
-	 * @param s The String to print
-	 * @param l The identifier to log the message at (e.g. "INFO", "WARNING")
-	 * @param c The color to print the message with. Output will only be colored if this terminal supports it.
+	 * @param message The String to print
+	 * @param logLevel The identifier to log the message at (e.g. "INFO", "WARNING")
+	 * @param color The color to print the message with. Output will only be colored if this terminal supports it.
 	 */
-	protected static void log(Wiki wiki, String s, String l, ColorLog c)
+	private void log(Wiki wiki, String message, String logLevel, CC color)
 	{
-		log(wiki.toString() + ": " + s, l, c);
-	}
-
-	/**
-	 * Output warning message. Text is yellow.
-	 * 
-	 * @param s The String to print.
-	 */
-	public static void warn(String s)
-	{
-		log(s, "WARNING", YELLOW);
+		if (enabled)
+			System.err.printf("%s%n%s: \u001B[3%dm%s: %s\u001B[0m%n", LocalDateTime.now().format(df), logLevel, color.v, wiki, message);
 	}
 
 	/**
@@ -129,19 +52,9 @@ enum ColorLog
 	 * @param wiki The wiki object to use
 	 * @param s The String to print.
 	 */
-	protected static void warn(Wiki wiki, String s)
+	protected void warn(Wiki wiki, String s)
 	{
-		log(wiki, s, "WARNING", YELLOW);
-	}
-
-	/**
-	 * Output info message. Text is green.
-	 * 
-	 * @param s The String to print.
-	 */
-	public static void info(String s)
-	{
-		log(s, "INFO", GREEN);
+		log(wiki, s, "WARNING", CC.YELLOW);
 	}
 
 	/**
@@ -150,19 +63,9 @@ enum ColorLog
 	 * @param wiki The wiki object to use
 	 * @param s The String to print.
 	 */
-	protected static void info(Wiki wiki, String s)
+	protected void info(Wiki wiki, String s)
 	{
-		log(wiki, s, "INFO", GREEN);
-	}
-
-	/**
-	 * Output error message. Text is red.
-	 * 
-	 * @param s The String to print.
-	 */
-	public static void error(String s)
-	{
-		log(s, "ERROR", RED);
+		log(wiki, s, "INFO", CC.GREEN);
 	}
 
 	/**
@@ -171,19 +74,9 @@ enum ColorLog
 	 * @param wiki The wiki object to use
 	 * @param s The String to print.
 	 */
-	protected static void error(Wiki wiki, String s)
+	protected void error(Wiki wiki, String s)
 	{
-		log(wiki, s, "ERROR", RED);
-	}
-
-	/**
-	 * Output debug message. Text is purple.
-	 * 
-	 * @param s The String to print.
-	 */
-	public static void debug(String s)
-	{
-		log(s, "DEBUG", PURPLE);
+		log(wiki, s, "ERROR", CC.RED);
 	}
 
 	/**
@@ -192,19 +85,9 @@ enum ColorLog
 	 * @param wiki The wiki object to use
 	 * @param s The String to print.
 	 */
-	protected static void debug(Wiki wiki, String s)
+	protected void debug(Wiki wiki, String s)
 	{
-		log(wiki, s, "DEBUG", PURPLE);
-	}
-
-	/**
-	 * Output miscellaneous message. Text is blue.
-	 * 
-	 * @param s The String to print.
-	 */
-	public static void fyi(String s)
-	{
-		log(s, "FYI", CYAN);
+		log(wiki, s, "DEBUG", CC.PURPLE);
 	}
 
 	/**
@@ -213,8 +96,72 @@ enum ColorLog
 	 * @param wiki The wiki object to use
 	 * @param s The String to print.
 	 */
-	protected static void fyi(Wiki wiki, String s)
+	protected void fyi(Wiki wiki, String s)
 	{
-		log(wiki, s, "FYI", CYAN);
+		log(wiki, s, "FYI", CC.CYAN);
+	}
+
+	/**
+	 * Represents ASCII colors.
+	 * 
+	 * @author Fastily
+	 *
+	 */
+	private static enum CC
+	{
+		/**
+		 * A font color, black, which can be applied to a String if your terminal supports it.
+		 */
+		BLACK(0),
+
+		/**
+		 * A font color, red, which can be applied to a String if your terminal supports it.
+		 */
+		RED(1),
+
+		/**
+		 * A font color, green, which can be applied to a String if your terminal supports it.
+		 */
+		GREEN(2),
+
+		/**
+		 * A font color, yellow, which can be applied to a String if your terminal supports it.
+		 */
+		YELLOW(3),
+
+		/**
+		 * A font color, blue, which can be applied to a String if your terminal supports it.
+		 */
+		BLUE(4),
+
+		/**
+		 * A font color, purple, which can be applied to a String if your terminal supports it.
+		 */
+		PURPLE(5),
+
+		/**
+		 * A font color, cyan, which can be applied to a String if your terminal supports it.
+		 */
+		CYAN(6),
+
+		/**
+		 * A font color, white, which can be applied to a String if your terminal supports it.
+		 */
+		WHITE(7);
+
+		/**
+		 * The ascii color value.
+		 */
+		private int v;
+
+		/**
+		 * Constructor, creates a new CC.
+		 * 
+		 * @param v The color code to use.
+		 */
+		private CC(int v)
+		{
+			this.v = v;
+		}
 	}
 }

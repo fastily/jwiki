@@ -11,7 +11,7 @@ import okhttp3.HttpUrl;
 public final class Conf
 {
 	/**
-	 * Toggles logging of debug information to std err.  Disabled (false) by default.
+	 * Toggles logging of debug information to std err. Disabled (false) by default.
 	 */
 	public boolean debug = false;
 
@@ -53,6 +53,11 @@ public final class Conf
 	protected String uname = null;
 
 	/**
+	 * The logger associated with this Conf.
+	 */
+	protected ColorLog log;
+
+	/**
 	 * CSRF token. Used for actions that change Wiki content.
 	 */
 	protected String token = "+\\";
@@ -61,10 +66,13 @@ public final class Conf
 	 * Constructor, should only be called by new instances of Wiki.
 	 * 
 	 * @param baseURL The url pointing to the base MediaWiki API endpoint.
+	 * @param log The logger associated with this log
 	 */
-	protected Conf(HttpUrl baseURL)
+	protected Conf(HttpUrl baseURL, ColorLog log)
 	{
 		this.baseURL = baseURL;
 		hostname = baseURL.host();
+		
+		this.log = log;
 	}
 }

@@ -301,7 +301,7 @@ class WQuery
 				canCont = false;
 
 			if (wiki.conf.debug)
-				ColorLog.debug(wiki, GSONP.gsonPP.toJson(result));
+				wiki.conf.log.debug(wiki, GSONP.gsonPP.toJson(result));
 
 			return new QReply(result);
 		}

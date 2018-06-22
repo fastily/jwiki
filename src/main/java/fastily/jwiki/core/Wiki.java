@@ -67,10 +67,11 @@ public class Wiki
 	 *           disable.
 	 * @param parent The parent Wiki which spawned this Wiki using {@code getWiki()}. If this is the first Wiki, disable
 	 *           with null.
+	 * @param enableLogging Set true to enable std err log messages. Set false to disable std err log messages.
 	 */
-	private Wiki(String user, String px, HttpUrl baseURL, Proxy proxy, Interceptor interceptor, Wiki parent)
+	private Wiki(String user, String px, HttpUrl baseURL, Proxy proxy, Interceptor interceptor, Wiki parent, boolean enableLogging)
 	{
-		conf = new Conf(baseURL);
+		conf = new Conf(baseURL, new ColorLog(enableLogging));
 
 		if (parent != null) // CentralAuth login
 		{
@@ -87,7 +88,7 @@ public class Wiki
 				throw new SecurityException(String.format("Failed to log-in as %s @ %s", conf.uname, conf.hostname));
 		}
 
-		ColorLog.info(this, "Fetching Namespace List");
+		conf.log.info(this, "Fetching Namespace List");
 		nsl = new NS.NSManager(new WQuery(this, WQuery.NAMESPACES).next().input.getAsJsonObject("query"));
 	}
 
@@ -100,10 +101,11 @@ public class Wiki
 	 * @param proxy The Proxy to use. Optional - set null to disable.
 	 * @param interceptor An OkHttp interceptor, useful for pre/post flight modifications. Optional - set null to
 	 *           disable.
+	 * @param enableLogging Set true to enable std err log messages. Set false to disable std err log messages.
 	 */
-	private Wiki(String user, String px, String domain, Proxy proxy, Interceptor interceptor)
+	private Wiki(String user, String px, String domain, Proxy proxy, Interceptor interceptor, boolean enableLogging)
 	{
-		this(user, px, HttpUrl.parse(String.format("https://%s/w/api.php", domain)), proxy, interceptor, null);
+		this(user, px, HttpUrl.parse(String.format("https://%s/w/api.php", domain)), proxy, interceptor, null, enableLogging);
 	}
 
 	/**
@@ -115,16 +117,17 @@ public class Wiki
 	 * @param proxy The Proxy to use. Optional - set null to disable.
 	 * @param interceptor An OkHttp interceptor, useful for pre/post flight modifications. Optional - set null to
 	 *           disable.
+	 * @param enableLogging Set true to enable std err log messages. Set false to disable std err log messages.
 	 */
-	public Wiki(String user, String px, HttpUrl baseURL, Proxy proxy, Interceptor interceptor)
+	public Wiki(String user, String px, HttpUrl baseURL, Proxy proxy, Interceptor interceptor, boolean enableLogging)
 	{
-		this(user, px, baseURL, proxy, interceptor, null);
+		this(user, px, baseURL, proxy, interceptor, null, enableLogging);
 	}
 
 	/**
-	 * Constructor, creates an anonymous Wiki with the specified domain and interceptor. CAVEAT: This method assumes that the base API
-	 * endpoint you are targeting is located at {@code https://<WIKI_DOMAIN>/w/api.php}. If this is not the case,
-	 * then please use {@link #Wiki(String, String, HttpUrl, Proxy, Interceptor)}.
+	 * Constructor, creates an anonymous Wiki with the specified domain and interceptor. CAVEAT: This method assumes that
+	 * the base API endpoint you are targeting is located at {@code https://<WIKI_DOMAIN>/w/api.php}. If this is not the
+	 * case, then please use {@link #Wiki(String, String, HttpUrl, Proxy, Interceptor)}.
 	 * 
 	 * @param domain The domain name. Use shorthand form, ex: {@code en.wikipedia.org}.
 	 * @param interceptor An OkHttp interceptor, useful for pre/post flight modifications. Optional - set null to
@@ -132,13 +135,13 @@ public class Wiki
 	 */
 	public Wiki(String domain, Interceptor interceptor)
 	{
-		this(null, null, domain, null, interceptor);
+		this(null, null, domain, null, interceptor, true);
 	}
 
 	/**
-	 * Constructor, takes user, password, and domain to login as. CAVEAT: This method assumes that the base API
-	 * endpoint you are targeting is located at {@code https://<WIKI_DOMAIN>/w/api.php}. If this is not the case,
-	 * then please use {@link #Wiki(String, String, HttpUrl, Proxy, Interceptor)}.
+	 * Constructor, takes user, password, and domain to login as. CAVEAT: This method assumes that the base API endpoint
+	 * you are targeting is located at {@code https://<WIKI_DOMAIN>/w/api.php}. If this is not the case, then please use
+	 * {@link #Wiki(String, String, HttpUrl, Proxy, Interceptor)}.
 	 * 
 	 * @param user The username to use
 	 * @param px The password to use
@@ -146,13 +149,13 @@ public class Wiki
 	 */
 	public Wiki(String user, String px, String domain)
 	{
-		this(user, px, domain, null, null);
+		this(user, px, domain, null, null, true);
 	}
 
 	/**
 	 * Constructor, creates an anonymous Wiki which is not logged in. CAVEAT: This method assumes that the base API
-	 * endpoint you are targeting is located at {@code https://<WIKI_DOMAIN>/w/api.php}. If this is not the case,
-	 * then please use {@link #Wiki(String, String, HttpUrl, Proxy, Interceptor)}.
+	 * endpoint you are targeting is located at {@code https://<WIKI_DOMAIN>/w/api.php}. If this is not the case, then
+	 * please use {@link #Wiki(String, String, HttpUrl, Proxy, Interceptor)}.
 	 * 
 	 * @param domain The domain name. Use shorthand form, ex: {@code en.wikipedia.org}.
 	 */
@@ -178,7 +181,7 @@ public class Wiki
 		if (conf.uname != null) // do not login more than once
 			return true;
 
-		ColorLog.info(this, "Try login for " + user);
+		conf.log.info(this, "Try login for " + user);
 		try
 		{
 			if (WAction.postAction(this, "login", false, FL.pMap("lgname", user, "lgpassword", password, "lgtoken",
@@ -186,7 +189,7 @@ public class Wiki
 			{
 				refreshLoginStatus();
 
-				ColorLog.info(this, "Logged in as " + user);
+				conf.log.info(this, "Logged in as " + user);
 				return true;
 			}
 		}
@@ -295,6 +298,16 @@ public class Wiki
 	}
 
 	/**
+	 * Turns logging to std error on/off.
+	 * 
+	 * @param enabled Set false to disable logging, or true to enable logging.
+	 */
+	public void enableLogging(boolean enabled)
+	{
+		conf.log.enabled = enabled;
+	}
+
+	/**
 	 * Filters pages by namespace. Only pages with a namespace in {@code ns} are selected.
 	 * 
 	 * @param pages Titles to filter
@@ -336,11 +349,11 @@ public class Wiki
 		if (conf.uname == null)
 			return null;
 
-		ColorLog.fyi(this, String.format("Get Wiki for %s @ %s", whoami(), domain));
+		conf.log.fyi(this, String.format("Get Wiki for %s @ %s", whoami(), domain));
 		try
 		{
 			return wl.containsKey(domain) ? wl.get(domain)
-					: new Wiki(null, null, conf.baseURL.newBuilder().host(domain).build(), null, null, this);
+					: new Wiki(null, null, conf.baseURL.newBuilder().host(domain).build(), null, null, this, conf.log.enabled);
 		}
 		catch (Throwable e)
 		{
@@ -423,7 +436,7 @@ public class Wiki
 	{
 		return conf.uname == null ? "<Anonymous>" : conf.uname;
 	}
-	
+
 	/**
 	 * Gets a String representation of this Wiki, in the format {@code [username @ domain]}
 	 */
@@ -562,7 +575,7 @@ public class Wiki
 	 */
 	public ArrayList<String> allPages(String prefix, boolean redirectsOnly, boolean protectedOnly, int cap, NS ns)
 	{
-		ColorLog.info(this, "Doing all pages fetch for " + (prefix == null ? "all pages" : prefix));
+		conf.log.info(this, "Doing all pages fetch for " + (prefix == null ? "all pages" : prefix));
 
 		WQuery wq = new WQuery(this, cap, WQuery.ALLPAGES);
 		if (prefix != null)
@@ -589,7 +602,7 @@ public class Wiki
 	 */
 	public boolean exists(String title)
 	{
-		ColorLog.info(this, "Checking to see if title exists: " + title);
+		conf.log.info(this, "Checking to see if title exists: " + title);
 		return MQuery.exists(this, FL.toSAL(title)).get(title);
 	}
 
@@ -602,7 +615,7 @@ public class Wiki
 	 */
 	public ArrayList<String> fileUsage(String title)
 	{
-		ColorLog.info(this, "Fetching local file usage of " + title);
+		conf.log.info(this, "Fetching local file usage of " + title);
 		return MQuery.fileUsage(this, FL.toSAL(title)).get(title);
 	}
 
@@ -614,7 +627,7 @@ public class Wiki
 	 */
 	public ArrayList<String> getAllowedFileExts()
 	{
-		ColorLog.info(this, "Fetching a list of permissible file extensions");
+		conf.log.info(this, "Fetching a list of permissible file extensions");
 		return FL
 				.toAL(new WQuery(this, WQuery.ALLOWEDFILEXTS).next().listComp("fileextensions").stream().map(e -> GSONP.getStr(e, "ext")));
 	}
@@ -627,7 +640,7 @@ public class Wiki
 	 */
 	public ArrayList<String> getCategoriesOnPage(String title)
 	{
-		ColorLog.info(this, "Getting categories of " + title);
+		conf.log.info(this, "Getting categories of " + title);
 		return MQuery.getCategoriesOnPage(this, FL.toSAL(title)).get(title);
 	}
 
@@ -655,7 +668,7 @@ public class Wiki
 	 */
 	public ArrayList<String> getCategoryMembers(String title, int cap, NS... ns)
 	{
-		ColorLog.info(this, "Getting category members from " + title);
+		conf.log.info(this, "Getting category members from " + title);
 
 		WQuery wq = new WQuery(this, cap, WQuery.CATEGORYMEMBERS).set("cmtitle", convertIfNotInNS(title, NS.CATEGORY));
 		if (ns.length > 0)
@@ -677,7 +690,7 @@ public class Wiki
 	 */
 	public int getCategorySize(String title)
 	{
-		ColorLog.info(this, "Getting category size of " + title);
+		conf.log.info(this, "Getting category size of " + title);
 		return MQuery.getCategorySize(this, FL.toSAL(title)).get(title);
 	}
 
@@ -693,7 +706,7 @@ public class Wiki
 	 */
 	public ArrayList<Contrib> getContribs(String user, int cap, boolean olderFirst, NS... ns)
 	{
-		ColorLog.info(this, "Fetching contribs of " + user);
+		conf.log.info(this, "Fetching contribs of " + user);
 
 		WQuery wq = new WQuery(this, cap, WQuery.USERCONTRIBS).set("ucuser", user);
 		if (ns.length > 0)
@@ -717,7 +730,7 @@ public class Wiki
 	 */
 	public ArrayList<String> getDuplicatesOf(String title, boolean localOnly)
 	{
-		ColorLog.info(this, "Getting duplicates of " + title);
+		conf.log.info(this, "Getting duplicates of " + title);
 		return MQuery.getDuplicatesOf(this, localOnly, FL.toSAL(title)).get(title);
 	}
 
@@ -729,7 +742,7 @@ public class Wiki
 	 */
 	public ArrayList<String> getExternalLinks(String title)
 	{
-		ColorLog.info(this, "Getting external links on " + title);
+		conf.log.info(this, "Getting external links on " + title);
 		return MQuery.getExternalLinks(this, FL.toSAL(title)).get(title);
 	}
 
@@ -741,7 +754,7 @@ public class Wiki
 	 */
 	public ArrayList<ImageInfo> getImageInfo(String title)
 	{
-		ColorLog.info(this, "Getting image info for " + title);
+		conf.log.info(this, "Getting image info for " + title);
 		return MQuery.getImageInfo(this, FL.toSAL(title)).get(title);
 	}
 
@@ -753,7 +766,7 @@ public class Wiki
 	 */
 	public ArrayList<String> getImagesOnPage(String title)
 	{
-		ColorLog.info(this, "Getting files on " + title);
+		conf.log.info(this, "Getting files on " + title);
 		return MQuery.getImagesOnPage(this, FL.toSAL(title)).get(title);
 	}
 
@@ -785,7 +798,7 @@ public class Wiki
 	 */
 	public ArrayList<String> getLinksOnPage(String title, NS... ns)
 	{
-		ColorLog.info(this, "Getting wiki links on " + title);
+		conf.log.info(this, "Getting wiki links on " + title);
 		return MQuery.getLinksOnPage(this, FL.toSAL(title), ns).get(title);
 	}
 
@@ -814,7 +827,7 @@ public class Wiki
 	 */
 	public ArrayList<LogEntry> getLogs(String title, String user, String type, int cap)
 	{
-		ColorLog.info(this, String.format("Fetching log entries -> title: %s, user: %s, type: %s", title, user, type));
+		conf.log.info(this, String.format("Fetching log entries -> title: %s, user: %s, type: %s", title, user, type));
 
 		WQuery wq = new WQuery(this, cap, WQuery.LOGEVENTS);
 		if (title != null)
@@ -858,7 +871,7 @@ public class Wiki
 	 */
 	public String getPageText(String title)
 	{
-		ColorLog.info(this, "Getting page text of " + title);
+		conf.log.info(this, "Getting page text of " + title);
 		return MQuery.getPageText(this, FL.toSAL(title)).get(title);
 	}
 
@@ -872,7 +885,7 @@ public class Wiki
 	 */
 	public ArrayList<ProtectedTitleEntry> getProtectedTitles(int limit, boolean olderFirst, NS... ns)
 	{
-		ColorLog.info(this, "Fetching a list of protected titles");
+		conf.log.info(this, "Fetching a list of protected titles");
 
 		WQuery wq = new WQuery(this, limit, WQuery.PROTECTEDTITLES);
 		if (ns.length > 0)
@@ -897,7 +910,7 @@ public class Wiki
 	 */
 	public ArrayList<String> getRandomPages(int limit, NS... ns)
 	{
-		ColorLog.info(this, "Fetching random page(s)");
+		conf.log.info(this, "Fetching random page(s)");
 
 		if (limit < 0)
 			throw new IllegalArgumentException("limit for getRandomPages() cannot be a negative number");
@@ -927,7 +940,7 @@ public class Wiki
 	 */
 	public ArrayList<RCEntry> getRecentChanges(Instant start, Instant end)
 	{
-		ColorLog.info(this, "Querying recent changes");
+		conf.log.info(this, "Querying recent changes");
 
 		Instant s = start, e = end;
 		if (s == null)
@@ -960,7 +973,7 @@ public class Wiki
 	 */
 	public ArrayList<Revision> getRevisions(String title, int cap, boolean olderFirst, Instant start, Instant end)
 	{
-		ColorLog.info(this, "Getting revisions from " + title);
+		conf.log.info(this, "Getting revisions from " + title);
 
 		WQuery wq = new WQuery(this, cap, WQuery.REVISIONS).set("titles", title);
 		if (olderFirst)
@@ -992,7 +1005,7 @@ public class Wiki
 	 */
 	public ArrayList<String> getSharedDuplicatesOf(String title)
 	{
-		ColorLog.info(this, "Getting shared duplicates of " + title);
+		conf.log.info(this, "Getting shared duplicates of " + title);
 		return MQuery.getSharedDuplicatesOf(this, FL.toSAL(title)).get(title);
 	}
 
@@ -1004,7 +1017,7 @@ public class Wiki
 	 */
 	public ArrayList<String> getTemplatesOnPage(String title)
 	{
-		ColorLog.info(this, "Getting templates transcluded on " + title);
+		conf.log.info(this, "Getting templates transcluded on " + title);
 		return MQuery.getTemplatesOnPage(this, FL.toSAL(title)).get(title);
 	}
 
@@ -1016,7 +1029,7 @@ public class Wiki
 	 */
 	public String getTextExtract(String title)
 	{
-		ColorLog.info(this, "Getting a text extract for " + title);
+		conf.log.info(this, "Getting a text extract for " + title);
 		return MQuery.getTextExtracts(this, FL.toSAL(title)).get(title);
 	}
 
@@ -1028,7 +1041,7 @@ public class Wiki
 	 */
 	public ArrayList<String> getUserUploads(String user)
 	{
-		ColorLog.info(this, "Fetching uploads for " + user);
+		conf.log.info(this, "Fetching uploads for " + user);
 
 		ArrayList<String> l = new ArrayList<>();
 		WQuery wq = new WQuery(this, WQuery.USERUPLOADS).set("aiuser", nss(user));
@@ -1046,7 +1059,7 @@ public class Wiki
 	 */
 	public ArrayList<Tuple<String, String>> globalUsage(String title)
 	{
-		ColorLog.info(this, "Getting global usage for " + title);
+		conf.log.info(this, "Getting global usage for " + title);
 		return MQuery.globalUsage(this, FL.toSAL(title)).get(title);
 	}
 
@@ -1058,7 +1071,7 @@ public class Wiki
 	 */
 	public ArrayList<String> listUserRights(String user)
 	{
-		ColorLog.info(this, "Getting user rights for " + user);
+		conf.log.info(this, "Getting user rights for " + user);
 		return MQuery.listUserRights(this, FL.toSAL(user)).get(user);
 	}
 
@@ -1072,7 +1085,7 @@ public class Wiki
 	 */
 	public ArrayList<String> prefixIndex(NS namespace, String prefix)
 	{
-		ColorLog.info(this, "Doing prefix index search for " + prefix);
+		conf.log.info(this, "Doing prefix index search for " + prefix);
 		return allPages(prefix, false, false, -1, namespace);
 	}
 
@@ -1089,7 +1102,7 @@ public class Wiki
 	 */
 	public ArrayList<String> querySpecialPage(String title, int cap)
 	{
-		ColorLog.info("Querying special page " + title);
+		conf.log.info(this, "Querying special page " + title);
 
 		WQuery wq = new WQuery(this, cap, WQuery.QUERYPAGES).set("qppage", nss(title));
 		ArrayList<String> l = new ArrayList<>();
@@ -1115,7 +1128,7 @@ public class Wiki
 	 */
 	public String resolveRedirect(String title)
 	{
-		ColorLog.info(this, "Resolving redirect for " + title);
+		conf.log.info(this, "Resolving redirect for " + title);
 		return MQuery.resolveRedirects(this, FL.toSAL(title)).get(title);
 	}
 
@@ -1127,7 +1140,7 @@ public class Wiki
 	 */
 	public ArrayList<PageSection> splitPageByHeader(String title)
 	{
-		ColorLog.info(this, "Splitting " + title + " by header");
+		conf.log.info(this, "Splitting " + title + " by header");
 
 		try
 		{
@@ -1151,7 +1164,7 @@ public class Wiki
 	 */
 	public ArrayList<String> whatLinksHere(String title, boolean redirects)
 	{
-		ColorLog.info(this, "Getting links to " + title);
+		conf.log.info(this, "Getting links to " + title);
 		return MQuery.linksHere(this, redirects, FL.toSAL(title)).get(title);
 	}
 
@@ -1178,7 +1191,7 @@ public class Wiki
 	 */
 	public ArrayList<String> whatTranscludesHere(String title, NS... ns)
 	{
-		ColorLog.info(this, "Getting list of pages that transclude " + title);
+		conf.log.info(this, "Getting list of pages that transclude " + title);
 		return MQuery.transcludesIn(this, FL.toSAL(title), ns).get(title);
 	}
 }

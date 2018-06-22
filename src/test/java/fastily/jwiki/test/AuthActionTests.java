@@ -26,7 +26,7 @@ public class AuthActionTests extends BaseMockTemplate
 		addResponse("mockListSingleUserRights");
 		addResponse("mockNSInfo");
 
-		wiki = new Wiki("Test", "password", server.url("/w/api.php"), null, null);
+		wiki = new Wiki("Test", "password", server.url("/w/api.php"), null, null, true);
 	}
 
 	/**
