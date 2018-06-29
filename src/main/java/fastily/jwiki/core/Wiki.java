@@ -127,7 +127,7 @@ public class Wiki
 	/**
 	 * Constructor, creates an anonymous Wiki with the specified domain and interceptor. CAVEAT: This method assumes that
 	 * the base API endpoint you are targeting is located at {@code https://<WIKI_DOMAIN>/w/api.php}. If this is not the
-	 * case, then please use {@link #Wiki(String, String, HttpUrl, Proxy, Interceptor)}.
+	 * case, then please use {@link #Wiki(String, String, HttpUrl, Proxy, Interceptor, boolean)}.
 	 * 
 	 * @param domain The domain name. Use shorthand form, ex: {@code en.wikipedia.org}.
 	 * @param interceptor An OkHttp interceptor, useful for pre/post flight modifications. Optional - set null to
@@ -141,7 +141,7 @@ public class Wiki
 	/**
 	 * Constructor, takes user, password, and domain to login as. CAVEAT: This method assumes that the base API endpoint
 	 * you are targeting is located at {@code https://<WIKI_DOMAIN>/w/api.php}. If this is not the case, then please use
-	 * {@link #Wiki(String, String, HttpUrl, Proxy, Interceptor)}.
+	 * {@link #Wiki(String, String, HttpUrl, Proxy, Interceptor, boolean)}.
 	 * 
 	 * @param user The username to use
 	 * @param px The password to use
@@ -155,7 +155,7 @@ public class Wiki
 	/**
 	 * Constructor, creates an anonymous Wiki which is not logged in. CAVEAT: This method assumes that the base API
 	 * endpoint you are targeting is located at {@code https://<WIKI_DOMAIN>/w/api.php}. If this is not the case, then
-	 * please use {@link #Wiki(String, String, HttpUrl, Proxy, Interceptor)}.
+	 * please use {@link #Wiki(String, String, HttpUrl, Proxy, Interceptor, boolean)}.
 	 * 
 	 * @param domain The domain name. Use shorthand form, ex: {@code en.wikipedia.org}.
 	 */
