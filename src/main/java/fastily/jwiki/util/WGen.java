@@ -35,16 +35,15 @@ public class WGen
 	 */
 	private WGen()
 	{
-		
+
 	}
-	
+
 	/**
 	 * Main driver, runs the WGen application.
 	 * 
 	 * @param args Program arguments, not used
-	 * @throws Throwable On I/O error
 	 */
-	public static void main(String[] args) throws Throwable
+	public static void main(String[] args)
 	{
 		Console c = System.console();
 		if (c == null)
@@ -78,10 +77,18 @@ public class WGen
 		ul.forEach((k, v) -> sb.append(String.format("%s\t%s%n", k, v)));
 
 		byte[] bytes = Base64.getEncoder().encode(sb.toString().getBytes());
-		Files.write(px, bytes);
-		Files.write(homePX, bytes);
 
-		c.printf("Successfully written out to '%s' and '%s'%n", px, homePX);
+		try
+		{
+			Files.write(px, bytes);
+			Files.write(homePX, bytes);
+			c.printf("Successfully written out to '%s' and '%s'%n", px, homePX);
+		}
+		catch (Throwable e)
+		{
+			System.out.println("ERROR: unable to write to output files.  Are you missing write permissions?");
+			e.printStackTrace();
+		}
 	}
 
 	/**
