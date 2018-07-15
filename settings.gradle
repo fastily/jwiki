@@ -1,1 +1,3 @@
 rootProject.name = 'jwiki'
+
+enableFeaturePreview('STABLE_PUBLISHING')

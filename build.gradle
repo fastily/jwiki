@@ -1,6 +1,6 @@
 plugins {
     id 'java-library'
-    id 'maven'
+    // id 'maven'
     id 'maven-publish'
     id 'eclipse'
     id 'idea'
@@ -32,48 +32,6 @@ test {
 	useJUnitPlatform()
 }
 
-def pomConfig = {
-    inceptionYear '2014'
-    licenses {
-        license {
-            name 'GNU General Public License, Version 3.0'
-            url 'https://www.gnu.org/licenses/gpl-3.0.txt'
-            distribution 'repo'
-        }
-    }
-}
-
-publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            from components.java
-
-            pom.withXml {
-                asNode().children().last() + pomConfig
-            }
-
-            artifact sourceJar
-            artifact packageJavadoc
-        }
-    }
-}
-
-task writeNewPom {
-    doLast {
-        pom {
-            project {
-                inceptionYear '2014'
-                licenses {
-                    license {
-                        name 'GNU General Public License, Version 3.0'
-                        url 'https://www.gnu.org/licenses/gpl-3.0.txt'
-                        distribution 'repo'
-                    }
-                }
-            }
-        } .writeTo("$buildDir/${project.name}-${version}.pom")
-    }
-}
 
 javadoc {
     source = sourceSets.main.allJava
@@ -89,10 +47,10 @@ javadoc {
         links "https://fastily.github.io/jwiki/docs/gson/"
         
         // links "http://square.github.io/okhttp/3.x/mockwebserver/"
-
         // setOutputLevel JavadocOutputLevel.VERBOSE
     }
 }
+
 
 task sourceJar(type: Jar) {
     from sourceSets.main.allJava
@@ -103,6 +61,7 @@ task packageJavadoc(type: Jar) {
     from javadoc
     classifier = 'javadoc'
 }
+
 
 task wgen(type: Jar) {
   baseName = "WGen"
@@ -120,6 +79,33 @@ task wgen(type: Jar) {
   with jar
 }
 
+
 wrapper {
     gradleVersion = '4.8.1'
+}
+
+
+publishing {
+    publications {
+        mavenPublish(MavenPublication) {
+            from components.java
+
+            artifact sourceJar
+            artifact packageJavadoc
+
+            pom {
+                name = 'jwiki'
+                description = 'A library for effortlessly interacting with Wikipedia/MediaWiki.'
+                inceptionYear = '2014'
+                url = 'https://github.com/fastily/jwiki'
+                licenses {
+                    license {
+                        name = 'GNU General Public License, Version 3.0'
+                        url = 'https://www.gnu.org/licenses/gpl-3.0.txt'
+                        distribution = 'repo'
+                    }
+                }
+            }
+        }
+    }
 }
