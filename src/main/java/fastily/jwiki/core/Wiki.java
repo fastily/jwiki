@@ -164,6 +164,17 @@ public class Wiki
 		this(null, null, domain);
 	}
 
+	/**
+	 * Constructor, creates an anonymous Wiki which is not logged in, pointed at the specified API endpoint. Use this
+	 * for third-party/non-WMF Wikis.
+	 * 
+	 * @param apiEndpoint The API endpoint to use.
+	 */
+	public Wiki(HttpUrl apiEndpoint)
+	{
+		this(null, null, apiEndpoint, null, null, true);
+	}
+
 	/* //////////////////////////////////////////////////////////////////////////////// */
 	/* ///////////////////////////// AUTH FUNCTIONS /////////////////////////////////// */
 	/* //////////////////////////////////////////////////////////////////////////////// */
