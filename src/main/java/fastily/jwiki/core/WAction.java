@@ -170,7 +170,7 @@ class WAction
 	 */
 	protected static void purge(Wiki wiki, ArrayList<String> titles)
 	{
-		wiki.conf.log.info(wiki, "Purging :" + titles);
+		wiki.conf.log.info(wiki, "Purging:" + titles);
 
 		HashMap<String, String> pl = FL.pMap("titles", FL.pipeFence(titles));
 		postAction(wiki, "purge", false, pl);
