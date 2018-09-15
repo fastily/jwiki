@@ -1078,7 +1078,7 @@ public class Wiki
 	 * Gets the list of usergroups (rights) a user belongs to. Sample groups: sysop, user, autoconfirmed, editor.
 	 * 
 	 * @param user The user to get rights information for. Do not include "User:" prefix.
-	 * @return The usergroups {@code user} belongs to.
+	 * @return The usergroups {@code user} belongs to, or null if {@code user} is an IP or non-existent user.
 	 */
 	public ArrayList<String> listUserRights(String user)
 	{

@@ -188,15 +188,15 @@ public final class MQuery
 	/**
 	 * Gets the list of usergroups (rights) users belong to. Sample groups: sysop, user, autoconfirmed, editor.
 	 * 
-	 * @param wiki The wiki object to use.
-	 * @param users The list of users to get rights information for. Do not include "User:" prefix.
-	 * @return The list of results keyed by username.
+	 * @param wiki The Wiki object to use.
+	 * @param users Users to get rights information for. Do not include {@code User:} prefix.
+	 * @return A Map such that the key is the user and the value a List of the user's rights (or null if the user does not exist)
 	 */
 	public static HashMap<String, ArrayList<String>> listUserRights(Wiki wiki, Collection<String> users)
 	{
 		HashMap<String, ArrayList<String>> l = new HashMap<>();
 		getNoContList(wiki, users, WQuery.USERRIGHTS, null, "ususers", "users")
-				.forEach(jo -> l.put(GSONP.getStr(jo, "name"), GSONP.jaOfStrToAL(jo.getAsJsonArray("groups"))));
+				.forEach(jo -> l.put(GSONP.getStr(jo, "name"), jo.has("groups") ? GSONP.jaOfStrToAL(jo.getAsJsonArray("groups")) : null));
 
 		return l;
 	}

@@ -384,6 +384,10 @@ public class QueryTests
 		ArrayList<String> l = wiki.listUserRights("Fastily");
 		assertTrue(l.contains("sysop"));
 		assertTrue(l.contains("autoconfirmed"));
+		
+		// non-existent usernames and IPs should return null
+		assertNull(wiki.listUserRights("10.0.1.1"));
+		assertNull(wiki.listUserRights("Fastilyy"));
 	}
 
 	/**
