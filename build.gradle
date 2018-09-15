@@ -81,7 +81,7 @@ task wgen(type: Jar) {
 
 
 wrapper {
-    gradleVersion = '4.10'
+    gradleVersion = '4.10.1'
 }
 
 
