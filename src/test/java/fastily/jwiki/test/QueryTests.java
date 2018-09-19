@@ -105,6 +105,10 @@ public class QueryTests
 		
 		assertFalse(wiki.exists("User:Fastily/NoPageHere"));
 		assertFalse(wiki.exists("user:fastily/noPageHere"));
+		
+		// doesn't actually exist but should still return true
+		assertTrue(wiki.exists("User:Fastily/Sandbox#Test98769876"));
+		
 	}
 
 	/**
@@ -238,6 +242,10 @@ public class QueryTests
 		// Test 2
 		result = wiki.getContribs("FastilyClone", 1, true, NS.FILE);
 		assertEquals("File:FCTest1.png", result.get(0).title);
+		
+		// Test 3 - non-existent user
+		result = wiki.getContribs("Fastilyy", 10, true);
+		assertTrue(result.isEmpty());
 	}
 
 	/**
