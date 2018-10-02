@@ -1,6 +1,5 @@
 plugins {
     id 'java-library'
-    // id 'maven'
     id 'maven-publish'
     id 'eclipse'
     id 'idea'
@@ -61,24 +60,6 @@ task packageJavadoc(type: Jar) {
     from javadoc
     classifier = 'javadoc'
 }
-
-
-task wgen(type: Jar) {
-  baseName = "WGen"
-
-  from {
-    configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
-  }
-
-  manifest {
-    attributes 'Main-Class': 'fastily.jwiki.util.WGen'
-  }
-  
-  exclude "META-INF/*.SF", "**/LICENSE*", "**/NOTICE*", "**/maven/**"
-
-  with jar
-}
-
 
 wrapper {
     gradleVersion = '4.10.2'
