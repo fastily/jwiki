@@ -295,10 +295,13 @@ class WQuery
 			}
 
 			JsonObject result = GSONP.jp.parse(wiki.apiclient.basicGET(pl).body().string()).getAsJsonObject();
-			if (result.has("continue"))
+			if (result.has("continue")) {
 				pl.putAll(GSONP.gson.fromJson(result.getAsJsonObject("continue"), strMapT));
-			else
+			} else if (result.has("query-continue")) {
+				pl.putAll(GSONP.gson.fromJson(result.getAsJsonObject("query-continue").getAsJsonObject("categorymembers"), strMapT));
+			} else {
 				canCont = false;
+			}
 
 			if (wiki.conf.debug)
 				wiki.conf.log.debug(wiki, GSONP.gsonPP.toJson(result));
