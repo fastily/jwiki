@@ -1,0 +1,35 @@
+{
+    "batchcomplete": "",
+    "query": {
+        "searchinfo": {
+            "totalhits": 5085
+        },
+        "search": [
+            {
+                "ns": 0,
+                "title": "GitHub",
+                "pageid": 18545292
+            },
+            {
+                "ns": 0,
+                "title": "Git",
+                "pageid": 1771747
+            },
+            {
+                "ns": 0,
+                "title": "Markdown",
+                "pageid": 2415885
+            },
+            {
+                "ns": 0,
+                "title": "Censorship of GitHub",
+                "pageid": 46264949
+            },
+            {
+                "ns": 0,
+                "title": "GitHub Pages",
+                "pageid": 53825664
+            }
+        ]
+    }
+}

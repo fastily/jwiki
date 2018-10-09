@@ -165,8 +165,8 @@ public class Wiki
 	}
 
 	/**
-	 * Constructor, creates an anonymous Wiki which is not logged in, pointed at the specified API endpoint. Use this
-	 * for third-party/non-WMF Wikis.
+	 * Constructor, creates an anonymous Wiki which is not logged in, pointed at the specified API endpoint. Use this for
+	 * third-party/non-WMF Wikis.
 	 * 
 	 * @param apiEndpoint The API endpoint to use.
 	 */
@@ -1141,6 +1141,30 @@ public class Wiki
 	{
 		conf.log.info(this, "Resolving redirect for " + title);
 		return MQuery.resolveRedirects(this, FL.toSAL(title)).get(title);
+	}
+
+	/**
+	 * Performs a search on the Wiki.
+	 * 
+	 * @param query The query string to search the Wiki with.
+	 * @param limit The maximum number of entries to return. Optional, specify {@code -1} to disable (not recommended if
+	 *           your wiki is big).
+	 * @param ns Limit search to these namespaces. Optional, leave blank to disable. The default behavior is to search
+	 *           all namespaces.
+	 * @return A List of titles found by the search.
+	 */
+	public ArrayList<String> search(String query, int limit, NS... ns)
+	{
+		WQuery wq = new WQuery(this, limit, WQuery.SEARCH).set("srsearch", query);
+
+		if (ns.length > 0)
+			wq.set("srnamespace", nsl.createFilter(ns));
+
+		ArrayList<String> l = new ArrayList<>();
+		while (wq.has())
+			l.addAll(FL.toAL(wq.next().listComp("search").stream().map(e -> GSONP.getStr(e, "title"))));
+
+		return l;
 	}
 
 	/**

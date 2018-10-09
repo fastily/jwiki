@@ -203,4 +203,21 @@ public class MockQueryTests extends BaseMockTemplate
 		assertTrue(l.contains("Foobar"));
 		assertTrue(l.contains("Cats"));
 	}
+
+	/**
+	 * Tests page searching
+	 */
+	@Test
+	public void testSearch()
+	{
+		addResponse("mockSearch");
+
+		ArrayList<String> l = wiki.search("GitHub", 5, NS.MAIN);
+
+		assertEquals(5, l.size());
+
+		assertTrue(l.contains("GitHub"));
+		assertTrue(l.contains("Git"));
+		assertTrue(l.contains("GitHub Pages"));
+	}
 }

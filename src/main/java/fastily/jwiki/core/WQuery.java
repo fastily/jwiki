@@ -150,6 +150,11 @@ class WQuery
 			FL.pMap("prop", "revisions", "rvprop", "timestamp|user|comment|content", "titles", null), "rvlimit", "revisions");
 
 	/**
+	 * Default parameters for listing searches
+	 */
+	public static final QTemplate SEARCH = new QTemplate(FL.pMap("list", "search", "srprop", "", "srnamespace", "*", "srsearch", null), "srlimit", "search");
+	
+	/**
 	 * Default parameters for getting templates on a page
 	 */
 	public static final QTemplate TEMPLATES = new QTemplate(FL.pMap("prop", "templates", "tiprop", "title", "titles", null), "tllimit",
