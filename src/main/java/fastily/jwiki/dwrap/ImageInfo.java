@@ -19,12 +19,12 @@ public final class ImageInfo extends DataEntry implements Comparable<ImageInfo>
 	 * The file's height (in pixels), if applicable.
 	 */
 	public int height;
-	
+
 	/**
 	 * The file's width (in pixels), if applicable.
 	 */
 	public int width;
-	
+
 	/**
 	 * The sha1 hash for this file
 	 */
@@ -39,13 +39,13 @@ public final class ImageInfo extends DataEntry implements Comparable<ImageInfo>
 	 * The MIME string of the file.
 	 */
 	public String mime;
-	
+
 	/**
 	 * Constructor, creates an ImageInfo with all null fields.
 	 */
 	protected ImageInfo()
 	{
-		
+
 	}
 
 	/**

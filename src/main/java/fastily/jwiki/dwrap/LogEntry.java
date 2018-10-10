@@ -17,7 +17,7 @@ public class LogEntry extends DataEntry
 	 * The action that was performed in this log. (e.g. 'restore', 'revision')
 	 */
 	public String action;
-	
+
 	/**
 	 * Constructor, creates a LogEntry with all null fields.
 	 */

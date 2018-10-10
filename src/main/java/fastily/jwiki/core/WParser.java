@@ -32,9 +32,9 @@ public class WParser
 	 */
 	private WParser()
 	{
-		
+
 	}
-	
+
 	/**
 	 * Runs a parse query for wikitext/pages and then parses the result into a WikiText object.
 	 * 
@@ -226,7 +226,7 @@ public class WParser
 	{
 		return e.getName().getLocalPart().equals(n);
 	}
-	
+
 	/**
 	 * Mutable representation of parsed wikitext. May contain Strings and templates.
 	 * 
@@ -335,7 +335,7 @@ public class WParser
 			return doTrim ? out.trim() : out;
 		}
 	}
-	
+
 	/**
 	 * Mutable representation of a parsed wikitext template.
 	 * 
@@ -378,8 +378,8 @@ public class WParser
 		}
 
 		/**
-		 * Normalize the title of the WTemplate, according to {@code wiki}. In other words, remove the 'Template:' namespace,
-		 * convert, capitalize the first letter, convert underscores to spaces.
+		 * Normalize the title of the WTemplate, according to {@code wiki}. In other words, remove the 'Template:'
+		 * namespace, convert, capitalize the first letter, convert underscores to spaces.
 		 * 
 		 * @param wiki The Wiki to normalize against.
 		 */
@@ -393,8 +393,8 @@ public class WParser
 		}
 
 		/**
-		 * Test if the specified key {@code k} exists in this WTemplate. This does not check whether the parameter is empty
-		 * or not.
+		 * Test if the specified key {@code k} exists in this WTemplate. This does not check whether the parameter is
+		 * empty or not.
 		 * 
 		 * @param k The key to check
 		 * @return True if there is a mapping for {@code k} in this WTemplate.

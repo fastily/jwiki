@@ -72,7 +72,7 @@ public final class Conf
 	{
 		this.baseURL = baseURL;
 		hostname = baseURL.host();
-		
+
 		this.log = log;
 	}
 }

@@ -28,15 +28,16 @@ public class MultiMap<K, V>
 	}
 
 	/**
-	 * Creates a new empty ArrayList for {@code k} in this MapList if it did not exist already.  Does nothing otherwise.
+	 * Creates a new empty ArrayList for {@code k} in this MapList if it did not exist already. Does nothing otherwise.
+	 * 
 	 * @param k The key to create a new entry for, if applicable.
 	 */
 	public void touch(K k)
 	{
-		if(!l.containsKey(k))
+		if (!l.containsKey(k))
 			l.put(k, new ArrayList<>());
 	}
-	
+
 	/**
 	 * Adds a key-value pair to this MapList.
 	 * 

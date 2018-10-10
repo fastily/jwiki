@@ -132,7 +132,7 @@ public class MQueryTests
 	{
 		HashMap<String, String> result = MQuery.resolveRedirects(wiki,
 				FL.toSAL("User:Fastily/Sandbox/Redirect1", "User:Fastily/Sandbox/Redirect2", "User:Fastily/Sandbox/Redirect3"));
-		
+
 		assertEquals("User:Fastily/Sandbox/RedirectTarget", result.get("User:Fastily/Sandbox/Redirect1"));
 		assertEquals("User:Fastily/Sandbox/RedirectTarget", result.get("User:Fastily/Sandbox/Redirect2"));
 		assertEquals("User:Fastily/Sandbox/Redirect3", result.get("User:Fastily/Sandbox/Redirect3"));

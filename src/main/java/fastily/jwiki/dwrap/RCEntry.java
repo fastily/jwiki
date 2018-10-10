@@ -12,7 +12,7 @@ public class RCEntry extends DataEntry
 	 * The type of entry this RCEntry represents (ex: log, edit, new)
 	 */
 	public String type;
-	
+
 	/**
 	 * Constructor, creates an RCEntry with all null fields.
 	 */

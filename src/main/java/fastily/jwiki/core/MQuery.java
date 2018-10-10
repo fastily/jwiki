@@ -56,8 +56,8 @@ public final class MQuery
 			HashMap<String, String> pl, String elemArrKey)
 	{
 		MultiMap<String, JsonObject> l = new MultiMap<>();
-		
-		if(FL.containsNull(titles))
+
+		if (FL.containsNull(titles))
 			throw new IllegalArgumentException("null is not an acceptable title to query with");
 
 		GroupQueue<String> gq = new GroupQueue<>(titles, groupQueryMax);
@@ -93,9 +93,9 @@ public final class MQuery
 	{
 		HashMap<String, JsonElement> m = new HashMap<>();
 
-		if(FL.containsNull(titles))
+		if (FL.containsNull(titles))
 			throw new IllegalArgumentException("null is not an acceptable title to query with");
-		
+
 		GroupQueue<String> gq = new GroupQueue<>(titles, groupQueryMax);
 		while (gq.has())
 		{
@@ -124,9 +124,9 @@ public final class MQuery
 	{
 		ArrayList<JsonObject> l = new ArrayList<>();
 
-		if(FL.containsNull(titles))
+		if (FL.containsNull(titles))
 			throw new IllegalArgumentException("null is not an acceptable title to query with");
-		
+
 		GroupQueue<String> gq = new GroupQueue<>(titles, groupQueryMax);
 		while (gq.has())
 		{
@@ -190,7 +190,8 @@ public final class MQuery
 	 * 
 	 * @param wiki The Wiki object to use.
 	 * @param users Users to get rights information for. Do not include {@code User:} prefix.
-	 * @return A Map such that the key is the user and the value a List of the user's rights (or null if the user does not exist)
+	 * @return A Map such that the key is the user and the value a List of the user's rights (or null if the user does
+	 *         not exist)
 	 */
 	public static HashMap<String, ArrayList<String>> listUserRights(Wiki wiki, Collection<String> users)
 	{
@@ -342,7 +343,8 @@ public final class MQuery
 	{
 		return parsePropToSingle(getContProp(wiki, titles, WQuery.EXTLINKS, null, "extlinks"), "*");
 	}
-
+	
+	// FIXME: getNoContProp -> doubled output on non-normal titles
 	/**
 	 * Checks if list of titles exists.
 	 * 
@@ -350,7 +352,7 @@ public final class MQuery
 	 * @param titles The titles to query.
 	 * @return Results keyed by title. {@code true} means the title exists.
 	 */
-	public static HashMap<String, Boolean> exists(Wiki wiki, Collection<String> titles) //FIXME: getNoContProp -> doubled output on non-normal titles
+	public static HashMap<String, Boolean> exists(Wiki wiki, Collection<String> titles)
 	{
 		HashMap<String, Boolean> l = new HashMap<>();
 		getNoContProp(wiki, titles, WQuery.EXISTS, null, "missing").forEach((k, v) -> l.put(k, v == null));
@@ -470,18 +472,21 @@ public final class MQuery
 		xl.forEach((k, v) -> l.put(k, FL.toAL(v.stream().filter(t -> t.y != null).map(t -> t.x.replace('_', ' ')))));
 		return l;
 	}
-	
+
 	/**
 	 * Gets a text extract (the lead paragraph) of a page.
+	 * 
 	 * @param wiki The Wiki object to use.
 	 * @param titles The titles to get a text extract for.
-	 * @return A Map of results keyed by title.  A null mapping means that the page doesn't exist or is not eligble for text extract.
+	 * @return A Map of results keyed by title. A null mapping means that the page doesn't exist or is not eligble for
+	 *         text extract.
 	 */
 	public static HashMap<String, String> getTextExtracts(Wiki wiki, Collection<String> titles)
 	{
 		HashMap<String, String> l = new HashMap<>();
-		getNoContProp(wiki, titles, WQuery.TEXTEXTRACTS, null, "extract").forEach((k, v) -> l.put(k, v == null ? null : v.getAsString()));
+		getNoContProp(wiki, titles, WQuery.TEXTEXTRACTS, null, "extract")
+				.forEach((k, v) -> l.put(k, v == null ? null : v.getAsString()));
 
 		return l;
-	}	
+	}
 }

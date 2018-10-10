@@ -37,7 +37,7 @@ public class AuthActionTests extends BaseMockTemplate
 	{
 		assertEquals("Test", wiki.whoami());
 	}
-	
+
 	/**
 	 * Test privileged delete.
 	 */

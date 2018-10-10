@@ -656,32 +656,18 @@ public class Wiki
 	}
 
 	/**
-	 * Get all titles in a category.
-	 * 
-	 * @param title The category to query, including the "Category:" prefix.
-	 * @param ns Namespace filter. Any title not in the specified namespace(s) will be ignored. Leave blank to select all
-	 *           namespaces.
-	 * @return The list of titles in the category.
-	 */
-	public ArrayList<String> getCategoryMembers(String title, NS... ns)
-	{
-		return getCategoryMembers(title, -1, ns);
-	}
-
-	/**
 	 * Get a limited number of titles in a category.
 	 * 
 	 * @param title The category to query, including the "Category:" prefix.
-	 * @param cap The maximum number of elements to return. Optional param - set to 0 to disable.
 	 * @param ns Namespace filter. Any title not in the specified namespace(s) will be ignored. Leave blank to select all
 	 *           namespaces. CAVEAT: skipped items are counted against {@code cap}.
 	 * @return The list of titles, as specified, in the category.
 	 */
-	public ArrayList<String> getCategoryMembers(String title, int cap, NS... ns)
+	public ArrayList<String> getCategoryMembers(String title, NS... ns)
 	{
 		conf.log.info(this, "Getting category members from " + title);
 
-		WQuery wq = new WQuery(this, cap, WQuery.CATEGORYMEMBERS).set("cmtitle", convertIfNotInNS(title, NS.CATEGORY));
+		WQuery wq = new WQuery(this, WQuery.CATEGORYMEMBERS).set("cmtitle", convertIfNotInNS(title, NS.CATEGORY));
 		if (ns.length > 0)
 			wq.set("cmnamespace", nsl.createFilter(ns));
 

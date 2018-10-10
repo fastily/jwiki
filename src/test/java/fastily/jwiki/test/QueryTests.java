@@ -193,20 +193,6 @@ public class QueryTests
 	}
 
 	/**
-	 * Test for getCategoryMembers with limit and filter.
-	 */
-	@Test
-	public void testGetCategoryMembers3()
-	{
-		ArrayList<String> result = wiki.getCategoryMembers("Fastily Test", 2, NS.USER);
-		ArrayList<String> possible = FL.toSAL("User:Fastily/Sandbox/Page/1", "User:Fastily/Sandbox/Page/2",
-				"User:Fastily/Sandbox/Page/3");
-
-		assertEquals(2, result.size());
-		assertTrue(possible.containsAll(result));
-	}
-
-	/**
 	 * Test for getCategorySize
 	 */
 	@Test

@@ -152,8 +152,9 @@ class WQuery
 	/**
 	 * Default parameters for listing searches
 	 */
-	public static final QTemplate SEARCH = new QTemplate(FL.pMap("list", "search", "srprop", "", "srnamespace", "*", "srsearch", null), "srlimit", "search");
-	
+	public static final QTemplate SEARCH = new QTemplate(FL.pMap("list", "search", "srprop", "", "srnamespace", "*", "srsearch", null),
+			"srlimit", "search");
+
 	/**
 	 * Default parameters for getting templates on a page
 	 */

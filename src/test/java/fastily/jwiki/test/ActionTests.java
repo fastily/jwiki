@@ -60,7 +60,7 @@ public class ActionTests extends BaseMockTemplate
 		assertTrue(wiki.addText("Wikipedia:Sandbox", "Appending text!", "test", true));
 		assertTrue(wiki.addText("Wikipedia:Sandbox", "Appending text!", "test", false));
 	}
-	
+
 	/**
 	 * Tests uploading of files
 	 */
@@ -69,12 +69,12 @@ public class ActionTests extends BaseMockTemplate
 	{
 		addResponse("mockChunkedUpload");
 		addResponse("mockFileUnstash");
-		
+
 		try
 		{
 			assertTrue(wiki.upload(Paths.get(getClass().getResource("uploadTestFile.svg").toURI()), "TestSVG.svg", "desc", "summary"));
 		}
-		catch(Throwable e)
+		catch (Throwable e)
 		{
 			fail("Should never reach here - is the classpath messed up or a test resource missing?", e);
 		}
