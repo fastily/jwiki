@@ -243,7 +243,7 @@ public class QueryTests
 		ArrayList<String> result = wiki.getDuplicatesOf("File:FastilyTest.svg", true);
 
 		assertEquals(1, result.size());
-		assertEquals("FastilyTestCopy.svg", result.get(0));
+		assertEquals("File:FastilyTestCopy.svg", result.get(0));
 	}
 
 	/**

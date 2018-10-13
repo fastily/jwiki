@@ -434,7 +434,7 @@ public final class MQuery
 	}
 
 	/**
-	 * Gets duplicates of a file. Note that results are returned *without* a namespace prefix.
+	 * Gets duplicates of a file.
 	 * 
 	 * @param wiki The wiki object to use
 	 * @param localOnly Set to true if you only want to look for files in the local repository.
@@ -449,7 +449,7 @@ public final class MQuery
 
 		HashMap<String, ArrayList<String>> l = parsePropToSingle(getContProp(wiki, titles, WQuery.DUPLICATEFILES, pl, "duplicatefiles"),
 				"name");
-		l.forEach((k, v) -> v.replaceAll(s -> s.replace('_', ' ')));
+		l.forEach((k, v) -> v.replaceAll(s -> wiki.convertIfNotInNS(s.replace('_', ' '), NS.FILE)));
 
 		return l;
 	}

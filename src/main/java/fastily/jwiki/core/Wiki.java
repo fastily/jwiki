@@ -719,10 +719,10 @@ public class Wiki
 	}
 
 	/**
-	 * Gets duplicates of a file. Note that results are returned *without* a namespace prefix.
+	 * List duplicates of a file.
 	 * 
 	 * @param title The title to query. PRECONDITION: You MUST include the namespace prefix (e.g. "File:")
-	 * @param localOnly Set to true to restrict results to <b>local</b> duplicates only.
+	 * @param localOnly Set to true to restrict results to <span style="font-weight:bold;">local</span> duplicates only.
 	 * @return Duplicates of this file.
 	 */
 	public ArrayList<String> getDuplicatesOf(String title, boolean localOnly)
