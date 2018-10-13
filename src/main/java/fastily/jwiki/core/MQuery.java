@@ -456,8 +456,7 @@ public final class MQuery
 
 	/**
 	 * Gets shared (non-local) duplicates of a file. PRECONDITION: The Wiki this query is run against has the
-	 * <a href="https://www.mediawiki.org/wiki/Extension:GlobalUsage">GlobalUsage</a> extension installed. Note that
-	 * results are returned *without* a namespace prefix.
+	 * <a href="https://www.mediawiki.org/wiki/Extension:GlobalUsage">GlobalUsage</a> extension installed.
 	 * 
 	 * @param wiki The wiki object to use
 	 * @param titles The titles to query
@@ -469,7 +468,7 @@ public final class MQuery
 				getContProp(wiki, titles, WQuery.DUPLICATEFILES, null, "duplicatefiles"), "name", "shared");
 
 		HashMap<String, ArrayList<String>> l = new HashMap<>();
-		xl.forEach((k, v) -> l.put(k, FL.toAL(v.stream().filter(t -> t.y != null).map(t -> t.x.replace('_', ' ')))));
+		xl.forEach((k, v) -> l.put(k, FL.toAL(v.stream().filter(t -> t.y != null).map(t -> wiki.convertIfNotInNS(t.x.replace('_', ' '), NS.FILE)))));
 		return l;
 	}
 

@@ -220,4 +220,19 @@ public class MockQueryTests extends BaseMockTemplate
 		assertTrue(l.contains("Git"));
 		assertTrue(l.contains("GitHub Pages"));
 	}
+
+	/**
+	 * Tests fetching of shared duplicate files
+	 */
+	@Test
+	public void testGetSharedDuplicateOf()
+	{
+		addResponse("mockSharedDuplicateFiles");
+
+		ArrayList<String> l = wiki.getSharedDuplicatesOf("File:Test.jpg");
+
+		assertEquals(1, l.size());
+		assertTrue(l.contains("File:TestTest.jpg"));
+	}
+
 }

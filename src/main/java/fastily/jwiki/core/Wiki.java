@@ -994,8 +994,7 @@ public class Wiki
 
 	/**
 	 * Gets the shared (non-local) duplicates of a file. PRECONDITION: The Wiki this query is run against has the
-	 * <a href="https://www.mediawiki.org/wiki/Extension:GlobalUsage">GlobalUsage</a> extension installed. Note that
-	 * results are returned *without* a namespace prefix.
+	 * <a href="https://www.mediawiki.org/wiki/Extension:GlobalUsage">GlobalUsage</a> extension installed.
 	 * 
 	 * @param title The title of the file to query
 	 * @return An ArrayList containing shared duplicates of the file
