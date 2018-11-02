@@ -21,14 +21,14 @@ jwiki is [on jcenter](https://bintray.com/fastily/maven/jwiki).
 <dependency>
   <groupId>fastily</groupId>
   <artifactId>jwiki</artifactId>
-  <version>1.6.0</version>
+  <version>1.7.0</version>
   <type>pom</type>
 </dependency>
 ```
 
 #### Gradle
 ```groovy
-compile 'fastily:jwiki:1.6.0'
+compile 'fastily:jwiki:1.7.0'
 ```
 
 ## Build
