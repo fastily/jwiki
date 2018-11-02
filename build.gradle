@@ -19,6 +19,10 @@ repositories {
 dependencies {
     api "com.google.code.gson:gson:2.8.5"
     api "com.squareup.okhttp3:okhttp:3.11.0"
+   
+    //slf4j
+    compile group: 'org.slf4j', name:'slf4j-api', version: '1.7.2'
+    compile group: 'org.slf4j', name:'slf4j-log4j12', version: '1.7.25'
     
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.3.1'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.3.1'

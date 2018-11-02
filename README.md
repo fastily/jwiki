@@ -37,6 +37,13 @@ Build and publish jwiki on your local machine with
 ./gradlew build publishToMavenLocal
 ```
 
+## Logging
+Using the system property: <strong>ColorLogOldMode </strong>from comand line, will be used the normal logging way, without
+will be used SLF4J logging.
+* <strong> -DColorLogOldMode </strong> for normal logging way
+* <strong> -Dlog4j.configuration="file:PATH\OF\FILE\log4j.properties" </strong> for slf4j logging using an external properties file
+
+
 ## Resources
 * [Examples](https://github.com/fastily/jwiki/wiki/Examples)
 * [Javadocs](https://fastily.github.io/jwiki/docs/jwiki/)

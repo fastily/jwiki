@@ -1,5 +1,8 @@
 package fastily.jwiki.core;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -13,10 +16,25 @@ import java.time.format.DateTimeFormatter;
 class ColorLog
 {
 	/**
+	 * Creating logger
+	 */
+	private static Logger logger = LoggerFactory.getLogger(ColorLog.class);
+	/**
+	 * Properties system, IF DEFINED, logging on standard error; otherwise logging
+	 * with Log4j
+	 */
+	private static final String COLORLOGPROP = "ColorLogOldMode";
+
+	/**
+	 * Flag to use Log4j
+	 */
+	private boolean useLog4j;
+	
+	/**
 	 * The date formatter prefixing output.
 	 */
 	private static final DateTimeFormatter df = DateTimeFormatter.ofPattern("MMM dd, yyyy hh:mm:ss a");
-
+	
 	/**
 	 * Flag indicating whether logging with this object is allowed.
 	 */
@@ -30,6 +48,12 @@ class ColorLog
 	protected ColorLog(boolean enableLogging)
 	{
 		enabled = enableLogging;
+		// If System property is defined, logging output will be used
+		if (System.getProperty(COLORLOGPROP) != null) {
+			useLog4j = false;
+		} else { // True to use Log4j logging
+			useLog4j = true;
+		}
 	}
 
 	/**
@@ -51,10 +75,15 @@ class ColorLog
 	 * 
 	 * @param wiki The wiki object to use
 	 * @param s The String to print.
+	 * @return If logging is enabled can returns warning log using Log4j, otherwise
+	 *         returns logging output
 	 */
 	protected void warn(Wiki wiki, String s)
 	{
-		log(wiki, s, "WARNING", CC.YELLOW);
+		if (useLog4j)
+			logger.warn(wiki + " - " + s);
+		else
+			log(wiki, s, "WARNING", CC.YELLOW);
 	}
 
 	/**
@@ -62,10 +91,15 @@ class ColorLog
 	 * 
 	 * @param wiki The wiki object to use
 	 * @param s The String to print.
+	 * @return if logging is enabled can returns info log using Log4j, otherwise
+	 *         returns logging output
 	 */
 	protected void info(Wiki wiki, String s)
 	{
-		log(wiki, s, "INFO", CC.GREEN);
+		if (useLog4j)
+			logger.info(wiki + " - " + s);
+		else
+			log(wiki, s, "INFO", CC.GREEN);
 	}
 
 	/**
@@ -73,10 +107,15 @@ class ColorLog
 	 * 
 	 * @param wiki The wiki object to use
 	 * @param s The String to print.
+	 * @return If logging is enabled can returns error log using Log4j, otherwise
+	 *         returns logging output
 	 */
 	protected void error(Wiki wiki, String s)
 	{
-		log(wiki, s, "ERROR", CC.RED);
+		if (useLog4j)
+			logger.error(wiki + " - " + s);
+		else
+			log(wiki, s, "ERROR", CC.RED);
 	}
 
 	/**
@@ -84,10 +123,16 @@ class ColorLog
 	 * 
 	 * @param wiki The wiki object to use
 	 * @param s The String to print.
+	 * @return If logging is enabled can returns debug log using Log4j, otherwise
+	 *         returns logging output
 	 */
 	protected void debug(Wiki wiki, String s)
 	{
-		log(wiki, s, "DEBUG", CC.PURPLE);
+		if (useLog4j)
+			logger.debug(wiki + " - " + s);
+		else
+			log(wiki, s, "DEBUG", CC.PURPLE);
+
 	}
 
 	/**
@@ -95,10 +140,15 @@ class ColorLog
 	 * 
 	 * @param wiki The wiki object to use
 	 * @param s The String to print.
+	 * @return If logging is enabled can returns fyi log using Log4j, otherwise
+	 *         returns logging output
 	 */
 	protected void fyi(Wiki wiki, String s)
 	{
-		log(wiki, s, "FYI", CC.CYAN);
+		if (useLog4j)
+			logger.trace(wiki + " - " + s);
+		else
+			log(wiki, s, "FYI", CC.CYAN);
 	}
 
 	/**
