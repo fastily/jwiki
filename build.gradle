@@ -62,7 +62,7 @@ task packageJavadoc(type: Jar) {
 }
 
 wrapper {
-    gradleVersion = '5.3.1'
+    gradleVersion = '5.4'
 }
 
 
