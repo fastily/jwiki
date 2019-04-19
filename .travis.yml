@@ -2,6 +2,9 @@ dist: xenial
 sudo: false
 language: java
 
+jdk:
+  - openjdk8
+
 notifications:
   email: false
   
