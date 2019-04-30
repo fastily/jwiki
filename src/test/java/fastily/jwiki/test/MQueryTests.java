@@ -105,8 +105,8 @@ public class MQueryTests
 		assertTrue(result.containsKey("Category:Fastily Test"));
 		assertTrue(result.containsKey("Category:Fastily Test2"));
 
-		assertEquals(new Integer(4), result.get("Category:Fastily Test"));
-		assertEquals(new Integer(2), result.get("Category:Fastily Test2"));
+		assertEquals(4, result.get("Category:Fastily Test"));
+		assertEquals(2, result.get("Category:Fastily Test2"));
 	}
 
 	/**

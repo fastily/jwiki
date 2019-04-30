@@ -9,22 +9,22 @@ version="1.7.1"
 description="${project.name} build script"
 group="fastily"
 
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
-    
+sourceCompatibility = JavaVersion.VERSION_11
+targetCompatibility = JavaVersion.VERSION_11
+
 repositories {
     jcenter()
 }
 
 dependencies {
     api "com.google.code.gson:gson:2.8.5"
-    api "com.squareup.okhttp3:okhttp:3.14.0"
+    api "com.squareup.okhttp3:okhttp:3.14.1"
     
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.4.1'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.4.1'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher:1.4.1'
     
-    testImplementation 'com.squareup.okhttp3:mockwebserver:3.14.0'
+    testImplementation 'com.squareup.okhttp3:mockwebserver:3.14.1'
 }
 
 test {
@@ -40,7 +40,7 @@ javadoc {
         setMemberLevel JavadocMemberLevel.PUBLIC
         setAuthor true
 
-        links "https://docs.oracle.com/javase/8/docs/api/"
+        links "https://docs.oracle.com/en/java/javase/11/docs/api/"
         links "https://square.github.io/okio/1.x/okio/"
         links "https://square.github.io/okhttp/3.x/okhttp/"
         links "https://fastily.github.io/jwiki/docs/gson/"
@@ -62,7 +62,7 @@ task packageJavadoc(type: Jar) {
 }
 
 wrapper {
-    gradleVersion = '5.4'
+    gradleVersion = '5.4.1'
 }
 
 
