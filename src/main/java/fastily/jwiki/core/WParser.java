@@ -117,11 +117,11 @@ public class WParser
 				switch (se.getName().getLocalPart())
 				{
 					case "title":
-						t.title = getNextElementText(r).trim();
+						t.title = getNextElementText(r).strip();
 						break;
 					case "name":
 						Attribute index = se.getAttributeByName(new QName("index"));
-						lastNameParsed = index != null ? index.getValue() : getNextElementText(r).trim();
+						lastNameParsed = index != null ? index.getValue() : getNextElementText(r).strip();
 						break;
 					case "equals":
 						getNextElementText(r);
@@ -332,7 +332,7 @@ public class WParser
 				b.append(o);
 
 			String out = b.toString();
-			return doTrim ? out.trim() : out;
+			return doTrim ? out.strip() : out;
 		}
 	}
 
