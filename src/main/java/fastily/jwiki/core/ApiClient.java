@@ -12,7 +12,6 @@ import okhttp3.Cookie;
 import okhttp3.CookieJar;
 import okhttp3.FormBody;
 import okhttp3.HttpUrl;
-import okhttp3.Interceptor;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
@@ -50,18 +49,14 @@ class ApiClient
 	 * 
 	 * @param wiki The Wiki object this ApiClient is associated with.
 	 * @param proxy The proxy to use. Optional param - set null to disable.
-	 * @param interceptor An okhttp Interceptor to use. Useful for pre/post processing of output. Optional param - set
-	 *           null to disable.
 	 */
-	protected ApiClient(Wiki wiki, Proxy proxy, Interceptor interceptor)
+	protected ApiClient(Wiki wiki, Proxy proxy)
 	{
 		this.wiki = wiki;
 
 		OkHttpClient.Builder builder = new OkHttpClient.Builder().cookieJar(new JwikiCookieJar()).readTimeout(2, TimeUnit.MINUTES).protocols(List.of(Protocol.HTTP_1_1));
 		if (proxy != null)
 			builder.proxy(proxy);
-		if (interceptor != null)
-			builder.addNetworkInterceptor(interceptor);
 
 		client = builder.build();
 	}

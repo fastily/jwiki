@@ -24,7 +24,6 @@ import fastily.jwiki.util.FL;
 import fastily.jwiki.util.GSONP;
 import fastily.jwiki.util.Tuple;
 import okhttp3.HttpUrl;
-import okhttp3.Interceptor;
 import okhttp3.Response;
 
 /**
@@ -63,13 +62,11 @@ public class Wiki
 	 * @param px The password to login with. Optional - depends on user not being null, set null to disable.
 	 * @param baseURL The URL pointing to the target MediaWiki API endpoint.
 	 * @param proxy The Proxy to use. Optional - set null to disable.
-	 * @param interceptor An OkHttp interceptor, useful for pre/post flight modifications. Optional - set null to
-	 *           disable.
 	 * @param parent The parent Wiki which spawned this Wiki using {@code getWiki()}. If this is the first Wiki, disable
 	 *           with null.
 	 * @param enableLogging Set true to enable std err log messages. Set false to disable std err log messages.
 	 */
-	private Wiki(String user, String px, HttpUrl baseURL, Proxy proxy, Interceptor interceptor, Wiki parent, boolean enableLogging)
+	private Wiki(String user, String px, HttpUrl baseURL, Proxy proxy, Wiki parent, boolean enableLogging)
 	{
 		conf = new Conf(baseURL, new ColorLog(enableLogging));
 
@@ -82,7 +79,7 @@ public class Wiki
 		}
 		else
 		{
-			apiclient = new ApiClient(this, proxy, interceptor);
+			apiclient = new ApiClient(this, proxy);
 
 			if (user != null && px != null && !login(user, px))
 				throw new SecurityException(String.format("Failed to log-in as %s @ %s", conf.uname, conf.hostname));
@@ -99,13 +96,11 @@ public class Wiki
 	 * @param px The password to login with. Optional - depends on user not bei
 	 * @param domain The domain name. Use shorthand form, ex: {@code en.wikipedia.org}.
 	 * @param proxy The Proxy to use. Optional - set null to disable.
-	 * @param interceptor An OkHttp interceptor, useful for pre/post flight modifications. Optional - set null to
-	 *           disable.
 	 * @param enableLogging Set true to enable std err log messages. Set false to disable std err log messages.
 	 */
-	private Wiki(String user, String px, String domain, Proxy proxy, Interceptor interceptor, boolean enableLogging)
+	private Wiki(String user, String px, String domain, Proxy proxy, boolean enableLogging)
 	{
-		this(user, px, HttpUrl.parse(String.format("https://%s/w/api.php", domain)), proxy, interceptor, null, enableLogging);
+		this(user, px, HttpUrl.parse(String.format("https://%s/w/api.php", domain)), proxy, enableLogging);
 	}
 
 	/**
@@ -115,33 +110,17 @@ public class Wiki
 	 * @param px The password to use. Optional - set null to disable. CAVEAT: ignored if user is null.
 	 * @param baseURL The URL pointing to the target MediaWiki API endpoint.
 	 * @param proxy The Proxy to use. Optional - set null to disable.
-	 * @param interceptor An OkHttp interceptor, useful for pre/post flight modifications. Optional - set null to
-	 *           disable.
 	 * @param enableLogging Set true to enable std err log messages. Set false to disable std err log messages.
 	 */
-	public Wiki(String user, String px, HttpUrl baseURL, Proxy proxy, Interceptor interceptor, boolean enableLogging)
+	public Wiki(String user, String px, HttpUrl baseURL, Proxy proxy, boolean enableLogging)
 	{
-		this(user, px, baseURL, proxy, interceptor, null, enableLogging);
-	}
-
-	/**
-	 * Constructor, creates an anonymous Wiki with the specified domain and interceptor. CAVEAT: This method assumes that
-	 * the base API endpoint you are targeting is located at {@code https://<WIKI_DOMAIN>/w/api.php}. If this is not the
-	 * case, then please use {@link #Wiki(String, String, HttpUrl, Proxy, Interceptor, boolean)}.
-	 * 
-	 * @param domain The domain name. Use shorthand form, ex: {@code en.wikipedia.org}.
-	 * @param interceptor An OkHttp interceptor, useful for pre/post flight modifications. Optional - set null to
-	 *           disable.
-	 */
-	public Wiki(String domain, Interceptor interceptor)
-	{
-		this(null, null, domain, null, interceptor, true);
+		this(user, px, baseURL, proxy, null, enableLogging);
 	}
 
 	/**
 	 * Constructor, takes user, password, and domain to login as. CAVEAT: This method assumes that the base API endpoint
 	 * you are targeting is located at {@code https://<WIKI_DOMAIN>/w/api.php}. If this is not the case, then please use
-	 * {@link #Wiki(String, String, HttpUrl, Proxy, Interceptor, boolean)}.
+	 * {@link #Wiki(String, String, HttpUrl, Proxy, boolean)}.
 	 * 
 	 * @param user The username to use
 	 * @param px The password to use
@@ -149,13 +128,13 @@ public class Wiki
 	 */
 	public Wiki(String user, String px, String domain)
 	{
-		this(user, px, domain, null, null, true);
+		this(user, px, domain, null, true);
 	}
 
 	/**
 	 * Constructor, creates an anonymous Wiki which is not logged in. CAVEAT: This method assumes that the base API
 	 * endpoint you are targeting is located at {@code https://<WIKI_DOMAIN>/w/api.php}. If this is not the case, then
-	 * please use {@link #Wiki(String, String, HttpUrl, Proxy, Interceptor, boolean)}.
+	 * please use {@link #Wiki(String, String, HttpUrl, Proxy, boolean)}.
 	 * 
 	 * @param domain The domain name. Use shorthand form, ex: {@code en.wikipedia.org}.
 	 */
@@ -364,7 +343,7 @@ public class Wiki
 		try
 		{
 			return wl.containsKey(domain) ? wl.get(domain)
-					: new Wiki(null, null, conf.baseURL.newBuilder().host(domain).build(), null, null, this, conf.log.enabled);
+					: new Wiki(null, null, conf.baseURL.newBuilder().host(domain).build(), null, this, conf.log.enabled);
 		}
 		catch (Throwable e)
 		{
