@@ -84,6 +84,6 @@ public class BaseMockTemplate
 	protected void initWiki()
 	{
 		addResponse("mockNSInfo");
-		wiki = new Wiki(server.url("/w/api.php"));
+		wiki = new Wiki.Builder().withApiEndpoint(server.url("/w/api.php")).build();
 	}
 }

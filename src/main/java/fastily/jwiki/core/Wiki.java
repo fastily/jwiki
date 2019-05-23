@@ -35,6 +35,129 @@ import okhttp3.Response;
 public class Wiki
 {
 	/**
+	 * Builder used to create Wiki objects. All options are optional. If you're lazy and just want an anonymous Wiki
+	 * pointing to en.wikipedia.org, use {@code new Wiki.Builder().build()}
+	 * 
+	 * @author Fastily
+	 *
+	 */
+	public static class Builder
+	{
+		/**
+		 * The Proxy to use
+		 */
+		private Proxy proxy;
+
+		/**
+		 * The api endpoint to use
+		 */
+		private HttpUrl apiEndpoint;
+
+		/**
+		 * Flag indicating whether to enable logging
+		 */
+		private boolean enableLogging = true;
+
+		/**
+		 * Username to login as.
+		 */
+		private String username;
+
+		/**
+		 * Password to login with.
+		 */
+		private String password;
+
+		/**
+		 * Creates a new Wiki Builder.
+		 */
+		public Builder()
+		{
+
+		}
+
+		/**
+		 * Configures the Wiki to be created with the specified Proxy.
+		 * 
+		 * @param proxy The Proxy to use
+		 * @return This Builder
+		 */
+		public Builder withProxy(Proxy proxy)
+		{
+			this.proxy = proxy;
+			return this;
+		}
+
+		/**
+		 * Configures the Wiki to be created with the specified api endpoint. This is the base endpoint of the MediaWiki
+		 * instance you are targeting. Example: <a href="https://en.wikipedia.org/w/api.php">Wikipedia API</a>.
+		 * 
+		 * @param apiEndpoint The base api endpoint to target
+		 * @return This Builder
+		 */
+		public Builder withApiEndpoint(HttpUrl apiEndpoint)
+		{
+			this.apiEndpoint = apiEndpoint;
+			return this;
+		}
+
+		/**
+		 * Configures the Wiki to be created with the specified domain. This method assumes that the target API endpoint
+		 * is located at {@code https://<YOUR_DOMAIN_HERE>/w/api.php}; if this is not the case, then use
+		 * {@link #withApiEndpoint(HttpUrl)}
+		 * 
+		 * @param domain The domain to target. Example: {@code en.wikipedia.org}.
+		 * @return This Builder
+		 */
+		public Builder withDomain(String domain)
+		{
+			return withApiEndpoint(HttpUrl.parse(String.format("https://%s/w/api.php", domain)));
+		}
+
+		/**
+		 * Configures the Wiki to use the default jwiki logger. This is enabled by default.
+		 * 
+		 * @param enableLogging Set false to disable jwiki's built-in logging.
+		 * @return This Builder
+		 */
+		public Builder shouldEnableLogging(boolean enableLogging)
+		{
+			this.enableLogging = enableLogging;
+			return this;
+		}
+
+		/**
+		 * Configures the Wiki to be created with the specified username and password combination. Login will be attempted
+		 * when {@link #build()} is called.
+		 * 
+		 * @param username The username to use
+		 * @param password The password to use
+		 * @return This Builder
+		 */
+		public Builder withUsernameAndPassword(String username, String password)
+		{
+			this.username = username;
+			this.password = password;
+			return this;
+		}
+
+		/**
+		 * Performs the task of creating the Wiki object as configured. If {@link #withApiEndpoint(HttpUrl)} or
+		 * {@link #withDomain(String)} were not called, then the resulting Wiki will default to the
+		 * <a href="https://en.wikipedia.org/w/api.php">Wikipedia API</a>.
+		 * 
+		 * @return A Wiki object
+		 */
+		public Wiki build()
+		{
+			if (apiEndpoint == null)
+				withDomain("en.wikipedia.org");
+
+			return new Wiki(username, password, apiEndpoint, proxy, null, enableLogging);
+		}
+	}
+
+	/**
 	 * Our list of currently logged in Wiki's associated with this object. Useful for global operations.
 	 */
 	private HashMap<String, Wiki> wl = new HashMap<>();
@@ -87,71 +210,6 @@ public class Wiki
 
 		conf.log.info(this, "Fetching Namespace List");
 		nsl = new NS.NSManager(new WQuery(this, WQuery.NAMESPACES).next().input.getAsJsonObject("query"));
-	}
-
-	/**
-	 * Constructor, creates a Wiki with the specified domain and other optional parameters.
-	 * 
-	 * @param user The username to use. Optional - set null to disable.
-	 * @param px The password to login with. Optional - depends on user not bei
-	 * @param domain The domain name. Use shorthand form, ex: {@code en.wikipedia.org}.
-	 * @param proxy The Proxy to use. Optional - set null to disable.
-	 * @param enableLogging Set true to enable std err log messages. Set false to disable std err log messages.
-	 */
-	private Wiki(String user, String px, String domain, Proxy proxy, boolean enableLogging)
-	{
-		this(user, px, HttpUrl.parse(String.format("https://%s/w/api.php", domain)), proxy, enableLogging);
-	}
-
-	/**
-	 * Constructor, creates an anonymous Wiki with the specified API endpoint, proxy, and/or interceptor.
-	 * 
-	 * @param user The username to use. Optional - set null to disable.
-	 * @param px The password to use. Optional - set null to disable. CAVEAT: ignored if user is null.
-	 * @param baseURL The URL pointing to the target MediaWiki API endpoint.
-	 * @param proxy The Proxy to use. Optional - set null to disable.
-	 * @param enableLogging Set true to enable std err log messages. Set false to disable std err log messages.
-	 */
-	public Wiki(String user, String px, HttpUrl baseURL, Proxy proxy, boolean enableLogging)
-	{
-		this(user, px, baseURL, proxy, null, enableLogging);
-	}
-
-	/**
-	 * Constructor, takes user, password, and domain to login as. CAVEAT: This method assumes that the base API endpoint
-	 * you are targeting is located at {@code https://<WIKI_DOMAIN>/w/api.php}. If this is not the case, then please use
-	 * {@link #Wiki(String, String, HttpUrl, Proxy, boolean)}.
-	 * 
-	 * @param user The username to use
-	 * @param px The password to use
-	 * @param domain The domain name. Use shorthand form, ex: {@code en.wikipedia.org}.
-	 */
-	public Wiki(String user, String px, String domain)
-	{
-		this(user, px, domain, null, true);
-	}
-
-	/**
-	 * Constructor, creates an anonymous Wiki which is not logged in. CAVEAT: This method assumes that the base API
-	 * endpoint you are targeting is located at {@code https://<WIKI_DOMAIN>/w/api.php}. If this is not the case, then
-	 * please use {@link #Wiki(String, String, HttpUrl, Proxy, boolean)}.
-	 * 
-	 * @param domain The domain name. Use shorthand form, ex: {@code en.wikipedia.org}.
-	 */
-	public Wiki(String domain)
-	{
-		this(null, null, domain);
-	}
-
-	/**
-	 * Constructor, creates an anonymous Wiki which is not logged in, pointed at the specified API endpoint. Use this for
-	 * third-party/non-WMF Wikis.
-	 * 
-	 * @param apiEndpoint The API endpoint to use.
-	 */
-	public Wiki(HttpUrl apiEndpoint)
-	{
-		this(null, null, apiEndpoint, null, null, true);
 	}
 
 	/* //////////////////////////////////////////////////////////////////////////////// */

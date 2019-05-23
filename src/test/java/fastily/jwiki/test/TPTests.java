@@ -24,7 +24,7 @@ public class TPTests
 	/**
 	 * The Wiki object to use for this test set.
 	 */
-	private static Wiki wiki = new Wiki("test.wikipedia.org");
+	private static Wiki wiki = new Wiki.Builder().withDomain("test.wikipedia.org").build();
 
 	/**
 	 * Test parsePage in WParse
