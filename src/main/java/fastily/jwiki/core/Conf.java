@@ -8,17 +8,12 @@ import okhttp3.HttpUrl;
  * @author Fastily
  *
  */
-public final class Conf
+class Conf
 {
-	/**
-	 * Toggles logging of debug information to std err. Disabled (false) by default.
-	 */
-	public boolean debug = false;
-
 	/**
 	 * The {@code User-Agent} header to use for HTTP requests.
 	 */
-	public String userAgent = String.format("jwiki on %s %s with JVM %s", System.getProperty("os.name"),
+	protected String userAgent = String.format("jwiki on %s %s with JVM %s", System.getProperty("os.name"),
 			System.getProperty("os.version"), System.getProperty("java.version"));
 
 	/**
@@ -39,7 +34,7 @@ public final class Conf
 	/**
 	 * The hostname of the Wiki to target. Example: {@code en.wikipedia.org}
 	 */
-	public final String hostname;
+	protected final String hostname;
 
 	/**
 	 * The low maximum limit for maximum number of list items returned for queries that return lists. Use this if a max

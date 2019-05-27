@@ -51,7 +51,7 @@ class WAction
 		try
 		{
 			JsonObject result = GSONP.jp.parse(wiki.apiclient.basicPOST(FL.pMap("action", action), fl).body().string()).getAsJsonObject();
-			if (wiki.conf.debug)
+			if (wiki.debug)
 				wiki.conf.log.debug(wiki, GSONP.gsonPP.toJson(result));
 
 			return ActionResult.wrap(result, action);

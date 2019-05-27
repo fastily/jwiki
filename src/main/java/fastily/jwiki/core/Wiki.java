@@ -27,8 +27,8 @@ import okhttp3.HttpUrl;
 import okhttp3.Response;
 
 /**
- * Main entry point of the jwiki API. This class contains most queries/actions which jwiki can perform on a wiki. Unless
- * stated otherwise, all methods are thread-safe.
+ * Main entry point of jwiki. This class aggregates most of the queries/actions which jwiki can perform on a wiki. All
+ * methods are backed by static functions and are therefore thread-safe.
  * 
  * @author Fastily
  */
@@ -59,6 +59,11 @@ public class Wiki
 		private boolean enableLogging = true;
 
 		/**
+		 * The User-Agent to header to use for API requests.
+		 */
+		private String userAgent;
+
+		/**
 		 * Username to login as.
 		 */
 		private String username;
@@ -74,6 +79,18 @@ public class Wiki
 		public Builder()
 		{
 
+		}
+
+		/**
+		 * Configures the Wiki to be created to use the specified User-Agent for HTTP requests.
+		 * 
+		 * @param userAgent The User-Agent to use
+		 * @return This Builder
+		 */
+		public Builder withUserAgent(String userAgent)
+		{
+			this.userAgent = userAgent;
+			return this;
 		}
 
 		/**
@@ -120,7 +137,7 @@ public class Wiki
 		 * @param enableLogging Set false to disable jwiki's built-in logging.
 		 * @return This Builder
 		 */
-		public Builder shouldEnableLogging(boolean enableLogging)
+		public Builder withDefaultLogger(boolean enableLogging)
 		{
 			this.enableLogging = enableLogging;
 			return this;
@@ -134,7 +151,7 @@ public class Wiki
 		 * @param password The password to use
 		 * @return This Builder
 		 */
-		public Builder withUsernameAndPassword(String username, String password)
+		public Builder withLogin(String username, String password)
 		{
 			this.username = username;
 			this.password = password;
@@ -153,9 +170,20 @@ public class Wiki
 			if (apiEndpoint == null)
 				withDomain("en.wikipedia.org");
 
-			return new Wiki(username, password, apiEndpoint, proxy, null, enableLogging);
+			Wiki wiki = new Wiki(username, password, apiEndpoint, proxy, null, enableLogging);
+
+			// apply post-create settings
+			if (userAgent != null)
+				wiki.conf.userAgent = userAgent;
+
+			return wiki;
 		}
 	}
+
+	/**
+	 * Toggles logging of debug information to stderr. Disabled (false) by default. Changes take effect immediately.
+	 */
+	public boolean debug = false;
 
 	/**
 	 * Our list of currently logged in Wiki's associated with this object. Useful for global operations.
@@ -170,7 +198,7 @@ public class Wiki
 	/**
 	 * Default configuration and settings for this Wiki.
 	 */
-	public final Conf conf;
+	protected final Conf conf;
 
 	/**
 	 * Used to make calls to and from the API.

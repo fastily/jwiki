@@ -54,7 +54,8 @@ class ApiClient
 	{
 		this.wiki = wiki;
 
-		OkHttpClient.Builder builder = new OkHttpClient.Builder().cookieJar(new JwikiCookieJar()).readTimeout(2, TimeUnit.MINUTES).protocols(List.of(Protocol.HTTP_1_1));
+		OkHttpClient.Builder builder = new OkHttpClient.Builder().cookieJar(new JwikiCookieJar()).readTimeout(2, TimeUnit.MINUTES)
+				.protocols(List.of(Protocol.HTTP_1_1));
 		if (proxy != null)
 			builder.proxy(proxy);
 
