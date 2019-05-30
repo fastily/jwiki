@@ -44,24 +44,14 @@ public class Wiki
 	public static class Builder
 	{
 		/**
+		 * The Wiki
+		 */
+		private Wiki wiki = new Wiki();
+
+		/**
 		 * The Proxy to use
 		 */
 		private Proxy proxy;
-
-		/**
-		 * The api endpoint to use
-		 */
-		private HttpUrl apiEndpoint;
-
-		/**
-		 * Flag indicating whether to enable logging
-		 */
-		private boolean enableLogging = true;
-
-		/**
-		 * The User-Agent to header to use for API requests.
-		 */
-		private String userAgent;
 
 		/**
 		 * Username to login as.
@@ -89,7 +79,7 @@ public class Wiki
 		 */
 		public Builder withUserAgent(String userAgent)
 		{
-			this.userAgent = userAgent;
+			wiki.conf.userAgent = userAgent;
 			return this;
 		}
 
@@ -114,7 +104,7 @@ public class Wiki
 		 */
 		public Builder withApiEndpoint(HttpUrl apiEndpoint)
 		{
-			this.apiEndpoint = apiEndpoint;
+			wiki.conf.retarget(apiEndpoint);
 			return this;
 		}
 
@@ -139,7 +129,7 @@ public class Wiki
 		 */
 		public Builder withDefaultLogger(boolean enableLogging)
 		{
-			this.enableLogging = enableLogging;
+			wiki.conf.log.enabled = enableLogging;
 			return this;
 		}
 
@@ -159,6 +149,18 @@ public class Wiki
 		}
 
 		/**
+		 * Configures the Wiki to be created to print *all* the messages.
+		 * 
+		 * @param enableDebug Set true to enable debug mode.
+		 * @return This Builder
+		 */
+		public Builder withDebug(boolean enableDebug)
+		{
+			wiki.debug = enableDebug;
+			return this;
+		}
+
+		/**
 		 * Performs the task of creating the Wiki object as configured. If {@link #withApiEndpoint(HttpUrl)} or
 		 * {@link #withDomain(String)} were not called, then the resulting Wiki will default to the
 		 * <a href="https://en.wikipedia.org/w/api.php">Wikipedia API</a>.
@@ -167,14 +169,12 @@ public class Wiki
 		 */
 		public Wiki build()
 		{
-			if (apiEndpoint == null)
-				withDomain("en.wikipedia.org");
+			wiki.apiclient = new ApiClient(wiki, proxy);
 
-			Wiki wiki = new Wiki(username, password, apiEndpoint, proxy, null, enableLogging);
+			if (username != null && password != null && !wiki.login(username, password))
+				throw new SecurityException(String.format("Failed to log-in as %s @ %s", username, wiki.conf.hostname));
 
-			// apply post-create settings
-			if (userAgent != null)
-				wiki.conf.userAgent = userAgent;
+			wiki.refreshNS();
 
 			return wiki;
 		}
@@ -198,46 +198,37 @@ public class Wiki
 	/**
 	 * Default configuration and settings for this Wiki.
 	 */
-	protected final Conf conf;
+	protected Conf conf = new Conf();
 
 	/**
 	 * Used to make calls to and from the API.
 	 */
-	protected final ApiClient apiclient;
+	protected ApiClient apiclient;
 
 	/**
-	 * Constructor, configures all possible params. If the username and password are set but not valid then a
-	 * SecurityException will be thrown.
-	 * 
-	 * @param user The username to use. Optional - set null to disable.
-	 * @param px The password to login with. Optional - depends on user not being null, set null to disable.
-	 * @param baseURL The URL pointing to the target MediaWiki API endpoint.
-	 * @param proxy The Proxy to use. Optional - set null to disable.
-	 * @param parent The parent Wiki which spawned this Wiki using {@code getWiki()}. If this is the first Wiki, disable
-	 *           with null.
-	 * @param enableLogging Set true to enable std err log messages. Set false to disable std err log messages.
+	 * Constructor, creates a new Wiki
 	 */
-	private Wiki(String user, String px, HttpUrl baseURL, Proxy proxy, Wiki parent, boolean enableLogging)
+	private Wiki()
 	{
-		conf = new Conf(baseURL, new ColorLog(enableLogging));
 
-		if (parent != null) // CentralAuth login
-		{
-			wl = parent.wl;
-			apiclient = new ApiClient(parent, this);
+	}
 
-			refreshLoginStatus();
-		}
-		else
-		{
-			apiclient = new ApiClient(this, proxy);
+	/**
+	 * Constructor, creates a new Wiki for use with CentralAuth. See {@link #getWiki(String)}
+	 * 
+	 * @param apiEndpoint The API endpoint to target.
+	 * @param parent The parent Wiki which spawns this new Wiki.
+	 */
+	private Wiki(HttpUrl apiEndpoint, Wiki parent)
+	{
+		conf.log.enabled = parent.conf.log.enabled;
+		conf.retarget(apiEndpoint);
 
-			if (user != null && px != null && !login(user, px))
-				throw new SecurityException(String.format("Failed to log-in as %s @ %s", conf.uname, conf.hostname));
-		}
+		wl = parent.wl;
+		apiclient = new ApiClient(parent, this);
 
-		conf.log.info(this, "Fetching Namespace List");
-		nsl = new NS.NSManager(new WQuery(this, WQuery.NAMESPACES).next().input.getAsJsonObject("query"));
+		refreshLoginStatus();
+		refreshNS();
 	}
 
 	/* //////////////////////////////////////////////////////////////////////////////// */
@@ -362,6 +353,15 @@ public class Wiki
 	}
 
 	/**
+	 * Refresh the Namespace list.
+	 */
+	private void refreshNS()
+	{
+		conf.log.info(this, "Fetching Namespace List");
+		nsl = new NS.NSManager(new WQuery(this, WQuery.NAMESPACES).next().input.getAsJsonObject("query"));
+	}
+	
+	/**
 	 * Check if a title in specified namespace and convert it if it is not.
 	 * 
 	 * @param title The title to check
@@ -371,16 +371,6 @@ public class Wiki
 	public String convertIfNotInNS(String title, NS ns)
 	{
 		return whichNS(title).equals(ns) ? title : String.format("%s:%s", nsl.nsM.get(ns.v), nss(title));
-	}
-
-	/**
-	 * Turns logging to std error on/off.
-	 * 
-	 * @param enabled Set false to disable logging, or true to enable logging.
-	 */
-	public void enableLogging(boolean enabled)
-	{
-		conf.log.enabled = enabled;
 	}
 
 	/**
@@ -428,8 +418,7 @@ public class Wiki
 		conf.log.fyi(this, String.format("Get Wiki for %s @ %s", whoami(), domain));
 		try
 		{
-			return wl.containsKey(domain) ? wl.get(domain)
-					: new Wiki(null, null, conf.baseURL.newBuilder().host(domain).build(), null, this, conf.log.enabled);
+			return wl.containsKey(domain) ? wl.get(domain) : new Wiki(conf.baseURL.newBuilder().host(domain).build(), this);
 		}
 		catch (Throwable e)
 		{

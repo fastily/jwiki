@@ -19,12 +19,7 @@ class Conf
 	/**
 	 * The url pointing to the base MediaWiki API endpoint.
 	 */
-	protected final HttpUrl baseURL;
-
-	/**
-	 * Default Wiki API path (goes after domain). Don't change this after logging in.
-	 */
-	protected String scptPath = "w/api.php";
+	protected HttpUrl baseURL;
 
 	/**
 	 * Flag indicating whether the logged in user is a bot.
@@ -34,7 +29,7 @@ class Conf
 	/**
 	 * The hostname of the Wiki to target. Example: {@code en.wikipedia.org}
 	 */
-	protected final String hostname;
+	protected String hostname;
 
 	/**
 	 * The low maximum limit for maximum number of list items returned for queries that return lists. Use this if a max
@@ -50,7 +45,7 @@ class Conf
 	/**
 	 * The logger associated with this Conf.
 	 */
-	protected ColorLog log;
+	protected ColorLog log = new ColorLog(true);
 
 	/**
 	 * CSRF token. Used for actions that change Wiki content.
@@ -58,16 +53,21 @@ class Conf
 	protected String token = "+\\";
 
 	/**
-	 * Constructor, should only be called by new instances of Wiki.
-	 * 
-	 * @param baseURL The url pointing to the base MediaWiki API endpoint.
-	 * @param log The logger associated with this log
+	 * Constructor, creates a new Conf pointing to en.wikipedia.org.
 	 */
-	protected Conf(HttpUrl baseURL, ColorLog log)
+	protected Conf()
+	{
+		retarget(HttpUrl.parse("https://en.wikipedia.org/w/api.php"));
+	}
+
+	/**
+	 * Points this Conf to another endpoint.
+	 * 
+	 * @param baseURL The new API endpoint to use.
+	 */
+	protected void retarget(HttpUrl baseURL)
 	{
 		this.baseURL = baseURL;
 		hostname = baseURL.host();
-
-		this.log = log;
 	}
 }
