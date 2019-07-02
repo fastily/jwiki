@@ -56,20 +56,20 @@ public final class FL
 	}
 
 	/**
-	 * Creates a Map from a Stream.
+	 * Creates a HashMap from a Stream.  If duplicate keys are encountered, only the latest value will be retained.
 	 * 
 	 * @param s The Stream to reduce into a Map.
-	 * @param keyMapper The function mapping each element of <code>s</code> to a key in the resulting Map.
-	 * @param valueMapper The function mapping each element of <code>s</code> to a value in the resulting Map.
+	 * @param keyMapper The function mapping each element of {@code s} to a key in the resulting Map.
+	 * @param valueMapper The function mapping each element of {@code s} to a value in the resulting Map.
 	 * 
 	 * @param <K> The type of the key in the resulting HashMap.
 	 * @param <V> The type of the value in the resulting HashMap.
 	 * @param <T1> The type of Object in the Stream.
-	 * @return A Map, as specified.
+	 * @return A HashMap, as specified.
 	 */
 	public static <K, V, T1> HashMap<K, V> toHM(Stream<T1> s, Function<T1, K> keyMapper, Function<T1, V> valueMapper)
 	{
-		return new HashMap<>(s.collect(Collectors.toMap(keyMapper, valueMapper)));
+		return new HashMap<>(s.collect(Collectors.toMap(keyMapper, valueMapper, (oVal, nVal) -> nVal)));
 	}
 
 	/**
