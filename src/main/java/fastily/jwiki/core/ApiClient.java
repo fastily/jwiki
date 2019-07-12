@@ -3,7 +3,6 @@ package fastily.jwiki.core;
 import java.io.IOException;
 import java.net.Proxy;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -56,7 +55,7 @@ class ApiClient
 		this.wiki = wiki;
 
 		OkHttpClient.Builder builder = new OkHttpClient.Builder().cookieJar(new JwikiCookieJar()).readTimeout(2, TimeUnit.MINUTES)
-				.protocols(Arrays.asList(Protocol.HTTP_1_1));
+				.protocols(List.of(Protocol.HTTP_1_1));
 		if (proxy != null)
 			builder.proxy(proxy);
 
