@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 
 import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
 
 import fastily.jwiki.dwrap.Contrib;
 import fastily.jwiki.dwrap.ImageInfo;
@@ -1219,7 +1220,7 @@ public class Wiki
 		try
 		{
 			return PageSection.pageBySection(GSONP.getJAofJO(GSONP.getNestedJA(
-					GSONP.jp.parse(basicGET("parse", "prop", "sections", "page", title).body().string()).getAsJsonObject(),
+					JsonParser.parseString(basicGET("parse", "prop", "sections", "page", title).body().string()).getAsJsonObject(),
 					FL.toSAL("parse", "sections"))), getPageText(title));
 		}
 		catch (Throwable e)

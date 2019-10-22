@@ -7,6 +7,7 @@ import java.util.List;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
 
 import fastily.jwiki.util.FL;
@@ -300,7 +301,7 @@ class WQuery
 				canCont = false;
 			}
 
-			JsonObject result = GSONP.jp.parse(wiki.apiclient.basicGET(pl).body().string()).getAsJsonObject();
+			JsonObject result = JsonParser.parseString(wiki.apiclient.basicGET(pl).body().string()).getAsJsonObject();
 			if (result.has("continue"))
 				pl.putAll(GSONP.gson.fromJson(result.getAsJsonObject("continue"), strMapT));
 			else

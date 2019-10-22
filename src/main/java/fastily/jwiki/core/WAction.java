@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 import fastily.jwiki.util.FL;
 import fastily.jwiki.util.GSONP;
@@ -50,7 +51,7 @@ class WAction
 
 		try
 		{
-			JsonObject result = GSONP.jp.parse(wiki.apiclient.basicPOST(FL.pMap("action", action), fl).body().string()).getAsJsonObject();
+			JsonObject result = JsonParser.parseString(wiki.apiclient.basicPOST(FL.pMap("action", action), fl).body().string()).getAsJsonObject();
 			if (wiki.debug)
 				wiki.conf.log.debug(wiki, GSONP.gsonPP.toJson(result));
 
@@ -217,7 +218,7 @@ class WAction
 							continue;
 						}
 
-						filekey = GSONP.getStr(GSONP.jp.parse(r.body().string()).getAsJsonObject().getAsJsonObject("upload"), "filekey");
+						filekey = GSONP.getStr(JsonParser.parseString(r.body().string()).getAsJsonObject().getAsJsonObject("upload"), "filekey");
 						if (filekey != null)
 							break;
 					}

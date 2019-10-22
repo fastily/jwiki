@@ -16,6 +16,8 @@ import javax.xml.stream.events.EndElement;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
+import com.google.gson.JsonParser;
+
 import fastily.jwiki.util.FL;
 import fastily.jwiki.util.GSONP;
 
@@ -49,7 +51,7 @@ public class WParser
 		{
 			XMLEventReader r = XMLInputFactory.newInstance()
 					.createXMLEventReader(new StringReader(GSONP
-							.getStr(GSONP.getNestedJO(GSONP.jp.parse(wiki.basicPOST("parse", queryParams).body().string()).getAsJsonObject(),
+							.getStr(GSONP.getNestedJO(JsonParser.parseString(wiki.basicPOST("parse", queryParams).body().string()).getAsJsonObject(),
 									FL.toSAL("parse", "parsetree")), "*")));
 
 			WikiText root = new WikiText();

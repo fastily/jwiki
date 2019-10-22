@@ -12,7 +12,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 
 import okhttp3.HttpUrl;
 
@@ -33,11 +32,6 @@ public class GSONP
 	 * Default json deserializer for HttpUrl objects.
 	 */
 	private static JsonDeserializer<HttpUrl> httpurlDeserializer = (j, t, c) -> HttpUrl.parse(j.getAsJsonPrimitive().getAsString());
-
-	/**
-	 * Static JsonParser, for convenience.
-	 */
-	public static final JsonParser jp = new JsonParser();
 
 	/**
 	 * Default Gson object, for convenience.
