@@ -18,13 +18,13 @@ repositories {
 
 dependencies {
     api "com.google.code.gson:gson:2.8.6"
-    api "com.squareup.okhttp3:okhttp:4.2.1"
+    api "com.squareup.okhttp3:okhttp:4.2.2"
     
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.5.2'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.5.2'
-    testRuntimeOnly 'org.junit.platform:junit-platform-launcher:1.5.2'
+    //testRuntimeOnly 'org.junit.platform:junit-platform-launcher:1.5.2'
     
-    testImplementation 'com.squareup.okhttp3:mockwebserver:4.2.1'
+    testImplementation 'com.squareup.okhttp3:mockwebserver:4.2.2'
 }
 
 test {
@@ -62,7 +62,7 @@ task packageJavadoc(type: Jar) {
 }
 
 wrapper {
-    gradleVersion = '5.6.3'
+    gradleVersion = '5.6.4'
 }
 
 
