@@ -56,7 +56,7 @@ public final class FL
 	}
 
 	/**
-	 * Creates a HashMap from a Stream.  If duplicate keys are encountered, only the latest value will be retained.
+	 * Creates a HashMap from a Stream. If duplicate keys are encountered, only the latest value will be retained.
 	 * 
 	 * @param s The Stream to reduce into a Map.
 	 * @param keyMapper The function mapping each element of {@code s} to a key in the resulting Map.
@@ -73,14 +73,25 @@ public final class FL
 	}
 
 	/**
-	 * Turns an array of Strings into an ArrayList of Strings.
+	 * Shortcut to turn an array of String objects into an ArrayList of String objects.
 	 * 
-	 * @param strings The list of Strings to incorporate.
+	 * @param strings The list of Strings to put into the resulting ArrayList.
 	 * @return The array as an ArrayList
 	 */
 	public static ArrayList<String> toSAL(String... strings)
 	{
 		return new ArrayList<>(Arrays.asList(strings));
+	}
+
+	/**
+	 * Shortcut to turn an array of String objects into a HashSet of String objects.
+	 * 
+	 * @param strings The list of Strings to put into the resulting HashSet.
+	 * @return The array as a HashSet
+	 */
+	public static HashSet<String> toSHS(String... strings)
+	{
+		return new HashSet<>(Arrays.asList(strings));
 	}
 
 	/**
@@ -97,8 +108,7 @@ public final class FL
 	}
 
 	/**
-	 * Creates a HashMap with String keys and values. Pass in each pair and value (in that order) into <code>sl</code>.
-	 * This will be one pair entered into resulting HashMap.
+	 * Creates a HashMap with String keys and values. Pass in each pair and value (in that order) into <code>sl</code>. This will be one pair entered into resulting HashMap.
 	 * 
 	 * @param sl The list of elements to turn into a HashMap.
 	 * @return The resulting HashMap, or null if you specified an odd number of elements.
