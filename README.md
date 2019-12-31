@@ -8,7 +8,7 @@ Programmatically accessing [Wikipedia](https://en.wikipedia.org/wiki/Main_Page)/
 
 Yes, **one** line.  
 
-It's so easy that _anyone_ (including your grandma 👵🏻) can write an application that works with MediaWiki.
+It's so easy that _anyone_ (including your grandma 👵🏻) can write a program that works with MediaWiki.
 
 Not convinced?  Try out the [examples](https://github.com/fastily/jwiki/wiki/Examples).
 
