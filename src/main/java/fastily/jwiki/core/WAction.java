@@ -12,6 +12,7 @@ import com.google.gson.JsonParser;
 
 import fastily.jwiki.util.FL;
 import fastily.jwiki.util.GSONP;
+import okhttp3.HttpUrl;
 import okhttp3.Response;
 import okio.BufferedSource;
 import okio.Okio;
@@ -203,8 +204,8 @@ class WAction
 			{
 				wiki.conf.log.fyi(wiki, String.format("Uploading chunk [%d of %d] of '%s'", cm.chunkCnt, cm.totalChunks, file));
 
-				HashMap<String, String> pl = FL.pMap("format", "json", "filename", title, "token", wiki.conf.token, "ignorewarnings", "1",
-						"stash", "1", "offset", "" + c.offset, "filesize", "" + c.filesize);
+				HashMap<String, String> pl = FL.pMap("format", "json", "filename", title, "token", wiki.conf.token, "ignorewarnings", "1", "stash", "1", "offset", "" + c.offset, "filesize",
+						"" + c.filesize);
 				if (filekey != null)
 					pl.put("filekey", filekey);
 
@@ -233,8 +234,7 @@ class WAction
 			{
 				wiki.conf.log.info(wiki, String.format("Unstashing '%s' as '%s'", filekey, title));
 
-				if (postAction(wiki, "upload", true, FL.pMap("filename", title, "text", desc, "comment", summary, "filekey", filekey,
-						"ignorewarnings", "true")) == ActionResult.SUCCESS)
+				if (postAction(wiki, "upload", true, FL.pMap("filename", title, "text", desc, "comment", summary, "filekey", filekey, "ignorewarnings", "true")) == ActionResult.SUCCESS)
 					return true;
 
 				wiki.conf.log.error(wiki, "Encountered an error while unstashing, retrying - " + i);
@@ -247,6 +247,23 @@ class WAction
 			e.printStackTrace();
 			return false;
 		}
+	}
+
+	/**
+	 * Upload a file by URL. The URL must be on the upload by url whitelist for the target Wiki or this method will automatically fail.
+	 * 
+	 * @param wiki The Wiki object to use
+	 * @param url The URL the target file is located at.
+	 * @param title The title to upload to.
+	 * @param desc The text to put on the file description page
+	 * @param summary The edit summary
+	 * @return True if the upload was successful.
+	 */
+	protected static boolean uploadByUrl(Wiki wiki, HttpUrl url, String title, String desc, String summary)
+	{
+		wiki.conf.log.info(wiki, String.format("Uploading '%s' to '%s'", url, title));
+
+		return postAction(wiki, "upload", true, FL.pMap("filename", title, "text", desc, "comment", summary, "ignorewarnings", "true", "url", url.toString())) == ActionResult.SUCCESS;
 	}
 
 	/**

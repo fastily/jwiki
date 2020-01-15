@@ -1,0 +1,87 @@
+{
+  "upload": {
+    "result": "Success",
+    "filename": "TestFile.jpg",
+    "imageinfo": {
+      "timestamp": "2020-01-15T02:41:09Z",
+      "user": "TestUser",
+      "userid": 1,
+      "size": 8192,
+      "width": 512,
+      "height": 512,
+      "parsedcomment": "summary",
+      "comment": "summary",
+      "html": "",
+      "canonicaltitle": "File:TestFile.jpg",
+      "url": "https://upload.wikimedia.org/wikipedia/test/e/e9/Example.jpg",
+      "descriptionurl": "https://test.wikipedia.org/wiki/File:Example.jpg",
+      "sha1": "f70e244175be4f96a237a748577f28f39dd3c7cb",
+      "metadata": [
+        {
+          "name": "frameCount",
+          "value": 0
+        },
+        {
+          "name": "loopCount",
+          "value": 1
+        },
+        {
+          "name": "duration",
+          "value": 0
+        },
+        {
+          "name": "bitDepth",
+          "value": 8
+        },
+        {
+          "name": "colorType",
+          "value": "truecolour"
+        }
+      ],
+      "commonmetadata": [
+        {
+          "name": "XResolution",
+          "value": "3779/100"
+        },
+        {
+          "name": "YResolution",
+          "value": "3779/100"
+        },
+        {
+          "name": "ResolutionUnit",
+          "value": 3
+        }
+      ],
+      "extmetadata": {
+        "DateTime": {
+          "value": "2020-01-15 02:41:09",
+          "source": "mediawiki-metadata",
+          "hidden": ""
+        },
+        "ObjectName": {
+          "value": "Example",
+          "source": "mediawiki-metadata",
+          "hidden": ""
+        },
+        "CommonsMetadataExtension": {
+          "value": 1.2,
+          "source": "extension",
+          "hidden": ""
+        },
+        "Categories": {
+          "value": "",
+          "source": "commons-categories",
+          "hidden": ""
+        },
+        "Assessments": {
+          "value": "",
+          "source": "commons-categories",
+          "hidden": ""
+        }
+      },
+      "mime": "image/jpg",
+      "mediatype": "BITMAP",
+      "bitdepth": 8
+    }
+  }
+}

@@ -8,6 +8,7 @@ import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.Test;
 
 import fastily.jwiki.core.NS;
+import okhttp3.HttpUrl;
 
 /**
  * Unit tests for WAction. Mocks cases where user is anonymous.
@@ -73,6 +74,24 @@ public class ActionTests extends BaseMockTemplate
 		try
 		{
 			assertTrue(wiki.upload(Paths.get(getClass().getResource("uploadTestFile.svg").toURI()), "TestSVG.svg", "desc", "summary"));
+		}
+		catch (Throwable e)
+		{
+			fail("Should never reach here - is the classpath messed up or a test resource missing?", e);
+		}
+	}
+
+	/**
+	 * Tests upload by url functionality.
+	 */
+	@Test
+	public void testUploadByUrl()
+	{
+		addResponse("mockUploadByUrl");
+
+		try
+		{
+			assertTrue(wiki.uploadByUrl(HttpUrl.parse("https://upload.wikimedia.org/wikipedia/en/a/a1/Example.jpg"), "TestFile.jpg", "desc", "summary"));
 		}
 		catch (Throwable e)
 		{

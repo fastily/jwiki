@@ -28,16 +28,14 @@ import okhttp3.HttpUrl;
 import okhttp3.Response;
 
 /**
- * Main entry point of jwiki. This class aggregates most of the queries/actions which jwiki can perform on a wiki. All
- * methods are backed by static functions and are therefore thread-safe.
+ * Main entry point of jwiki. This class aggregates most of the queries/actions which jwiki can perform on a wiki. All methods are backed by static functions and are therefore thread-safe.
  * 
  * @author Fastily
  */
 public class Wiki
 {
 	/**
-	 * Builder used to create Wiki objects. All options are optional. If you're lazy and just want an anonymous Wiki
-	 * pointing to en.wikipedia.org, use {@code new Wiki.Builder().build()}
+	 * Builder used to create Wiki objects. All options are optional. If you're lazy and just want an anonymous Wiki pointing to en.wikipedia.org, use {@code new Wiki.Builder().build()}
 	 * 
 	 * @author Fastily
 	 *
@@ -97,8 +95,8 @@ public class Wiki
 		}
 
 		/**
-		 * Configures the Wiki to be created with the specified api endpoint. This is the base endpoint of the MediaWiki
-		 * instance you are targeting. Example: <a href="https://en.wikipedia.org/w/api.php">Wikipedia API</a>.
+		 * Configures the Wiki to be created with the specified api endpoint. This is the base endpoint of the MediaWiki instance you are targeting. Example:
+		 * <a href="https://en.wikipedia.org/w/api.php">Wikipedia API</a>.
 		 * 
 		 * @param apiEndpoint The base api endpoint to target
 		 * @return This Builder
@@ -110,9 +108,8 @@ public class Wiki
 		}
 
 		/**
-		 * Configures the Wiki to be created with the specified domain. This method assumes that the target API endpoint
-		 * is located at {@code https://<YOUR_DOMAIN_HERE>/w/api.php}; if this is not the case, then use
-		 * {@link #withApiEndpoint(HttpUrl)}
+		 * Configures the Wiki to be created with the specified domain. This method assumes that the target API endpoint is located at {@code https://<YOUR_DOMAIN_HERE>/w/api.php}; if this is not the
+		 * case, then use {@link #withApiEndpoint(HttpUrl)}
 		 * 
 		 * @param domain The domain to target. Example: {@code en.wikipedia.org}.
 		 * @return This Builder
@@ -135,8 +132,7 @@ public class Wiki
 		}
 
 		/**
-		 * Configures the Wiki to be created with the specified username and password combination. Login will be attempted
-		 * when {@link #build()} is called.
+		 * Configures the Wiki to be created with the specified username and password combination. Login will be attempted when {@link #build()} is called.
 		 * 
 		 * @param username The username to use
 		 * @param password The password to use
@@ -162,8 +158,7 @@ public class Wiki
 		}
 
 		/**
-		 * Performs the task of creating the Wiki object as configured. If {@link #withApiEndpoint(HttpUrl)} or
-		 * {@link #withDomain(String)} were not called, then the resulting Wiki will default to the
+		 * Performs the task of creating the Wiki object as configured. If {@link #withApiEndpoint(HttpUrl)} or {@link #withDomain(String)} were not called, then the resulting Wiki will default to the
 		 * <a href="https://en.wikipedia.org/w/api.php">Wikipedia API</a>.
 		 * 
 		 * @return A Wiki object
@@ -237,8 +232,7 @@ public class Wiki
 	/* //////////////////////////////////////////////////////////////////////////////// */
 
 	/**
-	 * Performs a login with the specified username and password. Does nothing if this Wiki is already logged in as a
-	 * user.
+	 * Performs a login with the specified username and password. Does nothing if this Wiki is already logged in as a user.
 	 * 
 	 * @param user The username to use
 	 * @param password The password to use
@@ -252,8 +246,7 @@ public class Wiki
 		conf.log.info(this, "Try login for " + user);
 		try
 		{
-			if (WAction.postAction(this, "login", false, FL.pMap("lgname", user, "lgpassword", password, "lgtoken",
-					getTokens(WQuery.TOKENS_LOGIN, "logintoken"))) == WAction.ActionResult.SUCCESS)
+			if (WAction.postAction(this, "login", false, FL.pMap("lgname", user, "lgpassword", password, "lgtoken", getTokens(WQuery.TOKENS_LOGIN, "logintoken"))) == WAction.ActionResult.SUCCESS)
 			{
 				refreshLoginStatus();
 
@@ -309,8 +302,7 @@ public class Wiki
 	 * Performs a basic GET action on this Wiki. Use this to implement custom or non-standard API calls.
 	 * 
 	 * @param action The action to perform.
-	 * @param params Each parameter and its corresponding value. For example, the parameters,
-	 *           {@code &amp;foo=bar&amp;baz=blah}, should be passed in as {{@code "foo", "bar", "baz", "blah"}}.
+	 * @param params Each parameter and its corresponding value. For example, the parameters, {@code &amp;foo=bar&amp;baz=blah}, should be passed in as {{@code "foo", "bar", "baz", "blah"}}.
 	 *           URL-encoding will be applied automatically.
 	 * @return The Response from the server, or null on error.
 	 */
@@ -361,7 +353,7 @@ public class Wiki
 		conf.log.info(this, "Fetching Namespace List");
 		nsl = new NS.NSManager(new WQuery(this, WQuery.NAMESPACES).next().input.getAsJsonObject("query"));
 	}
-	
+
 	/**
 	 * Check if a title in specified namespace and convert it if it is not.
 	 * 
@@ -388,9 +380,8 @@ public class Wiki
 	}
 
 	/**
-	 * Takes a Namespace prefix and gets a NS representation of it. PRECONDITION: the prefix must be a valid namespace
-	 * prefix. WARNING: This method is CASE-SENSITIVE, so be sure to spell and capitalize the prefix <b>exactly</b> as it
-	 * would appear on-wiki.
+	 * Takes a Namespace prefix and gets a NS representation of it. PRECONDITION: the prefix must be a valid namespace prefix. WARNING: This method is CASE-SENSITIVE, so be sure to spell and capitalize
+	 * the prefix <b>exactly</b> as it would appear on-wiki.
 	 * 
 	 * @param prefix The prefix to use, without the ":".
 	 * @return An NS representation of the prefix.
@@ -404,9 +395,8 @@ public class Wiki
 	}
 
 	/**
-	 * Gets a Wiki object for this domain. This method is cached. A new Wiki will be created as necessary. PRECONDITION:
-	 * The <a href="https://www.mediawiki.org/wiki/Extension:CentralAuth">CentralAuth</a> extension is installed on the
-	 * target MediaWiki farm.
+	 * Gets a Wiki object for this domain. This method is cached. A new Wiki will be created as necessary. PRECONDITION: The
+	 * <a href="https://www.mediawiki.org/wiki/Extension:CentralAuth">CentralAuth</a> extension is installed on the target MediaWiki farm.
 	 * 
 	 * @param domain The domain to use
 	 * @return The Wiki, or null on error.
@@ -466,8 +456,7 @@ public class Wiki
 	 * Get the name of a page belonging to a talk page ({@code title}).
 	 * 
 	 * @param title The talk page whose content page will be determined.
-	 * @return The title of the content page associated with the specified talk page, or null if {@code title} is a
-	 *         special page or is already a content page.
+	 * @return The title of the content page associated with the specified talk page, or null if {@code title} is a special page or is already a content page.
 	 */
 	public String talkPageBelongsTo(String title)
 	{
@@ -566,8 +555,7 @@ public class Wiki
 	}
 
 	/**
-	 * Removes text from a page. Does nothing if the replacement requested wouldn't change any text on wiki (method still
-	 * returns true however).
+	 * Removes text from a page. Does nothing if the replacement requested wouldn't change any text on wiki (method still returns true however).
 	 * 
 	 * @param title The title to perform the replacement at.
 	 * @param regex A regex matching the text to remove.
@@ -580,8 +568,7 @@ public class Wiki
 	}
 
 	/**
-	 * Replaces text on a page. Does nothing if the replacement requested wouldn't change any text on wiki (method still
-	 * returns true however).
+	 * Replaces text on a page. Does nothing if the replacement requested wouldn't change any text on wiki (method still returns true however).
 	 * 
 	 * @param title The title to perform replacement on.
 	 * @param regex The regex matching the text to replace.
@@ -598,8 +585,7 @@ public class Wiki
 	}
 
 	/**
-	 * Undelete a page. You must have admin rights on the wiki you are trying to perform this task on, otherwise it won't
-	 * go through.
+	 * Undelete a page. You must have admin rights on the wiki you are trying to perform this task on, otherwise it won't go through.
 	 * 
 	 * @param title The title to undelete
 	 * @param reason The reason to use
@@ -624,6 +610,20 @@ public class Wiki
 		return WAction.upload(this, title, text, reason, p);
 	}
 
+	/**
+	 * Upload a file by URL. The URL must be on the upload by url whitelist for the target Wiki or this method will automatically fail.
+	 * 
+	 * @param url The URL the target file is located at.
+	 * @param title The title to upload to.
+	 * @param desc The text to put on the file description page
+	 * @param summary The edit summary
+	 * @return True if the upload was successful.
+	 */
+	public boolean uploadByUrl(HttpUrl url, String title, String desc, String summary)
+	{
+		return WAction.uploadByUrl(this, url, title, desc, summary);
+	}
+
 	/* //////////////////////////////////////////////////////////////////////////////// */
 	/* ///////////////////////////////// QUERIES ////////////////////////////////////// */
 	/* //////////////////////////////////////////////////////////////////////////////// */
@@ -631,8 +631,7 @@ public class Wiki
 	/**
 	 * Get a list of pages from the Wiki.
 	 * 
-	 * @param prefix Only return titles starting with this prefix. DO NOT include a namespace prefix (e.g.
-	 *           {@code File:}). Optional param - set null to disable
+	 * @param prefix Only return titles starting with this prefix. DO NOT include a namespace prefix (e.g. {@code File:}). Optional param - set null to disable
 	 * @param redirectsOnly Set true to get redirects only.
 	 * @param protectedOnly Set true to get protected pages only.
 	 * @param cap The max number of titles to return. Optional param - set {@code -1} to get all pages.
@@ -675,8 +674,7 @@ public class Wiki
 	/**
 	 * Gets a list of pages linking to a file.
 	 * 
-	 * @param title The title to query. PRECONDITION: This must be a valid file name prefixed with the "File:" prefix, or
-	 *           you will get strange results.
+	 * @param title The title to query. PRECONDITION: This must be a valid file name prefixed with the "File:" prefix, or you will get strange results.
 	 * @return A list of pages linking to the file.
 	 */
 	public ArrayList<String> fileUsage(String title)
@@ -686,16 +684,14 @@ public class Wiki
 	}
 
 	/**
-	 * Gets a list of file extensions for the types of files which can be uploaded to this Wiki. WARNING: this method is
-	 * not cached so save the result.
+	 * Gets a list of file extensions for the types of files which can be uploaded to this Wiki. WARNING: this method is not cached so save the result.
 	 * 
 	 * @return A list of file extensions for files which can be uploaded to this Wiki.
 	 */
 	public ArrayList<String> getAllowedFileExts()
 	{
 		conf.log.info(this, "Fetching a list of permissible file extensions");
-		return FL
-				.toAL(new WQuery(this, WQuery.ALLOWEDFILEXTS).next().listComp("fileextensions").stream().map(e -> GSONP.getStr(e, "ext")));
+		return FL.toAL(new WQuery(this, WQuery.ALLOWEDFILEXTS).next().listComp("fileextensions").stream().map(e -> GSONP.getStr(e, "ext")));
 	}
 
 	/**
@@ -714,8 +710,7 @@ public class Wiki
 	 * Get a limited number of titles in a category.
 	 * 
 	 * @param title The category to query, including the "Category:" prefix.
-	 * @param ns Namespace filter. Any title not in the specified namespace(s) will be ignored. Leave blank to select all
-	 *           namespaces. CAVEAT: skipped items are counted against {@code cap}.
+	 * @param ns Namespace filter. Any title not in the specified namespace(s) will be ignored. Leave blank to select all namespaces. CAVEAT: skipped items are counted against {@code cap}.
 	 * @return The list of titles, as specified, in the category.
 	 */
 	public ArrayList<String> getCategoryMembers(String title, NS... ns)
@@ -737,8 +732,7 @@ public class Wiki
 	 * Gets the number of elements contained in a category.
 	 * 
 	 * @param title The title to query. PRECONDITION: Title *must* begin with the "Category:" prefix
-	 * @return The number of elements in the category. Value returned will be -1 if Category entered was empty <b>and</b>
-	 *         non-existent.
+	 * @return The number of elements in the category. Value returned will be -1 if Category entered was empty <b>and</b> non-existent.
 	 */
 	public int getCategorySize(String title)
 	{
@@ -750,8 +744,7 @@ public class Wiki
 	 * Gets the contributions of a user.
 	 * 
 	 * @param user The user to get contribs for, without the "User:" prefix.
-	 * @param cap The maximum number of results to return. Optional, disable with -1 (<b>caveat</b>: this will get *all*
-	 *           of a user's contributions)
+	 * @param cap The maximum number of results to return. Optional, disable with -1 (<b>caveat</b>: this will get *all* of a user's contributions)
 	 * @param olderFirst Set to true to enumerate from older → newer revisions
 	 * @param ns Restrict titles returned to the specified Namespace(s). Optional, leave blank to select all namespaces.
 	 * @return A list of contributions.
@@ -864,8 +857,7 @@ public class Wiki
 	 */
 	public ArrayList<String> getLinksOnPage(boolean exists, String title, NS... ns)
 	{
-		return FL.toAL(MQuery.exists(this, getLinksOnPage(title, ns)).entrySet().stream().filter(t -> t.getValue() == exists)
-				.map(Map.Entry::getKey));
+		return FL.toAL(MQuery.exists(this, getLinksOnPage(title, ns)).entrySet().stream().filter(t -> t.getValue() == exists).map(Map.Entry::getKey));
 	}
 
 	/**
@@ -947,8 +939,7 @@ public class Wiki
 
 		ArrayList<ProtectedTitleEntry> l = new ArrayList<>();
 		while (wq.has())
-			l.addAll(
-					FL.toAL(wq.next().listComp("protectedtitles").stream().map(jo -> GSONP.gson.fromJson(jo, ProtectedTitleEntry.class))));
+			l.addAll(FL.toAL(wq.next().listComp("protectedtitles").stream().map(jo -> GSONP.gson.fromJson(jo, ProtectedTitleEntry.class))));
 
 		return l;
 	}
@@ -980,14 +971,11 @@ public class Wiki
 	}
 
 	/**
-	 * Gets a specified number of Recent Changes in between two timestamps. WARNING: if you use both {@code start} and
-	 * {@code end}, then {@code start} MUST be earlier than {@code end}. If you set both {@code start} and {@code end} to
-	 * null, then the default behavior is to fetch the last 30 seconds of recent changes.
+	 * Gets a specified number of Recent Changes in between two timestamps. WARNING: if you use both {@code start} and {@code end}, then {@code start} MUST be earlier than {@code end}. If you set both
+	 * {@code start} and {@code end} to null, then the default behavior is to fetch the last 30 seconds of recent changes.
 	 * 
-	 * @param start The Instant to start enumerating from. Can be used without {@code end}. Optional param - set null to
-	 *           disable.
-	 * @param end The Instant to stop enumerating at. {@code start} must be set, otherwise this will be ignored. Optional
-	 *           param - set null to disable.
+	 * @param start The Instant to start enumerating from. Can be used without {@code end}. Optional param - set null to disable.
+	 * @param end The Instant to stop enumerating at. {@code start} must be set, otherwise this will be ignored. Optional param - set null to disable.
 	 * @return A list Recent Changes where return order is newer -&gt; Older
 	 */
 	public ArrayList<RCEntry> getRecentChanges(Instant start, Instant end)
@@ -1018,8 +1006,7 @@ public class Wiki
 	 * @param title The title to query
 	 * @param cap The maximum number of results to return. Optional param: set to any number zero or less to disable.
 	 * @param olderFirst Set to true to enumerate from older → newer revisions
-	 * @param start The instant to start enumerating from. Start date must occur before end date. Optional param - set
-	 *           null to disable.
+	 * @param start The instant to start enumerating from. Start date must occur before end date. Optional param - set null to disable.
 	 * @param end The instant to stop enumerating at. Optional param - set null to disable.
 	 * @return A list of page revisions
 	 */
@@ -1048,8 +1035,8 @@ public class Wiki
 	}
 
 	/**
-	 * Gets the shared (non-local) duplicates of a file. PRECONDITION: The Wiki this query is run against has the
-	 * <a href="https://www.mediawiki.org/wiki/Extension:GlobalUsage">GlobalUsage</a> extension installed.
+	 * Gets the shared (non-local) duplicates of a file. PRECONDITION: The Wiki this query is run against has the <a href="https://www.mediawiki.org/wiki/Extension:GlobalUsage">GlobalUsage</a>
+	 * extension installed.
 	 * 
 	 * @param title The title of the file to query
 	 * @return An ArrayList containing shared duplicates of the file
@@ -1130,8 +1117,7 @@ public class Wiki
 	 * Does the same thing as Special:PrefixIndex.
 	 * 
 	 * @param namespace The namespace to filter by (inclusive)
-	 * @param prefix Get all titles in the specified namespace, that start with this String. To select subpages only,
-	 *           append a {@code /} to the end of this parameter.
+	 * @param prefix Get all titles in the specified namespace, that start with this String. To select subpages only, append a {@code /} to the end of this parameter.
 	 * @return The list of titles starting with the specified prefix
 	 */
 	public ArrayList<String> prefixIndex(NS namespace, String prefix)
@@ -1143,12 +1129,9 @@ public class Wiki
 	/**
 	 * Queries a special page.
 	 * 
-	 * @param title The special page to query, without the {@code Special:} prefix. CAVEAT: this is CASE-sensitive, so be
-	 *           sure to use the exact title (e.g. {@code UnusedFiles}, {@code BrokenRedirects}). For a full list of
-	 *           titles, see <a href="https://www.mediawiki.org/w/api.php?action=help&modules=query+querypage">the
-	 *           official documentation</a>.
-	 * @param cap The maximum number of elements to return. Use {@code -1} to get everything, but be careful because some
-	 *           pages can have 10k+ entries.
+	 * @param title The special page to query, without the {@code Special:} prefix. CAVEAT: this is CASE-sensitive, so be sure to use the exact title (e.g. {@code UnusedFiles},
+	 *           {@code BrokenRedirects}). For a full list of titles, see <a href="https://www.mediawiki.org/w/api.php?action=help&modules=query+querypage">the official documentation</a>.
+	 * @param cap The maximum number of elements to return. Use {@code -1} to get everything, but be careful because some pages can have 10k+ entries.
 	 * @return A List of titles returned by this special page.
 	 */
 	public ArrayList<String> querySpecialPage(String title, int cap)
@@ -1161,8 +1144,7 @@ public class Wiki
 		while (wq.has())
 			try
 			{
-				l.addAll(FL.toAL(FL.streamFrom(GSONP.getNestedJA(wq.next().input, FL.toSAL("query", "querypage", "results")))
-						.map(e -> GSONP.getStr(e.getAsJsonObject(), "title"))));
+				l.addAll(FL.toAL(FL.streamFrom(GSONP.getNestedJA(wq.next().input, FL.toSAL("query", "querypage", "results"))).map(e -> GSONP.getStr(e.getAsJsonObject(), "title"))));
 			}
 			catch (Throwable e)
 			{
@@ -1187,10 +1169,8 @@ public class Wiki
 	 * Performs a search on the Wiki.
 	 * 
 	 * @param query The query string to search the Wiki with.
-	 * @param limit The maximum number of entries to return. Optional, specify {@code -1} to disable (not recommended if
-	 *           your wiki is big).
-	 * @param ns Limit search to these namespaces. Optional, leave blank to disable. The default behavior is to search
-	 *           all namespaces.
+	 * @param limit The maximum number of entries to return. Optional, specify {@code -1} to disable (not recommended if your wiki is big).
+	 * @param ns Limit search to these namespaces. Optional, leave blank to disable. The default behavior is to search all namespaces.
 	 * @return A List of titles found by the search.
 	 */
 	public ArrayList<String> search(String query, int limit, NS... ns)
@@ -1219,9 +1199,9 @@ public class Wiki
 
 		try
 		{
-			return PageSection.pageBySection(GSONP.getJAofJO(GSONP.getNestedJA(
-					JsonParser.parseString(basicGET("parse", "prop", "sections", "page", title).body().string()).getAsJsonObject(),
-					FL.toSAL("parse", "sections"))), getPageText(title));
+			return PageSection.pageBySection(
+					GSONP.getJAofJO(GSONP.getNestedJA(JsonParser.parseString(basicGET("parse", "prop", "sections", "page", title).body().string()).getAsJsonObject(), FL.toSAL("parse", "sections"))),
+					getPageText(title));
 		}
 		catch (Throwable e)
 		{
@@ -1244,9 +1224,8 @@ public class Wiki
 	}
 
 	/**
-	 * Gets a list of direct links to a page. CAVEAT: This does not get any pages linking to a redirect pointing to this
-	 * page; in order to do this you will first need to obtain a list of redirects to the target, and then call
-	 * <code>whatLinksHere()</code> on each of those redirects.
+	 * Gets a list of direct links to a page. CAVEAT: This does not get any pages linking to a redirect pointing to this page; in order to do this you will first need to obtain a list of redirects to
+	 * the target, and then call <code>whatLinksHere()</code> on each of those redirects.
 	 * 
 	 * @param title The title to query
 	 * @return A list of links to this page.
@@ -1259,8 +1238,7 @@ public class Wiki
 	/**
 	 * Gets a list of pages transcluding a template.
 	 * 
-	 * @param title The title to query. You *must* include the namespace prefix (e.g. "Template:") or you will get
-	 *           strange results.
+	 * @param title The title to query. You *must* include the namespace prefix (e.g. "Template:") or you will get strange results.
 	 * @param ns Only return results from this/these namespace(s). Optional param: leave blank to disable.
 	 * @return The pages transcluding <code>title</code>.
 	 */

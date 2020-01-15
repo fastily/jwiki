@@ -40,7 +40,4 @@ Build and publish jwiki on your local machine with
 * [Examples](https://github.com/fastily/jwiki/wiki/Examples)
 * [Javadocs](https://fastily.github.io/jwiki/docs/jwiki/)
 
-## Support
-If you like jwiki, then please consider [becoming a patreon sponsor](https://www.patreon.com/fastily)!
-
 Please use [issues](https://github.com/fastily/jwiki/issues) for bug reports and/or feature requests.
