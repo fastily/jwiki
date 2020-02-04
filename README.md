@@ -40,4 +40,4 @@ Build and publish jwiki on your local machine with
 * [Examples](https://github.com/fastily/jwiki/wiki/Examples)
 * [Javadocs](https://fastily.github.io/jwiki/docs/jwiki/)
 
-Please use [issues](https://github.com/fastily/jwiki/issues) for bug reports and/or feature requests.
+Please create a new [issue](https://github.com/fastily/jwiki/issues) for bug reports and/or feature requests.
