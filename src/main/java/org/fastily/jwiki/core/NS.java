@@ -63,9 +63,9 @@ public final class NS
 	public static final NS MEDIAWIKI = new NS(8);
 
 	/**
-	 * Media talk namespace
+	 * Mediawiki talk namespace
 	 */
-	public static final NS MEDIA_TALK = new NS(9);
+	public static final NS MEDIAWIKI_TALK = new NS(9);
 
 	/**
 	 * Template namespace
