@@ -748,9 +748,10 @@ public class Wiki
 	 * @param cap The maximum number of results to return. Optional, disable with -1 (<b>caveat</b>: this will get *all* of a user's contributions)
 	 * @param olderFirst Set to true to enumerate from older → newer revisions
 	 * @param ns Restrict titles returned to the specified Namespace(s). Optional, leave blank to select all namespaces.
+	 * @param createdOnly Filter returned titles for instances where the contribution was a page creation.  Optional, set false to disable.
 	 * @return A list of contributions.
 	 */
-	public ArrayList<Contrib> getContribs(String user, int cap, boolean olderFirst, NS... ns)
+	public ArrayList<Contrib> getContribs(String user, int cap, boolean olderFirst, boolean createdOnly, NS... ns)
 	{
 		conf.log.info(this, "Fetching contribs of " + user);
 
@@ -759,6 +760,8 @@ public class Wiki
 			wq.set("ucnamespace", nsl.createFilter(ns));
 		if (olderFirst)
 			wq.set("ucdir", "newer");
+		if(createdOnly)
+			wq.set("ucshow", "new");
 
 		ArrayList<Contrib> l = new ArrayList<>();
 		while (wq.has())

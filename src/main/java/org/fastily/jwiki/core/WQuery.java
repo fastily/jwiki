@@ -148,7 +148,7 @@ class WQuery
 	 * Default parameters for listing page revisions
 	 */
 	public static final QTemplate REVISIONS = new QTemplate(
-			FL.pMap("prop", "revisions", "rvprop", "timestamp|user|comment|content", "titles", null), "rvlimit", "revisions");
+			FL.pMap("prop", "revisions", "rvprop", "comment|content|ids|timestamp|user", "titles", null), "rvlimit", "revisions");
 
 	/**
 	 * Default parameters for listing searches

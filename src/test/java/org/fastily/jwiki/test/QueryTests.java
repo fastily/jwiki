@@ -211,7 +211,7 @@ public class QueryTests
 	public void testGetContribs()
 	{
 		// Test 1
-		ArrayList<Contrib> result = wiki.getContribs("FastilyClone", -1, false, NS.FILE);
+		ArrayList<Contrib> result = wiki.getContribs("FastilyClone", -1, false, false, NS.FILE);
 
 		assertEquals("File:FCTest2.svg", result.get(0).title); // descending
 		assertEquals("File:FCTest1.png", result.get(1).title);
@@ -226,11 +226,11 @@ public class QueryTests
 		assertEquals(Instant.parse("2015-10-20T00:28:32Z"), result.get(1).timestamp);
 
 		// Test 2
-		result = wiki.getContribs("FastilyClone", 1, true, NS.FILE);
+		result = wiki.getContribs("FastilyClone", 1, true, false, NS.FILE);
 		assertEquals("File:FCTest1.png", result.get(0).title);
 		
 		// Test 3 - non-existent user
-		result = wiki.getContribs("Fastilyy", 10, true);
+		result = wiki.getContribs("Fastilyy", 10, true, false);
 		assertTrue(result.isEmpty());
 	}
 
@@ -331,6 +331,7 @@ public class QueryTests
 		ArrayList<Revision> result = wiki.getRevisions("User:FastilyClone/Page/1", -1, false, null, null);
 
 		assertEquals(3, result.size());
+		assertEquals(244465, result.get(0).revid);
 		assertEquals("1", result.get(1).text);
 		assertEquals("s0", result.get(2).summary);
 		assertEquals(Instant.parse("2015-10-23T05:58:54Z"), result.get(0).timestamp);

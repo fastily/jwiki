@@ -11,6 +11,11 @@ import com.google.gson.annotations.SerializedName;
 public class Revision extends DataEntry
 {
 	/**
+	 * The unique id associated with this revision.
+	 */
+	public long revid;
+
+	/**
 	 * The text of this revision
 	 */
 	@SerializedName("*")
