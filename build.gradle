@@ -1,20 +1,19 @@
 plugins {
-    id 'java-library'
-    id 'maven-publish'
     id 'eclipse'
     id 'idea'
+    id 'java-library'
+    id 'maven-publish'
+    id 'signing'
 }
 
-version="1.7.1"
 description="${project.name} build script"
-group="fastily"
-
-sourceCompatibility = JavaVersion.VERSION_11
-targetCompatibility = JavaVersion.VERSION_11
+group="org.fastily"
+version="1.8.0"
 
 repositories {
-    jcenter()
+    mavenCentral()
 }
+
 
 dependencies {
     api "com.google.code.gson:gson:2.8.6"
@@ -27,8 +26,18 @@ dependencies {
     testImplementation 'com.squareup.okhttp3:mockwebserver:4.5.0'
 }
 
+
 test {
 	useJUnitPlatform()
+}
+
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
+
+    withJavadocJar()
+    withSourcesJar()
 }
 
 
@@ -56,10 +65,12 @@ task sourceJar(type: Jar) {
     classifier = 'sources'
 }
 
+
 task packageJavadoc(type: Jar) {
     from javadoc
     classifier = 'javadoc'
 }
+
 
 wrapper {
     gradleVersion = '6.3'
@@ -68,25 +79,49 @@ wrapper {
 
 publishing {
     publications {
-        mavenPublish(MavenPublication) {
+        mavenJava(MavenPublication) {
             from components.java
-
-            artifact sourceJar
-            artifact packageJavadoc
 
             pom {
                 name = 'jwiki'
-                description = 'A library for effortlessly interacting with Wikipedia/MediaWiki.'
+                description = 'A library for effortlessly interacting with Wikipedia/MediaWiki'
                 inceptionYear = '2014'
                 url = 'https://github.com/fastily/jwiki'
                 licenses {
                     license {
                         name = 'GNU General Public License, Version 3.0'
                         url = 'https://www.gnu.org/licenses/gpl-3.0.txt'
-                        distribution = 'repo'
                     }
+                }
+                developers {
+                    developer {
+                        id = 'fastily'
+                        name = 'Fastily'
+                        email = 'fastily@users.noreply.github.com'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:https://github.com/fastily/jwiki.git'
+                    developerConnection = 'scm:git:ssh://github.com/fastily/jwiki.git'
+                    url = 'https://github.com/fastily/jwiki'
                 }
             }
         }
     }
+
+    repositories {
+        maven {
+            url = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
+
+            credentials {
+                username "$ossrhUsername"
+                password "$ossrhPassword"
+            }
+        }
+    }
+}
+
+
+signing {
+    sign publishing.publications.mavenJava
 }

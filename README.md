@@ -13,27 +13,26 @@ It's so easy that _anyone_ (including your grandma 👵🏻) can write a program
 Not convinced?  Try out the [examples](https://github.com/fastily/jwiki/wiki/Examples).
 
 ## Download
-jwiki is [on jcenter](https://bintray.com/fastily/maven/jwiki).
-
 #### Maven
 ```xml
 <dependency>
-  <groupId>fastily</groupId>
+  <groupId>org.fastily</groupId>
   <artifactId>jwiki</artifactId>
-  <version>1.7.0</version>
-  <type>pom</type>
+  <version>1.8.0</version>
 </dependency>
 ```
 
 #### Gradle
 ```groovy
-compile 'fastily:jwiki:1.7.0'
+implementation 'org.fastily:jwiki:1.8.0'
 ```
 
+⚠️ ATTENTION: COORDINATES HAVE CHANGED (since 1.7.0)!  jwiki's new groupId is `org.fastily`
+
 ## Build
-Build and publish jwiki on your local machine with
+Build and publish (install) jwiki on your computer with
 ```bash
-./gradlew build publishToMavenLocal
+./gradlew publishToMavenLocal
 ```
 
 ## Resources
