@@ -1,0 +1,1 @@
+packageSearchIndex = [{"l":"All Packages","url":"allpackages-index.html"},{"l":"org.fastily.jwiki.core"},{"l":"org.fastily.jwiki.dwrap"},{"l":"org.fastily.jwiki.util"}]
