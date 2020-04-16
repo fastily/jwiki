@@ -8,7 +8,7 @@ plugins {
 
 description="${project.name} build script"
 group="org.fastily"
-version="1.8.0"
+version="1.8.1"
 
 repositories {
     mavenCentral()
@@ -59,19 +59,6 @@ javadoc {
     }
 }
 
-
-task sourceJar(type: Jar) {
-    from sourceSets.main.allJava
-    classifier = 'sources'
-}
-
-
-task packageJavadoc(type: Jar) {
-    from javadoc
-    classifier = 'javadoc'
-}
-
-
 wrapper {
     gradleVersion = '6.3'
 }
@@ -114,8 +101,8 @@ publishing {
             url = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
 
             credentials {
-                username "$ossrhUsername"
-                password "$ossrhPassword"
+                username hasProperty("ossrhUsername") ? "$ossrhUsername" : System.getenv('ossrhUsername')
+                password hasProperty("ossrhPassword") ? "$ossrhPassword" : System.getenv('ossrhPassword')
             }
         }
     }
