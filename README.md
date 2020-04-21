@@ -1,5 +1,5 @@
 # jwiki
-[![Build Status](https://travis-ci.org/fastily/jwiki.svg?branch=master)](https://travis-ci.org/fastily/jwiki)
+![Build Status](https://github.com/fastily/jwiki/workflows/cicd/badge.svg)
 ![JDK-11+](https://upload.wikimedia.org/wikipedia/commons/e/ef/Blue_JDK_11%2B_Shield_Badge.svg)
 [![MediaWiki 1.31+](https://upload.wikimedia.org/wikipedia/commons/b/b2/Blue_MediaWiki_1.31%2B_Shield_Badge.svg)](https://www.mediawiki.org/wiki/MediaWiki)
 [![License: GPL v3](https://upload.wikimedia.org/wikipedia/commons/8/86/GPL_v3_Blue_Badge.svg)](https://www.gnu.org/licenses/gpl-3.0.en.html)
@@ -27,12 +27,12 @@ Not convinced?  Try out the [examples](https://github.com/fastily/jwiki/wiki/Exa
 implementation 'org.fastily:jwiki:1.8.0'
 ```
 
-⚠️ ATTENTION: COORDINATES HAVE CHANGED (since 1.7.0)!  jwiki's new groupId is `org.fastily`
+⚠️ COORDINATES HAVE CHANGED (since 1.7.0): jwiki's new groupId is `org.fastily`
 
 ## Build
 Build and publish (install) jwiki on your computer with
 ```bash
-./gradlew publishToMavenLocal
+./gradlew publishToMavenLocal -x signMavenJavaPublication
 ```
 
 ## Resources
@@ -40,3 +40,8 @@ Build and publish (install) jwiki on your computer with
 * [Javadocs](https://fastily.github.io/jwiki/docs/jwiki/)
 
 Please create a new [issue](https://github.com/fastily/jwiki/issues) for bug reports and/or feature requests.
+
+## Goals
+* **Simplicity** - Complex objects and functions are abstracted into the background so that anybody, regardless of Java experience, will be able to use jwiki.
+* **Speed** - Network calls, local computation, and memory usage are optimized and minimized, so as to enhance performance and reduce overhead.
+* **Succinctness** - Complex API actions can be performed in jwiki using one line of local code consisting of simple objects and primitive types.
