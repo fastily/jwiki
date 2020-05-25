@@ -747,8 +747,8 @@ public class Wiki
 	 * @param user The user to get contribs for, without the "User:" prefix.
 	 * @param cap The maximum number of results to return. Optional, disable with -1 (<b>caveat</b>: this will get *all* of a user's contributions)
 	 * @param olderFirst Set to true to enumerate from older → newer revisions
-	 * @param ns Restrict titles returned to the specified Namespace(s). Optional, leave blank to select all namespaces.
 	 * @param createdOnly Filter returned titles for instances where the contribution was a page creation.  Optional, set false to disable.
+	 * @param ns Restrict titles returned to the specified Namespace(s). Optional, leave blank to select all namespaces.
 	 * @return A list of contributions.
 	 */
 	public ArrayList<Contrib> getContribs(String user, int cap, boolean olderFirst, boolean createdOnly, NS... ns)
