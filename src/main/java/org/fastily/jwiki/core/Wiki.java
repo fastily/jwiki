@@ -546,6 +546,23 @@ public class Wiki
 	}
 
 	/**
+	 * Move a page.
+	 * 
+	 * @param title The original title to move
+	 * @param newTitle The new title to move the old page to
+	 * @param moveTalk Flag indicating if {@code title}'s talk page (assuming it exists) should be moved. Optional, set false to disable.
+	 * @param moveSubpages Flag indicating if {@code title}'s subpages should also be moved. Requires admin/pagemover rights, otherwise this does nothing. Optional, set false to disable.
+	 * @param supressRedirect Flag indicating if a redirect to {@code newTitle} should be automatically generated at {@code title}. Requires admin/pagemover rights, otherwise this does nothing.
+	 *           Optional, set false to disable.
+	 * @param reason The edit summary to use
+	 * @return True if the operation succeeded
+	 */
+	public boolean move(String title, String newTitle, boolean moveTalk, boolean moveSubpages, boolean supressRedirect, String reason)
+	{
+		return WAction.move(this, title, newTitle, moveTalk, moveSubpages, supressRedirect, reason);
+	}
+
+	/**
 	 * Purges page caches.
 	 * 
 	 * @param titles The titles to purge.
@@ -747,7 +764,7 @@ public class Wiki
 	 * @param user The user to get contribs for, without the "User:" prefix.
 	 * @param cap The maximum number of results to return. Optional, disable with -1 (<b>caveat</b>: this will get *all* of a user's contributions)
 	 * @param olderFirst Set to true to enumerate from older → newer revisions
-	 * @param createdOnly Filter returned titles for instances where the contribution was a page creation.  Optional, set false to disable.
+	 * @param createdOnly Filter returned titles for instances where the contribution was a page creation. Optional, set false to disable.
 	 * @param ns Restrict titles returned to the specified Namespace(s). Optional, leave blank to select all namespaces.
 	 * @return A list of contributions.
 	 */
@@ -760,7 +777,7 @@ public class Wiki
 			wq.set("ucnamespace", nsl.createFilter(ns));
 		if (olderFirst)
 			wq.set("ucdir", "newer");
-		if(createdOnly)
+		if (createdOnly)
 			wq.set("ucshow", "new");
 
 		ArrayList<Contrib> l = new ArrayList<>();

@@ -41,6 +41,16 @@ public class ActionTests extends BaseMockTemplate
 	}
 
 	/**
+	 * Test move
+	 */
+	@Test
+	public void testMove()
+	{
+		addResponse("mockMovePage");
+		assertTrue(wiki.move("User:Example/12345678", "User:Example/1", true, true, true, "This is a test"));
+	}
+
+	/**
 	 * Test editing
 	 */
 	@Test

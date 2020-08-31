@@ -1,0 +1,9 @@
+{
+    "move": {
+        "from": "User:Example/12345678",
+        "to": "User:Example/1",
+        "reason": "api",
+        "subpages": [],
+        "subpages-talk": []
+    }
+}

@@ -133,6 +133,35 @@ class WAction
 	}
 
 	/**
+	 * Moves a page.
+	 * 
+	 * @param wiki The Wiki objec to use
+	 * @param title The original title to move
+	 * @param newTitle The new title to move the old page to
+	 * @param moveTalk Flag indicating if {@code title}'s talk page (assuming it exists) should be moved. Optional, set false to disable.
+	 * @param moveSubpages Flag indicating if {@code title}'s subpages should also be moved. Requires admin/pagemover rights, otherwise this does nothing. Optional, set false to disable.
+	 * @param supressRedirect Flag indicating if a redirect to {@code newTitle} should be automatically generated at {@code title}. Requires admin/pagemover rights, otherwise this does nothing.
+	 *           Optional, set false to disable.
+	 * @param reason The edit summary to use
+	 * @return True if the operation succeeded
+	 */
+	protected static boolean move(Wiki wiki, String title, String newTitle, boolean moveTalk, boolean moveSubpages, boolean supressRedirect, String reason)
+	{
+		wiki.conf.log.info(wiki, String.format("Moving %s to %s", title, newTitle));
+
+		HashMap<String, String> pl = FL.pMap("title", title, "from", title, "to", newTitle, "reason", reason);
+
+		if (moveTalk)
+			pl.put("movetalk", "1");
+		if (moveSubpages)
+			pl.put("movesubpages", "1");
+		if (supressRedirect)
+			pl.put("noredirect", "1");
+
+		return postAction(wiki, "move", true, pl) == ActionResult.NONE;
+	}
+
+	/**
 	 * Deletes a page. Wiki must be logged in and have administrator permissions for this to succeed.
 	 * 
 	 * @param wiki The Wiki to work on.
