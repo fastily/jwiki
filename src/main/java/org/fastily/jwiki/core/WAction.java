@@ -149,7 +149,7 @@ class WAction
 	{
 		wiki.conf.log.info(wiki, String.format("Moving %s to %s", title, newTitle));
 
-		HashMap<String, String> pl = FL.pMap("title", title, "from", title, "to", newTitle, "reason", reason);
+		HashMap<String, String> pl = FL.pMap("from", title, "to", newTitle, "reason", reason);
 
 		if (moveTalk)
 			pl.put("movetalk", "1");
