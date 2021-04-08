@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.nio.file.Paths;
 import java.util.concurrent.TimeUnit;
 
-import org.fastily.jwiki.core.NS;
+import org.fastily.jwiki.core.NameSpace;
 import org.junit.jupiter.api.Test;
 
 import okhttp3.HttpUrl;
@@ -24,7 +24,7 @@ public class ActionTests extends BaseMockTemplate
 	@Test
 	public void testInitializationForSanity()
 	{
-		assertEquals("File:Test.jpg", wiki.convertIfNotInNS("Test.jpg", NS.FILE));
+		assertEquals("File:Test.jpg", wiki.convertIfNotInNS("Test.jpg", NameSpace.FILE));
 
 		try
 		{
@@ -36,8 +36,8 @@ public class ActionTests extends BaseMockTemplate
 			fail(e);
 		}
 
-		assertEquals(NS.FILE.v, wiki.whichNS("File:Test.jpg").v);
-		assertEquals(NS.MAIN.v, wiki.whichNS("hello").v);
+		assertEquals(NameSpace.FILE.valueForNameSpace, wiki.whichNS("File:Test.jpg").valueForNameSpace);
+		assertEquals(NameSpace.MAIN.valueForNameSpace, wiki.whichNS("hello").valueForNameSpace);
 	}
 
 	/**

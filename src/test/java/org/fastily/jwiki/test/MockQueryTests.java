@@ -6,7 +6,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashSet;
 
-import org.fastily.jwiki.core.NS;
+import org.fastily.jwiki.core.NameSpace;
 import org.fastily.jwiki.dwrap.LogEntry;
 import org.fastily.jwiki.dwrap.ProtectedTitleEntry;
 import org.fastily.jwiki.dwrap.RCEntry;
@@ -28,7 +28,7 @@ public class MockQueryTests extends BaseMockTemplate
 	public void testGetRandomPages()
 	{
 		addResponse("mockRandom");
-		ArrayList<String> l = wiki.getRandomPages(3, NS.FILE, NS.MAIN);
+		ArrayList<String> l = wiki.getRandomPages(3, NameSpace.FILE, NameSpace.MAIN);
 
 		assertEquals(3, l.size());
 		assertEquals(3, new HashSet<>(l).size());
@@ -194,7 +194,7 @@ public class MockQueryTests extends BaseMockTemplate
 	{
 		addResponse("mockAllPages");
 
-		ArrayList<String> l = wiki.allPages(null, false, false, 3, NS.MAIN);
+		ArrayList<String> l = wiki.allPages(null, false, false, 3, NameSpace.MAIN);
 
 		assertEquals(3, l.size());
 
@@ -211,7 +211,7 @@ public class MockQueryTests extends BaseMockTemplate
 	{
 		addResponse("mockSearch");
 
-		ArrayList<String> l = wiki.search("GitHub", 5, NS.MAIN);
+		ArrayList<String> l = wiki.search("GitHub", 5, NameSpace.MAIN);
 
 		assertEquals(5, l.size());
 

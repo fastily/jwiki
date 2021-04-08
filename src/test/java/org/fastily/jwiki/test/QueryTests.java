@@ -6,13 +6,13 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import org.fastily.jwiki.core.NS;
+import org.fastily.jwiki.core.NameSpace;
 import org.fastily.jwiki.core.Wiki;
 import org.fastily.jwiki.dwrap.Contrib;
 import org.fastily.jwiki.dwrap.ImageInfo;
 import org.fastily.jwiki.dwrap.PageSection;
 import org.fastily.jwiki.dwrap.Revision;
-import org.fastily.jwiki.util.FL;
+import org.fastily.jwiki.util.FastlyUtilities;
 import org.junit.jupiter.api.Test;
 
 import okhttp3.HttpUrl;
@@ -37,17 +37,17 @@ public class QueryTests
 	@Test
 	public void testBasicNSHandling()
 	{
-		assertEquals(NS.MAIN, wiki.getNS("Main"));
+		assertEquals(NameSpace.MAIN, wiki.getNS("Main"));
 		assertNull(wiki.getNS("blahblahblah"));
 		
-		assertEquals(NS.USER, wiki.whichNS("User:TestUser"));
+		assertEquals(NameSpace.USER, wiki.whichNS("User:TestUser"));
 		assertEquals("ABC.jpg", wiki.nss("File:ABC.jpg"));
 		assertEquals("ABC.jpg", wiki.nss("fIlE:ABC.jpg"));
 		assertEquals("TestUser", wiki.nss("user tALk:TestUser"));
 		
-		assertEquals("File:ABC.jpg", wiki.convertIfNotInNS("ABC.jpg", NS.FILE));
-		assertEquals("Testing", wiki.convertIfNotInNS("Testing", NS.MAIN));
-		assertEquals("User talk:TestUser", wiki.convertIfNotInNS("TestUser", NS.USER_TALK));
+		assertEquals("File:ABC.jpg", wiki.convertIfNotInNS("ABC.jpg", NameSpace.FILE));
+		assertEquals("Testing", wiki.convertIfNotInNS("Testing", NameSpace.MAIN));
+		assertEquals("User talk:TestUser", wiki.convertIfNotInNS("TestUser", NameSpace.USER_TALK));
 	}
 
 	/**
@@ -56,8 +56,8 @@ public class QueryTests
 	@Test
 	public void testPrefixIndex()
 	{
-		ArrayList<String> result = wiki.prefixIndex(NS.USER, "Fastily/Sandbox/Page/");
-		ArrayList<String> expected = FL.toSAL("User:Fastily/Sandbox/Page/1", "User:Fastily/Sandbox/Page/2",
+		ArrayList<String> result = wiki.prefixIndex(NameSpace.USER, "Fastily/Sandbox/Page/");
+		ArrayList<String> expected = FastlyUtilities.toSAL("User:Fastily/Sandbox/Page/1", "User:Fastily/Sandbox/Page/2",
 				"User:Fastily/Sandbox/Page/3");
 
 		assertEquals(3, result.size());
@@ -70,8 +70,8 @@ public class QueryTests
 	@Test
 	public void testAllpages1()
 	{
-		ArrayList<String> result = wiki.allPages("Fastily/Sandbox/Page/", false, false, -1, NS.USER);
-		ArrayList<String> expected = FL.toSAL("User:Fastily/Sandbox/Page/1", "User:Fastily/Sandbox/Page/2",
+		ArrayList<String> result = wiki.allPages("Fastily/Sandbox/Page/", false, false, -1, NameSpace.USER);
+		ArrayList<String> expected = FastlyUtilities.toSAL("User:Fastily/Sandbox/Page/1", "User:Fastily/Sandbox/Page/2",
 				"User:Fastily/Sandbox/Page/3");
 
 		assertEquals(3, result.size());
@@ -84,8 +84,8 @@ public class QueryTests
 	@Test
 	public void testAllPages2()
 	{
-		ArrayList<String> result = wiki.allPages("Fastily/Sandbox/Redirect", true, false, -1, NS.USER);
-		ArrayList<String> expected = FL.toSAL("User:Fastily/Sandbox/Redirect1", "User:Fastily/Sandbox/Redirect2");
+		ArrayList<String> result = wiki.allPages("Fastily/Sandbox/Redirect", true, false, -1, NameSpace.USER);
+		ArrayList<String> expected = FastlyUtilities.toSAL("User:Fastily/Sandbox/Redirect1", "User:Fastily/Sandbox/Redirect2");
 
 		assertEquals(2, result.size());
 		assertTrue(result.containsAll(expected));
@@ -119,7 +119,7 @@ public class QueryTests
 	{
 		// Test 1
 		ArrayList<String> result = wiki.fileUsage("File:FastilyTest.svg");
-		ArrayList<String> expected = FL.toSAL("User:Fastily/Sandbox/ImageLinks", "User:Fastily/Sandbox/Page");
+		ArrayList<String> expected = FastlyUtilities.toSAL("User:Fastily/Sandbox/ImageLinks", "User:Fastily/Sandbox/Page");
 
 		assertEquals(2, result.size());
 		assertTrue(result.containsAll(expected));
@@ -141,14 +141,14 @@ public class QueryTests
 				Arrays.asList("File:123.png", "User:Fastily", "Category:Foo", "Template:Tester", "User:Fastily/Sandbox"));
 
 		// test 1
-		ArrayList<String> result = wiki.filterByNS(l, NS.USER);
+		ArrayList<String> result = wiki.filterByNS(l, NameSpace.USER);
 
 		assertEquals(2, result.size());
 		assertTrue(result.contains("User:Fastily"));
 		assertTrue(result.contains("User:Fastily/Sandbox"));
 
 		// test 2
-		result = wiki.filterByNS(l, NS.TEMPLATE);
+		result = wiki.filterByNS(l, NameSpace.TEMPLATE);
 
 		assertEquals(1, result.size());
 		assertTrue(result.contains("Template:Tester"));
@@ -161,7 +161,7 @@ public class QueryTests
 	public void testGetCategoriesOnPage()
 	{
 		ArrayList<String> result = wiki.getCategoriesOnPage("User:Fastily/Sandbox/Page/2");
-		ArrayList<String> expected = FL.toSAL("Category:Fastily Test", "Category:Fastily Test2");
+		ArrayList<String> expected = FastlyUtilities.toSAL("Category:Fastily Test", "Category:Fastily Test2");
 
 		assertEquals(2, result.size());
 		assertTrue(result.containsAll(expected));
@@ -174,7 +174,7 @@ public class QueryTests
 	public void testGetCategoryMembers1()
 	{
 		ArrayList<String> result = wiki.getCategoryMembers("Fastily Test2");
-		ArrayList<String> expected = FL.toSAL("User:Fastily/Sandbox/Page/2", "File:FastilyTest.png");
+		ArrayList<String> expected = FastlyUtilities.toSAL("User:Fastily/Sandbox/Page/2", "File:FastilyTest.png");
 
 		assertEquals(2, result.size());
 		assertTrue(result.containsAll(expected));
@@ -186,7 +186,7 @@ public class QueryTests
 	@Test
 	public void testGetCategoryMembers2()
 	{
-		ArrayList<String> result = wiki.getCategoryMembers("Fastily Test2", NS.FILE);
+		ArrayList<String> result = wiki.getCategoryMembers("Fastily Test2", NameSpace.FILE);
 
 		assertEquals(1, result.size());
 		assertTrue(result.contains("File:FastilyTest.png"));
@@ -211,7 +211,7 @@ public class QueryTests
 	public void testGetContribs()
 	{
 		// Test 1
-		ArrayList<Contrib> result = wiki.getContribs("FastilyClone", -1, false, false, NS.FILE);
+		ArrayList<Contrib> result = wiki.getContribs("FastilyClone", -1, false, false, NameSpace.FILE);
 
 		assertEquals("File:FCTest2.svg", result.get(0).title); // descending
 		assertEquals("File:FCTest1.png", result.get(1).title);
@@ -226,7 +226,7 @@ public class QueryTests
 		assertEquals(Instant.parse("2015-10-20T00:28:32Z"), result.get(1).timestamp);
 
 		// Test 2
-		result = wiki.getContribs("FastilyClone", 1, true, false, NS.FILE);
+		result = wiki.getContribs("FastilyClone", 1, true, false, NameSpace.FILE);
 		assertEquals("File:FCTest1.png", result.get(0).title);
 		
 		// Test 3 - non-existent user
@@ -277,7 +277,7 @@ public class QueryTests
 	public void testGetImagesOnPage()
 	{
 		ArrayList<String> result = wiki.getImagesOnPage("User:Fastily/Sandbox/Page");
-		ArrayList<String> expected = FL.toSAL("File:FastilyTest.svg", "File:FastilyTest.png");
+		ArrayList<String> expected = FastlyUtilities.toSAL("File:FastilyTest.svg", "File:FastilyTest.png");
 
 		assertEquals(2, result.size());
 		assertTrue(result.containsAll(expected));
@@ -289,8 +289,8 @@ public class QueryTests
 	@Test
 	public void testGetLinksOnPage1()
 	{
-		ArrayList<String> result = wiki.getLinksOnPage("User:Fastily/Sandbox/Page", NS.USER);
-		ArrayList<String> expected = FL.toSAL("User:Fastily/Sandbox/Page/1", "User:Fastily/Sandbox/Page/2",
+		ArrayList<String> result = wiki.getLinksOnPage("User:Fastily/Sandbox/Page", NameSpace.USER);
+		ArrayList<String> expected = FastlyUtilities.toSAL("User:Fastily/Sandbox/Page/1", "User:Fastily/Sandbox/Page/2",
 				"User:Fastily/Sandbox/Page/3", "User:Fastily/Sandbox/Page/4");
 
 		assertEquals(4, result.size());
@@ -303,7 +303,7 @@ public class QueryTests
 	@Test
 	public void testGetLinksOnPage2()
 	{
-		ArrayList<String> result = wiki.getLinksOnPage(false, "User:Fastily/Sandbox/Page", NS.USER);
+		ArrayList<String> result = wiki.getLinksOnPage(false, "User:Fastily/Sandbox/Page", NameSpace.USER);
 
 		assertEquals(1, result.size());
 		assertEquals("User:Fastily/Sandbox/Page/4", result.get(0));
@@ -351,7 +351,7 @@ public class QueryTests
 	public void testGetTemplatesOnPage()
 	{
 		ArrayList<String> result = wiki.getTemplatesOnPage("User:Fastily/Sandbox/T");
-		ArrayList<String> expected = FL.toSAL("User:Fastily/Sandbox/T/1", "Template:FastilyTest");
+		ArrayList<String> expected = FastlyUtilities.toSAL("User:Fastily/Sandbox/T/1", "Template:FastilyTest");
 
 		assertEquals(2, result.size());
 		assertTrue(result.containsAll(expected));
@@ -364,7 +364,7 @@ public class QueryTests
 	public void testGetUserUploads()
 	{
 		ArrayList<String> result = wiki.getUserUploads("FastilyClone");
-		ArrayList<String> expected = FL.toSAL("File:FCTest2.svg", "File:FCTest1.png");
+		ArrayList<String> expected = FastlyUtilities.toSAL("File:FCTest2.svg", "File:FCTest1.png");
 
 		assertEquals(2, result.size());
 		assertTrue(result.containsAll(expected));
@@ -418,7 +418,7 @@ public class QueryTests
 		assertTrue(l.contains("User:Fastily/Sandbox/T"));
 		assertTrue(l.contains("FastilyTest"));
 		
-		l = wiki.whatTranscludesHere("Template:FastilyTest", NS.MAIN);
+		l = wiki.whatTranscludesHere("Template:FastilyTest", NameSpace.MAIN);
 		assertEquals(1, l.size());
 		assertTrue(l.contains("FastilyTest"));
 	}

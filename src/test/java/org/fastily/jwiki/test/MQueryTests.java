@@ -6,10 +6,10 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import org.fastily.jwiki.core.MQuery;
+import org.fastily.jwiki.core.MultipleQuery;
 import org.fastily.jwiki.core.Wiki;
 import org.fastily.jwiki.dwrap.ImageInfo;
-import org.fastily.jwiki.util.FL;
+import org.fastily.jwiki.util.FastlyUtilities;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -31,7 +31,7 @@ public class MQueryTests
 	@Test
 	public void testListUserRights()
 	{
-		HashMap<String, ArrayList<String>> result = MQuery.listUserRights(wiki, FL.toSAL("FastilyClone", "Fastily"));
+		HashMap<String, ArrayList<String>> result = MultipleQuery.listUserRights(wiki, FastlyUtilities.toSAL("FastilyClone", "Fastily"));
 
 		assertTrue(result.containsKey("Fastily"));
 		assertTrue(result.containsKey("FastilyClone"));
@@ -50,8 +50,8 @@ public class MQueryTests
 	@Test
 	public void testGetImageInfo()
 	{
-		HashMap<String, ArrayList<ImageInfo>> result = MQuery.getImageInfo(wiki,
-				FL.toSAL("File:FastilyTestCircle1.svg", "File:FastilyTestCircle2.svg"));
+		HashMap<String, ArrayList<ImageInfo>> result = MultipleQuery.getImageInfo(wiki,
+				FastlyUtilities.toSAL("File:FastilyTestCircle1.svg", "File:FastilyTestCircle2.svg"));
 
 		assertTrue(result.containsKey("File:FastilyTestCircle1.svg"));
 		assertTrue(result.containsKey("File:FastilyTestCircle2.svg"));
@@ -77,8 +77,8 @@ public class MQueryTests
 	@Test
 	public void testGetCategoriesOnPage()
 	{
-		HashMap<String, ArrayList<String>> result = MQuery.getCategoriesOnPage(wiki,
-				FL.toSAL("User:Fastily/Sandbox/Page/2", "User:Fastily/Sandbox/Page/3"));
+		HashMap<String, ArrayList<String>> result = MultipleQuery.getCategoriesOnPage(wiki,
+				FastlyUtilities.toSAL("User:Fastily/Sandbox/Page/2", "User:Fastily/Sandbox/Page/3"));
 
 		assertTrue(result.containsKey("User:Fastily/Sandbox/Page/2"));
 		assertTrue(result.containsKey("User:Fastily/Sandbox/Page/3"));
@@ -99,7 +99,7 @@ public class MQueryTests
 	@Test
 	public void testGetCategorySize()
 	{
-		HashMap<String, Integer> result = MQuery.getCategorySize(wiki, FL.toSAL("Category:Fastily Test", "Category:Fastily Test2"));
+		HashMap<String, Integer> result = MultipleQuery.getCategorySize(wiki, FastlyUtilities.toSAL("Category:Fastily Test", "Category:Fastily Test2"));
 
 		assertTrue(result.containsKey("Category:Fastily Test"));
 		assertTrue(result.containsKey("Category:Fastily Test2"));
@@ -114,7 +114,7 @@ public class MQueryTests
 	@Test
 	public void testGetPageText()
 	{
-		HashMap<String, String> result = MQuery.getPageText(wiki, FL.toSAL("User:Fastily/Sandbox/HelloWorld", "Category:Fastily Test"));
+		HashMap<String, String> result = MultipleQuery.getPageText(wiki, FastlyUtilities.toSAL("User:Fastily/Sandbox/HelloWorld", "Category:Fastily Test"));
 
 		assertTrue(result.containsKey("User:Fastily/Sandbox/HelloWorld"));
 		assertTrue(result.containsKey("Category:Fastily Test"));
@@ -129,8 +129,8 @@ public class MQueryTests
 	@Test
 	public void testResolveRedirects()
 	{
-		HashMap<String, String> result = MQuery.resolveRedirects(wiki,
-				FL.toSAL("User:Fastily/Sandbox/Redirect1", "User:Fastily/Sandbox/Redirect2", "User:Fastily/Sandbox/Redirect3"));
+		HashMap<String, String> result = MultipleQuery.resolveRedirects(wiki,
+				FastlyUtilities.toSAL("User:Fastily/Sandbox/Redirect1", "User:Fastily/Sandbox/Redirect2", "User:Fastily/Sandbox/Redirect3"));
 
 		assertEquals("User:Fastily/Sandbox/RedirectTarget", result.get("User:Fastily/Sandbox/Redirect1"));
 		assertEquals("User:Fastily/Sandbox/RedirectTarget", result.get("User:Fastily/Sandbox/Redirect2"));
@@ -143,6 +143,6 @@ public class MQueryTests
 	@Test
 	public void testNullTitles()
 	{
-		assertThrows(IllegalArgumentException.class, () -> MQuery.exists(wiki, FL.toSAL("", null, "test")));
+		assertThrows(IllegalArgumentException.class, () -> MultipleQuery.exists(wiki, FastlyUtilities.toSAL("", null, "test")));
 	}
 }

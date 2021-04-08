@@ -9,7 +9,7 @@ import org.fastily.jwiki.core.WParser;
 import org.fastily.jwiki.core.Wiki;
 import org.fastily.jwiki.core.WParser.WTemplate;
 import org.fastily.jwiki.core.WParser.WikiText;
-import org.fastily.jwiki.util.FL;
+import org.fastily.jwiki.util.FastlyUtilities;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -34,14 +34,14 @@ public class TPTests
 		WikiText wt = WParser.parsePage(wiki, "User:Fastily/Sandbox/TPTest1");
 
 		// Test getTemplates
-		HashSet<String> l = FL.toSet(wt.getTemplates().stream().map(t -> t.title));
+		HashSet<String> l = FastlyUtilities.toSet(wt.getTemplates().stream().map(t -> t.title));
 		assertTrue(l.contains("Tl"));
 		assertTrue(l.contains("int:license-header"));
 		assertTrue(l.contains("Ombox"));
 		assertEquals(3, l.size());
 
 		// Test recursive getTemplates
-		l = FL.toSet(wt.getTemplatesR().stream().map(t -> t.title));
+		l = FastlyUtilities.toSet(wt.getTemplatesR().stream().map(t -> t.title));
 		assertTrue(l.contains("Tlx"));
 		assertTrue(l.contains("Ombox"));
 		assertTrue(l.contains("Tl"));
