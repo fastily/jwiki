@@ -18,7 +18,6 @@ import org.fastily.jwiki.dwrap.PageSection;
 import org.fastily.jwiki.dwrap.ProtectedTitleEntry;
 import org.fastily.jwiki.dwrap.RCEntry;
 import org.fastily.jwiki.dwrap.Revision;
-import org.fastily.jwiki.util.FL;
 import org.fastily.jwiki.util.GSONP;
 import org.fastily.jwiki.util.Tuple;
 
@@ -27,6 +26,7 @@ import com.google.gson.JsonParser;
 
 import okhttp3.HttpUrl;
 import okhttp3.Response;
+import org.fastily.jwiki.util.FastlyUtilities;
 
 /**
  * Main entry point of jwiki. This class aggregates most of the queries/actions which jwiki can perform on a wiki. All methods are backed by static functions and are therefore thread-safe.
@@ -171,7 +171,7 @@ public class Wiki
 			if (username != null && password != null && !wiki.login(username, password))
 				throw new SecurityException(String.format("Failed to log-in as %s @ %s", username, wiki.conf.hostname));
 
-			wiki.refreshNS();
+			wiki.refreshNameSpaceList();
 
 			return wiki;
 		}
@@ -185,12 +185,12 @@ public class Wiki
 	/**
 	 * Our list of currently logged in Wiki's associated with this object. Useful for global operations.
 	 */
-	private HashMap<String, Wiki> wl = new HashMap<>();
+	private HashMap<String, Wiki> mapOfWikis = new HashMap<>();
 
 	/**
 	 * Our namespace manager
 	 */
-	protected NS.NSManager nsl;
+	protected NameSpace.NamespaceManager nameSpaceManager;
 
 	/**
 	 * Default configuration and settings for this Wiki.
@@ -221,11 +221,11 @@ public class Wiki
 		conf.log.enabled = parent.conf.log.enabled;
 		conf.retarget(apiEndpoint);
 
-		wl = parent.wl;
+		mapOfWikis = parent.mapOfWikis;
 		apiclient = new ApiClient(parent, this);
 
 		refreshLoginStatus();
-		refreshNS();
+		refreshNameSpaceList();
 	}
 
 	/* //////////////////////////////////////////////////////////////////////////////// */
@@ -247,7 +247,7 @@ public class Wiki
 		conf.log.info(this, "Try login for " + user);
 		try
 		{
-			if (WAction.postAction(this, "login", false, FL.pMap("lgname", user, "lgpassword", password, "lgtoken", getTokens(WQuery.TOKENS_LOGIN, "logintoken"))) == WAction.ActionResult.SUCCESS)
+			if (WAction.postAction(this, "login", false, FastlyUtilities.pMap("lgname", user, "lgpassword", password, "lgtoken", getTokens(WQuery.TOKENS_LOGIN, "logintoken"))) == WAction.ActionResult.SUCCESS)
 			{
 				refreshLoginStatus();
 
@@ -270,7 +270,7 @@ public class Wiki
 	{
 		conf.uname = GSONP.getStr(new WQuery(this, WQuery.USERINFO).next().metaComp("userinfo").getAsJsonObject(), "name");
 		conf.token = getTokens(WQuery.TOKENS_CSRF, "csrftoken");
-		wl.put(conf.hostname, this);
+		mapOfWikis.put(conf.hostname, this);
 
 		conf.isBot = listUserRights(conf.uname).contains("bot");
 	}
@@ -309,7 +309,7 @@ public class Wiki
 	 */
 	public Response basicGET(String action, String... params)
 	{
-		HashMap<String, String> pl = FL.pMap(params);
+		HashMap<String, String> pl = FastlyUtilities.pMap(params);
 		pl.put("action", action);
 		pl.put("format", "json");
 
@@ -337,7 +337,7 @@ public class Wiki
 
 		try
 		{
-			return apiclient.basicPOST(FL.pMap("action", action), form);
+			return apiclient.basicPOST(FastlyUtilities.pMap("action", action), form);
 		}
 		catch (Throwable e)
 		{
@@ -349,22 +349,22 @@ public class Wiki
 	/**
 	 * Refresh the Namespace list.
 	 */
-	private void refreshNS()
+	private void refreshNameSpaceList()
 	{
 		conf.log.info(this, "Fetching Namespace List");
-		nsl = new NS.NSManager(new WQuery(this, WQuery.NAMESPACES).next().input.getAsJsonObject("query"));
+		nameSpaceManager = new NameSpace.NamespaceManager(new WQuery(this, WQuery.NAMESPACES).next().input.getAsJsonObject("query"));
 	}
 
 	/**
 	 * Check if a title in specified namespace and convert it if it is not.
 	 * 
 	 * @param title The title to check
-	 * @param ns The namespace to convert the title to.
+	 * @param nameSpace The namespace to convert the title to.
 	 * @return The same title if it is in {@code ns}, or the converted title.
 	 */
-	public String convertIfNotInNS(String title, NS ns)
+	public String convertIfNotInNS(String title, NameSpace nameSpace)
 	{
-		return whichNS(title).equals(ns) ? title : String.format("%s:%s", nsl.nsM.get(ns.v), nss(title));
+		return whichNS(title).equals(nameSpace) ? title : String.format("%s:%s", nameSpaceManager.nameSpaceToNumbersAsMap.get(nameSpace.valueForNameSpace), nss(title));
 	}
 
 	/**
@@ -374,10 +374,10 @@ public class Wiki
 	 * @param ns Pages in this/these namespace(s) will be returned.
 	 * @return Titles belonging to a NS in {@code ns}
 	 */
-	public ArrayList<String> filterByNS(ArrayList<String> pages, NS... ns)
+	public ArrayList<String> filterByNS(ArrayList<String> pages, NameSpace... ns)
 	{
-		HashSet<NS> l = new HashSet<>(Arrays.asList(ns));
-		return FL.toAL(pages.stream().filter(s -> l.contains(whichNS(s))));
+		HashSet<NameSpace> l = new HashSet<>(Arrays.asList(ns));
+		return FastlyUtilities.toAL(pages.stream().filter(s -> l.contains(whichNS(s))));
 	}
 
 	/**
@@ -387,12 +387,12 @@ public class Wiki
 	 * @param prefix The prefix to use, without the ":".
 	 * @return An NS representation of the prefix.
 	 */
-	public NS getNS(String prefix)
+	public NameSpace getNS(String prefix)
 	{
 		if (prefix.isEmpty() || prefix.equalsIgnoreCase("main"))
-			return NS.MAIN;
+			return NameSpace.MAIN;
 
-		return nsl.nsM.containsKey(prefix) ? new NS((int) nsl.nsM.get(prefix)) : null;
+		return nameSpaceManager.nameSpaceToNumbersAsMap.containsKey(prefix) ? new NameSpace((int) nameSpaceManager.nameSpaceToNumbersAsMap.get(prefix)) : null;
 	}
 
 	/**
@@ -410,7 +410,7 @@ public class Wiki
 		conf.log.fyi(this, String.format("Get Wiki for %s @ %s", whoami(), domain));
 		try
 		{
-			return wl.containsKey(domain) ? wl.get(domain) : new Wiki(conf.baseURL.newBuilder().host(domain).build(), this);
+			return mapOfWikis.containsKey(domain) ? mapOfWikis.get(domain) : new Wiki(conf.baseURL.newBuilder().host(domain).build(), this);
 		}
 		catch (Throwable e)
 		{
@@ -427,7 +427,7 @@ public class Wiki
 	 */
 	public String nss(String title)
 	{
-		return title.replaceAll(nsl.nssRegex, "");
+		return title.replaceAll(nameSpaceManager.nameSpaceRegex, "");
 	}
 
 	/**
@@ -438,7 +438,7 @@ public class Wiki
 	 */
 	public ArrayList<String> nss(Collection<String> l)
 	{
-		return FL.toAL(l.stream().map(this::nss));
+		return FastlyUtilities.toAL(l.stream().map(this::nss));
 	}
 
 	/**
@@ -449,8 +449,8 @@ public class Wiki
 	 */
 	public String talkPageOf(String title)
 	{
-		int i = whichNS(title).v;
-		return i < 0 || i % 2 == 1 ? null : (String) nsl.nsM.get(i + 1) + ":" + nss(title);
+		int i = whichNS(title).valueForNameSpace;
+		return i < 0 || i % 2 == 1 ? null : (String) nameSpaceManager.nameSpaceToNumbersAsMap.get(i + 1) + ":" + nss(title);
 	}
 
 	/**
@@ -461,14 +461,14 @@ public class Wiki
 	 */
 	public String talkPageBelongsTo(String title)
 	{
-		NS ns = whichNS(title);
+		NameSpace nameSpace = whichNS(title);
 
-		if (ns.v < 0 || ns.v % 2 == 0)
+		if (nameSpace.valueForNameSpace < 0 || nameSpace.valueForNameSpace % 2 == 0)
 			return null;
-		else if (ns.equals(NS.TALK))
+		else if (nameSpace.equals(NameSpace.TALK))
 			return nss(title);
 
-		return (String) nsl.nsM.get(ns.v - 1) + ":" + nss(title);
+		return (String) nameSpaceManager.nameSpaceToNumbersAsMap.get(nameSpace.valueForNameSpace - 1) + ":" + nss(title);
 	}
 
 	/**
@@ -477,10 +477,10 @@ public class Wiki
 	 * @param title The title to get an NS for.
 	 * @return The title's NS.
 	 */
-	public NS whichNS(String title)
+	public NameSpace whichNS(String title)
 	{
-		Matcher m = nsl.p.matcher(title);
-		return !m.find() ? NS.MAIN : new NS((int) nsl.nsM.get(title.substring(m.start(), m.end() - 1)));
+		Matcher m = nameSpaceManager.pattern.matcher(title);
+		return !m.find() ? NameSpace.MAIN : new NameSpace((int) nameSpaceManager.nameSpaceToNumbersAsMap.get(title.substring(m.start(), m.end() - 1)));
 	}
 
 	/**
@@ -569,7 +569,7 @@ public class Wiki
 	 */
 	public void purge(String... titles)
 	{
-		WAction.purge(this, FL.toSAL(titles));
+		WAction.purge(this, FastlyUtilities.toSAL(titles));
 	}
 
 	/**
@@ -656,7 +656,7 @@ public class Wiki
 	 * @param ns The namespace to filter by. Optional param - set null to disable
 	 * @return A list of titles on this Wiki, as specified.
 	 */
-	public ArrayList<String> allPages(String prefix, boolean redirectsOnly, boolean protectedOnly, int cap, NS ns)
+	public ArrayList<String> allPages(String prefix, boolean redirectsOnly, boolean protectedOnly, int cap, NameSpace ns)
 	{
 		conf.log.info(this, "Doing all pages fetch for " + (prefix == null ? "all pages" : prefix));
 
@@ -664,7 +664,7 @@ public class Wiki
 		if (prefix != null)
 			wq.set("apprefix", prefix);
 		if (ns != null)
-			wq.set("apnamespace", "" + ns.v);
+			wq.set("apnamespace", "" + ns.valueForNameSpace);
 		if (redirectsOnly)
 			wq.set("apfilterredir", "redirects");
 		if (protectedOnly)
@@ -672,7 +672,7 @@ public class Wiki
 
 		ArrayList<String> l = new ArrayList<>();
 		while (wq.has())
-			l.addAll(FL.toAL(wq.next().listComp("allpages").stream().map(jo -> GSONP.getStr(jo, "title"))));
+			l.addAll(FastlyUtilities.toAL(wq.next().listComp("allpages").stream().map(jo -> GSONP.getStr(jo, "title"))));
 
 		return l;
 	}
@@ -686,7 +686,7 @@ public class Wiki
 	public boolean exists(String title)
 	{
 		conf.log.info(this, "Checking to see if title exists: " + title);
-		return MQuery.exists(this, FL.toSAL(title)).get(title);
+		return MultipleQuery.exists(this, FastlyUtilities.toSAL(title)).get(title);
 	}
 
 	/**
@@ -698,7 +698,7 @@ public class Wiki
 	public ArrayList<String> fileUsage(String title)
 	{
 		conf.log.info(this, "Fetching local file usage of " + title);
-		return MQuery.fileUsage(this, FL.toSAL(title)).get(title);
+		return MultipleQuery.fileUsage(this, FastlyUtilities.toSAL(title)).get(title);
 	}
 
 	/**
@@ -709,7 +709,7 @@ public class Wiki
 	public ArrayList<String> getAllowedFileExts()
 	{
 		conf.log.info(this, "Fetching a list of permissible file extensions");
-		return FL.toAL(new WQuery(this, WQuery.ALLOWEDFILEXTS).next().listComp("fileextensions").stream().map(e -> GSONP.getStr(e, "ext")));
+		return FastlyUtilities.toAL(new WQuery(this, WQuery.ALLOWEDFILEXTS).next().listComp("fileextensions").stream().map(e -> GSONP.getStr(e, "ext")));
 	}
 
 	/**
@@ -721,7 +721,7 @@ public class Wiki
 	public ArrayList<String> getCategoriesOnPage(String title)
 	{
 		conf.log.info(this, "Getting categories of " + title);
-		return MQuery.getCategoriesOnPage(this, FL.toSAL(title)).get(title);
+		return MultipleQuery.getCategoriesOnPage(this, FastlyUtilities.toSAL(title)).get(title);
 	}
 
 	/**
@@ -731,17 +731,17 @@ public class Wiki
 	 * @param ns Namespace filter. Any title not in the specified namespace(s) will be ignored. Leave blank to select all namespaces. CAVEAT: skipped items are counted against {@code cap}.
 	 * @return The list of titles, as specified, in the category.
 	 */
-	public ArrayList<String> getCategoryMembers(String title, NS... ns)
+	public ArrayList<String> getCategoryMembers(String title, NameSpace... ns)
 	{
 		conf.log.info(this, "Getting category members from " + title);
 
-		WQuery wq = new WQuery(this, WQuery.CATEGORYMEMBERS).set("cmtitle", convertIfNotInNS(title, NS.CATEGORY));
+		WQuery wq = new WQuery(this, WQuery.CATEGORYMEMBERS).set("cmtitle", convertIfNotInNS(title, NameSpace.CATEGORY));
 		if (ns.length > 0)
-			wq.set("cmnamespace", nsl.createFilter(ns));
+			wq.set("cmnamespace", nameSpaceManager.createFilter(ns));
 
 		ArrayList<String> l = new ArrayList<>();
 		while (wq.has())
-			l.addAll(FL.toAL(wq.next().listComp("categorymembers").stream().map(e -> GSONP.getStr(e, "title"))));
+			l.addAll(FastlyUtilities.toAL(wq.next().listComp("categorymembers").stream().map(e -> GSONP.getStr(e, "title"))));
 
 		return l;
 	}
@@ -755,7 +755,7 @@ public class Wiki
 	public int getCategorySize(String title)
 	{
 		conf.log.info(this, "Getting category size of " + title);
-		return MQuery.getCategorySize(this, FL.toSAL(title)).get(title);
+		return MultipleQuery.getCategorySize(this, FastlyUtilities.toSAL(title)).get(title);
 	}
 
 	/**
@@ -768,13 +768,13 @@ public class Wiki
 	 * @param ns Restrict titles returned to the specified Namespace(s). Optional, leave blank to select all namespaces.
 	 * @return A list of contributions.
 	 */
-	public ArrayList<Contrib> getContribs(String user, int cap, boolean olderFirst, boolean createdOnly, NS... ns)
+	public ArrayList<Contrib> getContribs(String user, int cap, boolean olderFirst, boolean createdOnly, NameSpace... ns)
 	{
 		conf.log.info(this, "Fetching contribs of " + user);
 
 		WQuery wq = new WQuery(this, cap, WQuery.USERCONTRIBS).set("ucuser", user);
 		if (ns.length > 0)
-			wq.set("ucnamespace", nsl.createFilter(ns));
+			wq.set("ucnamespace", nameSpaceManager.createFilter(ns));
 		if (olderFirst)
 			wq.set("ucdir", "newer");
 		if (createdOnly)
@@ -782,7 +782,7 @@ public class Wiki
 
 		ArrayList<Contrib> l = new ArrayList<>();
 		while (wq.has())
-			l.addAll(FL.toAL(wq.next().listComp("usercontribs").stream().map(jo -> GSONP.gson.fromJson(jo, Contrib.class))));
+			l.addAll(FastlyUtilities.toAL(wq.next().listComp("usercontribs").stream().map(jo -> GSONP.gson.fromJson(jo, Contrib.class))));
 
 		return l;
 	}
@@ -797,7 +797,7 @@ public class Wiki
 	public ArrayList<String> getDuplicatesOf(String title, boolean localOnly)
 	{
 		conf.log.info(this, "Getting duplicates of " + title);
-		return MQuery.getDuplicatesOf(this, localOnly, FL.toSAL(title)).get(title);
+		return MultipleQuery.getDuplicatesOf(this, localOnly, FastlyUtilities.toSAL(title)).get(title);
 	}
 
 	/**
@@ -809,7 +809,7 @@ public class Wiki
 	public ArrayList<String> getExternalLinks(String title)
 	{
 		conf.log.info(this, "Getting external links on " + title);
-		return MQuery.getExternalLinks(this, FL.toSAL(title)).get(title);
+		return MultipleQuery.getExternalLinks(this, FastlyUtilities.toSAL(title)).get(title);
 	}
 
 	/**
@@ -821,7 +821,7 @@ public class Wiki
 	public ArrayList<ImageInfo> getImageInfo(String title)
 	{
 		conf.log.info(this, "Getting image info for " + title);
-		return MQuery.getImageInfo(this, FL.toSAL(title)).get(title);
+		return MultipleQuery.getImageInfo(this, FastlyUtilities.toSAL(title)).get(title);
 	}
 
 	/**
@@ -833,7 +833,7 @@ public class Wiki
 	public ArrayList<String> getImagesOnPage(String title)
 	{
 		conf.log.info(this, "Getting files on " + title);
-		return MQuery.getImagesOnPage(this, FL.toSAL(title)).get(title);
+		return MultipleQuery.getImagesOnPage(this, FastlyUtilities.toSAL(title)).get(title);
 	}
 
 	/**
@@ -862,10 +862,10 @@ public class Wiki
 	 * @param ns Namespaces to include-only. Optional, leave blank to select all namespaces.
 	 * @return The list of wiki links on the page.
 	 */
-	public ArrayList<String> getLinksOnPage(String title, NS... ns)
+	public ArrayList<String> getLinksOnPage(String title, NameSpace... ns)
 	{
 		conf.log.info(this, "Getting wiki links on " + title);
-		return MQuery.getLinksOnPage(this, FL.toSAL(title), ns).get(title);
+		return MultipleQuery.getLinksOnPage(this, FastlyUtilities.toSAL(title), ns).get(title);
 	}
 
 	/**
@@ -876,9 +876,9 @@ public class Wiki
 	 * @param ns Namespaces to include-only. Optional, leave blank to select all namespaces.
 	 * @return The list of existing links on {@code title}
 	 */
-	public ArrayList<String> getLinksOnPage(boolean exists, String title, NS... ns)
+	public ArrayList<String> getLinksOnPage(boolean exists, String title, NameSpace... ns)
 	{
-		return FL.toAL(MQuery.exists(this, getLinksOnPage(title, ns)).entrySet().stream().filter(t -> t.getValue() == exists).map(Map.Entry::getKey));
+		return FastlyUtilities.toAL(MultipleQuery.exists(this, getLinksOnPage(title, ns)).entrySet().stream().filter(t -> t.getValue() == exists).map(Map.Entry::getKey));
 	}
 
 	/**
@@ -904,7 +904,7 @@ public class Wiki
 
 		ArrayList<LogEntry> l = new ArrayList<>();
 		while (wq.has())
-			l.addAll(FL.toAL(wq.next().listComp("logevents").stream().map(jo -> GSONP.gson.fromJson(jo, LogEntry.class))));
+			l.addAll(FastlyUtilities.toAL(wq.next().listComp("logevents").stream().map(jo -> GSONP.gson.fromJson(jo, LogEntry.class))));
 
 		return l;
 	}
@@ -937,7 +937,7 @@ public class Wiki
 	public String getPageText(String title)
 	{
 		conf.log.info(this, "Getting page text of " + title);
-		return MQuery.getPageText(this, FL.toSAL(title)).get(title);
+		return MultipleQuery.getPageText(this, FastlyUtilities.toSAL(title)).get(title);
 	}
 
 	/**
@@ -948,19 +948,19 @@ public class Wiki
 	 * @param ns Namespace filter, limits returned titles to these namespaces. Optional param - leave blank to disable.
 	 * @return An ArrayList of protected titles.
 	 */
-	public ArrayList<ProtectedTitleEntry> getProtectedTitles(int limit, boolean olderFirst, NS... ns)
+	public ArrayList<ProtectedTitleEntry> getProtectedTitles(int limit, boolean olderFirst, NameSpace... ns)
 	{
 		conf.log.info(this, "Fetching a list of protected titles");
 
 		WQuery wq = new WQuery(this, limit, WQuery.PROTECTEDTITLES);
 		if (ns.length > 0)
-			wq.set("ptnamespace", nsl.createFilter(ns));
+			wq.set("ptnamespace", nameSpaceManager.createFilter(ns));
 		if (olderFirst)
 			wq.set("ptdir", "newer"); // MediaWiki is weird.
 
 		ArrayList<ProtectedTitleEntry> l = new ArrayList<>();
 		while (wq.has())
-			l.addAll(FL.toAL(wq.next().listComp("protectedtitles").stream().map(jo -> GSONP.gson.fromJson(jo, ProtectedTitleEntry.class))));
+			l.addAll(FastlyUtilities.toAL(wq.next().listComp("protectedtitles").stream().map(jo -> GSONP.gson.fromJson(jo, ProtectedTitleEntry.class))));
 
 		return l;
 	}
@@ -972,7 +972,7 @@ public class Wiki
 	 * @param ns Returned titles will be in these namespaces. Optional param - leave blank to disable.
 	 * @return A list of random titles on this Wiki.
 	 */
-	public ArrayList<String> getRandomPages(int limit, NS... ns)
+	public ArrayList<String> getRandomPages(int limit, NameSpace... ns)
 	{
 		conf.log.info(this, "Fetching random page(s)");
 
@@ -983,10 +983,10 @@ public class Wiki
 		WQuery wq = new WQuery(this, limit, WQuery.RANDOM);
 
 		if (ns.length > 0)
-			wq.set("rnnamespace", nsl.createFilter(ns));
+			wq.set("rnnamespace", nameSpaceManager.createFilter(ns));
 
 		while (wq.has())
-			l.addAll(FL.toAL(wq.next().listComp("random").stream().map(e -> GSONP.getStr(e, "title"))));
+			l.addAll(FastlyUtilities.toAL(wq.next().listComp("random").stream().map(e -> GSONP.getStr(e, "title"))));
 
 		return l;
 	}
@@ -1016,7 +1016,7 @@ public class Wiki
 
 		ArrayList<RCEntry> l = new ArrayList<>();
 		while (wq.has())
-			l.addAll(FL.toAL(wq.next().listComp("recentchanges").stream().map(jo -> GSONP.gson.fromJson(jo, RCEntry.class))));
+			l.addAll(FastlyUtilities.toAL(wq.next().listComp("recentchanges").stream().map(jo -> GSONP.gson.fromJson(jo, RCEntry.class))));
 
 		return l;
 	}
@@ -1050,7 +1050,7 @@ public class Wiki
 		{
 			JsonElement e = wq.next().propComp("title", "revisions").get(title);
 			if (e != null)
-				l.addAll(FL.toAL(GSONP.getJAofJO(e.getAsJsonArray()).stream().map(jo -> GSONP.gson.fromJson(jo, Revision.class))));
+				l.addAll(FastlyUtilities.toAL(GSONP.getJAofJO(e.getAsJsonArray()).stream().map(jo -> GSONP.gson.fromJson(jo, Revision.class))));
 		}
 		return l;
 	}
@@ -1065,7 +1065,7 @@ public class Wiki
 	public ArrayList<String> getSharedDuplicatesOf(String title)
 	{
 		conf.log.info(this, "Getting shared duplicates of " + title);
-		return MQuery.getSharedDuplicatesOf(this, FL.toSAL(title)).get(title);
+		return MultipleQuery.getSharedDuplicatesOf(this, FastlyUtilities.toSAL(title)).get(title);
 	}
 
 	/**
@@ -1077,7 +1077,7 @@ public class Wiki
 	public ArrayList<String> getTemplatesOnPage(String title)
 	{
 		conf.log.info(this, "Getting templates transcluded on " + title);
-		return MQuery.getTemplatesOnPage(this, FL.toSAL(title)).get(title);
+		return MultipleQuery.getTemplatesOnPage(this, FastlyUtilities.toSAL(title)).get(title);
 	}
 
 	/**
@@ -1089,7 +1089,7 @@ public class Wiki
 	public String getTextExtract(String title)
 	{
 		conf.log.info(this, "Getting a text extract for " + title);
-		return MQuery.getTextExtracts(this, FL.toSAL(title)).get(title);
+		return MultipleQuery.getTextExtracts(this, FastlyUtilities.toSAL(title)).get(title);
 	}
 
 	/**
@@ -1105,7 +1105,7 @@ public class Wiki
 		ArrayList<String> l = new ArrayList<>();
 		WQuery wq = new WQuery(this, WQuery.USERUPLOADS).set("aiuser", nss(user));
 		while (wq.has())
-			l.addAll(FL.toAL(wq.next().listComp("allimages").stream().map(e -> GSONP.getStr(e, "title"))));
+			l.addAll(FastlyUtilities.toAL(wq.next().listComp("allimages").stream().map(e -> GSONP.getStr(e, "title"))));
 
 		return l;
 	}
@@ -1119,7 +1119,7 @@ public class Wiki
 	public ArrayList<Tuple<String, String>> globalUsage(String title)
 	{
 		conf.log.info(this, "Getting global usage for " + title);
-		return MQuery.globalUsage(this, FL.toSAL(title)).get(title);
+		return MultipleQuery.globalUsage(this, FastlyUtilities.toSAL(title)).get(title);
 	}
 
 	/**
@@ -1131,7 +1131,7 @@ public class Wiki
 	public ArrayList<String> listUserRights(String user)
 	{
 		conf.log.info(this, "Getting user rights for " + user);
-		return MQuery.listUserRights(this, FL.toSAL(user)).get(user);
+		return MultipleQuery.listUserRights(this, FastlyUtilities.toSAL(user)).get(user);
 	}
 
 	/**
@@ -1141,7 +1141,7 @@ public class Wiki
 	 * @param prefix Get all titles in the specified namespace, that start with this String. To select subpages only, append a {@code /} to the end of this parameter.
 	 * @return The list of titles starting with the specified prefix
 	 */
-	public ArrayList<String> prefixIndex(NS namespace, String prefix)
+	public ArrayList<String> prefixIndex(NameSpace namespace, String prefix)
 	{
 		conf.log.info(this, "Doing prefix index search for " + prefix);
 		return allPages(prefix, false, false, -1, namespace);
@@ -1165,7 +1165,7 @@ public class Wiki
 		while (wq.has())
 			try
 			{
-				l.addAll(FL.toAL(FL.streamFrom(GSONP.getNestedJA(wq.next().input, FL.toSAL("query", "querypage", "results"))).map(e -> GSONP.getStr(e.getAsJsonObject(), "title"))));
+				l.addAll(FastlyUtilities.toAL(FastlyUtilities.streamFrom(GSONP.getNestedJA(wq.next().input, FastlyUtilities.toSAL("query", "querypage", "results"))).map(e -> GSONP.getStr(e.getAsJsonObject(), "title"))));
 			}
 			catch (Throwable e)
 			{
@@ -1183,7 +1183,7 @@ public class Wiki
 	public String resolveRedirect(String title)
 	{
 		conf.log.info(this, "Resolving redirect for " + title);
-		return MQuery.resolveRedirects(this, FL.toSAL(title)).get(title);
+		return MultipleQuery.resolveRedirects(this, FastlyUtilities.toSAL(title)).get(title);
 	}
 
 	/**
@@ -1194,16 +1194,16 @@ public class Wiki
 	 * @param ns Limit search to these namespaces. Optional, leave blank to disable. The default behavior is to search all namespaces.
 	 * @return A List of titles found by the search.
 	 */
-	public ArrayList<String> search(String query, int limit, NS... ns)
+	public ArrayList<String> search(String query, int limit, NameSpace... ns)
 	{
 		WQuery wq = new WQuery(this, limit, WQuery.SEARCH).set("srsearch", query);
 
 		if (ns.length > 0)
-			wq.set("srnamespace", nsl.createFilter(ns));
+			wq.set("srnamespace", nameSpaceManager.createFilter(ns));
 
 		ArrayList<String> l = new ArrayList<>();
 		while (wq.has())
-			l.addAll(FL.toAL(wq.next().listComp("search").stream().map(e -> GSONP.getStr(e, "title"))));
+			l.addAll(FastlyUtilities.toAL(wq.next().listComp("search").stream().map(e -> GSONP.getStr(e, "title"))));
 
 		return l;
 	}
@@ -1221,7 +1221,7 @@ public class Wiki
 		try
 		{
 			return PageSection.pageBySection(
-					GSONP.getJAofJO(GSONP.getNestedJA(JsonParser.parseString(basicGET("parse", "prop", "sections", "page", title).body().string()).getAsJsonObject(), FL.toSAL("parse", "sections"))),
+					GSONP.getJAofJO(GSONP.getNestedJA(JsonParser.parseString(basicGET("parse", "prop", "sections", "page", title).body().string()).getAsJsonObject(), FastlyUtilities.toSAL("parse", "sections"))),
 					getPageText(title));
 		}
 		catch (Throwable e)
@@ -1241,7 +1241,7 @@ public class Wiki
 	public ArrayList<String> whatLinksHere(String title, boolean redirects)
 	{
 		conf.log.info(this, "Getting links to " + title);
-		return MQuery.linksHere(this, redirects, FL.toSAL(title)).get(title);
+		return MultipleQuery.linksHere(this, redirects, FastlyUtilities.toSAL(title)).get(title);
 	}
 
 	/**
@@ -1263,9 +1263,9 @@ public class Wiki
 	 * @param ns Only return results from this/these namespace(s). Optional param: leave blank to disable.
 	 * @return The pages transcluding <code>title</code>.
 	 */
-	public ArrayList<String> whatTranscludesHere(String title, NS... ns)
+	public ArrayList<String> whatTranscludesHere(String title, NameSpace... ns)
 	{
 		conf.log.info(this, "Getting list of pages that transclude " + title);
-		return MQuery.transcludesIn(this, FL.toSAL(title), ns).get(title);
+		return MultipleQuery.transcludesIn(this, FastlyUtilities.toSAL(title), ns).get(title);
 	}
 }

@@ -60,7 +60,7 @@ public class GSONP
 	 */
 	public static ArrayList<JsonObject> getJOofJO(JsonObject input)
 	{
-		return FL.toAL(input.entrySet().stream().map(e -> e.getValue().getAsJsonObject()));
+		return FastlyUtilities.toAL(input.entrySet().stream().map(e -> e.getValue().getAsJsonObject()));
 	}
 
 	/**
@@ -73,7 +73,7 @@ public class GSONP
 	{
 		try
 		{
-			return FL.toAL(FL.streamFrom(input).map(JsonElement::getAsJsonObject));
+			return FastlyUtilities.toAL(FastlyUtilities.streamFrom(input).map(JsonElement::getAsJsonObject));
 		}
 		catch (Throwable e)
 		{
@@ -201,6 +201,6 @@ public class GSONP
 	 */
 	public static ArrayList<String> jaOfStrToAL(JsonArray ja)
 	{
-		return FL.toAL(FL.streamFrom(ja).map(JsonElement::getAsString));
+		return FastlyUtilities.toAL(FastlyUtilities.streamFrom(ja).map(JsonElement::getAsString));
 	}
 }

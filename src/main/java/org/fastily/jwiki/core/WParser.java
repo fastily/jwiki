@@ -16,10 +16,10 @@ import javax.xml.stream.events.EndElement;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
-import org.fastily.jwiki.util.FL;
 import org.fastily.jwiki.util.GSONP;
 
 import com.google.gson.JsonParser;
+import org.fastily.jwiki.util.FastlyUtilities;
 
 /**
  * Parses wikitext into a DOM-style, manipulatable format that is easy to work with.
@@ -52,7 +52,7 @@ public class WParser
 			XMLEventReader r = XMLInputFactory.newInstance()
 					.createXMLEventReader(new StringReader(GSONP
 							.getStr(GSONP.getNestedJO(JsonParser.parseString(wiki.basicPOST("parse", queryParams).body().string()).getAsJsonObject(),
-									FL.toSAL("parse", "parsetree")), "*")));
+									FastlyUtilities.toSAL("parse", "parsetree")), "*")));
 
 			WikiText root = new WikiText();
 			while (r.hasNext())
@@ -82,7 +82,7 @@ public class WParser
 	 */
 	public static WikiText parsePage(Wiki wiki, String page)
 	{
-		return parse(wiki, FL.pMap("page", page));
+		return parse(wiki, FastlyUtilities.pMap("page", page));
 	}
 
 	/**
@@ -94,7 +94,7 @@ public class WParser
 	 */
 	public static WikiText parseText(Wiki wiki, String text)
 	{
-		return parse(wiki, FL.pMap("text", text, "contentmodel", "wikitext"));
+		return parse(wiki, FastlyUtilities.pMap("text", text, "contentmodel", "wikitext"));
 	}
 
 	/**
@@ -280,7 +280,7 @@ public class WParser
 		 */
 		public ArrayList<WTemplate> getTemplates()
 		{
-			return FL.toAL(l.stream().filter(o -> o instanceof WTemplate).map(o -> (WTemplate) o));
+			return FastlyUtilities.toAL(l.stream().filter(o -> o instanceof WTemplate).map(o -> (WTemplate) o));
 		}
 
 		/**
@@ -387,7 +387,7 @@ public class WParser
 		 */
 		public void normalizeTitle(Wiki wiki) // TODO: Account for non-template NS
 		{
-			if (wiki.whichNS(title).equals(NS.TEMPLATE))
+			if (wiki.whichNS(title).equals(NameSpace.TEMPLATE))
 				title = wiki.nss(title);
 
 			title = title.length() <= 1 ? title.toUpperCase() : "" + Character.toUpperCase(title.charAt(0)) + title.substring(1);

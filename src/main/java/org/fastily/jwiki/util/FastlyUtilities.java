@@ -17,12 +17,12 @@ import java.util.stream.StreamSupport;
  * @author Fastily
  *
  */
-public final class FL
+public final class FastlyUtilities
 {
 	/**
 	 * Constructors disallowed
 	 */
-	private FL()
+	private FastlyUtilities()
 	{
 
 	}

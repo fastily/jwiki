@@ -7,8 +7,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import org.fastily.jwiki.util.FL;
-
 import okhttp3.Cookie;
 import okhttp3.CookieJar;
 import okhttp3.FormBody;
@@ -19,6 +17,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+import org.fastily.jwiki.util.FastlyUtilities;
 
 /**
  * Functions which perform {@code GET} and {@code POST} requests to the MediaWiki api and returns Response objects in a
@@ -191,7 +190,7 @@ class ApiClient
 		{
 			String host = url.host();
 			return !cj.containsKey(host) ? new ArrayList<>()
-					: FL.toAL(cj.get(host).entrySet().stream()
+					: FastlyUtilities.toAL(cj.get(host).entrySet().stream()
 							.map(e -> new Cookie.Builder().name(e.getKey()).value(e.getValue()).domain(host).build()));
 		}
 	}

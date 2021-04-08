@@ -7,7 +7,6 @@ import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import org.fastily.jwiki.util.FL;
 import org.fastily.jwiki.util.GSONP;
 
 import com.google.gson.JsonObject;
@@ -17,6 +16,7 @@ import okhttp3.HttpUrl;
 import okhttp3.Response;
 import okio.BufferedSource;
 import okio.Okio;
+import org.fastily.jwiki.util.FastlyUtilities;
 
 /**
  * Static methods to perform changes to a Wiki.
@@ -45,7 +45,7 @@ class WAction
 	 */
 	protected static ActionResult postAction(Wiki wiki, String action, boolean applyToken, HashMap<String, String> form)
 	{
-		HashMap<String, String> fl = FL.pMap("format", "json");
+		HashMap<String, String> fl = FastlyUtilities.pMap("format", "json");
 		if (applyToken)
 			fl.put("token", wiki.conf.token);
 
@@ -53,7 +53,7 @@ class WAction
 
 		try
 		{
-			JsonObject result = JsonParser.parseString(wiki.apiclient.basicPOST(FL.pMap("action", action), fl).body().string()).getAsJsonObject();
+			JsonObject result = JsonParser.parseString(wiki.apiclient.basicPOST(FastlyUtilities.pMap("action", action), fl).body().string()).getAsJsonObject();
 			if (wiki.debug)
 				wiki.conf.log.debug(wiki, GSONP.gsonPP.toJson(result));
 
@@ -79,7 +79,7 @@ class WAction
 	{
 		wiki.conf.log.info(wiki, "Adding text to " + title);
 
-		HashMap<String, String> pl = FL.pMap("title", title, append ? "appendtext" : "prependtext", text, "summary", summary);
+		HashMap<String, String> pl = FastlyUtilities.pMap("title", title, append ? "appendtext" : "prependtext", text, "summary", summary);
 		if (wiki.conf.isBot)
 			pl.put("bot", "");
 
@@ -99,7 +99,7 @@ class WAction
 	{
 		wiki.conf.log.info(wiki, "Editing " + title);
 
-		HashMap<String, String> pl = FL.pMap("title", title, "text", text, "summary", summary);
+		HashMap<String, String> pl = FastlyUtilities.pMap("title", title, "text", text, "summary", summary);
 		if (wiki.conf.isBot)
 			pl.put("bot", "");
 
@@ -149,7 +149,7 @@ class WAction
 	{
 		wiki.conf.log.info(wiki, String.format("Moving %s to %s", title, newTitle));
 
-		HashMap<String, String> pl = FL.pMap("from", title, "to", newTitle, "reason", reason);
+		HashMap<String, String> pl = FastlyUtilities.pMap("from", title, "to", newTitle, "reason", reason);
 
 		if (moveTalk)
 			pl.put("movetalk", "1");
@@ -172,7 +172,7 @@ class WAction
 	protected static boolean delete(Wiki wiki, String title, String reason)
 	{
 		wiki.conf.log.info(wiki, "Deleting " + title);
-		return postAction(wiki, "delete", true, FL.pMap("title", title, "reason", reason)) == ActionResult.NONE;
+		return postAction(wiki, "delete", true, FastlyUtilities.pMap("title", title, "reason", reason)) == ActionResult.NONE;
 	}
 
 	/**
@@ -188,7 +188,7 @@ class WAction
 		wiki.conf.log.info(wiki, "Restoring " + title);
 
 		for (int i = 0; i < 10; i++)
-			if (postAction(wiki, "undelete", true, FL.pMap("title", title, "reason", reason)) == ActionResult.NONE)
+			if (postAction(wiki, "undelete", true, FastlyUtilities.pMap("title", title, "reason", reason)) == ActionResult.NONE)
 				return true;
 
 		return false;
@@ -204,7 +204,7 @@ class WAction
 	{
 		wiki.conf.log.info(wiki, "Purging:" + titles);
 
-		HashMap<String, String> pl = FL.pMap("titles", FL.pipeFence(titles));
+		HashMap<String, String> pl = FastlyUtilities.pMap("titles", FastlyUtilities.pipeFence(titles));
 		postAction(wiki, "purge", false, pl);
 	}
 
@@ -234,7 +234,7 @@ class WAction
 			{
 				wiki.conf.log.fyi(wiki, String.format("Uploading chunk [%d of %d] of '%s'", cm.chunkCnt, cm.totalChunks, file));
 
-				HashMap<String, String> pl = FL.pMap("format", "json", "filename", title, "token", wiki.conf.token, "ignorewarnings", "1", "stash", "1", "offset", "" + c.offset, "filesize",
+				HashMap<String, String> pl = FastlyUtilities.pMap("format", "json", "filename", title, "token", wiki.conf.token, "ignorewarnings", "1", "stash", "1", "offset", "" + c.offset, "filesize",
 						"" + c.filesize);
 				if (filekey != null)
 					pl.put("filekey", filekey);
@@ -242,7 +242,7 @@ class WAction
 				for (int i = 0; i < 5; i++)
 					try
 					{
-						Response r = wiki.apiclient.multiPartFilePOST(FL.pMap("action", "upload"), pl, fn, c.bl);
+						Response r = wiki.apiclient.multiPartFilePOST(FastlyUtilities.pMap("action", "upload"), pl, fn, c.bl);
 						if (!r.isSuccessful())
 						{
 							wiki.conf.log.error(wiki, "Bad response from server: " + r.code());
@@ -264,7 +264,7 @@ class WAction
 			{
 				wiki.conf.log.info(wiki, String.format("Unstashing '%s' as '%s'", filekey, title));
 
-				if (postAction(wiki, "upload", true, FL.pMap("filename", title, "text", desc, "comment", summary, "filekey", filekey, "ignorewarnings", "true")) == ActionResult.SUCCESS)
+				if (postAction(wiki, "upload", true, FastlyUtilities.pMap("filename", title, "text", desc, "comment", summary, "filekey", filekey, "ignorewarnings", "true")) == ActionResult.SUCCESS)
 					return true;
 
 				wiki.conf.log.error(wiki, "Encountered an error while unstashing, retrying - " + i);
@@ -293,7 +293,7 @@ class WAction
 	{
 		wiki.conf.log.info(wiki, String.format("Uploading '%s' to '%s'", url, title));
 
-		return postAction(wiki, "upload", true, FL.pMap("filename", title, "text", desc, "comment", summary, "ignorewarnings", "true", "url", url.toString())) == ActionResult.SUCCESS;
+		return postAction(wiki, "upload", true, FastlyUtilities.pMap("filename", title, "text", desc, "comment", summary, "ignorewarnings", "true", "url", url.toString())) == ActionResult.SUCCESS;
 	}
 
 	/**

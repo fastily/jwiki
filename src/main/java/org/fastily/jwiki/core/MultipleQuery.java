@@ -7,7 +7,6 @@ import java.util.HashMap;
 
 import org.fastily.jwiki.core.WQuery.QTemplate;
 import org.fastily.jwiki.dwrap.ImageInfo;
-import org.fastily.jwiki.util.FL;
 import org.fastily.jwiki.util.GSONP;
 import org.fastily.jwiki.util.GroupQueue;
 import org.fastily.jwiki.util.MultiMap;
@@ -15,6 +14,7 @@ import org.fastily.jwiki.util.Tuple;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import org.fastily.jwiki.util.FastlyUtilities;
 
 /**
  * Perform multi-title queries. Use of these methods is intended for
@@ -26,7 +26,7 @@ import com.google.gson.JsonObject;
  * @author Fastily
  * @see Wiki
  */
-public final class MQuery
+public final class MultipleQuery
 {
 	/**
 	 * The group {@code prop} query (multiple titles query) maximum
@@ -36,7 +36,7 @@ public final class MQuery
 	/**
 	 * Constructors disallowed
 	 */
-	private MQuery()
+	private MultipleQuery()
 	{
 
 	}
@@ -57,7 +57,7 @@ public final class MQuery
 	{
 		MultiMap<String, JsonObject> l = new MultiMap<>();
 
-		if (FL.containsNull(titles))
+		if (FastlyUtilities.containsNull(titles))
 			throw new IllegalArgumentException("null is not an acceptable title to query with");
 
 		GroupQueue<String> gq = new GroupQueue<>(titles, groupQueryMax);
@@ -93,7 +93,7 @@ public final class MQuery
 	{
 		HashMap<String, JsonElement> m = new HashMap<>();
 
-		if (FL.containsNull(titles))
+		if (FastlyUtilities.containsNull(titles))
 			throw new IllegalArgumentException("null is not an acceptable title to query with");
 
 		GroupQueue<String> gq = new GroupQueue<>(titles, groupQueryMax);
@@ -124,7 +124,7 @@ public final class MQuery
 	{
 		ArrayList<JsonObject> l = new ArrayList<>();
 
-		if (FL.containsNull(titles))
+		if (FastlyUtilities.containsNull(titles))
 			throw new IllegalArgumentException("null is not an acceptable title to query with");
 
 		GroupQueue<String> gq = new GroupQueue<>(titles, groupQueryMax);
@@ -150,7 +150,7 @@ public final class MQuery
 	private static HashMap<String, ArrayList<String>> parsePropToSingle(MultiMap<String, JsonObject> m, String elemKey)
 	{
 		HashMap<String, ArrayList<String>> xl = new HashMap<>();
-		m.l.forEach((k, v) -> xl.put(k, FL.toAL(v.stream().map(e -> GSONP.getStr(e, elemKey)))));
+		m.l.forEach((k, v) -> xl.put(k, FastlyUtilities.toAL(v.stream().map(e -> GSONP.getStr(e, elemKey)))));
 
 		return xl;
 	}
@@ -180,7 +180,7 @@ public final class MQuery
 	{
 		HashMap<String, ArrayList<Tuple<String, String>>> xl = new HashMap<>();
 		m.l.forEach(
-				(k, v) -> xl.put(k, FL.toAL(v.stream().map(e -> new Tuple<>(GSONP.getStr(e, elemKey1), GSONP.getStr(e, elemKey2))))));
+				(k, v) -> xl.put(k, FastlyUtilities.toAL(v.stream().map(e -> new Tuple<>(GSONP.getStr(e, elemKey1), GSONP.getStr(e, elemKey2))))));
 
 		return xl;
 	}
@@ -213,7 +213,7 @@ public final class MQuery
 	{
 		HashMap<String, ArrayList<ImageInfo>> l = new HashMap<>();
 		getContProp(wiki, titles, WQuery.IMAGEINFO, null, "imageinfo").l
-				.forEach((k, v) -> l.put(k, FL.toAL(v.stream().map(jo -> GSONP.gson.fromJson(jo, ImageInfo.class)))));
+				.forEach((k, v) -> l.put(k, FastlyUtilities.toAL(v.stream().map(jo -> GSONP.gson.fromJson(jo, ImageInfo.class)))));
 
 		// MediaWiki imageinfo is not a well-behaved module
 		l.forEach((k, v) -> Collections.sort(v));
@@ -280,11 +280,11 @@ public final class MQuery
 	 * @param ns Namespaces to include-only. Optional param: leave blank to disable.
 	 * @return A list of results keyed by title.
 	 */
-	public static HashMap<String, ArrayList<String>> getLinksOnPage(Wiki wiki, Collection<String> titles, NS... ns)
+	public static HashMap<String, ArrayList<String>> getLinksOnPage(Wiki wiki, Collection<String> titles, NameSpace... ns)
 	{
 		HashMap<String, String> pl = new HashMap<>();
 		if (ns != null && ns.length > 0)
-			pl.put("plnamespace", wiki.nsl.createFilter(ns));
+			pl.put("plnamespace", wiki.nameSpaceManager.createFilter(ns));
 
 		return parsePropToSingle(getContProp(wiki, titles, WQuery.LINKSONPAGE, pl, "links"));
 	}
@@ -300,7 +300,7 @@ public final class MQuery
 	public static HashMap<String, ArrayList<String>> linksHere(Wiki wiki, boolean redirects, Collection<String> titles)
 	{
 		return parsePropToSingle(
-				getContProp(wiki, titles, WQuery.LINKSHERE, FL.pMap("lhshow", (redirects ? "" : "!") + "redirect"), "linkshere"));
+				getContProp(wiki, titles, WQuery.LINKSHERE, FastlyUtilities.pMap("lhshow", (redirects ? "" : "!") + "redirect"), "linkshere"));
 	}
 
 	/**
@@ -311,11 +311,11 @@ public final class MQuery
 	 * @param ns Only return results from this/these namespace(s). Optional param: leave blank to disable.
 	 * @return A list of results keyed by title.
 	 */
-	public static HashMap<String, ArrayList<String>> transcludesIn(Wiki wiki, Collection<String> titles, NS... ns)
+	public static HashMap<String, ArrayList<String>> transcludesIn(Wiki wiki, Collection<String> titles, NameSpace... ns)
 	{
 		HashMap<String, String> pl = new HashMap<>();
 		if (ns.length > 0)
-			pl.put("tinamespace", wiki.nsl.createFilter(ns));
+			pl.put("tinamespace", wiki.nameSpaceManager.createFilter(ns));
 
 		return parsePropToSingle(getContProp(wiki, titles, WQuery.TRANSCLUDEDIN, pl, "transcludedin"));
 	}
@@ -449,7 +449,7 @@ public final class MQuery
 
 		HashMap<String, ArrayList<String>> l = parsePropToSingle(getContProp(wiki, titles, WQuery.DUPLICATEFILES, pl, "duplicatefiles"),
 				"name");
-		l.forEach((k, v) -> v.replaceAll(s -> wiki.convertIfNotInNS(s.replace('_', ' '), NS.FILE)));
+		l.forEach((k, v) -> v.replaceAll(s -> wiki.convertIfNotInNS(s.replace('_', ' '), NameSpace.FILE)));
 
 		return l;
 	}
@@ -468,7 +468,7 @@ public final class MQuery
 				getContProp(wiki, titles, WQuery.DUPLICATEFILES, null, "duplicatefiles"), "name", "shared");
 
 		HashMap<String, ArrayList<String>> l = new HashMap<>();
-		xl.forEach((k, v) -> l.put(k, FL.toAL(v.stream().filter(t -> t.y != null).map(t -> wiki.convertIfNotInNS(t.x.replace('_', ' '), NS.FILE)))));
+		xl.forEach((k, v) -> l.put(k, FastlyUtilities.toAL(v.stream().filter(t -> t.y != null).map(t -> wiki.convertIfNotInNS(t.x.replace('_', ' '), NameSpace.FILE)))));
 		return l;
 	}
 
