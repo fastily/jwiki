@@ -309,9 +309,25 @@ public class Wiki
 	 */
 	public Response basicGET(String action, String... params)
 	{
+		return this.performGET(action, false, params);
+	}
+
+	/**
+	 * Same as {@link #basicGET(String, String...) basicGET} but adds the authentication token to the request.
+	 */
+	public Response authenticatedGET(String action, String... params)
+	{
+		return this.performGET(action, true, params);
+	}
+	
+	private Response performGET(String action, boolean applyToken, String... params)
+	{
 		HashMap<String, String> pl = FL.pMap(params);
 		pl.put("action", action);
 		pl.put("format", "json");
+		if (applyToken) {
+			pl.put("token", this.conf.token);
+		}
 
 		try
 		{
@@ -333,7 +349,23 @@ public class Wiki
 	 */
 	public Response basicPOST(String action, HashMap<String, String> form)
 	{
+		return this.performPOST(action, false, form);
+	}
+
+	/**
+	 * Same as {@link #basicPOST(String, HashMap) basicPOST} but adds the authentication token to the request.
+	 */
+	public Response authenticatedPOST(String action, HashMap<String, String> form)
+	{
+		return this.performPOST(action, true, form);
+	}
+	
+	private Response performPOST(String action, boolean applyToken, HashMap<String, String> form)
+	{
 		form.put("format", "json");
+		if (applyToken) {
+			form.put("token", this.conf.token);
+		}
 
 		try
 		{
