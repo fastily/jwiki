@@ -1135,7 +1135,7 @@ public class Wiki
 	}
 
 	/**
-	 * Does the same thing as Special:PrefixIndex.
+	 * Performs a prefix search using hte specified prefix and namespace, and returns the best matching titles.
 	 * 
 	 * @param namespace The namespace to filter by (inclusive)
 	 * @param prefix Get all titles in the specified namespace, that start with this String. To select subpages only, append a {@code /} to the end of this parameter.

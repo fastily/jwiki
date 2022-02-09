@@ -20,5 +20,6 @@ jobs:
       with:
         java-version: ${{ matrix.java }}
         distribution: 'adopt'
+        cache: 'gradle'
     - name: Build with Gradle
-      run: ./gradlew build
+      run: ./gradlew build --no-daemon
