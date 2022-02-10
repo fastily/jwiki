@@ -18,13 +18,13 @@ Not convinced?  Try out the [examples](https://github.com/fastily/jwiki/wiki/Exa
 <dependency>
   <groupId>org.fastily</groupId>
   <artifactId>jwiki</artifactId>
-  <version>1.8.0</version>
+  <version>1.9.0</version>
 </dependency>
 ```
 
 #### Gradle
 ```groovy
-implementation 'org.fastily:jwiki:1.8.0'
+implementation 'org.fastily:jwiki:1.9.0'
 ```
 
 ⚠️ COORDINATES HAVE CHANGED (since 1.7.0): jwiki's new groupId is `org.fastily`
@@ -37,7 +37,7 @@ Build and publish (install) jwiki on your computer with
 
 ## Resources
 * [Examples](https://github.com/fastily/jwiki/wiki/Examples)
-* [Javadocs](https://fastily.github.io/jwiki/docs/jwiki/)
+* [Javadocs](https://www.javadoc.io/doc/org.fastily/jwiki/latest/)
 
 Please create a new [issue](https://github.com/fastily/jwiki/issues) for bug reports and/or feature requests.
 

@@ -8,12 +8,11 @@ plugins {
 
 description="${project.name} build script"
 group="org.fastily"
-version="1.8.1"
+version="1.9.0"
 
 repositories {
     mavenCentral()
 }
-
 
 dependencies {
     api "com.google.code.gson:gson:2.8.9"
@@ -21,14 +20,13 @@ dependencies {
     
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.2'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.2'
-    //testRuntimeOnly 'org.junit.platform:junit-platform-launcher:1.5.2'
     
     testImplementation "com.squareup.okhttp3:mockwebserver:4.9.3"
 }
 
 
-test {
-	useJUnitPlatform()
+tasks.named('test') {
+    useJUnitPlatform()
 }
 
 
@@ -46,15 +44,15 @@ javadoc {
     classpath = configurations.compileClasspath
 
     options {
+        jFlags '-Dhttp.agent=gradle-javadoc'
         setMemberLevel JavadocMemberLevel.PUBLIC
         setAuthor true
 
         links "https://docs.oracle.com/en/java/javase/11/docs/api/"
         //links "https://square.github.io/okio/1.x/okio/"
         //links "https://square.github.io/okhttp/3.x/okhttp/"
-        links "https://fastily.github.io/jwiki/docs/gson/"
+        links "https://www.javadoc.io/doc/com.google.code.gson/gson/2.8.9/"
         
-        // links "http://square.github.io/okhttp/3.x/mockwebserver/"
         // setOutputLevel JavadocOutputLevel.VERBOSE
     }
 }
@@ -101,8 +99,8 @@ publishing {
             url = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
 
             credentials {
-                username hasProperty("ossrhUsername") ? "$ossrhUsername" : System.getenv('ossrhUsername')
-                password hasProperty("ossrhPassword") ? "$ossrhPassword" : System.getenv('ossrhPassword')
+                username project.hasProperty("ossrhUsername") ? project.properties["ossrhUsername"] : System.getenv('ossrhUsername')
+                password project.hasProperty("ossrhPassword") ? project.properties["ossrhPassword"] : System.getenv('ossrhPassword')
             }
         }
     }
