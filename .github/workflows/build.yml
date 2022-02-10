@@ -9,17 +9,12 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
-    strategy:
-      matrix:
-        java: [11, 16]
-
     steps:
     - uses: actions/checkout@v2
     - name: Setup Java JDK
       uses: actions/setup-java@v2
       with:
-        java-version: ${{ matrix.java }}
-        distribution: 'adopt'
+        distribution: 'temurin'
+        java-version: '17'
         cache: 'gradle'
-    - name: Build with Gradle
-      run: ./gradlew build --no-daemon
+    - run: ./gradlew build --no-daemon

@@ -1,6 +1,6 @@
 # jwiki
-![Build Status](https://github.com/fastily/jwiki/workflows/build/badge.svg)
-![JDK-11+](https://upload.wikimedia.org/wikipedia/commons/e/ef/Blue_JDK_11%2B_Shield_Badge.svg)
+[![Build Status](https://github.com/fastily/jwiki/workflows/build/badge.svg)](#)
+[![JDK-11+](https://upload.wikimedia.org/wikipedia/commons/e/ef/Blue_JDK_11%2B_Shield_Badge.svg)](https://adoptium.net)
 [![MediaWiki 1.31+](https://upload.wikimedia.org/wikipedia/commons/b/b2/Blue_MediaWiki_1.31%2B_Shield_Badge.svg)](https://www.mediawiki.org/wiki/MediaWiki)
 [![License: GPL v3](https://upload.wikimedia.org/wikipedia/commons/8/86/GPL_v3_Blue_Badge.svg)](https://www.gnu.org/licenses/gpl-3.0.en.html)
 
@@ -27,7 +27,7 @@ Not convinced?  Try out the [examples](https://github.com/fastily/jwiki/wiki/Exa
 implementation 'org.fastily:jwiki:1.9.0'
 ```
 
-⚠️ COORDINATES HAVE CHANGED (since 1.7.0): jwiki's new groupId is `org.fastily`
+⚠️ COORDINATES HAVE CHANGED (since 1.7.0): jwiki's new group id is `org.fastily`
 
 ## Build
 Build and publish (install) jwiki on your computer with
