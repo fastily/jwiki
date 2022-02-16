@@ -1,5 +1,6 @@
 # jwiki
 [![Build Status](https://github.com/fastily/jwiki/workflows/build/badge.svg)](#)
+[![javadoc](https://javadoc.io/badge2/org.fastily/jwiki/javadoc.svg)](https://javadoc.io/doc/org.fastily/jwiki)
 [![JDK-11+](https://upload.wikimedia.org/wikipedia/commons/e/ef/Blue_JDK_11%2B_Shield_Badge.svg)](https://adoptium.net)
 [![MediaWiki 1.31+](https://upload.wikimedia.org/wikipedia/commons/b/b2/Blue_MediaWiki_1.31%2B_Shield_Badge.svg)](https://www.mediawiki.org/wiki/MediaWiki)
 [![License: GPL v3](https://upload.wikimedia.org/wikipedia/commons/8/86/GPL_v3_Blue_Badge.svg)](https://www.gnu.org/licenses/gpl-3.0.en.html)
@@ -37,7 +38,7 @@ Build and publish (install) jwiki on your computer with
 
 ## Resources
 * [Examples](https://github.com/fastily/jwiki/wiki/Examples)
-* [Javadocs](https://www.javadoc.io/doc/org.fastily/jwiki/latest/)
+* [Javadocs](https://www.javadoc.io/doc/org.fastily/jwiki)
 
 Please create a new [issue](https://github.com/fastily/jwiki/issues) for bug reports and/or feature requests.
 
