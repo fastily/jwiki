@@ -7,15 +7,15 @@ plugins {
 }
 
 description="${project.name} build script"
-group="org.fastily"
-version="1.9.0"
+group="io.github.fastily"
+version="1.10.0"
 
 repositories {
     mavenCentral()
 }
 
 dependencies {
-    api "com.google.code.gson:gson:2.8.9"
+    api "com.google.code.gson:gson:2.9.0"
     api "com.squareup.okhttp3:okhttp:4.9.3"
     
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.2'
@@ -48,17 +48,17 @@ javadoc {
         setMemberLevel JavadocMemberLevel.PUBLIC
         setAuthor true
 
-        links "https://docs.oracle.com/en/java/javase/11/docs/api/"
+        links "https://docs.oracle.com/en/java/javase/17/docs/api/"
         //links "https://square.github.io/okio/1.x/okio/"
         //links "https://square.github.io/okhttp/3.x/okhttp/"
-        links "https://www.javadoc.io/doc/com.google.code.gson/gson/2.8.9/"
+        links "https://www.javadoc.io/doc/com.google.code.gson/gson/2.9.0/"
         
         // setOutputLevel JavadocOutputLevel.VERBOSE
     }
 }
 
 wrapper {
-    gradleVersion = '7.4'
+    gradleVersion = '7.4.2'
 }
 
 
@@ -96,7 +96,7 @@ publishing {
 
     repositories {
         maven {
-            url = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
+            url = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
 
             credentials {
                 username project.hasProperty("ossrhUsername") ? project.properties["ossrhUsername"] : System.getenv('ossrhUsername')
