@@ -11,6 +11,9 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.regex.Matcher;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 
@@ -34,6 +37,11 @@ import okhttp3.Response;
  */
 public class Wiki
 {
+	/**
+	 * The Logger for this class
+	 */
+	private static Logger log = LoggerFactory.getLogger(Wiki.class);
+
 	/**
 	 * Builder used to create Wiki objects. All options are optional. If you're lazy and just want an anonymous Wiki pointing to en.wikipedia.org, use {@code new Wiki.Builder().build()}
 	 * 
@@ -120,18 +128,6 @@ public class Wiki
 		}
 
 		/**
-		 * Configures the Wiki to use the default jwiki logger. This is enabled by default.
-		 * 
-		 * @param enableLogging Set false to disable jwiki's built-in logging.
-		 * @return This Builder
-		 */
-		public Builder withDefaultLogger(boolean enableLogging)
-		{
-			wiki.conf.log.enabled = enableLogging;
-			return this;
-		}
-
-		/**
 		 * Configures the Wiki to be created with the specified username and password combination. Login will be attempted when {@link #build()} is called.
 		 * 
 		 * @param username The username to use
@@ -142,18 +138,6 @@ public class Wiki
 		{
 			this.username = username;
 			this.password = password;
-			return this;
-		}
-
-		/**
-		 * Configures the Wiki to be created to print *all* the messages.
-		 * 
-		 * @param enableDebug Set true to enable debug mode.
-		 * @return This Builder
-		 */
-		public Builder withDebug(boolean enableDebug)
-		{
-			wiki.debug = enableDebug;
 			return this;
 		}
 
@@ -175,11 +159,6 @@ public class Wiki
 			return wiki;
 		}
 	}
-
-	/**
-	 * Toggles logging of debug information to stderr. Disabled (false) by default. Changes take effect immediately.
-	 */
-	public boolean debug = false;
 
 	/**
 	 * Our list of currently logged in Wiki's associated with this object. Useful for global operations.
@@ -217,7 +196,6 @@ public class Wiki
 	 */
 	private Wiki(HttpUrl apiEndpoint, Wiki parent)
 	{
-		conf.log.enabled = parent.conf.log.enabled;
 		conf.retarget(apiEndpoint);
 
 		wl = parent.wl;
@@ -243,14 +221,14 @@ public class Wiki
 		if (conf.uname != null) // do not login more than once
 			return true;
 
-		conf.log.info(this, "Try login for " + user);
+		log.info("{}: Try login for {}", this, user);
 		try
 		{
 			if (WAction.postAction(this, "login", false, FL.pMap("lgname", user, "lgpassword", password, "lgtoken", getTokens(WQuery.TOKENS_LOGIN, "logintoken"))) == WAction.ActionResult.SUCCESS)
 			{
 				refreshLoginStatus();
 
-				conf.log.info(this, "Logged in as " + user);
+				log.info("{}: Logged in as {}", this, user);
 				return true;
 			}
 		}
@@ -350,7 +328,7 @@ public class Wiki
 	 */
 	private void refreshNS()
 	{
-		conf.log.info(this, "Fetching Namespace List");
+		log.info("{}: Fetching Namespace List", this);
 		nsl = new NS.NSManager(new WQuery(this, WQuery.NAMESPACES).next().input.getAsJsonObject("query"));
 	}
 
@@ -406,7 +384,7 @@ public class Wiki
 		if (conf.uname == null)
 			return null;
 
-		conf.log.fyi(this, String.format("Get Wiki for %s @ %s", whoami(), domain));
+		log.info("{}: Get Wiki for {} @ {}", this, whoami(), domain);
 		try
 		{
 			return wl.containsKey(domain) ? wl.get(domain) : new Wiki(conf.baseURL.newBuilder().host(domain).build(), this);
@@ -657,7 +635,7 @@ public class Wiki
 	 */
 	public ArrayList<String> allPages(String prefix, boolean redirectsOnly, boolean protectedOnly, int cap, NS ns)
 	{
-		conf.log.info(this, "Doing all pages fetch for " + (prefix == null ? "all pages" : prefix));
+		log.info("{}: Doing all pages fetch for {}", this, prefix == null ? "all pages" : prefix);
 
 		WQuery wq = new WQuery(this, cap, WQuery.ALLPAGES);
 		if (prefix != null)
@@ -684,7 +662,7 @@ public class Wiki
 	 */
 	public boolean exists(String title)
 	{
-		conf.log.info(this, "Checking to see if title exists: " + title);
+		log.info("{}: Checking to see if title exists: {}", this, title);
 		return MQuery.exists(this, FL.toSAL(title)).get(title);
 	}
 
@@ -696,7 +674,7 @@ public class Wiki
 	 */
 	public ArrayList<String> fileUsage(String title)
 	{
-		conf.log.info(this, "Fetching local file usage of " + title);
+		log.info("{}: Fetching local file usage of {}", this, title);
 		return MQuery.fileUsage(this, FL.toSAL(title)).get(title);
 	}
 
@@ -707,7 +685,7 @@ public class Wiki
 	 */
 	public ArrayList<String> getAllowedFileExts()
 	{
-		conf.log.info(this, "Fetching a list of permissible file extensions");
+		log.info("{}: Fetching a list of permissible file extensions", this);
 		return FL.toAL(new WQuery(this, WQuery.ALLOWEDFILEXTS).next().listComp("fileextensions").stream().map(e -> GSONP.getStr(e, "ext")));
 	}
 
@@ -719,7 +697,7 @@ public class Wiki
 	 */
 	public ArrayList<String> getCategoriesOnPage(String title)
 	{
-		conf.log.info(this, "Getting categories of " + title);
+		log.info("{}: Getting categories of {}", this, title);
 		return MQuery.getCategoriesOnPage(this, FL.toSAL(title)).get(title);
 	}
 
@@ -732,7 +710,7 @@ public class Wiki
 	 */
 	public ArrayList<String> getCategoryMembers(String title, NS... ns)
 	{
-		conf.log.info(this, "Getting category members from " + title);
+		log.info("{}: Getting category members from {}", this, title);
 
 		WQuery wq = new WQuery(this, WQuery.CATEGORYMEMBERS).set("cmtitle", convertIfNotInNS(title, NS.CATEGORY));
 		if (ns.length > 0)
@@ -753,7 +731,7 @@ public class Wiki
 	 */
 	public int getCategorySize(String title)
 	{
-		conf.log.info(this, "Getting category size of " + title);
+		log.info("{}: Getting category size of {}", this, title);
 		return MQuery.getCategorySize(this, FL.toSAL(title)).get(title);
 	}
 
@@ -769,7 +747,7 @@ public class Wiki
 	 */
 	public ArrayList<Contrib> getContribs(String user, int cap, boolean olderFirst, boolean createdOnly, NS... ns)
 	{
-		conf.log.info(this, "Fetching contribs of " + user);
+		log.info("{}: Fetching contribs of {}", this, user);
 
 		WQuery wq = new WQuery(this, cap, WQuery.USERCONTRIBS).set("ucuser", user);
 		if (ns.length > 0)
@@ -795,7 +773,7 @@ public class Wiki
 	 */
 	public ArrayList<String> getDuplicatesOf(String title, boolean localOnly)
 	{
-		conf.log.info(this, "Getting duplicates of " + title);
+		log.info("{}: Getting duplicates of {}", this, title);
 		return MQuery.getDuplicatesOf(this, localOnly, FL.toSAL(title)).get(title);
 	}
 
@@ -807,7 +785,7 @@ public class Wiki
 	 */
 	public ArrayList<String> getExternalLinks(String title)
 	{
-		conf.log.info(this, "Getting external links on " + title);
+		log.info("{}: Getting external links on {}", this, title);
 		return MQuery.getExternalLinks(this, FL.toSAL(title)).get(title);
 	}
 
@@ -819,7 +797,7 @@ public class Wiki
 	 */
 	public ArrayList<ImageInfo> getImageInfo(String title)
 	{
-		conf.log.info(this, "Getting image info for " + title);
+		log.info("{}: Getting image info for {}", this, title);
 		return MQuery.getImageInfo(this, FL.toSAL(title)).get(title);
 	}
 
@@ -831,7 +809,7 @@ public class Wiki
 	 */
 	public ArrayList<String> getImagesOnPage(String title)
 	{
-		conf.log.info(this, "Getting files on " + title);
+		log.info("{}: Getting files on {}", this, title);
 		return MQuery.getImagesOnPage(this, FL.toSAL(title)).get(title);
 	}
 
@@ -863,7 +841,7 @@ public class Wiki
 	 */
 	public ArrayList<String> getLinksOnPage(String title, NS... ns)
 	{
-		conf.log.info(this, "Getting wiki links on " + title);
+		log.info("{}: Getting wiki links on {}", this, title);
 		return MQuery.getLinksOnPage(this, FL.toSAL(title), ns).get(title);
 	}
 
@@ -891,7 +869,7 @@ public class Wiki
 	 */
 	public ArrayList<LogEntry> getLogs(String title, String user, String type, int cap)
 	{
-		conf.log.info(this, String.format("Fetching log entries -> title: %s, user: %s, type: %s", title, user, type));
+		log.info("{}: Fetching log entries -> title: %s, user: %s, type: %s", this, title, user, type);
 
 		WQuery wq = new WQuery(this, cap, WQuery.LOGEVENTS);
 		if (title != null)
@@ -935,7 +913,7 @@ public class Wiki
 	 */
 	public String getPageText(String title)
 	{
-		conf.log.info(this, "Getting page text of " + title);
+		log.info("{}: Getting page text of {}", this, title);
 		return MQuery.getPageText(this, FL.toSAL(title)).get(title);
 	}
 
@@ -949,7 +927,7 @@ public class Wiki
 	 */
 	public ArrayList<ProtectedTitleEntry> getProtectedTitles(int limit, boolean olderFirst, NS... ns)
 	{
-		conf.log.info(this, "Fetching a list of protected titles");
+		log.info("{}: Fetching a list of protected titles", this);
 
 		WQuery wq = new WQuery(this, limit, WQuery.PROTECTEDTITLES);
 		if (ns.length > 0)
@@ -973,7 +951,7 @@ public class Wiki
 	 */
 	public ArrayList<String> getRandomPages(int limit, NS... ns)
 	{
-		conf.log.info(this, "Fetching random page(s)");
+		log.info("{}: Fetching random page(s)", this);
 
 		if (limit < 0)
 			throw new IllegalArgumentException("limit for getRandomPages() cannot be a negative number");
@@ -1000,7 +978,7 @@ public class Wiki
 	 */
 	public ArrayList<RCEntry> getRecentChanges(Instant start, Instant end)
 	{
-		conf.log.info(this, "Querying recent changes");
+		log.info("{}: Querying recent changes", this);
 
 		Instant s = start, e = end;
 		if (s == null)
@@ -1032,7 +1010,7 @@ public class Wiki
 	 */
 	public ArrayList<Revision> getRevisions(String title, int cap, boolean olderFirst, Instant start, Instant end)
 	{
-		conf.log.info(this, "Getting revisions from " + title);
+		log.info("{}: Getting revisions from {}", this, title);
 
 		WQuery wq = new WQuery(this, cap, WQuery.REVISIONS).set("titles", title);
 		if (olderFirst)
@@ -1063,7 +1041,7 @@ public class Wiki
 	 */
 	public ArrayList<String> getSharedDuplicatesOf(String title)
 	{
-		conf.log.info(this, "Getting shared duplicates of " + title);
+		log.info("{}: Getting shared duplicates of {}", this, title);
 		return MQuery.getSharedDuplicatesOf(this, FL.toSAL(title)).get(title);
 	}
 
@@ -1075,7 +1053,7 @@ public class Wiki
 	 */
 	public ArrayList<String> getTemplatesOnPage(String title)
 	{
-		conf.log.info(this, "Getting templates transcluded on " + title);
+		log.info("{}: Getting templates transcluded on {}", this, title);
 		return MQuery.getTemplatesOnPage(this, FL.toSAL(title)).get(title);
 	}
 
@@ -1087,7 +1065,7 @@ public class Wiki
 	 */
 	public String getTextExtract(String title)
 	{
-		conf.log.info(this, "Getting a text extract for " + title);
+		log.info("{}: Getting a text extract for {}", this, title);
 		return MQuery.getTextExtracts(this, FL.toSAL(title)).get(title);
 	}
 
@@ -1099,7 +1077,7 @@ public class Wiki
 	 */
 	public ArrayList<String> getUserUploads(String user)
 	{
-		conf.log.info(this, "Fetching uploads for " + user);
+		log.info("{}: Fetching uploads for {}", this, user);
 
 		ArrayList<String> l = new ArrayList<>();
 		WQuery wq = new WQuery(this, WQuery.USERUPLOADS).set("aiuser", nss(user));
@@ -1117,7 +1095,7 @@ public class Wiki
 	 */
 	public ArrayList<Tuple<String, String>> globalUsage(String title)
 	{
-		conf.log.info(this, "Getting global usage for " + title);
+		log.info("{}: Getting global usage for {}", this, title);
 		return MQuery.globalUsage(this, FL.toSAL(title)).get(title);
 	}
 
@@ -1129,7 +1107,7 @@ public class Wiki
 	 */
 	public ArrayList<String> listUserRights(String user)
 	{
-		conf.log.info(this, "Getting user rights for " + user);
+		log.info("{}: Getting user rights for {}", this, user);
 		return MQuery.listUserRights(this, FL.toSAL(user)).get(user);
 	}
 
@@ -1142,7 +1120,7 @@ public class Wiki
 	 */
 	public ArrayList<String> prefixIndex(NS namespace, String prefix)
 	{
-		conf.log.info(this, "Doing prefix index search for " + prefix);
+		log.info("{}: Doing prefix index search for {}", this, prefix);
 		return allPages(prefix, false, false, -1, namespace);
 	}
 
@@ -1156,7 +1134,7 @@ public class Wiki
 	 */
 	public ArrayList<String> querySpecialPage(String title, int cap)
 	{
-		conf.log.info(this, "Querying special page " + title);
+		log.info("{}: Querying special page {}", this, title);
 
 		WQuery wq = new WQuery(this, cap, WQuery.QUERYPAGES).set("qppage", nss(title));
 		ArrayList<String> l = new ArrayList<>();
@@ -1181,7 +1159,7 @@ public class Wiki
 	 */
 	public String resolveRedirect(String title)
 	{
-		conf.log.info(this, "Resolving redirect for " + title);
+		log.info("{}: Resolving redirect for {}", this, title);
 		return MQuery.resolveRedirects(this, FL.toSAL(title)).get(title);
 	}
 
@@ -1215,7 +1193,7 @@ public class Wiki
 	 */
 	public ArrayList<PageSection> splitPageByHeader(String title)
 	{
-		conf.log.info(this, "Splitting " + title + " by header");
+		log.info("{}: Splitting {} by header", this, title);
 
 		try
 		{
@@ -1239,7 +1217,7 @@ public class Wiki
 	 */
 	public ArrayList<String> whatLinksHere(String title, boolean redirects)
 	{
-		conf.log.info(this, "Getting links to " + title);
+		log.info("{}: Getting links to {}", this, title);
 		return MQuery.linksHere(this, redirects, FL.toSAL(title)).get(title);
 	}
 
@@ -1264,7 +1242,7 @@ public class Wiki
 	 */
 	public ArrayList<String> whatTranscludesHere(String title, NS... ns)
 	{
-		conf.log.info(this, "Getting list of pages that transclude " + title);
+		log.info("{}: Getting list of pages that transclude {}", this, title);
 		return MQuery.transcludesIn(this, FL.toSAL(title), ns).get(title);
 	}
 }

@@ -7,6 +7,9 @@ import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
@@ -25,6 +28,11 @@ import okio.Okio;
  */
 class WAction
 {
+	/**
+	 * The Logger for this class
+	 */
+	private static Logger log = LoggerFactory.getLogger(WAction.class);
+
 	/**
 	 * All static methods, constructors disallowed.
 	 */
@@ -53,8 +61,7 @@ class WAction
 		try
 		{
 			JsonObject result = JsonParser.parseString(wiki.apiclient.basicPOST(FL.pMap("action", action), fl).body().string()).getAsJsonObject();
-			if (wiki.debug)
-				wiki.conf.log.debug(wiki, GSONP.gsonPP.toJson(result));
+			log.debug("{}: {}", wiki, GSONP.gsonPP.toJson(result));
 
 			return ActionResult.wrap(result, action);
 		}
@@ -76,7 +83,7 @@ class WAction
 	 */
 	protected static boolean addText(Wiki wiki, String title, String text, String summary, boolean append)
 	{
-		wiki.conf.log.info(wiki, "Adding text to " + title);
+		log.info("{}: Adding text to {}", wiki, title);
 
 		HashMap<String, String> pl = FL.pMap("title", title, append ? "appendtext" : "prependtext", text, "summary", summary);
 		if (wiki.conf.isBot)
@@ -96,7 +103,7 @@ class WAction
 	 */
 	protected static boolean edit(Wiki wiki, String title, String text, String summary)
 	{
-		wiki.conf.log.info(wiki, "Editing " + title);
+		log.info("{}: Editing {}", wiki, title);
 
 		HashMap<String, String> pl = FL.pMap("title", title, "text", text, "summary", summary);
 		if (wiki.conf.isBot)
@@ -110,7 +117,7 @@ class WAction
 				case RATELIMITED:
 					try
 					{
-						wiki.conf.log.fyi(wiki, "Ratelimited by server, sleeping 10 seconds");
+						log.info("{}: Ratelimited by server, sleeping 10 seconds", wiki);
 						Thread.sleep(10000);
 					}
 					catch (Throwable e)
@@ -120,14 +127,14 @@ class WAction
 					}
 					break;
 				case PROTECTED:
-					wiki.conf.log.error(wiki, title + " is protected, cannot edit.");
+					log.error("{}: {} is protected, cannot edit.", wiki, title);
 					return false;
 
 				default:
-					wiki.conf.log.warn(wiki, "Got an error, retrying: " + i);
+					log.warn("{}: Got an error, retrying: {}", wiki, i);
 			}
 
-		wiki.conf.log.error(wiki, String.format("Could not edit '%s', aborting.", title));
+		log.error("{}: Could not edit '{}', aborting.", wiki, title);
 		return false;
 	}
 
@@ -146,7 +153,7 @@ class WAction
 	 */
 	protected static boolean move(Wiki wiki, String title, String newTitle, boolean moveTalk, boolean moveSubpages, boolean supressRedirect, String reason)
 	{
-		wiki.conf.log.info(wiki, String.format("Moving %s to %s", title, newTitle));
+		log.info("{}: Moving {} to {}", wiki, title, newTitle);
 
 		HashMap<String, String> pl = FL.pMap("from", title, "to", newTitle, "reason", reason);
 
@@ -170,7 +177,7 @@ class WAction
 	 */
 	protected static boolean delete(Wiki wiki, String title, String reason)
 	{
-		wiki.conf.log.info(wiki, "Deleting " + title);
+		log.info("{}: Deleting {}", wiki, title);
 		return postAction(wiki, "delete", true, FL.pMap("title", title, "reason", reason)) == ActionResult.NONE;
 	}
 
@@ -184,7 +191,7 @@ class WAction
 	 */
 	protected static boolean undelete(Wiki wiki, String title, String reason)
 	{
-		wiki.conf.log.info(wiki, "Restoring " + title);
+		log.info("{}: Restoring {}", wiki, title);
 
 		for (int i = 0; i < 10; i++)
 			if (postAction(wiki, "undelete", true, FL.pMap("title", title, "reason", reason)) == ActionResult.NONE)
@@ -201,7 +208,7 @@ class WAction
 	 */
 	protected static void purge(Wiki wiki, ArrayList<String> titles)
 	{
-		wiki.conf.log.info(wiki, "Purging:" + titles);
+		log.info("{}: Purging: {}", wiki, titles);
 
 		HashMap<String, String> pl = FL.pMap("titles", FL.pipeFence(titles));
 		postAction(wiki, "purge", false, pl);
@@ -219,7 +226,7 @@ class WAction
 	 */
 	protected static boolean upload(Wiki wiki, String title, String desc, String summary, Path file)
 	{
-		wiki.conf.log.info(wiki, "Uploading " + file);
+		log.info("{}: Uploading {}", wiki, file);
 
 		try
 		{
@@ -231,7 +238,7 @@ class WAction
 			Chunk c;
 			while ((c = cm.nextChunk()) != null)
 			{
-				wiki.conf.log.fyi(wiki, String.format("Uploading chunk [%d of %d] of '%s'", cm.chunkCnt, cm.totalChunks, file));
+				log.info("{}: Uploading chunk [{} of {}] of '{}'", wiki, cm.chunkCnt, cm.totalChunks, file);
 
 				HashMap<String, String> pl = FL.pMap("format", "json", "filename", title, "token", wiki.conf.token, "ignorewarnings", "1", "stash", "1", "offset", "" + c.offset, "filesize",
 						"" + c.filesize);
@@ -244,7 +251,7 @@ class WAction
 						Response r = wiki.apiclient.multiPartFilePOST(FL.pMap("action", "upload"), pl, fn, c.bl);
 						if (!r.isSuccessful())
 						{
-							wiki.conf.log.error(wiki, "Bad response from server: " + r.code());
+							log.error("{}: Bad response from server: {}", wiki, r.code());
 							continue;
 						}
 
@@ -254,19 +261,18 @@ class WAction
 					}
 					catch (Throwable e)
 					{
-						wiki.conf.log.error(wiki, "Encountered an error, retrying - " + i);
+						log.error("{}: Encountered an error, retrying - {}", wiki, i);
 						e.printStackTrace();
 					}
 			}
 
 			for (int i = 0; i < 3; i++)
 			{
-				wiki.conf.log.info(wiki, String.format("Unstashing '%s' as '%s'", filekey, title));
-
+				log.info("{}: Unstashing '{}' as '{}'", wiki, filekey, title);
 				if (postAction(wiki, "upload", true, FL.pMap("filename", title, "text", desc, "comment", summary, "filekey", filekey, "ignorewarnings", "true")) == ActionResult.SUCCESS)
 					return true;
 
-				wiki.conf.log.error(wiki, "Encountered an error while unstashing, retrying - " + i);
+				log.error("{}: Encountered an error while unstashing, retrying - {}", wiki, i);
 			}
 
 			return false;
@@ -290,8 +296,7 @@ class WAction
 	 */
 	protected static boolean uploadByUrl(Wiki wiki, HttpUrl url, String title, String desc, String summary)
 	{
-		wiki.conf.log.info(wiki, String.format("Uploading '%s' to '%s'", url, title));
-
+		log.info("{}: Uploading '{}' to '{}'", wiki, url, title);
 		return postAction(wiki, "upload", true, FL.pMap("filename", title, "text", desc, "comment", summary, "ignorewarnings", "true", "url", url.toString())) == ActionResult.SUCCESS;
 	}
 

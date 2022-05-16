@@ -5,6 +5,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -22,10 +25,14 @@ import io.github.fastily.jwiki.util.GSONP;
 class WQuery
 {
 	/**
+	 * The Logger for this class
+	 */
+	private static Logger log = LoggerFactory.getLogger(WQuery.class);
+
+	/**
 	 * Default parameters for getting category size info
 	 */
-	public static final QTemplate ALLOWEDFILEXTS = new QTemplate(FL.pMap("meta", "siteinfo", "siprop", "fileextensions"),
-			"fileextensions");
+	public static final QTemplate ALLOWEDFILEXTS = new QTemplate(FL.pMap("meta", "siteinfo", "siprop", "fileextensions"), "fileextensions");
 
 	/**
 	 * Default parameters for getting category size info
@@ -40,20 +47,17 @@ class WQuery
 	/**
 	 * Default parameters for listing category members
 	 */
-	public static final QTemplate CATEGORYMEMBERS = new QTemplate(FL.pMap("list", "categorymembers", "cmtitle", null), "cmlimit",
-			"categorymembers");
+	public static final QTemplate CATEGORYMEMBERS = new QTemplate(FL.pMap("list", "categorymembers", "cmtitle", null), "cmlimit", "categorymembers");
 
 	/**
 	 * Default parameters for getting Namespace information on a Wiki.
 	 */
-	public static final QTemplate NAMESPACES = new QTemplate(FL.pMap("meta", "siteinfo", "siprop", "namespaces|namespacealiases"),
-			null);
+	public static final QTemplate NAMESPACES = new QTemplate(FL.pMap("meta", "siteinfo", "siprop", "namespaces|namespacealiases"), null);
 
 	/**
 	 * Default parameters for getting duplicate files
 	 */
-	public static final QTemplate DUPLICATEFILES = new QTemplate(FL.pMap("prop", "duplicatefiles", "titles", null), "dflimit",
-			"duplicatefiles");
+	public static final QTemplate DUPLICATEFILES = new QTemplate(FL.pMap("prop", "duplicatefiles", "titles", null), "dflimit", "duplicatefiles");
 
 	/**
 	 * Default parameters for determining if a page exists.
@@ -63,8 +67,7 @@ class WQuery
 	/**
 	 * Default parameters for fetching external links on a page
 	 */
-	public static final QTemplate EXTLINKS = new QTemplate(FL.pMap("prop", "extlinks", "elexpandurl", "1", "titles", null), "ellimit",
-			"extlinks");
+	public static final QTemplate EXTLINKS = new QTemplate(FL.pMap("prop", "extlinks", "elexpandurl", "1", "titles", null), "ellimit", "extlinks");
 
 	/**
 	 * Default parameters for getting file usage
@@ -84,15 +87,12 @@ class WQuery
 	/**
 	 * Default parameters for getting image info of a file.
 	 */
-	public static final QTemplate IMAGEINFO = new QTemplate(
-			FL.pMap("prop", "imageinfo", "iiprop", "canonicaltitle|url|size|sha1|mime|user|timestamp|comment", "titles", null), "iilimit",
-			"imageinfo");
+	public static final QTemplate IMAGEINFO = new QTemplate(FL.pMap("prop", "imageinfo", "iiprop", "canonicaltitle|url|size|sha1|mime|user|timestamp|comment", "titles", null), "iilimit", "imageinfo");
 
 	/**
 	 * Default parameters for getting links to a page
 	 */
-	public static final QTemplate LINKSHERE = new QTemplate(
-			FL.pMap("prop", "linkshere", "lhprop", "title", "lhshow", null, "titles", null), "lhlimit", "linkshere");
+	public static final QTemplate LINKSHERE = new QTemplate(FL.pMap("prop", "linkshere", "lhprop", "title", "lhshow", null, "titles", null), "lhlimit", "linkshere");
 
 	/**
 	 * Default parameters for getting links on a page
@@ -107,8 +107,7 @@ class WQuery
 	/**
 	 * Default parameters for getting page categories.
 	 */
-	public static final QTemplate PAGECATEGORIES = new QTemplate(FL.pMap("prop", "categories", "titles", null), "cllimit",
-			"categories");
+	public static final QTemplate PAGECATEGORIES = new QTemplate(FL.pMap("prop", "categories", "titles", null), "cllimit", "categories");
 
 	/**
 	 * Default parameters for getting page text.
@@ -118,8 +117,7 @@ class WQuery
 	/**
 	 * Default parameters for listing protected titles.
 	 */
-	public static final QTemplate PROTECTEDTITLES = new QTemplate(
-			FL.pMap("list", "protectedtitles", "ptprop", "timestamp|level|user|comment"), "ptlimit", "protectedtitles");
+	public static final QTemplate PROTECTEDTITLES = new QTemplate(FL.pMap("list", "protectedtitles", "ptprop", "timestamp|level|user|comment"), "ptlimit", "protectedtitles");
 
 	/**
 	 * Default parameters for listing the results of querying Special pages.
@@ -129,15 +127,12 @@ class WQuery
 	/**
 	 * Default parameters for listing random pages
 	 */
-	public static final QTemplate RANDOM = new QTemplate(FL.pMap("list", "random", "rnfilterredir", "nonredirects"), "rnlimit",
-			"random");
+	public static final QTemplate RANDOM = new QTemplate(FL.pMap("list", "random", "rnfilterredir", "nonredirects"), "rnlimit", "random");
 
 	/**
 	 * Default parameters for listing recent changes.
 	 */
-	public static final QTemplate RECENTCHANGES = new QTemplate(
-			FL.pMap("list", "recentchanges", "rcprop", "title|timestamp|user|comment", "rctype", "edit|new|log"), "rclimit",
-			"recentchanges");
+	public static final QTemplate RECENTCHANGES = new QTemplate(FL.pMap("list", "recentchanges", "rcprop", "title|timestamp|user|comment", "rctype", "edit|new|log"), "rclimit", "recentchanges");
 
 	/**
 	 * Default parameters for resolving redirects
@@ -147,26 +142,22 @@ class WQuery
 	/**
 	 * Default parameters for listing page revisions
 	 */
-	public static final QTemplate REVISIONS = new QTemplate(
-			FL.pMap("prop", "revisions", "rvprop", "comment|content|ids|timestamp|user", "titles", null), "rvlimit", "revisions");
+	public static final QTemplate REVISIONS = new QTemplate(FL.pMap("prop", "revisions", "rvprop", "comment|content|ids|timestamp|user", "titles", null), "rvlimit", "revisions");
 
 	/**
 	 * Default parameters for listing searches
 	 */
-	public static final QTemplate SEARCH = new QTemplate(FL.pMap("list", "search", "srprop", "", "srnamespace", "*", "srsearch", null),
-			"srlimit", "search");
+	public static final QTemplate SEARCH = new QTemplate(FL.pMap("list", "search", "srprop", "", "srnamespace", "*", "srsearch", null), "srlimit", "search");
 
 	/**
 	 * Default parameters for getting templates on a page
 	 */
-	public static final QTemplate TEMPLATES = new QTemplate(FL.pMap("prop", "templates", "tiprop", "title", "titles", null), "tllimit",
-			"templates");
+	public static final QTemplate TEMPLATES = new QTemplate(FL.pMap("prop", "templates", "tiprop", "title", "titles", null), "tllimit", "templates");
 
 	/**
 	 * Default parameters for getting text extracts from a page
 	 */
-	public static final QTemplate TEXTEXTRACTS = new QTemplate(
-			FL.pMap("prop", "extracts", "exintro", "1", "explaintext", "1", "titles", null), "exlimit", "extract");
+	public static final QTemplate TEXTEXTRACTS = new QTemplate(FL.pMap("prop", "extracts", "exintro", "1", "explaintext", "1", "titles", null), "exlimit", "extract");
 
 	/**
 	 * Default parameters for getting a csrf token.
@@ -181,14 +172,12 @@ class WQuery
 	/**
 	 * Default parameters for getting a page's transclusions.
 	 */
-	public static final QTemplate TRANSCLUDEDIN = new QTemplate(FL.pMap("prop", "transcludedin", "tiprop", "title", "titles", null),
-			"tilimit", "transcludedin");
+	public static final QTemplate TRANSCLUDEDIN = new QTemplate(FL.pMap("prop", "transcludedin", "tiprop", "title", "titles", null), "tilimit", "transcludedin");
 
 	/**
 	 * Default parameters for listing user contributions.
 	 */
-	public static final QTemplate USERCONTRIBS = new QTemplate(FL.pMap("list", "usercontribs", "ucuser", null), "uclimit",
-			"usercontribs");
+	public static final QTemplate USERCONTRIBS = new QTemplate(FL.pMap("list", "usercontribs", "ucuser", null), "uclimit", "usercontribs");
 
 	/**
 	 * Default parameters for getting a user's username and id.
@@ -203,8 +192,7 @@ class WQuery
 	/**
 	 * Default parameters for listing user uploads
 	 */
-	public static final QTemplate USERUPLOADS = new QTemplate(FL.pMap("list", "allimages", "aisort", "timestamp", "aiuser", null),
-			"ailimit", "allimages");
+	public static final QTemplate USERUPLOADS = new QTemplate(FL.pMap("list", "allimages", "aisort", "timestamp", "aiuser", null), "ailimit", "allimages");
 
 	/**
 	 * Type describing a HashMap with a String key and String value.
@@ -260,8 +248,7 @@ class WQuery
 	 * Constructor, creates a limited WQuery.
 	 * 
 	 * @param wiki The Wiki object to perform queries with.
-	 * @param totalLimit The maximum number of items to return until WQuery is exhausted. Actual number of items returned
-	 *           may be less. Optional, disable with -1.
+	 * @param totalLimit The maximum number of items to return until WQuery is exhausted. Actual number of items returned may be less. Optional, disable with -1.
 	 * @param qut The QueryUnitTemplate objects to instantiate this WQuery with.
 	 */
 	public WQuery(Wiki wiki, int totalLimit, QTemplate... qut)
@@ -307,8 +294,7 @@ class WQuery
 			else
 				canCont = false;
 
-			if (wiki.debug)
-				wiki.conf.log.debug(wiki, GSONP.gsonPP.toJson(result));
+			log.debug("{}: {}", wiki, GSONP.gsonPP.toJson(result));
 
 			return new QReply(result);
 		}
@@ -345,8 +331,7 @@ class WQuery
 	}
 
 	/**
-	 * Configure this WQuery to fetch a maximum of {@code limit} items per query. Does nothing if this query does not use
-	 * limit Strings.
+	 * Configure this WQuery to fetch a maximum of {@code limit} items per query. Does nothing if this query does not use limit Strings.
 	 * 
 	 * @param limit The new limit. Set as -1 to get the maximum number of items per query.
 	 * 
@@ -438,8 +423,7 @@ class WQuery
 		protected static final ArrayList<String> defaultPropPTJ = FL.toSAL("query", "pages");
 
 		/**
-		 * Tracks {@code normalized} titles. The key is the {@code from} (non-normalized) title and the value is the
-		 * {@code to} (normalized) title.
+		 * Tracks {@code normalized} titles. The key is the {@code from} (non-normalized) title and the value is the {@code to} (normalized) title.
 		 */
 		private HashMap<String, String> normalized = null;
 
@@ -473,8 +457,7 @@ class WQuery
 		}
 
 		/**
-		 * Performs simple {@code prop} query Response comprehension. Collects two values from each returned {@code prop}
-		 * query item in a HashMap. Title normalization is automatically applied.
+		 * Performs simple {@code prop} query Response comprehension. Collects two values from each returned {@code prop} query item in a HashMap. Title normalization is automatically applied.
 		 * 
 		 * @param kk Points to the String to set as the HashMap key in each {@code prop} query item.
 		 * @param vk Points to the JsonElement to set as the HashMap value in each {@code prop} query item.
@@ -506,9 +489,8 @@ class WQuery
 		}
 
 		/**
-		 * Performs title normalization when it is automatically done by MediaWiki. MediaWiki will return a
-		 * {@code normalized} JsonArray when it fixes lightly malformed titles. This is intended for use with {@code prop}
-		 * style queries.
+		 * Performs title normalization when it is automatically done by MediaWiki. MediaWiki will return a {@code normalized} JsonArray when it fixes lightly malformed titles. This is intended for use
+		 * with {@code prop} style queries.
 		 * 
 		 * @param <V> Any Object.
 		 * @param m The Map of elements to normalize.

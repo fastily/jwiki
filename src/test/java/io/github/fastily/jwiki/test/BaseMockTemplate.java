@@ -5,6 +5,8 @@ import java.nio.file.Paths;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.github.fastily.jwiki.core.Wiki;
 import okhttp3.mockwebserver.MockResponse;
@@ -18,6 +20,11 @@ import okhttp3.mockwebserver.MockWebServer;
  */
 public class BaseMockTemplate
 {
+	/**
+	 * The Logger for this class
+	 */
+	private static Logger log = LoggerFactory.getLogger(BaseMockTemplate.class);
+
 	/**
 	 * The mock MediaWiki server
 	 */
@@ -39,7 +46,7 @@ public class BaseMockTemplate
 		server = new MockWebServer();
 		server.start();
 
-		System.err.printf("[FYI]: MockServer is @ [%s]%n", server.url("/w/api.php"));
+		log.debug("MockServer is @ {}", server.url("/w/api.php"));
 
 		initWiki();
 	}
@@ -67,8 +74,7 @@ public class BaseMockTemplate
 	{
 		try
 		{
-			server.enqueue(new MockResponse()
-					.setBody(String.join("\n", Files.readAllLines(Paths.get(getClass().getResource(fn + ".json").toURI())))));
+			server.enqueue(new MockResponse().setBody(String.join("\n", Files.readAllLines(Paths.get(getClass().getResource(fn + ".json").toURI())))));
 		}
 		catch (Throwable e)
 		{
@@ -78,8 +84,7 @@ public class BaseMockTemplate
 	}
 
 	/**
-	 * Initializes the mock Wiki object. Runs with {@code setUp()}; override this to customize {@code wiki}'s
-	 * initialization behavior.
+	 * Initializes the mock Wiki object. Runs with {@code setUp()}; override this to customize {@code wiki}'s initialization behavior.
 	 */
 	protected void initWiki()
 	{

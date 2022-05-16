@@ -13,8 +13,7 @@ class Conf
 	/**
 	 * The {@code User-Agent} header to use for HTTP requests.
 	 */
-	protected String userAgent = String.format("jwiki on %s %s with JVM %s", System.getProperty("os.name"),
-			System.getProperty("os.version"), System.getProperty("java.version"));
+	protected String userAgent = String.format("jwiki on %s %s with JVM %s", System.getProperty("os.name"), System.getProperty("os.version"), System.getProperty("java.version"));
 
 	/**
 	 * The url pointing to the base MediaWiki API endpoint.
@@ -32,8 +31,7 @@ class Conf
 	protected String hostname;
 
 	/**
-	 * The low maximum limit for maximum number of list items returned for queries that return lists. Use this if a max
-	 * value is needed but where the client does not know the max.
+	 * The low maximum limit for maximum number of list items returned for queries that return lists. Use this if a max value is needed but where the client does not know the max.
 	 */
 	protected int maxResultLimit = 500;
 
@@ -41,11 +39,6 @@ class Conf
 	 * User name (without namespace prefix), only set if user is logged in.
 	 */
 	protected String uname = null;
-
-	/**
-	 * The logger associated with this Conf.
-	 */
-	protected ColorLog log = new ColorLog(true);
 
 	/**
 	 * CSRF token. Used for actions that change Wiki content.
