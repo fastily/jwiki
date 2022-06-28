@@ -1,17 +1,14 @@
 package io.github.fastily.jwiki.core;
 
 import java.io.IOException;
+import java.net.CookieManager;
 import java.net.Proxy;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import io.github.fastily.jwiki.util.FL;
-import okhttp3.Cookie;
-import okhttp3.CookieJar;
 import okhttp3.FormBody;
 import okhttp3.HttpUrl;
+import okhttp3.JavaNetCookieJar;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
@@ -20,8 +17,7 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 
 /**
- * Functions which perform {@code GET} and {@code POST} requests to the MediaWiki api and returns Response objects in a
- * suitable format.
+ * Functions which perform {@code GET} and {@code POST} requests to the MediaWiki api and returns Response objects in a suitable format.
  * 
  * @author Fastily
  *
@@ -53,33 +49,11 @@ class ApiClient
 	{
 		this.wiki = wiki;
 
-		OkHttpClient.Builder builder = new OkHttpClient.Builder().cookieJar(new JwikiCookieJar()).readTimeout(2, TimeUnit.MINUTES);
+		OkHttpClient.Builder builder = new OkHttpClient.Builder().cookieJar(new JavaNetCookieJar(new CookieManager())).readTimeout(2, TimeUnit.MINUTES);
 		if (proxy != null)
 			builder.proxy(proxy);
 
 		client = builder.build();
-	}
-
-	/**
-	 * Constructor, derives an ApiClient from a source Wiki. Useful for {@code centralauth} login/credential sharing.
-	 * 
-	 * @param from The source Wiki to create the new Wiki with
-	 * @param to The new Wiki to apply {@code from}'s ApiClient settings on.
-	 */
-	protected ApiClient(Wiki from, Wiki to)
-	{
-		wiki = to;
-		client = from.apiclient.client;
-
-		JwikiCookieJar cl = (JwikiCookieJar) client.cookieJar();
-
-		HashMap<String, String> l = new HashMap<>();
-		cl.cj.get(from.conf.hostname).forEach((k, v) -> {
-			if (k.contains("centralauth"))
-				l.put(k, v);
-		});
-
-		cl.cj.put(wiki.conf.hostname, l);
 	}
 
 	/**
@@ -134,8 +108,7 @@ class ApiClient
 	 * @return A Response with the results of this {@code POST}.
 	 * @throws IOException Network error
 	 */
-	protected Response multiPartFilePOST(HashMap<String, String> params, HashMap<String, String> form, String fn, byte[] chunk)
-			throws IOException
+	protected Response multiPartFilePOST(HashMap<String, String> params, HashMap<String, String> form, String fn, byte[] chunk) throws IOException
 	{
 		MultipartBody.Builder mpb = new MultipartBody.Builder().setType(MultipartBody.FORM);
 		form.forEach(mpb::addFormDataPart);
@@ -144,54 +117,5 @@ class ApiClient
 
 		Request r = startReq(params).post(mpb.build()).build();
 		return client.newCall(r).execute();
-	}
-
-	/**
-	 * Basic CookieJar policy for use with jwiki.
-	 * 
-	 * @author Fastily
-	 *
-	 */
-	private static class JwikiCookieJar implements CookieJar
-	{
-		/**
-		 * Internal HashMap tracking cookies. Legend - [ domain : [ key : value ] ].
-		 */
-		private HashMap<String, HashMap<String, String>> cj = new HashMap<>();
-
-		/**
-		 * Constructor, create a new JwikiCookieJar
-		 */
-		private JwikiCookieJar()
-		{
-
-		}
-
-		/**
-		 * Called when receiving a Response from the Api.
-		 */
-		@Override
-		public void saveFromResponse(HttpUrl url, List<Cookie> cookies)
-		{
-			String host = url.host();
-			if (!cj.containsKey(host))
-				cj.put(host, new HashMap<>());
-
-			HashMap<String, String> m = cj.get(host);
-			for (Cookie c : cookies)
-				m.put(c.name(), c.value());
-		}
-
-		/**
-		 * Called when creating a new Request to the Api.
-		 */
-		@Override
-		public List<Cookie> loadForRequest(HttpUrl url)
-		{
-			String host = url.host();
-			return !cj.containsKey(host) ? new ArrayList<>()
-					: FL.toAL(cj.get(host).entrySet().stream()
-							.map(e -> new Cookie.Builder().name(e.getKey()).value(e.getValue()).domain(host).build()));
-		}
 	}
 }

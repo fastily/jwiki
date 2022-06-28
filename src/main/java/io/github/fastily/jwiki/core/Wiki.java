@@ -188,23 +188,6 @@ public class Wiki
 
 	}
 
-	/**
-	 * Constructor, creates a new Wiki for use with CentralAuth. See {@link #getWiki(String)}
-	 * 
-	 * @param apiEndpoint The API endpoint to target.
-	 * @param parent The parent Wiki which spawns this new Wiki.
-	 */
-	private Wiki(HttpUrl apiEndpoint, Wiki parent)
-	{
-		conf.retarget(apiEndpoint);
-
-		wl = parent.wl;
-		apiclient = new ApiClient(parent, this);
-
-		refreshLoginStatus();
-		refreshNS();
-	}
-
 	/* //////////////////////////////////////////////////////////////////////////////// */
 	/* ///////////////////////////// AUTH FUNCTIONS /////////////////////////////////// */
 	/* //////////////////////////////////////////////////////////////////////////////// */
@@ -370,30 +353,6 @@ public class Wiki
 			return NS.MAIN;
 
 		return nsl.nsM.containsKey(prefix) ? new NS((int) nsl.nsM.get(prefix)) : null;
-	}
-
-	/**
-	 * Gets a Wiki object for this domain. This method is cached. A new Wiki will be created as necessary. PRECONDITION: The
-	 * <a href="https://www.mediawiki.org/wiki/Extension:CentralAuth">CentralAuth</a> extension is installed on the target MediaWiki farm.
-	 * 
-	 * @param domain The domain to use
-	 * @return The Wiki, or null on error.
-	 */
-	public synchronized Wiki getWiki(String domain)
-	{
-		if (conf.uname == null)
-			return null;
-
-		log.info("{}: Get Wiki for {} @ {}", this, whoami(), domain);
-		try
-		{
-			return wl.containsKey(domain) ? wl.get(domain) : new Wiki(conf.baseURL.newBuilder().host(domain).build(), this);
-		}
-		catch (Throwable e)
-		{
-			e.printStackTrace();
-			return null;
-		}
 	}
 
 	/**
