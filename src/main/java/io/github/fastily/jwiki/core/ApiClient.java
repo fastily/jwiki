@@ -44,12 +44,13 @@ class ApiClient
 	 * 
 	 * @param wiki The Wiki object this ApiClient is associated with.
 	 * @param proxy The proxy to use. Optional param - set null to disable.
+	 * @param cookieManager The CookieManager to use. Optional param - set null to use a default CookieManager.
 	 */
-	protected ApiClient(Wiki wiki, Proxy proxy)
+	protected ApiClient(Wiki wiki, Proxy proxy, CookieManager cookieManager)
 	{
 		this.wiki = wiki;
 
-		OkHttpClient.Builder builder = new OkHttpClient.Builder().cookieJar(new JavaNetCookieJar(new CookieManager())).readTimeout(2, TimeUnit.MINUTES);
+		OkHttpClient.Builder builder = new OkHttpClient.Builder().cookieJar(new JavaNetCookieJar(cookieManager == null ? new CookieManager() : cookieManager)).readTimeout(2, TimeUnit.MINUTES);
 		if (proxy != null)
 			builder.proxy(proxy);
 

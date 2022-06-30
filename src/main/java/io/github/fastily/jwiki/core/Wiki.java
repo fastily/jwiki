@@ -1,5 +1,6 @@
 package io.github.fastily.jwiki.core;
 
+import java.net.CookieManager;
 import java.net.Proxy;
 import java.nio.file.Path;
 import java.time.Instant;
@@ -71,11 +72,28 @@ public class Wiki
 		private String password;
 
 		/**
+		 * The CookieManager to use.
+		 */
+		private CookieManager cookieManager;
+
+		/**
 		 * Creates a new Wiki Builder.
 		 */
 		public Builder()
 		{
 
+		}
+
+		/**
+		 * Configures the Wiki to use the specified CookieManager. Useful for defining a custom cookie policy.
+		 * 
+		 * @param cookieManager The CookieManager to use.
+		 * @return This Builder
+		 */
+		public Builder withCookieManager(CookieManager cookieManager)
+		{
+			this.cookieManager = cookieManager;
+			return this;
 		}
 
 		/**
@@ -149,7 +167,7 @@ public class Wiki
 		 */
 		public Wiki build()
 		{
-			wiki.apiclient = new ApiClient(wiki, proxy);
+			wiki.apiclient = new ApiClient(wiki, proxy, cookieManager);
 
 			if (username != null && password != null && !wiki.login(username, password))
 				throw new SecurityException(String.format("Failed to log-in as %s @ %s", username, wiki.conf.hostname));
