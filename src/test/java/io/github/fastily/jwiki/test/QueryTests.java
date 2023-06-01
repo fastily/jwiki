@@ -6,6 +6,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import io.github.fastily.jwiki.core.NS;
@@ -427,6 +428,7 @@ public class QueryTests
 	 * Tests external link fetching.
 	 */
 	@Test
+	@Disabled("Regression on testwiki - 1.41.0-wmf.10") // TODO - revisit
 	public void testGetExternalLinks()
 	{
 		ArrayList<String> l = wiki.getExternalLinks("User:Fastily/Sandbox/ExternalLink");
