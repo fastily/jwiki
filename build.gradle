@@ -8,24 +8,24 @@ plugins {
 
 description="${project.name} build script"
 group="io.github.fastily"
-version="1.10.0"
+version="1.11.0"
 
 repositories {
     mavenCentral()
 }
 
 dependencies {
-    api "com.google.code.gson:gson:2.10.+"
-    api "com.squareup.okhttp3:okhttp:4.11.+"
-    api "com.squareup.okhttp3:okhttp-urlconnection:4.11.+"
-    api 'org.slf4j:slf4j-api:2.0.+'
+    api "com.google.code.gson:gson:2.10.1"
+    api "com.squareup.okhttp3:okhttp:4.11.0"
+    api "com.squareup.okhttp3:okhttp-urlconnection:4.11.0"
+    api 'org.slf4j:slf4j-api:2.0.7'
 
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.+'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.+'
     
-    testImplementation "com.squareup.okhttp3:mockwebserver:4.11.+"
-    testImplementation 'org.slf4j:slf4j-reload4j:2.0.+'
-    testImplementation 'org.apache.logging.log4j:log4j-api:2.20.+'
+    testImplementation "com.squareup.okhttp3:mockwebserver:4.11.0"
+    testImplementation 'org.slf4j:slf4j-reload4j:2.0.7'
+    testImplementation 'org.apache.logging.log4j:log4j-api:2.20.0'
 }
 
 

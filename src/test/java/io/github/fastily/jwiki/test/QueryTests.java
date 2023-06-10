@@ -428,7 +428,7 @@ public class QueryTests
 	 * Tests external link fetching.
 	 */
 	@Test
-	@Disabled("Regression on testwiki - 1.41.0-wmf.10") // TODO - revisit
+	@Disabled("Regression on testwiki - https://phabricator.wikimedia.org/T337994") // TODO - revisit
 	public void testGetExternalLinks()
 	{
 		ArrayList<String> l = wiki.getExternalLinks("User:Fastily/Sandbox/ExternalLink");

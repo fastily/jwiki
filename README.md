@@ -19,13 +19,13 @@ Not convinced?  Try out the [examples](https://github.com/fastily/jwiki/wiki/Exa
 <dependency>
   <groupId>io.github.fastily</groupId>
   <artifactId>jwiki</artifactId>
-  <version>1.10.0</version>
+  <version>1.11.0</version>
 </dependency>
 ```
 
 #### Gradle
 ```groovy
-implementation 'io.github.fastily:jwiki:1.10.0'
+implementation 'io.github.fastily:jwiki:1.11.0'
 ```
 
 ⚠️ COORDINATES HAVE CHANGED (since 1.10.0): jwiki's new group id is `io.github.fastily`
