@@ -6,7 +6,6 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import io.github.fastily.jwiki.core.NS;
@@ -428,14 +427,13 @@ public class QueryTests
 	 * Tests external link fetching.
 	 */
 	@Test
-	@Disabled("Regression on testwiki - https://phabricator.wikimedia.org/T337994") // TODO - revisit
 	public void testGetExternalLinks()
 	{
 		ArrayList<String> l = wiki.getExternalLinks("User:Fastily/Sandbox/ExternalLink");
 		
-		assertTrue(l.contains("https://www.google.com"));
-		assertTrue(l.contains("https://www.facebook.com"));
-		assertTrue(l.contains("https://github.com"));
+		assertTrue(l.contains("https://www.google.com/"));
+		assertTrue(l.contains("https://www.facebook.com/"));
+		assertTrue(l.contains("https://github.com/"));
 		
 		assertEquals(3, l.size());
 	}
